@@ -1,4 +1,4 @@
-# The Consolidatus Empire - E-Commerce Platform
+# Khomplete Khemistri Apparel & Accessories - E-Commerce Platform
 
 ## Overview
 
