@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
 import { storage } from "./storage";
+import { setupAuth } from "./auth";
 import { z } from "zod";
 
 // All products to seed in Stripe (for both test and live modes)
@@ -646,7 +647,10 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  
+
+  // Shared hub authentication (session + passport local strategy)
+  setupAuth(app);
+
   // Seed products in the background (non-blocking)
   seedProducts().catch(err => console.error('Product seeding failed:', err));
   

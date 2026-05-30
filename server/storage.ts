@@ -1,4 +1,4 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -15,6 +15,11 @@ export interface IStorage {
   addSubscriber(subscriber: InsertSubscriber): Promise<Subscriber | null>;
   getSubscriberByEmail(email: string): Promise<Subscriber | undefined>;
   getAllSubscribers(): Promise<Subscriber[]>;
+
+  // User / auth operations
+  createUser(user: InsertUser): Promise<User>;
+  getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -73,6 +78,27 @@ export class DatabaseStorage implements IStorage {
 
   async getAllSubscribers(): Promise<Subscriber[]> {
     return await db.select().from(subscribers);
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({ ...insertUser, email: insertUser.email.toLowerCase().trim() })
+      .returning();
+    return user;
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email.toLowerCase().trim()));
+    return user || undefined;
   }
 }
 

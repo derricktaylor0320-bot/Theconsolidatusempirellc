@@ -77,6 +77,30 @@ export async function ensureTablesExist() {
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        display_name TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Session store table used by connect-pg-simple for shared hub sessions.
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "session" (
+        "sid" VARCHAR NOT NULL COLLATE "default",
+        "sess" JSON NOT NULL,
+        "expire" TIMESTAMP(6) NOT NULL,
+        CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")
+    `);
+
     console.log("Database tables verified/created");
   } catch (error) {
     console.error("Error ensuring tables exist:", error);

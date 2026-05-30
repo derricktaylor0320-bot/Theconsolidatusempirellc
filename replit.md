@@ -100,14 +100,22 @@ The application uses two database schemas:
 ### Authentication & Authorization
 
 **Current Implementation:**
-- No user authentication system implemented
-- Public e-commerce storefront model
-- Stripe handles payment security and PCI compliance
+- Shared hub sign-in (single sign-in across the whole hub site)
+- Self-contained, host-agnostic session auth (no Replit Auth coupling) so it runs on Replit, Railway, or anywhere
+- Email/password accounts with scrypt-hashed passwords (Node crypto), passport-local strategy
+- Auth endpoints under `/api/auth` (register, login, logout, user); `server/auth.ts` holds setup + a `requireAuth` middleware
+- Public e-commerce storefront still works without login; Stripe handles payment security and PCI compliance
 
 **Session Management:**
-- Express-session configured (though not actively used for auth)
-- PostgreSQL session store (connect-pg-simple)
-- Prepared for future user account features
+- Express-session with PostgreSQL store (connect-pg-simple, `session` table auto-created)
+- 30-day rolling cookie; secret from `SESSION_SECRET` env (dev fallback present — set in production)
+
+**Cross-app note:**
+- The embedded apps (Pocket Booster, Prospect Identity, FR2P Club, GuardConnect) are separate Replit deployments and cannot share this session. The hub shows clear login status on each embedded-app page (EmbedAuthBanner), but true SSO into those apps requires them to adopt a shared auth provider.
+
+**Frontend auth:**
+- `client/src/hooks/useAuth.ts` (TanStack Query against `/api/auth/user`)
+- `/auth` page (login/signup), Navbar account menu + sign-in button, Hub signed-in/out status banner
 
 ### External Dependencies
 

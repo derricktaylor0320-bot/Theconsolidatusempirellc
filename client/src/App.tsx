@@ -21,6 +21,7 @@ import Vintage from "@/pages/Vintage";
 import Policies from "@/pages/Policies";
 import Poetry from "@/pages/Poetry";
 import VIP from "@/pages/VIP";
+import AuthPage from "@/pages/AuthPage";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/canvas" component={Canvas} />
       <Route path="/customize/:logoId" component={LogoCustomizer} />
       <Route path="/hub" component={Hub} />
+      <Route path="/auth" component={AuthPage} />
       <Route path="/fr2p" component={FR2P} />
       <Route path="/guardconnect" component={GuardConnect} />
       <Route path="/pocket-booster" component={PocketBooster} />

@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Shirt,
   Watch,
@@ -13,6 +15,8 @@ import {
   Shield,
   Rocket,
   Target,
+  LogIn,
+  CheckCircle2,
 } from "lucide-react";
 import logo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
 
@@ -45,6 +49,7 @@ function fibonacciSphere(n: number) {
 
 export default function Hub() {
   const [, setLocation] = useLocation();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [angle, setAngle] = useState(0);
   const [hovered, setHovered] = useState<string | null>(null);
   const pausedRef = useRef(false);
@@ -107,11 +112,50 @@ export default function Hub() {
             The Consolidatus <span className="text-primary">Empire</span>
           </motion.h1>
           <p
-            className="text-muted-foreground mt-3 mb-8 uppercase tracking-[0.3em] text-xs md:text-sm"
+            className="text-muted-foreground mt-3 mb-6 uppercase tracking-[0.3em] text-xs md:text-sm"
             data-testid="text-hub-subtitle"
           >
             Centralized Hub — Tap an orb to enter
           </p>
+
+          {!isLoading && (
+            <div className="mb-8 flex justify-center">
+              {isAuthenticated ? (
+                <div
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm"
+                  data-testid="status-hub-signed-in"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                  <span>
+                    Signed in as{" "}
+                    <span className="font-semibold text-primary">
+                      {user?.displayName || user?.email}
+                    </span>{" "}
+                    — your session carries across the hub
+                  </span>
+                </div>
+              ) : (
+                <div
+                  className="inline-flex flex-col sm:flex-row items-center gap-3 rounded-xl border border-primary/20 bg-background/60 px-5 py-3"
+                  data-testid="status-hub-signed-out"
+                >
+                  <span className="text-sm text-muted-foreground">
+                    Sign in once to unlock a connected experience across every
+                    app.
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setLocation("/auth")}
+                    className="bg-primary text-black hover:bg-primary/90 uppercase tracking-wider font-display gap-2"
+                    data-testid="button-hub-signin"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Sign In
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div
             className="relative mx-auto"

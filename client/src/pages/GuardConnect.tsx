@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import EmbedAuthBanner from "@/components/EmbedAuthBanner";
 import { Button } from "@/components/ui/button";
 import { Shield, MapPin, Briefcase, Clock, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,6 +14,7 @@ export default function GuardConnect() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow">
+        <EmbedAuthBanner appName="GuardConnect" />
         <section className="relative py-24 md:py-32 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background" />
           <div className="container mx-auto px-4 relative z-10">

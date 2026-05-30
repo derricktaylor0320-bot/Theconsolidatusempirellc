@@ -1,14 +1,38 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, LogIn, LogOut, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest } from "@/lib/queryClient";
 
 import logo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
 
 export default function Navbar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/auth/logout");
+    } catch {}
+    queryClient.setQueryData(["/api/auth/user"], null);
+    await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    setLocation("/");
+  };
+
+  const accountName = user?.displayName || user?.email || "";
 
   const links = [
     { href: "/", label: "Home" },
@@ -48,7 +72,57 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Auth control (desktop) */}
+          <div className="hidden md:block">
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2 max-w-[180px]"
+                    data-testid="button-account-menu"
+                  >
+                    <span className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/20 text-primary shrink-0">
+                      <UserIcon className="h-4 w-4" />
+                    </span>
+                    <span className="truncate text-sm">{accountName}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="truncate" data-testid="text-account-email">
+                    {user?.email}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/hub" data-testid="link-menu-hub">
+                      Centralized Hub
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    data-testid="button-logout"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/auth">
+                <Button
+                  size="sm"
+                  className="bg-primary text-black hover:bg-primary/90 uppercase tracking-wider font-display gap-2"
+                  data-testid="button-signin"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
+          </div>
+
           <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5" />
             <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary" />
@@ -76,6 +150,45 @@ export default function Navbar() {
                       {link.label}
                     </Link>
                   ))}
+
+                  <div className="border-t border-border pt-4 mt-2">
+                    {isAuthenticated ? (
+                      <div className="flex flex-col gap-3">
+                        <div
+                          className="flex items-center gap-2 text-sm text-muted-foreground"
+                          data-testid="text-account-email-mobile"
+                        >
+                          <UserIcon className="h-4 w-4 text-primary" />
+                          <span className="truncate">{accountName}</span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setIsOpen(false);
+                            handleLogout();
+                          }}
+                          className="uppercase tracking-widest gap-2"
+                          data-testid="button-logout-mobile"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sign Out
+                        </Button>
+                      </div>
+                    ) : (
+                      <Link
+                        href="/auth"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Button
+                          className="w-full bg-primary text-black hover:bg-primary/90 uppercase tracking-widest gap-2 font-display"
+                          data-testid="button-signin-mobile"
+                        >
+                          <LogIn className="h-4 w-4" />
+                          Sign In
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
                 </nav>
               </SheetContent>
             </Sheet>
