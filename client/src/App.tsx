@@ -10,7 +10,6 @@ import Canvas from "@/pages/Canvas";
 import FR2P from "@/pages/FR2P";
 import Apparel from "@/pages/Apparel";
 import Accessories from "@/pages/Accessories";
-import GuardConnect from "@/pages/GuardConnect";
 import PocketBooster from "@/pages/PocketBooster";
 import ProspectIdentity from "@/pages/ProspectIdentity";
 import Hub from "@/pages/Hub";
@@ -22,6 +21,7 @@ import Policies from "@/pages/Policies";
 import Poetry from "@/pages/Poetry";
 import VIP from "@/pages/VIP";
 import AuthPage from "@/pages/AuthPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 
 function Router() {
   return (
@@ -32,8 +32,8 @@ function Router() {
       <Route path="/customize/:logoId" component={LogoCustomizer} />
       <Route path="/hub" component={Hub} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/fr2p" component={FR2P} />
-      <Route path="/guardconnect" component={GuardConnect} />
       <Route path="/pocket-booster" component={PocketBooster} />
       <Route path="/prospect-identity" component={ProspectIdentity} />
       <Route path="/apparel" component={Apparel} />

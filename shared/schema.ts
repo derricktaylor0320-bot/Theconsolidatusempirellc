@@ -23,7 +23,7 @@ export type Product = typeof products.$inferSelect;
 export const subscribers = pgTable("subscribers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull().unique(),
-  source: text("source"), // where they signed up from (studio, footer, etc.)
+  source: text("source"), // where they signed up from (hub, footer, etc.)
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -54,6 +54,31 @@ export type User = typeof users.$inferSelect;
 // Public-facing user shape (never expose the password hash to clients)
 export type PublicUser = Pick<User, "id" | "email" | "displayName">;
 
+// Single-use, expiring tokens for the "forgot password" flow.
+// We store only a hash of the token so a database leak can't be used to
+// reset accounts; the raw token lives only in the emailed reset link.
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPasswordResetTokenSchema = createInsertSchema(
+  passwordResetTokens,
+).omit({
+  id: true,
+  usedAt: true,
+  createdAt: true,
+});
+
+export type InsertPasswordResetToken = z.infer<
+  typeof insertPasswordResetTokenSchema
+>;
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+
 // Schemas for the auth endpoints
 export const registerSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -66,5 +91,16 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Reset token is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

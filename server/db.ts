@@ -88,6 +88,22 @@ export async function ensureTablesExist() {
       )
     `);
 
+    // Single-use, expiring tokens for the "forgot password" flow.
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        token_hash TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP NOT NULL,
+        used_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_password_reset_tokens_user"
+      ON password_reset_tokens (user_id)
+    `);
+
     // Session store table used by connect-pg-simple for shared hub sessions.
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS "session" (

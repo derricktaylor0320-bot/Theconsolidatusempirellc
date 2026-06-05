@@ -21,11 +21,12 @@ export default function AuthPage() {
   const queryClient = useQueryClient();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -33,8 +34,43 @@ export default function AuthPage() {
     }
   }, [authLoading, isAuthenticated, setLocation]);
 
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await apiRequest("POST", "/api/auth/forgot-password", {
+        email,
+      });
+      const data = await res.json();
+      setForgotSent(true);
+      toast({
+        title: "Check your inbox",
+        description:
+          data.message ||
+          "If an account exists for that email, a reset link is on its way.",
+      });
+    } catch (err: any) {
+      const message = (err?.message || "Something went wrong").replace(
+        /^\d+:\s*/,
+        "",
+      );
+      let parsed = message;
+      try {
+        parsed = JSON.parse(message).error || message;
+      } catch {}
+      toast({
+        title: "Couldn't send reset link",
+        description: parsed,
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === "forgot") return handleForgotSubmit(e);
     setSubmitting(true);
     try {
       const url = mode === "login" ? "/api/auth/login" : "/api/auth/register";
@@ -96,7 +132,7 @@ export default function AuthPage() {
               <p className="text-muted-foreground mt-4 text-lg">
                 Sign in once from the Centralized Hub and move freely between
                 every Khomplete Khemistri app — Pocket Booster, Prospect
-                Identity, FR2P Club, GuardConnect and more.
+                Identity, FR2P Club and more.
               </p>
               <ul className="mt-6 space-y-2 text-sm text-muted-foreground inline-block text-left">
                 <li className="flex items-center gap-2">
@@ -118,81 +154,155 @@ export default function AuthPage() {
             <Card className="border-primary/20 bg-background/80 backdrop-blur">
               <CardHeader>
                 <CardTitle className="font-display uppercase tracking-wide text-center">
-                  {mode === "login" ? "Sign In" : "Create Account"}
+                  {mode === "login"
+                    ? "Sign In"
+                    : mode === "register"
+                      ? "Create Account"
+                      : "Reset Password"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Tabs
-                  value={mode}
-                  onValueChange={(v) => setMode(v as "login" | "register")}
-                  className="mb-6"
-                >
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="login" data-testid="tab-login">
-                      Sign In
-                    </TabsTrigger>
-                    <TabsTrigger value="register" data-testid="tab-register">
-                      Sign Up
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="login" />
-                  <TabsContent value="register" />
-                </Tabs>
+                {mode !== "forgot" && (
+                  <Tabs
+                    value={mode}
+                    onValueChange={(v) => setMode(v as "login" | "register")}
+                    className="mb-6"
+                  >
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="login" data-testid="tab-login">
+                        Sign In
+                      </TabsTrigger>
+                      <TabsTrigger value="register" data-testid="tab-register">
+                        Sign Up
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="login" />
+                    <TabsContent value="register" />
+                  </Tabs>
+                )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {mode === "register" && (
+                {mode === "forgot" && forgotSent ? (
+                  <div className="space-y-4 text-center">
+                    <p
+                      className="text-sm text-muted-foreground"
+                      data-testid="text-forgot-confirmation"
+                    >
+                      If an account exists for{" "}
+                      <span className="text-foreground font-medium">
+                        {email}
+                      </span>
+                      , we've sent a password reset link. The link expires in 1
+                      hour and can only be used once.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setMode("login");
+                        setForgotSent(false);
+                      }}
+                      data-testid="button-back-to-login"
+                    >
+                      Back to sign in
+                    </Button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {mode === "forgot" && (
+                      <p className="text-sm text-muted-foreground">
+                        Enter your email and we'll send you a link to set a new
+                        password.
+                      </p>
+                    )}
+                    {mode === "register" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="displayName">Name (optional)</Label>
+                        <Input
+                          id="displayName"
+                          type="text"
+                          placeholder="Your name"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          data-testid="input-display-name"
+                        />
+                      </div>
+                    )}
                     <div className="space-y-2">
-                      <Label htmlFor="displayName">Name (optional)</Label>
+                      <Label htmlFor="email">Email</Label>
                       <Input
-                        id="displayName"
-                        type="text"
-                        placeholder="Your name"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        data-testid="input-display-name"
+                        id="email"
+                        type="email"
+                        required
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        data-testid="input-email"
                       />
                     </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      data-testid="input-email"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      placeholder={
-                        mode === "register"
-                          ? "At least 8 characters"
-                          : "Your password"
-                      }
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      data-testid="input-password"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full bg-primary text-black hover:bg-primary/90 uppercase tracking-wider font-display"
-                    data-testid="button-submit-auth"
-                  >
-                    {submitting && (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {mode !== "forgot" && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="password">Password</Label>
+                          {mode === "login" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMode("forgot");
+                                setForgotSent(false);
+                              }}
+                              className="text-xs text-primary hover:underline"
+                              data-testid="link-forgot-password"
+                            >
+                              Forgot password?
+                            </button>
+                          )}
+                        </div>
+                        <Input
+                          id="password"
+                          type="password"
+                          required
+                          placeholder={
+                            mode === "register"
+                              ? "At least 8 characters"
+                              : "Your password"
+                          }
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          data-testid="input-password"
+                        />
+                      </div>
                     )}
-                    {mode === "login" ? "Sign In" : "Create Account"}
-                  </Button>
-                </form>
+                    <Button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full bg-primary text-black hover:bg-primary/90 uppercase tracking-wider font-display"
+                      data-testid="button-submit-auth"
+                    >
+                      {submitting && (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      )}
+                      {mode === "login"
+                        ? "Sign In"
+                        : mode === "register"
+                          ? "Create Account"
+                          : "Send Reset Link"}
+                    </Button>
+                    {mode === "forgot" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode("login");
+                          setForgotSent(false);
+                        }}
+                        className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                        data-testid="link-back-to-login"
+                      >
+                        Back to sign in
+                      </button>
+                    )}
+                  </form>
+                )}
               </CardContent>
             </Card>
           </div>

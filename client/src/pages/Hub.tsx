@@ -12,7 +12,6 @@ import {
   Feather,
   Palette,
   TrendingUp,
-  Shield,
   Rocket,
   Target,
   LogIn,
@@ -29,7 +28,6 @@ const APPS: AppNode[] = [
   { href: "/poetry", label: "Poetry on a Plaque", Icon: Feather },
   { href: "/canvas", label: "Logo Collection", Icon: Palette },
   { href: "/fr2p", label: "FR2P Club", Icon: TrendingUp },
-  { href: "/guardconnect", label: "GuardConnect", Icon: Shield },
   { href: "/pocket-booster", label: "Pocket Booster", Icon: Rocket },
   { href: "/prospect-identity", label: "Prospect Identity", Icon: Target },
 ];

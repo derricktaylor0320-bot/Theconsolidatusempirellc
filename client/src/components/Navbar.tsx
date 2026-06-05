@@ -44,7 +44,6 @@ export default function Navbar() {
     { href: "/vintage", label: "Vintage Baltimore" },
     { href: "/poetry", label: "Poetry on a Plaque" },
     { href: "/fr2p", label: "The FR2P Club" },
-    { href: "/guardconnect", label: "GuardConnect" },
     { href: "/pocket-booster", label: "Pocket Booster" },
     { href: "/prospect-identity", label: "Prospect Identity" },
   ];

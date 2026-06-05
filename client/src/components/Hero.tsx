@@ -51,9 +51,9 @@ export default function Hero() {
               Shop Khemistri
             </Button>
           </Link>
-          <Link href="/studio">
+          <Link href="/hub">
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black font-display uppercase tracking-wider text-lg px-8 py-6 h-auto bg-transparent">
-              Enter The Lab
+              Centralized Hub
             </Button>
           </Link>
         </motion.div>

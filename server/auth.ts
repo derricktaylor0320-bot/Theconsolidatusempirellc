@@ -3,13 +3,16 @@ import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { randomBytes, scrypt, timingSafeEqual } from "crypto";
+import { createHash, randomBytes, scrypt, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { pool } from "./db";
 import { storage } from "./storage";
+import { sendEmail, buildPasswordResetEmail } from "./email";
 import {
+  forgotPasswordSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   type PublicUser,
   type User,
 } from "@shared/schema";
@@ -36,6 +39,28 @@ async function verifyPassword(
 
 function toPublicUser(user: User): PublicUser {
   return { id: user.id, email: user.email, displayName: user.displayName };
+}
+
+// SHA-256 of the raw reset token. Only this hash is stored in the database,
+// so even a DB leak can't be used to reset accounts.
+function hashResetToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+// Resolve the public origin so emailed reset links point at the right host.
+// Prefer explicit config (APP_URL/PUBLIC_URL), then Replit's domain, then the
+// incoming request's host as a last resort.
+function getPublicBaseUrl(req: { headers: Record<string, any>; protocol: string }): string {
+  const explicit = process.env.APP_URL || process.env.PUBLIC_URL;
+  if (explicit) return explicit.replace(/\/$/, "");
+
+  const replitDomain = process.env.REPLIT_DOMAINS?.split(",")[0];
+  if (replitDomain) return `https://${replitDomain}`;
+
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const proto = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || req.protocol || "http";
+  const host = req.headers["host"];
+  return `${proto}://${host}`;
 }
 
 export const requireAuth: RequestHandler = (req, res, next) => {
@@ -188,5 +213,87 @@ export function setupAuth(app: Express) {
       return res.json(toPublicUser(req.user as User));
     }
     res.status(401).json({ error: "Not authenticated" });
+  });
+
+  // Request a password reset link by email.
+  // Always responds the same way whether or not the email exists, so the
+  // endpoint can't be used to discover which emails have accounts.
+  app.post("/api/auth/forgot-password", async (req, res, next) => {
+    const result = forgotPasswordSchema.safeParse(req.body);
+    if (!result.success) {
+      return res
+        .status(400)
+        .json({ error: result.error.errors[0]?.message || "Invalid input" });
+    }
+
+    const genericResponse = {
+      ok: true,
+      message:
+        "If an account exists for that email, a password reset link is on its way.",
+    };
+
+    try {
+      const user = await storage.getUserByEmail(result.data.email);
+      if (!user) {
+        return res.json(genericResponse);
+      }
+
+      // Invalidate any earlier reset links for this account.
+      await storage.deletePasswordResetTokensForUser(user.id);
+
+      const rawToken = randomBytes(32).toString("hex");
+      const tokenHash = hashResetToken(rawToken);
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+
+      await storage.createPasswordResetToken({
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      });
+
+      const baseUrl = getPublicBaseUrl(req);
+      const resetUrl = `${baseUrl}/reset-password?token=${rawToken}`;
+      const { subject, html, text } = buildPasswordResetEmail(resetUrl);
+      await sendEmail({ to: user.email, subject, html, text });
+
+      return res.json(genericResponse);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Complete a password reset using a single-use, time-limited token.
+  app.post("/api/auth/reset-password", async (req, res, next) => {
+    const result = resetPasswordSchema.safeParse(req.body);
+    if (!result.success) {
+      return res
+        .status(400)
+        .json({ error: result.error.errors[0]?.message || "Invalid input" });
+    }
+
+    const { token, password } = result.data;
+
+    try {
+      const tokenHash = hashResetToken(token);
+      const record = await storage.getValidPasswordResetToken(tokenHash);
+      if (!record) {
+        return res.status(400).json({
+          error: "This reset link is invalid or has expired. Please request a new one.",
+        });
+      }
+
+      const passwordHash = await hashPassword(password);
+      await storage.updateUserPassword(record.userId, passwordHash);
+      // Single-use: burn the token (and any siblings) so it can't be reused.
+      await storage.markPasswordResetTokenUsed(record.id);
+      await storage.deletePasswordResetTokensForUser(record.userId);
+
+      return res.json({
+        ok: true,
+        message: "Your password has been updated. You can now sign in.",
+      });
+    } catch (err) {
+      next(err);
+    }
   });
 }
