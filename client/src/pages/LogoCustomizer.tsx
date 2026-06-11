@@ -33,6 +33,7 @@ import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
 import crestBlueValuesSwords from "@assets/image000009_1781214860404.jpg";
+import shieldGoldBrown from "@assets/Screenshot_20251126_205108_Photos_1764208382966.jpg";
 import shieldCyanGold from "@assets/Screenshot_20251126_204843_Photos_1764208390801.jpg";
 import badgeBlueValues from "@assets/copilot_image_1781211230575_1781211851159.jpeg";
 import crestGoldApparel from "@assets/1781208988886_1781211764006.png";
@@ -84,16 +85,17 @@ const allLogos: Record<string, { src: string; alt: string; color: string; sectio
   "200": { src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", section: "Badge of Honor" },
   "201": { src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold", section: "Badge of Honor" },
   "202": { src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", section: "Badge of Honor" },
-  "203": { src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite", section: "Badge of Honor" },
-  "204": { src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold", section: "Badge of Honor" },
-  "205": { src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome", section: "Badge of Honor" },
-  "206": { src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate", section: "Badge of Honor" },
-  "207": { src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate", section: "Badge of Honor" },
-  "208": { src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver", section: "Badge of Honor" },
-  "209": { src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords", section: "Badge of Honor" },
-  "210": { src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords", section: "Badge of Honor" },
-  "211": { src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords", section: "Badge of Honor" },
-  "212": { src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", section: "Badge of Honor" },
+  "203": { src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold", section: "Badge of Honor" },
+  "204": { src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite", section: "Badge of Honor" },
+  "205": { src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold", section: "Badge of Honor" },
+  "206": { src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome", section: "Badge of Honor" },
+  "207": { src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate", section: "Badge of Honor" },
+  "208": { src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate", section: "Badge of Honor" },
+  "209": { src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver", section: "Badge of Honor" },
+  "210": { src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords", section: "Badge of Honor" },
+  "211": { src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords", section: "Badge of Honor" },
+  "212": { src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords", section: "Badge of Honor" },
+  "213": { src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", section: "Badge of Honor" },
   "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "Shield of Honor" },
   "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "Shield of Honor" },
   "302": { src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold", section: "Shield of Honor" },
