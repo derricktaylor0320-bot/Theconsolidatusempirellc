@@ -125,13 +125,19 @@ const garmentTypes = [
 ];
 
 const topPlacementOptions = [
-  { id: "front-left-chest", name: "Front Left Chest", price: 0 },
+  { id: "front-left-chest", name: "Left Chest", price: 0 },
+  { id: "front-right-chest", name: "Right Chest", price: 0 },
+  { id: "front-center-chest", name: "Center Chest", price: 0 },
+  { id: "left-sleeve", name: "Left Sleeve", price: 0 },
+  { id: "right-sleeve", name: "Right Sleeve", price: 0 },
   { id: "back-large", name: "Large Back Print", price: 0 },
 ];
 
 const bottomPlacementOptions = [
-  { id: "front-thigh", name: "Front Thigh", price: 0 },
-  { id: "back-pocket", name: "Back Pocket Area", price: 0 },
+  { id: "front-right-leg", name: "Right Leg (Front)", price: 0 },
+  { id: "front-left-leg", name: "Left Leg (Front)", price: 0 },
+  { id: "left-back-pocket", name: "Left Back Pocket", price: 0 },
+  { id: "right-back-pocket", name: "Right Back Pocket", price: 0 },
 ];
 
 export default function LogoCustomizer() {
@@ -314,7 +320,7 @@ export default function LogoCustomizer() {
                       const isNowBottoms = newGarment?.category === "bottoms";
                       setSelectedGarment(value);
                       if (wasBottoms !== isNowBottoms) {
-                        setSelectedPlacements(isNowBottoms ? ["front-thigh"] : ["front-left-chest"]);
+                        setSelectedPlacements(isNowBottoms ? ["front-right-leg"] : ["front-left-chest"]);
                       }
                     }}
                     className="grid gap-3"
@@ -348,7 +354,7 @@ export default function LogoCustomizer() {
                       const isNowBottoms = newGarment?.category === "bottoms";
                       setSelectedGarment(value);
                       if (wasBottoms !== isNowBottoms) {
-                        setSelectedPlacements(isNowBottoms ? ["front-thigh"] : ["front-left-chest"]);
+                        setSelectedPlacements(isNowBottoms ? ["front-right-leg"] : ["front-left-chest"]);
                       }
                     }}
                     className="grid gap-3"
