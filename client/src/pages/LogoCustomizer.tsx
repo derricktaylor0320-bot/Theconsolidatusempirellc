@@ -28,12 +28,14 @@ import logoBrownGold from "@assets/logo_brown_gold.jpg";
 import logoTeal from "@assets/logo_teal.jpg";
 import logoLimeGreen from "@assets/logo_lime_green.jpg";
 import logoCircleText from "@assets/logo_circle_text.jpg";
+import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
 import shieldGoldBrown from "@assets/Screenshot_20251126_205108_Photos_1764208382966.jpg";
 import shieldCyanGold from "@assets/Screenshot_20251126_204843_Photos_1764208390801.jpg";
-import logo5SwordsBlueGold from "@assets/logo_5swords_blue_gold.jpg";
+import badgeBlueValues from "@assets/copilot_image_1781211230575_1781211851159.jpeg";
+import crestGoldApparel from "@assets/1781208988886_1781211764006.png";
 import shieldSilver from "@assets/Screenshot_20251126_205037_Photos_1764217995547.jpg";
 import badgeBrownGoldOrnate from "@assets/badge_brown_gold_ornate.jpg";
 import badgePurpleOrnate from "@assets/badge_purple_ornate.jpg";
@@ -78,7 +80,8 @@ const allLogos: Record<string, { src: string; alt: string; color: string; sectio
   "114": { src: logoTeal, alt: "Teal Emblem", color: "Teal", section: "Circular Logos" },
   "115": { src: logoLimeGreen, alt: "Lime Green Emblem", color: "Lime Green", section: "Circular Logos" },
   "116": { src: logoCircleText, alt: "Circular Text Logo", color: "Circle Text", section: "Circular Logos" },
-  "200": { src: logo5SwordsBlueGold, alt: "5 Swords of Unity Crest", color: "Blue & Gold 5 Swords", section: "Badge of Honor" },
+  "117": { src: medallionCorePrinciples, alt: "10 Core Principles Medallion", color: "Core Principles Medallion", section: "Circular Logos" },
+  "200": { src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", section: "Badge of Honor" },
   "201": { src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold", section: "Badge of Honor" },
   "202": { src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold", section: "Badge of Honor" },
   "203": { src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite", section: "Badge of Honor" },
@@ -90,6 +93,7 @@ const allLogos: Record<string, { src: string; alt: string; color: string; sectio
   "209": { src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords", section: "Badge of Honor" },
   "210": { src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords", section: "Badge of Honor" },
   "211": { src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords", section: "Badge of Honor" },
+  "212": { src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", section: "Badge of Honor" },
   "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "Shield of Honor" },
   "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "Shield of Honor" },
   "302": { src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold", section: "Shield of Honor" },

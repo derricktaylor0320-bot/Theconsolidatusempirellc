@@ -21,13 +21,15 @@ import logoBrownGold from "@assets/logo_brown_gold.jpg";
 import logoTeal from "@assets/logo_teal.jpg";
 import logoLimeGreen from "@assets/logo_lime_green.jpg";
 import logoCircleText from "@assets/logo_circle_text.jpg";
+import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
 // Import the shield/crest variations (Badge of Honor) - Section 200
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
 import shieldGoldBrown from "@assets/Screenshot_20251126_205108_Photos_1764208382966.jpg";
 import shieldCyanGold from "@assets/Screenshot_20251126_204843_Photos_1764208390801.jpg";
-import logo5SwordsBlueGold from "@assets/logo_5swords_blue_gold.jpg";
+import badgeBlueValues from "@assets/copilot_image_1781211230575_1781211851159.jpeg";
+import crestGoldApparel from "@assets/1781208988886_1781211764006.png";
 import shieldSilver from "@assets/Screenshot_20251126_205037_Photos_1764217995547.jpg";
 import badgeBrownGoldOrnate from "@assets/badge_brown_gold_ornate.jpg";
 import badgePurpleOrnate from "@assets/badge_purple_ornate.jpg";
@@ -88,10 +90,11 @@ export default function Canvas() {
     { id: "114", src: logoTeal, alt: "Teal Emblem", color: "Teal" },
     { id: "115", src: logoLimeGreen, alt: "Lime Green Emblem", color: "Lime Green" },
     { id: "116", src: logoCircleText, alt: "Circular Text Logo", color: "Circle Text" },
+    { id: "117", src: medallionCorePrinciples, alt: "10 Core Principles Medallion", color: "Core Principles Medallion" },
   ];
 
   const badges = [
-    { id: "200", src: logo5SwordsBlueGold, alt: "5 Swords of Unity Crest", color: "Blue & Gold 5 Swords", featured: true },
+    { id: "200", src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", featured: true },
     { id: "201", src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold" },
     { id: "202", src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold" },
     { id: "203", src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite" },
@@ -103,6 +106,7 @@ export default function Canvas() {
     { id: "209", src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords" },
     { id: "210", src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords" },
     { id: "211", src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords" },
+    { id: "212", src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", featured: true },
   ];
 
   const honorShields = [
