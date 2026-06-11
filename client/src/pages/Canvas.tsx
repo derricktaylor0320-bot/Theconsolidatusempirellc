@@ -26,7 +26,7 @@ import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211
 // Import the shield/crest variations (Badge of Honor) - Section 200
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
-import shieldGoldBrown from "@assets/Screenshot_20251126_205108_Photos_1764208382966.jpg";
+import crestBlueValuesSwords from "@assets/image000009_1781214860404.jpg";
 import shieldCyanGold from "@assets/Screenshot_20251126_204843_Photos_1764208390801.jpg";
 import badgeBlueValues from "@assets/copilot_image_1781211230575_1781211851159.jpeg";
 import crestGoldApparel from "@assets/1781208988886_1781211764006.png";
@@ -96,7 +96,7 @@ export default function Canvas() {
   const badges = [
     { id: "200", src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", featured: true },
     { id: "201", src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold" },
-    { id: "202", src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold" },
+    { id: "202", src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", featured: true },
     { id: "203", src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite" },
     { id: "204", src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold" },
     { id: "205", src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome" },
