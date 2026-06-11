@@ -125,19 +125,19 @@ const garmentTypes = [
 ];
 
 const topPlacementOptions = [
-  { id: "front-left-chest", name: "Left Chest", price: 0 },
-  { id: "front-right-chest", name: "Right Chest", price: 0 },
-  { id: "front-center-chest", name: "Center Chest", price: 0 },
-  { id: "left-sleeve", name: "Left Sleeve", price: 0 },
-  { id: "right-sleeve", name: "Right Sleeve", price: 0 },
-  { id: "back-large", name: "Large Back Print", price: 0 },
+  { id: "front-left-chest", name: "Left Chest", price: 0, dimensions: '3.5" – 4" wide' },
+  { id: "front-right-chest", name: "Right Chest", price: 0, dimensions: '3.5" – 4" wide' },
+  { id: "front-center-chest", name: "Center Chest", price: 0, dimensions: '10" – 12" wide' },
+  { id: "left-sleeve", name: "Left Sleeve", price: 0, dimensions: '2.5" – 3.5" wide (icon size)' },
+  { id: "right-sleeve", name: "Right Sleeve", price: 0, dimensions: '2.5" – 3.5" wide (icon size)' },
+  { id: "back-large", name: "Large Back Print", price: 0, dimensions: '11" – 14" wide' },
 ];
 
 const bottomPlacementOptions = [
-  { id: "front-right-leg", name: "Right Leg (Front)", price: 0 },
-  { id: "front-left-leg", name: "Left Leg (Front)", price: 0 },
-  { id: "left-back-pocket", name: "Left Back Pocket", price: 0 },
-  { id: "right-back-pocket", name: "Right Back Pocket", price: 0 },
+  { id: "front-right-leg", name: "Right Leg (Front)", price: 0, dimensions: '4" – 5" wide' },
+  { id: "front-left-leg", name: "Left Leg (Front)", price: 0, dimensions: '4" – 5" wide' },
+  { id: "left-back-pocket", name: "Left Back Pocket", price: 0, dimensions: '3" – 3.5" wide' },
+  { id: "right-back-pocket", name: "Right Back Pocket", price: 0, dimensions: '3" – 3.5" wide' },
 ];
 
 export default function LogoCustomizer() {
@@ -210,9 +210,10 @@ export default function LogoCustomizer() {
     
     try {
       const garment = garmentTypes.find(g => g.id === selectedGarment);
-      const placements = selectedPlacements.map(p => 
-        placementOptions.find(opt => opt.id === p)?.name
-      ).join(" + ");
+      const placements = selectedPlacements.map(p => {
+        const opt = placementOptions.find(opt => opt.id === p);
+        return opt ? `${opt.name} (${opt.dimensions})` : "";
+      }).filter(Boolean).join(" + ");
       
       const response = await fetch("/api/create-custom-checkout", {
         method: "POST",
@@ -404,7 +405,10 @@ export default function LogoCustomizer() {
                         data-testid={`checkbox-placement-${placement.id}`}
                       />
                       <Label htmlFor={placement.id} className="flex-grow cursor-pointer">
-                        {placement.name}
+                        <span className="block font-medium">{placement.name}</span>
+                        <span className="block text-xs text-muted-foreground" data-testid={`text-dimensions-${placement.id}`}>
+                          Print size: {placement.dimensions}
+                        </span>
                       </Label>
                       {selectedPlacements.includes(placement.id) && (
                         <Check className="h-5 w-5 text-primary" />
@@ -435,6 +439,14 @@ export default function LogoCustomizer() {
                     <p>Placement: {selectedPlacements.map(p => 
                       placementOptions.find(opt => opt.id === p)?.name
                     ).join(" + ")}</p>
+                    {selectedPlacements.map(p => {
+                      const opt = placementOptions.find(opt => opt.id === p);
+                      return opt ? (
+                        <p key={p} className="text-xs pl-2" data-testid={`summary-dimensions-${opt.id}`}>
+                          • {opt.name}: {opt.dimensions}
+                        </p>
+                      ) : null;
+                    })}
                   </div>
                   {!selectedGarment && (
                     <div className="flex items-center gap-2 text-amber-500 text-sm mb-4" data-testid="warning-select-garment">
