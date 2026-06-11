@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
+import { createSquarePaymentLink } from "./squareClient";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
@@ -820,99 +821,83 @@ export async function registerRoutes(
     }
   });
 
-  // Create checkout session
+  // Create checkout session (Square-hosted checkout)
   app.post("/api/create-checkout-session", async (req, res) => {
     try {
-      const { priceId, productName, productImage, productDescription } = req.body;
-      
+      const { priceId, productName, productDescription } = req.body;
+
       if (!priceId) {
         return res.status(400).json({ error: "Price ID is required" });
       }
 
-      const stripe = await getUncachableStripeClient();
-      
-      // Get the price to find the unit amount
-      const price = await stripe.prices.retrieve(priceId);
-      
-      // Build the line item with product details for checkout display
-      const lineItem: any = {
-        quantity: 1,
-      };
-      
-      // If we have product details, create a custom product_data to show image on checkout
-      if (productName && productImage) {
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const imageUrl = productImage.startsWith('http') ? productImage : `${baseUrl}${productImage}`;
-        
-        lineItem.price_data = {
-          currency: price.currency,
-          unit_amount: price.unit_amount,
-          product_data: {
-            name: productName,
-            description: productDescription || undefined,
-            images: [imageUrl],
-          },
-        };
-      } else {
-        // Fall back to using the price ID directly
-        lineItem.price = priceId;
+      // Server-authoritative pricing: never trust an amount from the client.
+      // The price comes from our synced product data in the database.
+      const priceRow: any = await stripeStorage.getPriceWithProduct(priceId);
+      if (!priceRow || priceRow.unit_amount == null) {
+        return res.status(404).json({ error: "Product price not found" });
       }
-      
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [lineItem],
-        mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.protocol}://${req.get('host')}/checkout/cancel`,
+
+      const amountCents = Number(priceRow.unit_amount);
+      if (!amountCents || amountCents <= 0) {
+        return res.status(400).json({ error: "Invalid product price" });
+      }
+
+      const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+
+      const url = await createSquarePaymentLink({
+        name: (priceRow.product_name as string) || productName || "Order",
+        amountCents,
+        description: productDescription || (priceRow.product_description as string) || undefined,
+        redirectUrl: `${baseUrl}/checkout/success`,
       });
 
-      res.json({ url: session.url });
+      res.json({ url });
     } catch (error: any) {
       console.error('Error creating checkout session:', error);
       res.status(500).json({ error: error.message || "Failed to create checkout session" });
     }
   });
 
-  // Create custom checkout session for logo customization
+  // Create custom checkout session for logo customization (Square-hosted checkout)
   app.post("/api/create-custom-checkout", async (req, res) => {
     try {
-      const { logoId, logoName, garmentType, garmentId, placements, placementDescription, totalPrice } = req.body;
-      
-      if (!logoId || !garmentType || !totalPrice) {
+      const { logoId, logoName, garmentType, garmentId, placements, placementDescription } = req.body;
+
+      if (!logoId || !garmentId) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const stripe = await getUncachableStripeClient();
-      
-      // Create a one-time price for the custom order
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: `Custom ${garmentType} - Logo #${logoId}`,
-                description: `Logo: ${logoName}\nGarment: ${garmentType}\nPlacement: ${placementDescription}`,
-                metadata: {
-                  logoId,
-                  logoName,
-                  garmentType,
-                  garmentId,
-                  placements: JSON.stringify(placements),
-                },
-              },
-              unit_amount: totalPrice,
-            },
-            quantity: 1,
-          },
-        ],
-        mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.protocol}://${req.get('host')}/checkout/cancel`,
+      // Server-authoritative pricing: compute the total here, never trust the client.
+      // Base garment prices (USD) must mirror the LogoCustomizer options.
+      const GARMENT_BASE_PRICES: Record<string, number> = {
+        "short-sleeve": 30,
+        "long-sleeve": 35,
+        "pullover-hoodie": 50,
+        "full-zip-hoodie": 60,
+        "jacket": 75,
+        "jeans": 65,
+        "sweatpants": 55,
+      };
+
+      const basePrice = GARMENT_BASE_PRICES[garmentId];
+      if (!basePrice) {
+        return res.status(400).json({ error: "Invalid garment selection" });
+      }
+
+      const placementCount = Array.isArray(placements) ? placements.length : 1;
+      const totalDollars = basePrice + (placementCount > 1 ? 10 : 0);
+      const amountCents = totalDollars * 100;
+
+      const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+
+      const url = await createSquarePaymentLink({
+        name: `Custom ${garmentType || "Garment"} - Logo #${logoId}`,
+        amountCents,
+        description: `Logo: ${logoName} | Placement: ${placementDescription}`,
+        redirectUrl: `${baseUrl}/checkout/success`,
       });
 
-      res.json({ url: session.url });
+      res.json({ url });
     } catch (error: any) {
       console.error('Error creating custom checkout session:', error);
       res.status(500).json({ error: error.message || "Failed to create custom checkout session" });

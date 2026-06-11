@@ -8,6 +8,8 @@ import { promisify } from "util";
 import { pool } from "./db";
 import { storage } from "./storage";
 import { sendEmail, buildPasswordResetEmail } from "./email";
+import { createSsoToken, verifySsoToken } from "./sso";
+import { RateLimiter } from "./rateLimit";
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -40,6 +42,13 @@ async function verifyPassword(
 function toPublicUser(user: User): PublicUser {
   return { id: user.id, email: user.email, displayName: user.displayName };
 }
+
+// Throttle password-reset requests to stop inbox spam and runaway email costs.
+// Two independent windows: per normalized email (so one address can't be
+// flooded) and per client IP (so one source can't blast many addresses).
+const ONE_HOUR_MS = 1000 * 60 * 60;
+const forgotPasswordEmailLimiter = new RateLimiter(3, ONE_HOUR_MS);
+const forgotPasswordIpLimiter = new RateLimiter(10, ONE_HOUR_MS);
 
 // SHA-256 of the raw reset token. Only this hash is stored in the database,
 // so even a DB leak can't be used to reset accounts.
@@ -215,6 +224,53 @@ export function setupAuth(app: Express) {
     res.status(401).json({ error: "Not authenticated" });
   });
 
+  // --- Cross-app SSO handoff ------------------------------------------------
+  // The hub owns login; embedded apps are separate deployments that can't read
+  // the hub session cookie. These two endpoints let the hub hand the identity
+  // to those apps: the hub mints a short-lived signed token, the embedded app
+  // verifies it (here, or locally with the shared secret) and bootstraps its
+  // own session — no second login.
+
+  // Mint a short-lived SSO handoff token for the signed-in hub user.
+  // The hub frontend fetches this and passes it to an embedded app.
+  app.get("/api/auth/sso/token", requireAuth, (req, res) => {
+    const { token, expiresIn } = createSsoToken(toPublicUser(req.user as User));
+    res.json({ token, expiresIn });
+  });
+
+  // Verify an SSO handoff token. Embedded apps (any origin) call this to turn a
+  // handoff token into the hub identity. Returns only the public identity, and
+  // only for an unexpired, correctly-signed token, so it's safe to expose.
+  const ssoVerifyHandler = (req: Parameters<RequestHandler>[0], res: Parameters<RequestHandler>[1]) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(204);
+    }
+
+    const token =
+      (req.body && (req.body.token as string)) ||
+      (req.query.token as string | undefined);
+
+    const result = verifySsoToken(token || "");
+    if (!result.valid) {
+      return res.status(401).json({ valid: false, error: result.reason });
+    }
+
+    return res.json({
+      valid: true,
+      user: {
+        id: result.payload.sub,
+        email: result.payload.email,
+        displayName: result.payload.name,
+      },
+    });
+  };
+
+  app.options("/api/auth/sso/verify", ssoVerifyHandler);
+  app.post("/api/auth/sso/verify", ssoVerifyHandler);
+
   // Request a password reset link by email.
   // Always responds the same way whether or not the email exists, so the
   // endpoint can't be used to discover which emails have accounts.
@@ -231,6 +287,21 @@ export function setupAuth(app: Express) {
       message:
         "If an account exists for that email, a password reset link is on its way.",
     };
+
+    // Throttle before doing any account lookup or email send. We always return
+    // the same generic response (even when limited), so the endpoint still can't
+    // be used to discover which emails have accounts. The email window is keyed
+    // on the normalized address so casing/whitespace can't bypass it.
+    // Use Express's req.ip, which resolves the client IP from the proxy chain
+    // per the app's `trust proxy` setting. We deliberately do NOT read
+    // X-Forwarded-For directly, since an attacker could spoof that header to
+    // rotate "IPs" and evade the per-IP limit.
+    const normalizedEmail = result.data.email.trim().toLowerCase();
+    const emailLimited = forgotPasswordEmailLimiter.hit(`email:${normalizedEmail}`).limited;
+    const ipLimited = forgotPasswordIpLimiter.hit(`ip:${req.ip || "unknown"}`).limited;
+    if (emailLimited || ipLimited) {
+      return res.json(genericResponse);
+    }
 
     try {
       const user = await storage.getUserByEmail(result.data.email);

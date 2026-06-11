@@ -75,6 +75,28 @@ export class StripeStorage {
     );
     return result.rows;
   }
+
+  // Authoritative price lookup by price id, joined to its product for the display name.
+  async getPriceWithProduct(priceId: string) {
+    const result = await db.execute(
+      sql`
+        SELECT
+          pr.id as price_id,
+          pr.unit_amount,
+          pr.currency,
+          pr.active as price_active,
+          p.name as product_name,
+          p.description as product_description
+        FROM stripe.prices pr
+        JOIN stripe.products p ON p.id = pr.product
+        WHERE pr.id = ${priceId}
+          AND pr.active = true
+          AND p.active = true
+        LIMIT 1
+      `
+    );
+    return result.rows[0] || null;
+  }
 }
 
 export const stripeStorage = new StripeStorage();

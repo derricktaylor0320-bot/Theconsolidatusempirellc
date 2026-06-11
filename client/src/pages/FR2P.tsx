@@ -1,8 +1,13 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EmbedAuthBanner from "@/components/EmbedAuthBanner";
+import { useEmbedSso } from "@/hooks/useEmbedSso";
+
+const FR2P_ORIGIN =
+  "https://fr-2-p-financial-roadway-2-prosperity-club-derricktaylor03.replit.app";
 
 export default function FR2P() {
+  const src = useEmbedSso(FR2P_ORIGIN, FR2P_ORIGIN);
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -15,7 +20,7 @@ export default function FR2P() {
         </div>
         <div className="flex-grow w-full relative">
           <iframe 
-            src="https://fr-2-p-financial-roadway-2-prosperity-club-derricktaylor03.replit.app" 
+            src={src}
             title="FR2P Club"
             className="absolute inset-0 w-full h-full border-0"
           />

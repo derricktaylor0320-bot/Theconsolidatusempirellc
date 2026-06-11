@@ -22,6 +22,7 @@ import Poetry from "@/pages/Poetry";
 import VIP from "@/pages/VIP";
 import AuthPage from "@/pages/AuthPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import SsoDemo from "@/pages/SsoDemo";
 
 function Router() {
   return (
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/hub" component={Hub} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
+      <Route path="/sso-demo" component={SsoDemo} />
       <Route path="/fr2p" component={FR2P} />
       <Route path="/pocket-booster" component={PocketBooster} />
       <Route path="/prospect-identity" component={ProspectIdentity} />

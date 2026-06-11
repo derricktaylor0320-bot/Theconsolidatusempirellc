@@ -1,8 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EmbedAuthBanner from "@/components/EmbedAuthBanner";
+import { useEmbedSso } from "@/hooks/useEmbedSso";
+
+const POCKET_BOOSTER_ORIGIN = "https://pocket-lift.replit.app";
 
 export default function PocketBooster() {
+  const src = useEmbedSso(POCKET_BOOSTER_ORIGIN, POCKET_BOOSTER_ORIGIN);
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -15,7 +19,7 @@ export default function PocketBooster() {
         </div>
         <div className="flex-grow w-full relative">
           <iframe
-            src="https://pocket-lift.replit.app"
+            src={src}
             title="Pocket Booster"
             className="absolute inset-0 w-full h-full border-0"
             data-testid="iframe-pocket-booster"

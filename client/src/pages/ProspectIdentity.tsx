@@ -1,8 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EmbedAuthBanner from "@/components/EmbedAuthBanner";
+import { useEmbedSso } from "@/hooks/useEmbedSso";
+
+const PROSPECT_IDENTITY_ORIGIN = "https://prospect-identifier.replit.app";
 
 export default function ProspectIdentity() {
+  const src = useEmbedSso(PROSPECT_IDENTITY_ORIGIN, PROSPECT_IDENTITY_ORIGIN);
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -15,7 +19,7 @@ export default function ProspectIdentity() {
         </div>
         <div className="flex-grow w-full relative">
           <iframe
-            src="https://prospect-identifier.replit.app"
+            src={src}
             title="Prospect Identity"
             className="absolute inset-0 w-full h-full border-0"
             data-testid="iframe-prospect-identity"
