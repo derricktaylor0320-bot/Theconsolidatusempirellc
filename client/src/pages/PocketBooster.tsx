@@ -1,30 +1,28 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import EmbedAuthBanner from "@/components/EmbedAuthBanner";
-import { useEmbedSso } from "@/hooks/useEmbedSso";
-
-const POCKET_BOOSTER_ORIGIN = "https://pocket-lift.replit.app";
+import { Rocket } from "lucide-react";
 
 export default function PocketBooster() {
-  const src = useEmbedSso(POCKET_BOOSTER_ORIGIN, POCKET_BOOSTER_ORIGIN);
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="flex-grow flex flex-col h-[calc(100vh-80px)]">
-        <EmbedAuthBanner appName="Pocket Booster" />
-        <div className="bg-secondary text-secondary-foreground py-4 text-center">
-          <h1 className="font-display text-xl md:text-2xl font-bold uppercase tracking-wider text-primary">
-            Pocket Booster
-          </h1>
+      <main className="flex-grow flex flex-col items-center justify-center text-center px-6 py-20">
+        <div className="bg-primary/10 rounded-full p-6 mb-8 border border-primary/30">
+          <Rocket className="h-12 w-12 text-primary" />
         </div>
-        <div className="flex-grow w-full relative">
-          <iframe
-            src={src}
-            title="Pocket Booster"
-            className="absolute inset-0 w-full h-full border-0"
-            data-testid="iframe-pocket-booster"
-          />
-        </div>
+        <h1
+          className="font-display text-4xl md:text-5xl font-bold uppercase tracking-wider text-primary mb-4"
+          data-testid="text-pocket-booster-title"
+        >
+          Pocket Booster
+        </h1>
+        <p className="text-2xl md:text-3xl font-display font-bold mb-6" data-testid="text-coming-soon">
+          Coming Soon
+        </p>
+        <p className="text-muted-foreground max-w-xl text-lg" data-testid="text-coming-soon-description">
+          Our micro-loan business booster is on the way. Check back soon to see
+          how Pocket Booster can help fund and grow your business.
+        </p>
       </main>
       <Footer />
     </div>
