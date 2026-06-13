@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Import all logo variations (Circular) - Section 100
+// Import all logo variations (Circular) - 1st Generation 100-117
 import logoGold3D from "@assets/Screenshot_20251126_202749_Photos_1764207404143.jpg";
 import logoBlueWhite from "@assets/Screenshot_20251126_202727_Photos_1764207404154.jpg";
 import logoBlackWhite from "@assets/Screenshot_20251126_202703_Photos_1764207404162.jpg";
@@ -39,7 +39,7 @@ import badgePurpleSwords from "@assets/badge_purple_swords.jpg";
 import badgeGreenSwords from "@assets/badge_green_swords.jpg";
 import badgeRedGoldSwords from "@assets/badge_red_gold_swords.jpg";
 
-// Import the NEW Eagle Shields (Shield of Honor) - Section 300
+// Import the Eagle Shields (Shield of Honor) - 2nd Generation 200-208
 import honorBrownGold from "@assets/1764209713521_1764218036651.jpg";
 import honorSilverGold from "@assets/1764210798224_1764211139124.jpg";
 import honorNavyGold from "@assets/1764210111747_1764211158691.jpg";
