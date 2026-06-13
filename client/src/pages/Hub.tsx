@@ -13,7 +13,6 @@ import {
   Palette,
   TrendingUp,
   Rocket,
-  Target,
   LogIn,
   CheckCircle2,
 } from "lucide-react";
@@ -29,7 +28,6 @@ const APPS: AppNode[] = [
   { href: "/canvas", label: "Logo Collection", Icon: Palette },
   { href: "/fr2p", label: "FR2P Club", Icon: TrendingUp },
   { href: "/pocket-booster", label: "Pocket Booster", Icon: Rocket },
-  { href: "/prospect-identity", label: "Prospect Identity", Icon: Target },
 ];
 
 function fibonacciSphere(n: number) {

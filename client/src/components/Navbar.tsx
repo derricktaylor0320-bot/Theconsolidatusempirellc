@@ -45,7 +45,6 @@ export default function Navbar() {
     { href: "/poetry", label: "Poetry on a Plaque" },
     { href: "/fr2p", label: "The FR2P Club" },
     { href: "/pocket-booster", label: "Pocket Booster" },
-    { href: "/prospect-identity", label: "Prospect Identity" },
   ];
 
   return (
