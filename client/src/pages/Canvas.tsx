@@ -23,7 +23,7 @@ import logoLimeGreen from "@assets/logo_lime_green.jpg";
 import logoCircleText from "@assets/logo_circle_text.jpg";
 import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
-// Import the shield/crest variations (Badge of Honor) - Section 200
+// Import the shield/crest variations (Badge of Honor) - 1st Generation 118-132
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
 import crestBlueValuesSwords from "@assets/image000009_1781214860404.jpg";
@@ -101,49 +101,49 @@ export default function Canvas() {
   ];
 
   const badges = [
-    { id: "200", src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", featured: true },
-    { id: "201", src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold" },
-    { id: "202", src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", featured: true },
-    { id: "203", src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold" },
-    { id: "204", src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite" },
-    { id: "205", src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold" },
-    { id: "206", src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome" },
-    { id: "207", src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate" },
-    { id: "208", src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate" },
-    { id: "209", src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver" },
-    { id: "210", src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords" },
-    { id: "211", src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords" },
-    { id: "212", src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords" },
-    { id: "213", src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", featured: true },
-    { id: "214", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
+    { id: "118", src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", featured: true },
+    { id: "119", src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold" },
+    { id: "120", src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", featured: true },
+    { id: "121", src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold" },
+    { id: "122", src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite" },
+    { id: "123", src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold" },
+    { id: "124", src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome" },
+    { id: "125", src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate" },
+    { id: "126", src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate" },
+    { id: "127", src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver" },
+    { id: "128", src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords" },
+    { id: "129", src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords" },
+    { id: "130", src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords" },
+    { id: "131", src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", featured: true },
+    { id: "132", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
   ];
 
   const honorShields = [
-    { id: "300", src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", featured: true },
-    { id: "301", src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold" },
-    { id: "302", src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold" },
-    { id: "303", src: honorBlackGold, alt: "Black & Gold Eagle Shield", color: "Black & Gold" },
-    { id: "304", src: honorMaroonGold, alt: "Maroon & Gold Eagle Shield", color: "Maroon & Gold" },
-    { id: "305", src: honorNavySilver, alt: "Navy & Silver Eagle Shield", color: "Navy & Silver" },
-    { id: "306", src: honorBrownGold, alt: "Brown & Gold Eagle Shield", color: "Brown & Gold" },
-    { id: "307", src: honorPurpleGold, alt: "Purple & Gold Eagle Shield", color: "Purple & Gold" },
-    { id: "308", src: honorWhiteGold, alt: "White & Gold Eagle Shield", color: "White & Gold" },
+    { id: "200", src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", featured: true },
+    { id: "201", src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold" },
+    { id: "202", src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold" },
+    { id: "203", src: honorBlackGold, alt: "Black & Gold Eagle Shield", color: "Black & Gold" },
+    { id: "204", src: honorMaroonGold, alt: "Maroon & Gold Eagle Shield", color: "Maroon & Gold" },
+    { id: "205", src: honorNavySilver, alt: "Navy & Silver Eagle Shield", color: "Navy & Silver" },
+    { id: "206", src: honorBrownGold, alt: "Brown & Gold Eagle Shield", color: "Brown & Gold" },
+    { id: "207", src: honorPurpleGold, alt: "Purple & Gold Eagle Shield", color: "Purple & Gold" },
+    { id: "208", src: honorWhiteGold, alt: "White & Gold Eagle Shield", color: "White & Gold" },
   ];
 
   const secondGenLogos = [
-    { id: "400", src: logoAccessoriesEagle, alt: "Khomplete Khemistri Accessories Eagle", color: "Accessories Eagle", featured: true },
-    { id: "401", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
-    { id: "402", src: logoKKShieldSwords, alt: "KK Shield with Swords", color: "KK Shield & Swords" },
-    { id: "403", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
-    { id: "404", src: logoBeddingLuxury, alt: "Khomplete Khemistri Accessories - Sleep and Dream in Luxury", color: "Bedding Luxury", featured: true },
-    { id: "405", src: logoKKAShield, alt: "KKA Shield with Eagle - Khomplete Khemistri Apparel", color: "KKA Shield", featured: true },
+    { id: "209", src: logoAccessoriesEagle, alt: "Khomplete Khemistri Accessories Eagle", color: "Accessories Eagle", featured: true },
+    { id: "210", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
+    { id: "211", src: logoKKShieldSwords, alt: "KK Shield with Swords", color: "KK Shield & Swords" },
+    { id: "212", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
+    { id: "213", src: logoBeddingLuxury, alt: "Khomplete Khemistri Accessories - Sleep and Dream in Luxury", color: "Bedding Luxury", featured: true },
+    { id: "214", src: logoKKAShield, alt: "KKA Shield with Eagle - Khomplete Khemistri Apparel", color: "KKA Shield", featured: true },
   ];
 
   const compassCollection = [
-    { id: "500", src: compassKKApparel, alt: "Khomplete Khemistri Apparel Compass", color: "KK Apparel Compass", featured: true },
-    { id: "501", src: compassKMG1, alt: "KKMG LLC Compass", color: "KKMG LLC Compass", featured: true },
-    { id: "502", src: compassKMG2, alt: "KKMG LLC Compass II", color: "KKMG LLC Compass II" },
-    { id: "503", src: compassSunburst, alt: "Khomplete Khemistri Apparel Sunburst Emblem", color: "Apparel Sunburst", featured: true },
+    { id: "300", src: compassKKApparel, alt: "Khomplete Khemistri Apparel Compass", color: "KK Apparel Compass", featured: true },
+    { id: "301", src: compassKMG1, alt: "KKMG LLC Compass", color: "KKMG LLC Compass", featured: true },
+    { id: "302", src: compassKMG2, alt: "KKMG LLC Compass II", color: "KKMG LLC Compass II" },
+    { id: "303", src: compassSunburst, alt: "Khomplete Khemistri Apparel Sunburst Emblem", color: "Apparel Sunburst", featured: true },
   ];
 
   return (
@@ -243,53 +243,60 @@ export default function Canvas() {
               </p>
             </motion.div>
 
+            {/* Badge of Honor crests — part of the 1st Generation */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="w-full mt-24"
+            >
+              <div className="text-center mb-16">
+                <img 
+                  src={bannerBadgeHonor} 
+                  alt="Our Royalty Badge of Honor" 
+                  className="w-full max-w-4xl mx-auto h-auto object-contain rounded-lg shadow-xl mb-4"
+                />
+                <p className="text-secondary-foreground/60 mt-4 max-w-2xl mx-auto text-lg">
+                  The crests that symbolize our bond. Brotherhood, Unity, and Strength.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {badges.map((badge, index) => (
+                  <Link key={badge.id} href={`/customize/${badge.id}`} data-testid={`link-badge-${badge.id}`}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.05, duration: 0.5 }}
+                      className={`group relative flex flex-col items-center justify-center bg-background rounded-xl p-4 border border-border hover:border-primary/40 overflow-hidden shadow-lg cursor-pointer ${badge.featured ? 'bg-gradient-to-b from-background to-primary/5' : ''}`}
+                    >
+                      <div className="relative w-full aspect-square flex items-center justify-center">
+                        <img 
+                          src={badge.src} 
+                          alt={badge.alt}
+                          className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="mt-4 text-center">
+                        <span className="text-primary/60 text-sm font-mono">#{badge.id}</span>
+                        <p className="text-foreground font-display text-sm uppercase tracking-wide mt-1">{badge.color}</p>
+                        <span className="text-xs text-primary/80 uppercase tracking-widest mt-2 block">1st Generation</span>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
+                        <span className="text-white font-display text-lg uppercase tracking-wide">Customize</span>
+                      </div>
+                    </motion.div>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+
           </div>
         </section>
 
-        {/* Section 2: Royalty Badge of Honor (The Simple Shields) */}
-        <section className="py-24 container mx-auto px-4 bg-muted/30">
-          <div className="text-center mb-16">
-            <img 
-              src={bannerBadgeHonor} 
-              alt="Our Royalty Badge of Honor" 
-              className="w-full max-w-4xl mx-auto h-auto object-contain rounded-lg shadow-xl mb-4"
-            />
-            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-              The crests that symbolize our bond. Brotherhood, Unity, and Strength.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {badges.map((badge, index) => (
-              <Link key={badge.id} href={`/customize/${badge.id}`} data-testid={`link-badge-${badge.id}`}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05, duration: 0.5 }}
-                  className={`group relative flex flex-col items-center justify-center bg-background rounded-xl p-4 border border-border hover:border-primary/40 overflow-hidden shadow-lg cursor-pointer ${badge.featured ? 'bg-gradient-to-b from-background to-primary/5' : ''}`}
-                >
-                  <div className="relative w-full aspect-square flex items-center justify-center">
-                    <img 
-                      src={badge.src} 
-                      alt={badge.alt}
-                      className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="mt-4 text-center">
-                    <span className="text-primary/60 text-sm font-mono">#{badge.id}</span>
-                    <p className="text-foreground font-display text-sm uppercase tracking-wide mt-1">{badge.color}</p>
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
-                    <span className="text-white font-display text-lg uppercase tracking-wide">Customize</span>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* Section 3: 2nd Generation (Eagle Shields + 2nd Gen Logos) */}
+        {/* Section 2: 2nd Generation (Eagle Shields + 2nd Gen Logos) */}
         <section className="py-24 bg-gradient-to-b from-background to-secondary/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
@@ -366,7 +373,7 @@ export default function Canvas() {
           </div>
         </section>
 
-        {/* Section 4: 3rd Generation - The Compass Collection */}
+        {/* Section 3: 3rd Generation - The Compass Collection */}
         <section className="py-24 bg-gradient-to-b from-secondary/30 to-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
@@ -401,7 +408,7 @@ export default function Canvas() {
                     <div className="mt-4 text-center">
                       <span className="text-primary/60 text-sm font-mono">#{logo.id}</span>
                       <p className="text-foreground font-display text-lg uppercase tracking-wide mt-1">{logo.color}</p>
-                      <span className="text-xs text-primary/80 uppercase tracking-widest mt-2 block">The Compass Collection</span>
+                      <span className="text-xs text-primary/80 uppercase tracking-widest mt-2 block">3rd Generation</span>
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
                       <span className="text-white font-display text-lg uppercase tracking-wide">Customize</span>
