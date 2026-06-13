@@ -55,6 +55,10 @@ import honorAllGold from "@assets/1764210327974_1764211486802.jpg";
 import honorPurpleGold from "@assets/shield_purple_gold.jpg";
 import honorWhiteGold from "@assets/shield_white_gold.jpg";
 import kkmgEagleShield from "@assets/1781352952354_1781362246255.png";
+import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.jpeg";
+import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
+import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";
+import compassSunburst from "@assets/1781351981898_1781369761839.png";
 
 import logoAccessoriesEagle from "@assets/generated_images/kk_accessories_standalone_logo.png";
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
@@ -112,6 +116,10 @@ const allLogos: Record<string, { src: string; alt: string; color: string; sectio
   "403": { src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords", section: "2nd Generation" },
   "404": { src: logoBeddingLuxury, alt: "Khomplete Khemistri Accessories - Sleep and Dream in Luxury", color: "Bedding Luxury", section: "2nd Generation" },
   "405": { src: logoKKAShield, alt: "KKA Shield with Eagle - Khomplete Khemistri Apparel", color: "KKA Shield", section: "2nd Generation" },
+  "500": { src: compassKKApparel, alt: "Khomplete Khemistri Apparel Compass", color: "KK Apparel Compass", section: "The Compass Collection" },
+  "501": { src: compassKMG1, alt: "KKMG LLC Compass", color: "KKMG LLC Compass", section: "The Compass Collection" },
+  "502": { src: compassKMG2, alt: "KKMG LLC Compass II", color: "KKMG LLC Compass II", section: "The Compass Collection" },
+  "503": { src: compassSunburst, alt: "Khomplete Khemistri Apparel Sunburst Emblem", color: "Apparel Sunburst", section: "The Compass Collection" },
 };
 
 const garmentTypes = [

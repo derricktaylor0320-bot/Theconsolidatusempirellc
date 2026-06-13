@@ -71,6 +71,13 @@ import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_lo
 import logoBeddingLuxury from "@assets/kk_accessories_bedding_logo.jpg";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
 
+// Import 3rd Generation Logos - The Compass Collection
+import bannerCompass from "@assets/1781364317455_1781369690056.png";
+import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.jpeg";
+import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
+import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";
+import compassSunburst from "@assets/1781351981898_1781369761839.png";
+
 export default function Canvas() {
   const logos = [
     { id: "100", src: logoGold3D, alt: "Gold 3D Emblem", color: "Gold 3D" },
@@ -130,6 +137,13 @@ export default function Canvas() {
     { id: "403", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
     { id: "404", src: logoBeddingLuxury, alt: "Khomplete Khemistri Accessories - Sleep and Dream in Luxury", color: "Bedding Luxury", featured: true },
     { id: "405", src: logoKKAShield, alt: "KKA Shield with Eagle - Khomplete Khemistri Apparel", color: "KKA Shield", featured: true },
+  ];
+
+  const compassCollection = [
+    { id: "500", src: compassKKApparel, alt: "Khomplete Khemistri Apparel Compass", color: "KK Apparel Compass", featured: true },
+    { id: "501", src: compassKMG1, alt: "KKMG LLC Compass", color: "KKMG LLC Compass", featured: true },
+    { id: "502", src: compassKMG2, alt: "KKMG LLC Compass II", color: "KKMG LLC Compass II" },
+    { id: "503", src: compassSunburst, alt: "Khomplete Khemistri Apparel Sunburst Emblem", color: "Apparel Sunburst", featured: true },
   ];
 
   return (
@@ -341,6 +355,53 @@ export default function Canvas() {
                       <span className="text-primary/60 text-sm font-mono">#{logo.id}</span>
                       <p className="text-foreground font-display text-lg uppercase tracking-wide mt-1">{logo.color}</p>
                       <span className="text-xs text-primary/80 uppercase tracking-widest mt-2 block">2nd Generation</span>
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
+                      <span className="text-white font-display text-lg uppercase tracking-wide">Customize</span>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 4: 3rd Generation - The Compass Collection */}
+        <section className="py-24 bg-gradient-to-b from-secondary/30 to-background">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <img 
+                src={bannerCompass} 
+                alt="Our 3rd Generation Logos - The Compass Collection" 
+                className="w-full max-w-2xl mx-auto h-auto object-contain rounded-lg shadow-xl mb-4"
+              />
+              <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
+                Our 3rd Generation — The Compass Collection. Charting the course of the empire, guided by direction, discipline, and vision.
+                <span className="block text-primary font-bold mt-2">EST. 2020</span>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {compassCollection.map((logo, index) => (
+                <Link key={logo.id} href={`/customize/${logo.id}`} data-testid={`link-compass-${logo.id}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                    className={`group relative flex flex-col items-center justify-center bg-gradient-to-b from-black to-primary/5 rounded-xl p-6 border border-primary/20 hover:border-primary/50 overflow-hidden cursor-pointer shadow-xl`}
+                  >
+                    <div className="relative w-full aspect-square flex items-center justify-center">
+                      <img 
+                        src={logo.src} 
+                        alt={logo.alt}
+                        className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="mt-4 text-center">
+                      <span className="text-primary/60 text-sm font-mono">#{logo.id}</span>
+                      <p className="text-foreground font-display text-lg uppercase tracking-wide mt-1">{logo.color}</p>
+                      <span className="text-xs text-primary/80 uppercase tracking-widest mt-2 block">The Compass Collection</span>
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
                       <span className="text-white font-display text-lg uppercase tracking-wide">Customize</span>
