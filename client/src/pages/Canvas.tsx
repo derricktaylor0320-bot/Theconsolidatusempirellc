@@ -208,7 +208,7 @@ export default function Canvas() {
               ))}
             </div>
 
-            {/* 1st Generation Logos Section */}
+            {/* Canvas Collection — origin-story collage of the original logos */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
