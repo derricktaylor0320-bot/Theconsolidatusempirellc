@@ -11,7 +11,6 @@ import FR2P from "@/pages/FR2P";
 import Apparel from "@/pages/Apparel";
 import Accessories from "@/pages/Accessories";
 import PocketBooster from "@/pages/PocketBooster";
-import ProspectIdentity from "@/pages/ProspectIdentity";
 import Hub from "@/pages/Hub";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import CheckoutCancel from "@/pages/CheckoutCancel";
@@ -37,7 +36,6 @@ function Router() {
       <Route path="/sso-demo" component={SsoDemo} />
       <Route path="/fr2p" component={FR2P} />
       <Route path="/pocket-booster" component={PocketBooster} />
-      <Route path="/prospect-identity" component={ProspectIdentity} />
       <Route path="/apparel" component={Apparel} />
       <Route path="/accessories" component={Accessories} />
       <Route path="/vintage" component={Vintage} />
