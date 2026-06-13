@@ -460,6 +460,11 @@ export default function LogoCustomizer() {
                       <span>{error}</span>
                     </div>
                   )}
+                  <p className="text-xs text-muted-foreground mb-4 leading-relaxed" data-testid="text-customization-disclaimer">
+                    Please note that the final product's appearance, especially for custom
+                    embroidery or logos, may vary slightly from the digital representation
+                    due to the customization process.
+                  </p>
                   <Button 
                     className="w-full" 
                     size="lg"

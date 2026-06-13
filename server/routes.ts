@@ -269,7 +269,7 @@ const ALL_PRODUCTS = [
   {
     name: 'Kids Sippy Cup',
     description: 'Insulated stainless steel sippy cup with Khomplete Khemistri Apparel logo. Black with gold shield crest design. Spill-proof lid with handles for little hands. 12oz capacity, BPA-free.',
-    price: 500,
+    price: 1500,
     metadata: { category: 'Baby', productType: 'accessory', sortOrder: '24', imageUrl: '/assets/generated_images/branded_baby_sippy_cup.png', gender: 'Kids' }
   },
   // FOOTWEAR COLLECTION
