@@ -6,7 +6,7 @@ import { useEmbedSso } from "@/hooks/useEmbedSso";
 
 const FR2P_ORIGIN =
   "https://fr-2-p-financial-roadway-2-prosperity-club-derricktaylor03.replit.app";
-const PROSPECT_IDENTITY_ORIGIN = "https://prospect-identifier.replit.app";
+const PROSPECT_IDENTITY_ORIGIN = "https://fr2p-club-production.up.railway.app";
 
 type Tab = "fr2p" | "prospect";
 
