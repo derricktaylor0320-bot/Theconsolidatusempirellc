@@ -9,15 +9,33 @@ import { z } from "zod";
 
 // Stripe contains some products that were created more than once (same name,
 // different ids). Collapse them so each product name appears only once on the
-// site. Prefer the copy that has a usable price/priceId.
-function dedupeByName<T extends { title: string; priceId?: string | null }>(items: T[]): T[] {
+// site. Key matching is normalized (case/whitespace-insensitive). When a name
+// collides, deterministically keep the best copy: one with a price first, then
+// lowest sortOrder, then lowest price, then lowest id (stable tie-break).
+function dedupeByName<T extends {
+  title: string;
+  priceId?: string | null;
+  sortOrder?: number;
+  price?: string | null;
+  id?: string;
+}>(items: T[]): T[] {
+  const better = (a: T, b: T): boolean => {
+    const ap = a.priceId ? 0 : 1, bp = b.priceId ? 0 : 1;
+    if (ap !== bp) return ap < bp;
+    const as = typeof a.sortOrder === 'number' ? a.sortOrder : 99;
+    const bs = typeof b.sortOrder === 'number' ? b.sortOrder : 99;
+    if (as !== bs) return as < bs;
+    const apr = a.price != null ? parseFloat(a.price) : Infinity;
+    const bpr = b.price != null ? parseFloat(b.price) : Infinity;
+    if (apr !== bpr) return apr < bpr;
+    return (a.id ?? '') < (b.id ?? '');
+  };
   const byName = new Map<string, T>();
   for (const item of items) {
-    const existing = byName.get(item.title);
-    if (!existing) {
-      byName.set(item.title, item);
-    } else if (!existing.priceId && item.priceId) {
-      byName.set(item.title, item);
+    const key = item.title.trim().toLowerCase();
+    const existing = byName.get(key);
+    if (!existing || better(item, existing)) {
+      byName.set(key, item);
     }
   }
   return Array.from(byName.values());
