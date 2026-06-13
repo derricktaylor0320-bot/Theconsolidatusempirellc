@@ -7,6 +7,22 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
 
+// Stripe contains some products that were created more than once (same name,
+// different ids). Collapse them so each product name appears only once on the
+// site. Prefer the copy that has a usable price/priceId.
+function dedupeByName<T extends { title: string; priceId?: string | null }>(items: T[]): T[] {
+  const byName = new Map<string, T>();
+  for (const item of items) {
+    const existing = byName.get(item.title);
+    if (!existing) {
+      byName.set(item.title, item);
+    } else if (!existing.priceId && item.priceId) {
+      byName.set(item.title, item);
+    }
+  }
+  return Array.from(byName.values());
+}
+
 // All products to seed in Stripe (for both test and live modes)
 const ALL_PRODUCTS = [
   // APPAREL
@@ -702,7 +718,7 @@ export async function registerRoutes(
           });
         }
         
-        return res.json(products);
+        return res.json(dedupeByName(products));
       }
       
       // Group prices by product and format for frontend
@@ -733,7 +749,7 @@ export async function registerRoutes(
         }
       }
 
-      res.json(Array.from(productsMap.values()));
+      res.json(dedupeByName(Array.from(productsMap.values())));
     } catch (error) {
       console.error('Error fetching products:', error);
       res.status(500).json({ error: "Failed to fetch products" });
@@ -781,8 +797,9 @@ export async function registerRoutes(
           });
         }
         
-        products.sort((a, b) => a.sortOrder - b.sortOrder);
-        return res.json(products);
+        const deduped = dedupeByName(products);
+        deduped.sort((a, b) => a.sortOrder - b.sortOrder);
+        return res.json(deduped);
       }
       
       const productsMap = new Map();
@@ -813,7 +830,7 @@ export async function registerRoutes(
         }
       }
 
-      const products = Array.from(productsMap.values()).sort((a: any, b: any) => a.sortOrder - b.sortOrder);
+      const products = dedupeByName(Array.from(productsMap.values())).sort((a: any, b: any) => a.sortOrder - b.sortOrder);
       res.json(products);
     } catch (error) {
       console.error('Error fetching products by type:', error);
