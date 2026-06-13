@@ -53,15 +53,14 @@ import honorWhiteGold from "@assets/shield_white_gold.jpg";
 // Import Legacy Collage
 import legacyCollage from "@assets/Screenshot_20251126_202634_Photos_1764214454254.jpg";
 
-// Import KKMG LLC Logo
-import kkmgLogo from "@assets/1764816327136_1764816411764.jpg";
+// Import KKMG LLC Eagle Shield (#214)
+import kkmgEagleShield from "@assets/1781352952354_1781362246255.png";
 
 // Import Luxury Banners
 import luxuryBanner from "@assets/1764816894577_1764816974804.jpg";
 import bannerMoodVibe from "@assets/generated_images/color_mood_vibe_banner.png";
 import banner1stGen from "@assets/generated_images/1st_generation_logos_banner.png";
 import bannerBadgeHonor from "@assets/generated_images/badge_of_honor_banner.png";
-import bannerShieldHonor from "@assets/generated_images/shield_of_honor_banner.png";
 import banner2ndGen from "@assets/generated_images/2nd_gen_logos_banner.png";
 
 // Import 2nd Generation Logos
@@ -109,6 +108,7 @@ export default function Canvas() {
     { id: "211", src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords" },
     { id: "212", src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords" },
     { id: "213", src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", featured: true },
+    { id: "214", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
   ];
 
   const honorShields = [
@@ -121,7 +121,6 @@ export default function Canvas() {
     { id: "306", src: honorBrownGold, alt: "Brown & Gold Eagle Shield", color: "Brown & Gold" },
     { id: "307", src: honorPurpleGold, alt: "Purple & Gold Eagle Shield", color: "Purple & Gold" },
     { id: "308", src: honorWhiteGold, alt: "White & Gold Eagle Shield", color: "White & Gold" },
-    { id: "309", src: kkmgLogo, alt: "KKMG LLC Eagle Crest", color: "KKMG LLC", featured: true },
   ];
 
   const secondGenLogos = [
@@ -276,63 +275,49 @@ export default function Canvas() {
           </div>
         </section>
 
-        {/* Section 3: Royalty Shield of Honor (The Eagle Shields) */}
-        <section className="py-24 container mx-auto px-4">
-          <div className="text-center mb-16">
-            <img 
-              src={bannerShieldHonor} 
-              alt="Our Royalty Shield of Honor" 
-              className="w-full max-w-4xl mx-auto h-auto object-contain rounded-lg shadow-xl mb-4"
-            />
-            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-              Protecting the wealth, the vision, and the future. 
-              <span className="block text-primary font-bold mt-2">EST. 2020</span>
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {honorShields.map((shield, index) => (
-              <Link key={shield.id} href={`/customize/${shield.id}`} data-testid={`link-shield-${shield.id}`}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, duration: 0.5 }}
-                  className={`group relative flex flex-col items-center justify-center bg-black rounded-xl p-4 border border-white/10 hover:border-primary/40 overflow-hidden cursor-pointer ${shield.featured ? 'md:col-span-2 lg:col-span-1 bg-gradient-to-b from-black to-primary/10' : ''}`}
-                >
-                  <div className="relative w-full aspect-square flex items-center justify-center">
-                    <img 
-                      src={shield.src} 
-                      alt={shield.alt}
-                      className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="mt-4 text-center">
-                    <span className="text-primary/60 text-sm font-mono">#{shield.id}</span>
-                    <p className="text-white font-display text-lg uppercase tracking-wide mt-1">{shield.color}</p>
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
-                    <span className="text-white font-display text-lg uppercase tracking-wide">Customize</span>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* Section 4: 2nd Generation Logos */}
+        {/* Section 3: 2nd Generation (Eagle Shields + 2nd Gen Logos) */}
         <section className="py-24 bg-gradient-to-b from-background to-secondary/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <img 
                 src={banner2ndGen} 
-                alt="2nd Generation Logos" 
+                alt="Our 2nd Generation Logos" 
                 className="w-full max-w-4xl mx-auto h-auto object-contain rounded-lg shadow-xl mb-4"
               />
               <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-                The evolution continues. New designs born from our expanding empire - 
-                representing Khomplete Khemistri Accessories and beyond.
+                The evolution of the empire. Our Shield of Honor eagle crests joined by the new designs that protect the wealth, the vision, and the future.
+                <span className="block text-primary font-bold mt-2">EST. 2020</span>
               </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {honorShields.map((shield, index) => (
+                <Link key={shield.id} href={`/customize/${shield.id}`} data-testid={`link-shield-${shield.id}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                    className={`group relative flex flex-col items-center justify-center bg-black rounded-xl p-4 border border-white/10 hover:border-primary/40 overflow-hidden cursor-pointer ${shield.featured ? 'md:col-span-2 lg:col-span-1 bg-gradient-to-b from-black to-primary/10' : ''}`}
+                  >
+                    <div className="relative w-full aspect-square flex items-center justify-center">
+                      <img 
+                        src={shield.src} 
+                        alt={shield.alt}
+                        className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="mt-4 text-center">
+                      <span className="text-primary/60 text-sm font-mono">#{shield.id}</span>
+                      <p className="text-white font-display text-lg uppercase tracking-wide mt-1">{shield.color}</p>
+                      <span className="text-xs text-primary/80 uppercase tracking-widest mt-2 block">2nd Generation</span>
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
+                      <span className="text-white font-display text-lg uppercase tracking-wide">Customize</span>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">

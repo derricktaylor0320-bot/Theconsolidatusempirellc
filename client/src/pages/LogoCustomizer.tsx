@@ -54,7 +54,7 @@ import honorNavySilver from "@assets/1764209634941_1764211158726.jpg";
 import honorAllGold from "@assets/1764210327974_1764211486802.jpg";
 import honorPurpleGold from "@assets/shield_purple_gold.jpg";
 import honorWhiteGold from "@assets/shield_white_gold.jpg";
-import kkmgLogo from "@assets/1764816327136_1764816411764.jpg";
+import kkmgEagleShield from "@assets/1781352952354_1781362246255.png";
 
 import logoAccessoriesEagle from "@assets/generated_images/kk_accessories_standalone_logo.png";
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
@@ -96,16 +96,16 @@ const allLogos: Record<string, { src: string; alt: string; color: string; sectio
   "211": { src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords", section: "Badge of Honor" },
   "212": { src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords", section: "Badge of Honor" },
   "213": { src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", section: "Badge of Honor" },
-  "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "Shield of Honor" },
-  "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "Shield of Honor" },
-  "302": { src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold", section: "Shield of Honor" },
-  "303": { src: honorBlackGold, alt: "Black & Gold Eagle Shield", color: "Black & Gold", section: "Shield of Honor" },
-  "304": { src: honorMaroonGold, alt: "Maroon & Gold Eagle Shield", color: "Maroon & Gold", section: "Shield of Honor" },
-  "305": { src: honorNavySilver, alt: "Navy & Silver Eagle Shield", color: "Navy & Silver", section: "Shield of Honor" },
-  "306": { src: honorBrownGold, alt: "Brown & Gold Eagle Shield", color: "Brown & Gold", section: "Shield of Honor" },
-  "307": { src: honorPurpleGold, alt: "Purple & Gold Eagle Shield", color: "Purple & Gold", section: "Shield of Honor" },
-  "308": { src: honorWhiteGold, alt: "White & Gold Eagle Shield", color: "White & Gold", section: "Shield of Honor" },
-  "309": { src: kkmgLogo, alt: "KKMG LLC Eagle Crest", color: "KKMG LLC", section: "Shield of Honor" },
+  "214": { src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", section: "Badge of Honor" },
+  "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "2nd Generation" },
+  "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "2nd Generation" },
+  "302": { src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold", section: "2nd Generation" },
+  "303": { src: honorBlackGold, alt: "Black & Gold Eagle Shield", color: "Black & Gold", section: "2nd Generation" },
+  "304": { src: honorMaroonGold, alt: "Maroon & Gold Eagle Shield", color: "Maroon & Gold", section: "2nd Generation" },
+  "305": { src: honorNavySilver, alt: "Navy & Silver Eagle Shield", color: "Navy & Silver", section: "2nd Generation" },
+  "306": { src: honorBrownGold, alt: "Brown & Gold Eagle Shield", color: "Brown & Gold", section: "2nd Generation" },
+  "307": { src: honorPurpleGold, alt: "Purple & Gold Eagle Shield", color: "Purple & Gold", section: "2nd Generation" },
+  "308": { src: honorWhiteGold, alt: "White & Gold Eagle Shield", color: "White & Gold", section: "2nd Generation" },
   "400": { src: logoAccessoriesEagle, alt: "Khomplete Khemistri Accessories Eagle", color: "Accessories Eagle", section: "2nd Generation" },
   "401": { src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords", section: "2nd Generation" },
   "402": { src: logoKKShieldSwords, alt: "KK Shield with Swords", color: "KK Shield & Swords", section: "2nd Generation" },
