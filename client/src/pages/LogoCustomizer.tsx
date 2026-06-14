@@ -130,6 +130,7 @@ const garmentTypes = [
   { id: "jacket", name: "Jacket/Coat", basePrice: 75, category: "tops" },
   { id: "jeans", name: "Jeans", basePrice: 65, category: "bottoms" },
   { id: "sweatpants", name: "Sweatpants", basePrice: 55, category: "bottoms" },
+  { id: "tumbler-40oz", name: "40oz Insulated Travel Tumbler", basePrice: 30, category: "accessories" },
 ];
 
 const topPlacementOptions = [
@@ -148,6 +149,19 @@ const bottomPlacementOptions = [
   { id: "right-back-pocket", name: "Right Back Pocket", price: 0, dimensions: '3" – 3.5" wide' },
 ];
 
+const accessoryPlacementOptions = [
+  { id: "tumbler-wrap", name: "Laser-Etched Logo", price: 0, dimensions: 'up to 3" wide' },
+];
+
+const accessoryFeatures: Record<string, string[]> = {
+  "tumbler-40oz": [
+    "Double-wall vacuum insulation — keeps drinks cold 24+ hrs or hot 12 hrs",
+    "Premium stainless steel with a scuff-resistant powder-coated finish",
+    "Ergonomic handle and matching straw",
+    "Permanent, high-end laser-etched custom logo",
+  ],
+};
+
 export default function LogoCustomizer() {
   const { logoId } = useParams<{ logoId: string }>();
   const [, setLocation] = useLocation();
@@ -160,8 +174,12 @@ export default function LogoCustomizer() {
   const logo = logoId ? allLogos[logoId] : null;
   
   const selectedGarmentData = garmentTypes.find(g => g.id === selectedGarment);
-  const isBottoms = selectedGarmentData?.category === "bottoms";
-  const placementOptions = isBottoms ? bottomPlacementOptions : topPlacementOptions;
+  const placementOptions =
+    selectedGarmentData?.category === "bottoms"
+      ? bottomPlacementOptions
+      : selectedGarmentData?.category === "accessories"
+        ? accessoryPlacementOptions
+        : topPlacementOptions;
 
   if (!logo) {
     return (
@@ -199,6 +217,22 @@ export default function LogoCustomizer() {
       price += 10;
     }
     return price;
+  };
+
+  const defaultPlacementFor = (category?: string) => {
+    if (category === "bottoms") return "front-right-leg";
+    if (category === "accessories") return "tumbler-wrap";
+    return "front-left-chest";
+  };
+
+  const handleGarmentChange = (value: string) => {
+    const newGarment = garmentTypes.find((g) => g.id === value);
+    const prevCategory = selectedGarmentData?.category;
+    const nextCategory = newGarment?.category;
+    setSelectedGarment(value);
+    if (prevCategory !== nextCategory) {
+      setSelectedPlacements([defaultPlacementFor(nextCategory)]);
+    }
   };
 
   const handleCheckout = async () => {
@@ -323,15 +357,7 @@ export default function LogoCustomizer() {
                   <p className="text-sm text-muted-foreground mb-3 font-semibold uppercase tracking-wide">Tops</p>
                   <RadioGroup 
                     value={selectedGarment} 
-                    onValueChange={(value) => {
-                      const newGarment = garmentTypes.find(g => g.id === value);
-                      const wasBottoms = selectedGarmentData?.category === "bottoms";
-                      const isNowBottoms = newGarment?.category === "bottoms";
-                      setSelectedGarment(value);
-                      if (wasBottoms !== isNowBottoms) {
-                        setSelectedPlacements(isNowBottoms ? ["front-right-leg"] : ["front-left-chest"]);
-                      }
-                    }}
+                    onValueChange={handleGarmentChange}
                     className="grid gap-3"
                   >
                     {garmentTypes.filter(g => g.category === "tops").map((garment) => (
@@ -357,15 +383,7 @@ export default function LogoCustomizer() {
                   <p className="text-sm text-muted-foreground mb-3 font-semibold uppercase tracking-wide">Bottoms</p>
                   <RadioGroup 
                     value={selectedGarment} 
-                    onValueChange={(value) => {
-                      const newGarment = garmentTypes.find(g => g.id === value);
-                      const wasBottoms = selectedGarmentData?.category === "bottoms";
-                      const isNowBottoms = newGarment?.category === "bottoms";
-                      setSelectedGarment(value);
-                      if (wasBottoms !== isNowBottoms) {
-                        setSelectedPlacements(isNowBottoms ? ["front-right-leg"] : ["front-left-chest"]);
-                      }
-                    }}
+                    onValueChange={handleGarmentChange}
                     className="grid gap-3"
                   >
                     {garmentTypes.filter(g => g.category === "bottoms").map((garment) => (
@@ -387,14 +405,53 @@ export default function LogoCustomizer() {
                     ))}
                   </RadioGroup>
                 </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-3 font-semibold uppercase tracking-wide">Accessories</p>
+                  <RadioGroup
+                    value={selectedGarment}
+                    onValueChange={handleGarmentChange}
+                    className="grid gap-3"
+                  >
+                    {garmentTypes.filter(g => g.category === "accessories").map((garment) => (
+                      <div key={garment.id} className="flex items-center">
+                        <RadioGroupItem
+                          value={garment.id}
+                          id={garment.id}
+                          className="peer sr-only"
+                          data-testid={`radio-garment-${garment.id}`}
+                        />
+                        <Label
+                          htmlFor={garment.id}
+                          className="flex items-center justify-between w-full p-4 bg-secondary rounded-lg border-2 border-transparent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10 cursor-pointer transition-all hover:bg-secondary/80"
+                        >
+                          <span className="font-medium">{garment.name}</span>
+                          <span className="text-primary font-bold">${garment.basePrice}</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
               </div>
+
+              {selectedGarment && accessoryFeatures[selectedGarment] && (
+                <div className="space-y-2 rounded-lg bg-secondary p-4" data-testid="accessory-features">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-primary">Premium Features</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-5">
+                    {accessoryFeatures[selectedGarment].map((feature, i) => (
+                      <li key={i} data-testid={`feature-${i}`}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <h3 className="text-xl font-display font-bold uppercase">
                   2. Select Logo Placement
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Select one or both placements. Additional placement adds $10.
+                  {selectedGarmentData?.category === "accessories"
+                    ? "Your logo will be laser-etched in the position shown below."
+                    : "Select one or both placements. Additional placement adds $10."}
                 </p>
                 <div className="space-y-3">
                   {placementOptions.map((placement) => (

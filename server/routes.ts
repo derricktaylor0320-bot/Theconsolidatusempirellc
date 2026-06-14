@@ -912,6 +912,7 @@ export async function registerRoutes(
         "jacket": 75,
         "jeans": 65,
         "sweatpants": 55,
+        "tumbler-40oz": 30,
       };
 
       const basePrice = GARMENT_BASE_PRICES[garmentId];
@@ -919,7 +920,12 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid garment selection" });
       }
 
-      const placementCount = Array.isArray(placements) ? placements.length : 1;
+      // Some items (e.g. the tumbler) carry a single laser-etched logo only —
+      // the dual-placement surcharge must never apply to them.
+      const SINGLE_PLACEMENT_GARMENTS = new Set(["tumbler-40oz"]);
+      const placementCount = SINGLE_PLACEMENT_GARMENTS.has(garmentId)
+        ? 1
+        : (Array.isArray(placements) ? placements.length : 1);
       const totalDollars = basePrice + (placementCount > 1 ? 10 : 0);
       const amountCents = totalDollars * 100;
 
