@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { CartProvider } from "@/hooks/useCart";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
@@ -15,6 +16,7 @@ import Hub from "@/pages/Hub";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import CheckoutCancel from "@/pages/CheckoutCancel";
 import LogoCustomizer from "@/pages/LogoCustomizer";
+import Cart from "@/pages/Cart";
 import Vintage from "@/pages/Vintage";
 import Policies from "@/pages/Policies";
 import Poetry from "@/pages/Poetry";
@@ -38,6 +40,7 @@ function Router() {
       <Route path="/pocket-booster" component={PocketBooster} />
       <Route path="/apparel" component={Apparel} />
       <Route path="/accessories" component={Accessories} />
+      <Route path="/cart" component={Cart} />
       <Route path="/vintage" component={Vintage} />
       <Route path="/policies" component={Policies} />
       <Route path="/poetry" component={Poetry} />
@@ -52,10 +55,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <CartProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </CartProvider>
     </QueryClientProvider>
   );
 }

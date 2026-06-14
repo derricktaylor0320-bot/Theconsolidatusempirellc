@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
-import { createSquarePaymentLink } from "./squareClient";
+import { createSquarePaymentLink, createSquareOrderPaymentLink } from "./squareClient";
+import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { z } from "zod";
@@ -288,9 +289,15 @@ const ALL_PRODUCTS = [
   // ACCESSORIES
   {
     name: '40 Oz Branded Tumbler',
-    description: 'Premium 40 oz insulated tumbler with your choice of Khomplete Khemistri logo. Available in 6 colors: Bayleaf, Black, Eucalyptus, Light Pink, Lilac, and Rose Quartz.',
-    price: 2500,
-    metadata: { category: 'Drinkware', productType: 'accessory', colors: 'Bayleaf, Black, Eucalyptus, Light Pink, Lilac, Rose Quartz', imageUrl: '/assets/Screenshot_20251202_194149_Amazon_Shopping_1764813802811.jpg' }
+    description: 'Premium 40 oz insulated stainless steel tumbler with handle and your choice of Khomplete Khemistri logo. Keeps drinks cold or hot for hours. Available in a wide range of colors — tell us your preferred color at checkout.',
+    price: 3000,
+    metadata: { category: 'Drinkware', productType: 'accessory', colors: 'Multiple colors available — specify your color choice at checkout', imageUrl: '/assets/Screenshot_20251202_194149_Amazon_Shopping_1764813802811.jpg', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest', amazonLink: 'https://a.co/d/03kljFGN', cost: '20', fulfillment: 'Amazon' }
+  },
+  {
+    name: 'Coffee Mug',
+    description: 'Personalized 11 oz ceramic coffee mug with your choice of Khomplete Khemistri logo. Microwave and dishwasher safe. Available in multiple colors — perfect for your morning brew.',
+    price: 1500,
+    metadata: { category: 'Drinkware', productType: 'accessory', imageUrl: '/assets/generated_images/black_branded_mug.png', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest', amazonLink: 'https://a.co/d/08wcx6Bh', fulfillment: 'Amazon' }
   },
   {
     name: 'Executive Umbrella',
@@ -620,7 +627,7 @@ async function seedProducts() {
         const product = await stripe.products.create({
           name: productDef.name,
           description: productDef.description,
-          metadata: productDef.metadata,
+          metadata: productDef.metadata as unknown as Record<string, string>,
           images: [],
         });
         
@@ -638,7 +645,7 @@ async function seedProducts() {
           console.log(`Updating image for: ${productDef.name}...`);
           await stripe.products.update(existingProduct.id, {
             description: productDef.description,
-            metadata: productDef.metadata,
+            metadata: productDef.metadata as unknown as Record<string, string>,
           });
           console.log(`Updated: ${productDef.name}`);
         }
@@ -686,8 +693,19 @@ export async function registerRoutes(
   // Shared hub authentication (session + passport local strategy)
   setupAuth(app);
 
-  // Seed products in the background (non-blocking)
-  seedProducts().catch(err => console.error('Product seeding failed:', err));
+  // Seed products in the background (non-blocking), then ensure the catalog
+  // facts (tumbler price/logo, Coffee Mug) hold in whatever DB this server is
+  // connected to — dev now, Railway prod on deploy. Running ensureCatalogData
+  // after seedProducts keeps startup convergence deterministic (seedProducts
+  // creates the dev Stripe mug first, so the guarded synthetic insert is a no-op
+  // in dev and only fires on the production snapshot).
+  seedProducts()
+    .catch(err => console.error('Product seeding failed:', err))
+    .finally(() => {
+      ensureCatalogData().catch(err =>
+        console.error('ensureCatalogData failed:', err),
+      );
+    });
   
   // Get Stripe publishable key for frontend
   app.get("/api/stripe/config", async (req, res) => {
@@ -964,6 +982,81 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error('Error creating custom checkout session:', error);
       res.status(500).json({ error: error.message || "Failed to create custom checkout session" });
+    }
+  });
+
+  // Create checkout session for an entire cart (one Square order, many items)
+  app.post("/api/create-cart-checkout", async (req, res) => {
+    try {
+      const { items } = req.body;
+
+      if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: "Your cart is empty." });
+      }
+
+      if (items.length > 100) {
+        return res.status(400).json({ error: "Too many items in your cart." });
+      }
+
+      const lineItems: { name: string; quantity: number; amountCents: number; note?: string }[] = [];
+
+      for (const item of items) {
+        const priceId = item?.priceId;
+        if (!priceId) {
+          return res.status(400).json({ error: "Each item must include a priceId." });
+        }
+
+        let quantity = Number(item?.quantity) || 1;
+        quantity = Math.max(1, Math.min(99, Math.round(quantity)));
+
+        // Server-authoritative pricing: the amount always comes from the DB,
+        // never from the client.
+        const priceRow: any = await stripeStorage.getPriceWithProduct(priceId);
+        if (!priceRow || priceRow.unit_amount == null) {
+          return res.status(404).json({ error: "One of your items is no longer available." });
+        }
+
+        // Server-authoritative logo enforcement for custom-branded products.
+        const productMetadata = (priceRow.product_metadata || {}) as any;
+        const logoChoices: string[] = productMetadata.logoOptions
+          ? String(productMetadata.logoOptions)
+              .split(",")
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+          : [];
+        const selectedLogo = item?.selectedLogo;
+        if (logoChoices.length > 0) {
+          if (!selectedLogo || !logoChoices.includes(selectedLogo)) {
+            return res.status(400).json({
+              error: `Please select a logo variation for "${priceRow.product_name}" before checking out.`,
+            });
+          }
+        }
+
+        const amountCents = Number(priceRow.unit_amount);
+        if (!amountCents || amountCents <= 0) {
+          return res.status(400).json({ error: "Invalid product price." });
+        }
+
+        lineItems.push({
+          name: (priceRow.product_name as string) || "Item",
+          quantity,
+          amountCents,
+          note: logoChoices.length > 0 && selectedLogo ? `Logo: ${selectedLogo}` : undefined,
+        });
+      }
+
+      const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+
+      const url = await createSquareOrderPaymentLink({
+        lineItems,
+        redirectUrl: `${baseUrl}/checkout/success`,
+      });
+
+      res.json({ url });
+    } catch (error: any) {
+      console.error('Error creating cart checkout:', error);
+      res.status(500).json({ error: error.message || "Failed to create checkout session" });
     }
   });
 

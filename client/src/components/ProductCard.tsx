@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useCart } from "@/hooks/useCart";
 
 interface ProductCardProps {
   image: string;
@@ -16,50 +17,34 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions }: ProductCardProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { addItem } = useCart();
   const logoChoices = logoOptions
     ? logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsLogo = logoChoices.length > 0;
   const [selectedLogo, setSelectedLogo] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [added, setAdded] = useState(false);
 
-  const handleBuyNow = async () => {
+  const handleAddToCart = () => {
     if (!priceId) return;
-    if (needsLogo && !selectedLogo) return;
-
-    setIsLoading(true);
-    try {
-      const baseDescription = description || category;
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          priceId,
-          productName: title,
-          productImage: image,
-          selectedLogo: needsLogo ? selectedLogo : undefined,
-          productDescription: needsLogo
-            ? `Logo: ${selectedLogo} | ${baseDescription}`
-            : baseDescription
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setErrorMessage(data.error || 'Something went wrong. Please try again.');
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setErrorMessage('Something went wrong. Please try again.');
-      setIsLoading(false);
+    if (needsLogo && !selectedLogo) {
+      setErrorMessage("Please select a logo variation.");
+      return;
     }
+
+    addItem({
+      priceId,
+      title,
+      image,
+      category,
+      unitPrice: price,
+      selectedLogo: needsLogo ? selectedLogo : undefined,
+    });
+
+    setErrorMessage("");
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1800);
   };
 
   return (
@@ -135,16 +120,18 @@ export default function ProductCard({ image, title, price, category, priceId, so
             </div>
           )}
           <Button 
-            onClick={handleBuyNow}
-            disabled={isLoading || !priceId || soldOut || (needsLogo && !selectedLogo)}
+            onClick={handleAddToCart}
+            disabled={!priceId || soldOut || (needsLogo && !selectedLogo)}
             className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
               soldOut 
                 ? 'bg-gray-400 text-white cursor-not-allowed' 
+                : added
+                ? 'bg-primary text-black'
                 : 'bg-black text-white hover:bg-primary hover:text-black'
             }`}
-            data-testid={`button-buy-${title.toLowerCase().replace(/\s+/g, '-')}`}
+            data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
           >
-            {soldOut ? 'Sold Out' : isLoading ? 'Processing...' : needsLogo && !selectedLogo ? 'Select a Logo' : 'Buy Now'}
+            {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : 'Add to Cart'}
           </Button>
           {errorMessage && (
             <p

@@ -14,6 +14,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
+import { useCart } from "@/hooks/useCart";
 
 import logo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
 
@@ -21,6 +22,7 @@ export default function Navbar() {
   const [location, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
+  const { itemCount } = useCart();
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
@@ -121,10 +123,19 @@ export default function Navbar() {
             )}
           </div>
 
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary" />
-          </Button>
+          <Link href="/cart" data-testid="link-cart">
+            <Button variant="ghost" size="icon" className="relative" aria-label="Cart">
+              <ShoppingCart className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 h-5 min-w-[1.25rem] px-1 rounded-full bg-primary text-black text-[10px] font-bold flex items-center justify-center"
+                  data-testid="text-cart-count"
+                >
+                  {itemCount > 99 ? "99+" : itemCount}
+                </span>
+              )}
+            </Button>
+          </Link>
 
           {/* Mobile Nav */}
           <div className="md:hidden">

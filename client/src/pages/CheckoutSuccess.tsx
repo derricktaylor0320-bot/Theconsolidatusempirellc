@@ -4,8 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { CheckCircle, ShoppingBag, Mail } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useCart } from "@/hooks/useCart";
 
 export default function CheckoutSuccess() {
+  const { clearCart } = useCart();
+
+  useEffect(() => {
+    clearCart();
+  }, [clearCart]);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
