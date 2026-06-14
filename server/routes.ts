@@ -731,6 +731,7 @@ export async function registerRoutes(
             productType: metadata.productType || 'general',
             sortOrder: parseInt(metadata.sortOrder || '99'),
             gender: metadata.gender || null,
+            logoOptions: metadata.logoOptions || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -754,6 +755,7 @@ export async function registerRoutes(
             imageUrl: metadata.imageUrl || (images.length > 0 ? images[0] : ''),
             productType: metadata.productType || 'general',
             gender: metadata.gender || null,
+            logoOptions: metadata.logoOptions || null,
             price: null,
             priceId: null,
           });
@@ -810,6 +812,7 @@ export async function registerRoutes(
             productType: metadata.productType || 'general',
             sortOrder: parseInt(metadata.sortOrder || '99'),
             gender: metadata.gender || null,
+            logoOptions: metadata.logoOptions || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -836,6 +839,7 @@ export async function registerRoutes(
             sortOrder: parseInt(metadata.sortOrder || '99'),
             soldOut: metadata.soldOut === 'true',
             gender: metadata.gender || null,
+            logoOptions: metadata.logoOptions || null,
             price: null,
             priceId: null,
           });
@@ -859,7 +863,7 @@ export async function registerRoutes(
   // Create checkout session (Square-hosted checkout)
   app.post("/api/create-checkout-session", async (req, res) => {
     try {
-      const { priceId, productName, productDescription } = req.body;
+      const { priceId, productName, productDescription, selectedLogo } = req.body;
 
       if (!priceId) {
         return res.status(400).json({ error: "Price ID is required" });
@@ -870,6 +874,24 @@ export async function registerRoutes(
       const priceRow: any = await stripeStorage.getPriceWithProduct(priceId);
       if (!priceRow || priceRow.unit_amount == null) {
         return res.status(404).json({ error: "Product price not found" });
+      }
+
+      // Server-authoritative logo enforcement: custom-branded products carry a
+      // comma-separated `logoOptions` list in their metadata. If present, a valid
+      // logo choice is required before checkout — enforced here, not just in the UI.
+      const productMetadata = (priceRow.product_metadata || {}) as any;
+      const logoChoices: string[] = productMetadata.logoOptions
+        ? String(productMetadata.logoOptions)
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter(Boolean)
+        : [];
+      if (logoChoices.length > 0) {
+        if (!selectedLogo || !logoChoices.includes(selectedLogo)) {
+          return res.status(400).json({
+            error: "Please select a logo variation to complete your order.",
+          });
+        }
       }
 
       const amountCents = Number(priceRow.unit_amount);

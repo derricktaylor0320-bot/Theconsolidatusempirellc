@@ -28,6 +28,7 @@ export default function Apparel() {
           image={product.imageUrl}
           priceId={product.priceId}
           description={product.description}
+          logoOptions={product.logoOptions}
         />
       ))}
     </div>

@@ -86,7 +86,8 @@ export class StripeStorage {
           pr.currency,
           pr.active as price_active,
           p.name as product_name,
-          p.description as product_description
+          p.description as product_description,
+          p.metadata as product_metadata
         FROM stripe.prices pr
         JOIN stripe.products p ON p.id = pr.product
         WHERE pr.id = ${priceId}

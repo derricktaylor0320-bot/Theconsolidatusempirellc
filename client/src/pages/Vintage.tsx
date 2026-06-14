@@ -81,6 +81,7 @@ export default function Vintage() {
                 priceId={product.priceId}
                 soldOut={product.soldOut}
                 description={product.description}
+                logoOptions={product.logoOptions}
               />
             ))}
           </div>

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -11,16 +12,25 @@ interface ProductCardProps {
   priceId?: string;
   soldOut?: boolean;
   description?: string;
+  logoOptions?: string;
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions }: ProductCardProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const logoChoices = logoOptions
+    ? logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsLogo = logoChoices.length > 0;
+  const [selectedLogo, setSelectedLogo] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleBuyNow = async () => {
     if (!priceId) return;
+    if (needsLogo && !selectedLogo) return;
 
     setIsLoading(true);
     try {
+      const baseDescription = description || category;
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -30,7 +40,10 @@ export default function ProductCard({ image, title, price, category, priceId, so
           priceId,
           productName: title,
           productImage: image,
-          productDescription: description || category
+          selectedLogo: needsLogo ? selectedLogo : undefined,
+          productDescription: needsLogo
+            ? `Logo: ${selectedLogo} | ${baseDescription}`
+            : baseDescription
         }),
       });
 
@@ -38,9 +51,13 @@ export default function ProductCard({ image, title, price, category, priceId, so
       
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        setErrorMessage(data.error || 'Something went wrong. Please try again.');
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Error:', error);
+      setErrorMessage('Something went wrong. Please try again.');
       setIsLoading(false);
     }
   };
@@ -88,9 +105,38 @@ export default function ProductCard({ image, title, price, category, priceId, so
               ${price.toFixed(2)}
             </span>
           </div>
+          {needsLogo && (
+            <div className="w-full mt-1 space-y-2">
+              <p
+                className="text-xs text-muted-foreground leading-relaxed"
+                data-testid={`text-custom-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                Note: All items are custom branded. Please select your preferred logo variation below to complete your order.
+              </p>
+              <Select value={selectedLogo} onValueChange={(v) => { setSelectedLogo(v); setErrorMessage(""); }} disabled={soldOut}>
+                <SelectTrigger
+                  className="w-full"
+                  data-testid={`select-logo-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  <SelectValue placeholder="Choose your logo *" />
+                </SelectTrigger>
+                <SelectContent>
+                  {logoChoices.map((choice) => (
+                    <SelectItem
+                      key={choice}
+                      value={choice}
+                      data-testid={`option-logo-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {choice}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <Button 
             onClick={handleBuyNow}
-            disabled={isLoading || !priceId || soldOut}
+            disabled={isLoading || !priceId || soldOut || (needsLogo && !selectedLogo)}
             className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
               soldOut 
                 ? 'bg-gray-400 text-white cursor-not-allowed' 
@@ -98,8 +144,16 @@ export default function ProductCard({ image, title, price, category, priceId, so
             }`}
             data-testid={`button-buy-${title.toLowerCase().replace(/\s+/g, '-')}`}
           >
-            {soldOut ? 'Sold Out' : isLoading ? 'Processing...' : 'Buy Now'}
+            {soldOut ? 'Sold Out' : isLoading ? 'Processing...' : needsLogo && !selectedLogo ? 'Select a Logo' : 'Buy Now'}
           </Button>
+          {errorMessage && (
+            <p
+              className="text-xs text-red-500 mt-1"
+              data-testid={`text-error-${title.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              {errorMessage}
+            </p>
+          )}
         </CardFooter>
       </Card>
     </motion.div>

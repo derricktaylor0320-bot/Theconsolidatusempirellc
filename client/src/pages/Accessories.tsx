@@ -44,6 +44,7 @@ export default function Accessories() {
                 priceId={product.priceId}
                 soldOut={product.soldOut}
                 description={product.description}
+                logoOptions={product.logoOptions}
               />
             ))}
           </div>
