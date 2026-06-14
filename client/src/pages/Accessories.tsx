@@ -45,6 +45,7 @@ export default function Accessories() {
                 soldOut={product.soldOut}
                 description={product.description}
                 logoOptions={product.logoOptions}
+                handleColors={product.handleColors}
               />
             ))}
           </div>

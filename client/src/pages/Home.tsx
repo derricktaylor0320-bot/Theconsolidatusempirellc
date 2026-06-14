@@ -47,6 +47,7 @@ export default function Home() {
                 priceId={product.priceId}
                 description={product.description}
                 logoOptions={product.logoOptions}
+                handleColors={product.handleColors}
               />
             ))}
           </div>

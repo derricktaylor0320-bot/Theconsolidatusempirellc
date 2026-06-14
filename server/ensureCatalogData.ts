@@ -38,11 +38,14 @@ const MUG_PRICE_CENTS = 1500;
 const MUG_IMAGE = "/assets/generated_images/black_branded_mug.png";
 const MUG_DESCRIPTION =
   "Personalized 11 oz ceramic coffee mug with your choice of Khomplete Khemistri logo. Microwave and dishwasher safe. Available in multiple colors — perfect for your morning brew.";
+// The mug uses handle-color customization (color + matching logo from the
+// shared logo collection) instead of the 3 standard logo options.
+const MUG_HANDLE_COLORS = "Black, Blue, Red, Green, Yellow/Gold";
 const MUG_META = {
   category: "Drinkware",
   productType: "accessory",
   imageUrl: MUG_IMAGE,
-  logoOptions: STANDARD_LOGO_OPTIONS,
+  handleColors: MUG_HANDLE_COLORS,
   amazonLink: "https://a.co/d/08wcx6Bh",
   fulfillment: "Amazon",
 };
@@ -123,7 +126,22 @@ export async function ensureCatalogData() {
         AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${MUG_PRODUCT_ID})
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo) and Coffee Mug ($15).");
+    // 4) Coffee Mug metadata -> handle-color customization. The dev mug created
+    //    by seedProducts carries the old `logoOptions`; switch every mug to the
+    //    new `handleColors` model (drop logoOptions, merge in handleColors etc.).
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata}',
+            (COALESCE(_raw_data->'metadata', '{}'::jsonb) - 'logoOptions') || ${JSON.stringify(MUG_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${MUG_NAME}
+    `);
+
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo) and Coffee Mug ($15, handle colors).");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

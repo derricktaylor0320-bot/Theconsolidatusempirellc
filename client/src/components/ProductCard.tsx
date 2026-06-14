@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
+import MugCustomizer from "@/components/MugCustomizer";
 
 interface ProductCardProps {
   image: string;
@@ -14,10 +15,12 @@ interface ProductCardProps {
   soldOut?: boolean;
   description?: string;
   logoOptions?: string;
+  handleColors?: string;
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors }: ProductCardProps) {
   const { addItem } = useCart();
+  const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
   const logoChoices = logoOptions
     ? logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -90,56 +93,78 @@ export default function ProductCard({ image, title, price, category, priceId, so
               ${price.toFixed(2)}
             </span>
           </div>
-          {needsLogo && (
-            <div className="w-full mt-1 space-y-2">
+          {usesHandleColors ? (
+            <>
               <p
-                className="text-xs text-muted-foreground leading-relaxed"
+                className="text-xs text-muted-foreground leading-relaxed w-full mt-1"
                 data-testid={`text-custom-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                Note: All items are custom branded. Please select your preferred logo variation below to complete your order.
+                Note: Custom branded. Pick your handle color and matching logo to complete your order.
               </p>
-              <Select value={selectedLogo} onValueChange={(v) => { setSelectedLogo(v); setErrorMessage(""); }} disabled={soldOut}>
-                <SelectTrigger
-                  className="w-full"
-                  data-testid={`select-logo-${title.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  <SelectValue placeholder="Choose your logo *" />
-                </SelectTrigger>
-                <SelectContent>
-                  {logoChoices.map((choice) => (
-                    <SelectItem
-                      key={choice}
-                      value={choice}
-                      data-testid={`option-logo-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+              <MugCustomizer
+                title={title}
+                image={image}
+                category={category}
+                unitPrice={price}
+                priceId={priceId}
+                soldOut={soldOut}
+                handleColors={handleColors as string}
+              />
+            </>
+          ) : (
+            <>
+              {needsLogo && (
+                <div className="w-full mt-1 space-y-2">
+                  <p
+                    className="text-xs text-muted-foreground leading-relaxed"
+                    data-testid={`text-custom-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    Note: All items are custom branded. Please select your preferred logo variation below to complete your order.
+                  </p>
+                  <Select value={selectedLogo} onValueChange={(v) => { setSelectedLogo(v); setErrorMessage(""); }} disabled={soldOut}>
+                    <SelectTrigger
+                      className="w-full"
+                      data-testid={`select-logo-${title.toLowerCase().replace(/\s+/g, '-')}`}
                     >
-                      {choice}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          <Button 
-            onClick={handleAddToCart}
-            disabled={!priceId || soldOut || (needsLogo && !selectedLogo)}
-            className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
-              soldOut 
-                ? 'bg-gray-400 text-white cursor-not-allowed' 
-                : added
-                ? 'bg-primary text-black'
-                : 'bg-black text-white hover:bg-primary hover:text-black'
-            }`}
-            data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
-          >
-            {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : 'Add to Cart'}
-          </Button>
-          {errorMessage && (
-            <p
-              className="text-xs text-red-500 mt-1"
-              data-testid={`text-error-${title.toLowerCase().replace(/\s+/g, '-')}`}
-            >
-              {errorMessage}
-            </p>
+                      <SelectValue placeholder="Choose your logo *" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {logoChoices.map((choice) => (
+                        <SelectItem
+                          key={choice}
+                          value={choice}
+                          data-testid={`option-logo-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          {choice}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <Button 
+                onClick={handleAddToCart}
+                disabled={!priceId || soldOut || (needsLogo && !selectedLogo)}
+                className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
+                  soldOut 
+                    ? 'bg-gray-400 text-white cursor-not-allowed' 
+                    : added
+                    ? 'bg-primary text-black'
+                    : 'bg-black text-white hover:bg-primary hover:text-black'
+                }`}
+                data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : 'Add to Cart'}
+              </Button>
+              {errorMessage && (
+                <p
+                  className="text-xs text-red-500 mt-1"
+                  data-testid={`text-error-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {errorMessage}
+                </p>
+              )}
+            </>
           )}
         </CardFooter>
       </Card>

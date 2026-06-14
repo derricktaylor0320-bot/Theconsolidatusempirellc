@@ -297,7 +297,7 @@ const ALL_PRODUCTS = [
     name: 'Coffee Mug',
     description: 'Personalized 11 oz ceramic coffee mug with your choice of Khomplete Khemistri logo. Microwave and dishwasher safe. Available in multiple colors — perfect for your morning brew.',
     price: 1500,
-    metadata: { category: 'Drinkware', productType: 'accessory', imageUrl: '/assets/generated_images/black_branded_mug.png', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest', amazonLink: 'https://a.co/d/08wcx6Bh', fulfillment: 'Amazon' }
+    metadata: { category: 'Drinkware', productType: 'accessory', imageUrl: '/assets/generated_images/black_branded_mug.png', handleColors: 'Black, Blue, Red, Green, Yellow/Gold', amazonLink: 'https://a.co/d/08wcx6Bh', fulfillment: 'Amazon' }
   },
   {
     name: 'Executive Umbrella',
@@ -750,6 +750,7 @@ export async function registerRoutes(
             sortOrder: parseInt(metadata.sortOrder || '99'),
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
+            handleColors: metadata.handleColors || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -774,6 +775,7 @@ export async function registerRoutes(
             productType: metadata.productType || 'general',
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
+            handleColors: metadata.handleColors || null,
             price: null,
             priceId: null,
           });
@@ -831,6 +833,7 @@ export async function registerRoutes(
             sortOrder: parseInt(metadata.sortOrder || '99'),
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
+            handleColors: metadata.handleColors || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -858,6 +861,7 @@ export async function registerRoutes(
             soldOut: metadata.soldOut === 'true',
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
+            handleColors: metadata.handleColors || null,
             price: null,
             priceId: null,
           });
@@ -1018,6 +1022,12 @@ export async function registerRoutes(
 
         // Server-authoritative logo enforcement for custom-branded products.
         const productMetadata = (priceRow.product_metadata || {}) as any;
+        const handleColors: string[] = productMetadata.handleColors
+          ? String(productMetadata.handleColors)
+              .split(",")
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+          : [];
         const logoChoices: string[] = productMetadata.logoOptions
           ? String(productMetadata.logoOptions)
               .split(",")
@@ -1025,12 +1035,27 @@ export async function registerRoutes(
               .filter(Boolean)
           : [];
         const selectedLogo = item?.selectedLogo;
-        if (logoChoices.length > 0) {
+        let logoNote: string | undefined;
+        if (handleColors.length > 0) {
+          // Color-customized products (e.g. the Coffee Mug): selectedLogo is a
+          // combined "<color> handle — <logo name>" string built on the client.
+          if (
+            !selectedLogo ||
+            typeof selectedLogo !== "string" ||
+            !handleColors.some((c) => selectedLogo.startsWith(c))
+          ) {
+            return res.status(400).json({
+              error: `Please choose a handle color and logo for "${priceRow.product_name}" before checking out.`,
+            });
+          }
+          logoNote = selectedLogo;
+        } else if (logoChoices.length > 0) {
           if (!selectedLogo || !logoChoices.includes(selectedLogo)) {
             return res.status(400).json({
               error: `Please select a logo variation for "${priceRow.product_name}" before checking out.`,
             });
           }
+          logoNote = `Logo: ${selectedLogo}`;
         }
 
         const amountCents = Number(priceRow.unit_amount);
@@ -1042,7 +1067,7 @@ export async function registerRoutes(
           name: (priceRow.product_name as string) || "Item",
           quantity,
           amountCents,
-          note: logoChoices.length > 0 && selectedLogo ? `Logo: ${selectedLogo}` : undefined,
+          note: logoNote,
         });
       }
 
