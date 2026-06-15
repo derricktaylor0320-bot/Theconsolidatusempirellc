@@ -83,6 +83,7 @@ export default function Vintage() {
                 description={product.description}
                 logoOptions={product.logoOptions}
                 handleColors={product.handleColors}
+                caseType={product.caseType}
               />
             ))}
           </div>

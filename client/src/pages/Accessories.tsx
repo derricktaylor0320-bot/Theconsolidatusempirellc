@@ -46,6 +46,7 @@ export default function Accessories() {
                 description={product.description}
                 logoOptions={product.logoOptions}
                 handleColors={product.handleColors}
+                caseType={product.caseType}
               />
             ))}
           </div>

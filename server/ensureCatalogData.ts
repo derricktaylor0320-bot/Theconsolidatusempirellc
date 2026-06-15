@@ -50,19 +50,96 @@ const MUG_META = {
   fulfillment: "Amazon",
 };
 
+// Custom phone cases. Like the mug, these are new products that must exist in
+// whatever DB this server is connected to. In dev seedProducts creates them in
+// Stripe (synced to the DB) so the guarded inserts below are no-ops; in Railway
+// prod (frozen snapshot, no Stripe) the inserts are what actually create them.
+// The selectable phone-model list lives in shared/phoneModels.ts (too long for
+// Stripe's 500-char metadata limit); products only carry a short `caseType`.
+const CASE_PRICE_CENTS = 3000;
+
+const IPHONE_CASE_PRODUCT_ID = "prod_kkiphonecase";
+const IPHONE_CASE_PRICE_ID = "price_kkiphonecase";
+const IPHONE_CASE_NAME = "Custom iPhone Case";
+const IPHONE_CASE_IMAGE = "/assets/generated_images/iphone_branded_case.png";
+const IPHONE_CASE_DESCRIPTION =
+  "Personalized iPhone case featuring your choice of Khomplete Khemistri brand logo. Durable protective case with a sleek finish. Select your iPhone model (iPhone 7 through iPhone 17 Pro Max) and the branded logo you want printed on your case at checkout.";
+const IPHONE_CASE_META = {
+  category: "Phone Cases",
+  productType: "accessory",
+  imageUrl: IPHONE_CASE_IMAGE,
+  caseType: "iphone",
+  ebayLink: "https://ebay.io/m/5yRG9J",
+  fulfillment: "eBay",
+};
+
+const SAMSUNG_CASE_PRODUCT_ID = "prod_kksamsungcase";
+const SAMSUNG_CASE_PRICE_ID = "price_kksamsungcase";
+const SAMSUNG_CASE_NAME = "Custom Samsung Case";
+const SAMSUNG_CASE_IMAGE = "/assets/generated_images/samsung_branded_case.png";
+const SAMSUNG_CASE_DESCRIPTION =
+  "Personalized Samsung Galaxy case featuring your choice of Khomplete Khemistri brand logo. Durable protective case with a sleek finish. Select your Samsung model (all Galaxy S series and A series) and the branded logo you want printed on your case at checkout.";
+const SAMSUNG_CASE_META = {
+  category: "Phone Cases",
+  productType: "accessory",
+  imageUrl: SAMSUNG_CASE_IMAGE,
+  caseType: "samsung",
+  ebayLink: "https://ebay.io/m/gQPk0T",
+  fulfillment: "eBay",
+};
+
 export async function ensureCatalogData() {
   try {
-    // 1) Tumbler price -> $30 on every active price (covers duplicate products).
+    // 1) Deduplicate the tumbler. It was created twice in Stripe (a reseed side
+    //    effect), so two products share the name. Instead of leaning on the
+    //    storefront's name-dedupe, make the catalog itself tidy: keep ONE
+    //    canonical product active and deactivate the rest (and their prices).
+    //    Keep the lowest-id tumbler, preferring one that has an active price;
+    //    deterministic so dev and prod converge on the same keeper. Writes go
+    //    through _raw_data (generated columns). In dev this reinforces the Stripe
+    //    archive done by seedProducts; in prod (frozen snapshot, no Stripe keys)
+    //    this is the only thing that removes the duplicate.
+    await db.execute(sql`
+      WITH keeper AS (
+        SELECT p.id
+        FROM stripe.products p
+        WHERE p.name = ${TUMBLER_NAME} AND p.active = true
+        ORDER BY
+          (EXISTS (SELECT 1 FROM stripe.prices pr WHERE pr.product = p.id AND pr.active = true)) DESC,
+          p.id
+        LIMIT 1
+      )
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+          _updated_at = now()
+      WHERE name = ${TUMBLER_NAME}
+        AND active = true
+        AND id NOT IN (SELECT id FROM keeper)
+    `);
+
+    // 1b) Deactivate any prices that belong to the now-deactivated tumbler copies
+    //     so a stale price id can never be used for checkout.
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (
+          SELECT id FROM stripe.products WHERE name = ${TUMBLER_NAME} AND active = false
+        )
+    `);
+
+    // 2) Tumbler price -> $30 on the surviving active price.
     await db.execute(sql`
       UPDATE stripe.prices
       SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(TUMBLER_PRICE_CENTS)}::jsonb, true),
           _updated_at = now()
       WHERE active = true
-        AND product IN (SELECT id FROM stripe.products WHERE name = ${TUMBLER_NAME})
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${TUMBLER_NAME} AND active = true)
         AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(TUMBLER_PRICE_CENTS)}
     `);
 
-    // 2) Tumbler -> custom-branded metadata (logoOptions) + new supplier + colors.
+    // 3) Tumbler -> custom-branded metadata (logoOptions) + new supplier + colors.
     await db.execute(sql`
       UPDATE stripe.products
       SET _raw_data = jsonb_set(
@@ -72,10 +149,10 @@ export async function ensureCatalogData() {
             true
           ),
           _updated_at = now()
-      WHERE name = ${TUMBLER_NAME}
+      WHERE name = ${TUMBLER_NAME} AND active = true
     `);
 
-    // 3) Coffee Mug. In dev a real Stripe-synced "Coffee Mug" already exists, so
+    // 4) Coffee Mug. In dev a real Stripe-synced "Coffee Mug" already exists, so
     //    we only create a synthetic one when none exists (the production path).
     const acct: any = await db.execute(
       sql`SELECT _account_id FROM stripe.products WHERE _account_id IS NOT NULL LIMIT 1`,
@@ -126,7 +203,7 @@ export async function ensureCatalogData() {
         AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${MUG_PRODUCT_ID})
     `);
 
-    // 4) Coffee Mug metadata -> handle-color customization. The dev mug created
+    // 5) Coffee Mug metadata -> handle-color customization. The dev mug created
     //    by seedProducts carries the old `logoOptions`; switch every mug to the
     //    new `handleColors` model (drop logoOptions, merge in handleColors etc.).
     await db.execute(sql`
@@ -141,7 +218,82 @@ export async function ensureCatalogData() {
       WHERE name = ${MUG_NAME}
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo) and Coffee Mug ($15, handle colors).");
+    // 6) Custom phone cases ($30, model + logo). Same self-applying pattern as
+    //    the mug: create only when absent (no-op in dev where Stripe sync made
+    //    them; the real creator on the Railway prod snapshot), then ensure the
+    //    metadata carries the latest caseType/image/description either way.
+    const cases = [
+      {
+        productId: IPHONE_CASE_PRODUCT_ID,
+        priceId: IPHONE_CASE_PRICE_ID,
+        name: IPHONE_CASE_NAME,
+        description: IPHONE_CASE_DESCRIPTION,
+        meta: IPHONE_CASE_META,
+      },
+      {
+        productId: SAMSUNG_CASE_PRODUCT_ID,
+        priceId: SAMSUNG_CASE_PRICE_ID,
+        name: SAMSUNG_CASE_NAME,
+        description: SAMSUNG_CASE_DESCRIPTION,
+        meta: SAMSUNG_CASE_META,
+      },
+    ];
+
+    for (const c of cases) {
+      const productRaw = JSON.stringify({
+        id: c.productId,
+        object: "product",
+        active: true,
+        name: c.name,
+        description: c.description,
+        metadata: c.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const priceRaw = JSON.stringify({
+        id: c.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: CASE_PRICE_CENTS,
+        product: c.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${productRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${c.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${priceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${c.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${c.productId})
+      `);
+
+      // Ensure case metadata (caseType, image, description) is current on the
+      // surviving product regardless of how it was created.
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(c.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(c.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${c.name} AND active = true
+      `);
+    }
+
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo).");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

@@ -2,10 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
-import { createSquarePaymentLink, createSquareOrderPaymentLink } from "./squareClient";
+import { createSquarePaymentLink, createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
+import { checkCustomization, customizationErrorMessage } from "@shared/customization";
 import { z } from "zod";
 
 // Stripe contains some products that were created more than once (same name,
@@ -298,6 +299,18 @@ const ALL_PRODUCTS = [
     description: 'Personalized 11 oz ceramic coffee mug with your choice of Khomplete Khemistri logo. Microwave and dishwasher safe. Available in multiple colors — perfect for your morning brew.',
     price: 1500,
     metadata: { category: 'Drinkware', productType: 'accessory', imageUrl: '/assets/generated_images/black_branded_mug.png', handleColors: 'Black, Blue, Red, Green, Yellow/Gold', amazonLink: 'https://a.co/d/08wcx6Bh', fulfillment: 'Amazon' }
+  },
+  {
+    name: 'Custom iPhone Case',
+    description: 'Personalized iPhone case featuring your choice of Khomplete Khemistri brand logo. Durable protective case with a sleek finish. Select your iPhone model (iPhone 7 through iPhone 17 Pro Max) and the branded logo you want printed on your case at checkout.',
+    price: 3000,
+    metadata: { category: 'Phone Cases', productType: 'accessory', imageUrl: '/assets/generated_images/iphone_branded_case.png', caseType: 'iphone', ebayLink: 'https://ebay.io/m/5yRG9J', fulfillment: 'eBay' }
+  },
+  {
+    name: 'Custom Samsung Case',
+    description: 'Personalized Samsung Galaxy case featuring your choice of Khomplete Khemistri brand logo. Durable protective case with a sleek finish. Select your Samsung model (all Galaxy S series and A series) and the branded logo you want printed on your case at checkout.',
+    price: 3000,
+    metadata: { category: 'Phone Cases', productType: 'accessory', imageUrl: '/assets/generated_images/samsung_branded_case.png', caseType: 'samsung', ebayLink: 'https://ebay.io/m/gQPk0T', fulfillment: 'eBay' }
   },
   {
     name: 'Executive Umbrella',
@@ -678,7 +691,38 @@ async function seedProducts() {
         console.log(`Deactivated: ${existingProduct.name}`);
       }
     }
-    
+
+    // Collapse duplicate "40 Oz Branded Tumbler" products in Stripe so only one
+    // stays active. The catalog was reseeded once and created the tumbler twice
+    // (same name, different ids). Keep the lowest-id copy that has an active
+    // price; archive the rest (and their prices). Making Stripe — the source of
+    // truth — tidy lets the sync set active=false in the DB so the storefront's
+    // name-dedupe is no longer load-bearing for this item.
+    const tumblers = allExistingProducts.filter(
+      p => p.name === '40 Oz Branded Tumbler' && p.active
+    );
+    if (tumblers.length > 1) {
+      const withActivePrice: string[] = [];
+      for (const t of tumblers) {
+        const prices = await stripe.prices.list({ product: t.id, active: true, limit: 1 });
+        if (prices.data.length > 0) withActivePrice.push(t.id);
+      }
+      const eligible = withActivePrice.length
+        ? tumblers.filter(t => withActivePrice.includes(t.id))
+        : tumblers;
+      const keeperId = eligible.map(t => t.id).sort()[0];
+      for (const t of tumblers) {
+        if (t.id === keeperId) continue;
+        console.log(`Archiving duplicate tumbler product: ${t.id}...`);
+        const dupPrices = await stripe.prices.list({ product: t.id, active: true, limit: 100 });
+        for (const pr of dupPrices.data) {
+          await stripe.prices.update(pr.id, { active: false });
+        }
+        await stripe.products.update(t.id, { active: false });
+        console.log(`Archived duplicate tumbler: ${t.id} (kept ${keeperId})`);
+      }
+    }
+
     console.log('Product seeding complete!');
   } catch (error) {
     console.error('Error seeding products:', error);
@@ -748,9 +792,11 @@ export async function registerRoutes(
             imageUrl: metadata.imageUrl || (product.images?.[0] || ''),
             productType: metadata.productType || 'general',
             sortOrder: parseInt(metadata.sortOrder || '99'),
+            soldOut: metadata.soldOut === 'true',
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
+            caseType: metadata.caseType || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -773,9 +819,11 @@ export async function registerRoutes(
             category: metadata.category || 'General',
             imageUrl: metadata.imageUrl || (images.length > 0 ? images[0] : ''),
             productType: metadata.productType || 'general',
+            soldOut: metadata.soldOut === 'true',
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
+            caseType: metadata.caseType || null,
             price: null,
             priceId: null,
           });
@@ -834,6 +882,7 @@ export async function registerRoutes(
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
+            caseType: metadata.caseType || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -862,6 +911,7 @@ export async function registerRoutes(
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
+            caseType: metadata.caseType || null,
             price: null,
             priceId: null,
           });
@@ -898,22 +948,19 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Product price not found" });
       }
 
-      // Server-authoritative logo enforcement: custom-branded products carry a
-      // comma-separated `logoOptions` list in their metadata. If present, a valid
-      // logo choice is required before checkout — enforced here, not just in the UI.
+      // Server-authoritative customization enforcement: custom-branded products
+      // (logo options, handle colors, or phone-case models) require a valid
+      // choice — including a real logo — before checkout, enforced here and not
+      // just in the UI so this endpoint can't be used to bypass the customizer.
       const productMetadata = (priceRow.product_metadata || {}) as any;
-      const logoChoices: string[] = productMetadata.logoOptions
-        ? String(productMetadata.logoOptions)
-            .split(',')
-            .map((s: string) => s.trim())
-            .filter(Boolean)
-        : [];
-      if (logoChoices.length > 0) {
-        if (!selectedLogo || !logoChoices.includes(selectedLogo)) {
-          return res.status(400).json({
-            error: "Please select a logo variation to complete your order.",
-          });
-        }
+      const check = checkCustomization(productMetadata, selectedLogo);
+      if (check.required && !check.ok) {
+        return res.status(400).json({
+          error: customizationErrorMessage(
+            check.kind,
+            (priceRow.product_name as string) || productName || "your order",
+          ),
+        });
       }
 
       const amountCents = Number(priceRow.unit_amount);
@@ -923,7 +970,11 @@ export async function registerRoutes(
 
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 
-      const url = await createSquarePaymentLink({
+      // Square creates the order behind the payment link and, on a completed
+      // checkout, redirects the buyer back to redirectUrl with the Square
+      // `orderId` appended as a query param. The success page uses that id to
+      // verify payment and record the order — so we never persist anything here.
+      const { url } = await createSquarePaymentLink({
         name: (priceRow.product_name as string) || productName || "Order",
         amountCents,
         description: productDescription || (priceRow.product_description as string) || undefined,
@@ -975,7 +1026,9 @@ export async function registerRoutes(
 
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 
-      const url = await createSquarePaymentLink({
+      // See note in /api/create-checkout: Square appends the order id on the
+      // redirect, and the success page verifies + records it. Nothing persisted here.
+      const { url } = await createSquarePaymentLink({
         name: `Custom ${garmentType || "Garment"} - Logo #${logoId}`,
         amountCents,
         description: `Logo: ${logoName} | Placement: ${placementDescription}`,
@@ -1020,43 +1073,17 @@ export async function registerRoutes(
           return res.status(404).json({ error: "One of your items is no longer available." });
         }
 
-        // Server-authoritative logo enforcement for custom-branded products.
+        // Server-authoritative customization enforcement for custom-branded
+        // products (handle color, phone model, or plain logo option). The chosen
+        // model/color AND the logo are validated here — never trust the UI alone.
         const productMetadata = (priceRow.product_metadata || {}) as any;
-        const handleColors: string[] = productMetadata.handleColors
-          ? String(productMetadata.handleColors)
-              .split(",")
-              .map((s: string) => s.trim())
-              .filter(Boolean)
-          : [];
-        const logoChoices: string[] = productMetadata.logoOptions
-          ? String(productMetadata.logoOptions)
-              .split(",")
-              .map((s: string) => s.trim())
-              .filter(Boolean)
-          : [];
-        const selectedLogo = item?.selectedLogo;
-        let logoNote: string | undefined;
-        if (handleColors.length > 0) {
-          // Color-customized products (e.g. the Coffee Mug): selectedLogo is a
-          // combined "<color> handle — <logo name>" string built on the client.
-          if (
-            !selectedLogo ||
-            typeof selectedLogo !== "string" ||
-            !handleColors.some((c) => selectedLogo.startsWith(c))
-          ) {
-            return res.status(400).json({
-              error: `Please choose a handle color and logo for "${priceRow.product_name}" before checking out.`,
-            });
-          }
-          logoNote = selectedLogo;
-        } else if (logoChoices.length > 0) {
-          if (!selectedLogo || !logoChoices.includes(selectedLogo)) {
-            return res.status(400).json({
-              error: `Please select a logo variation for "${priceRow.product_name}" before checking out.`,
-            });
-          }
-          logoNote = `Logo: ${selectedLogo}`;
+        const check = checkCustomization(productMetadata, item?.selectedLogo);
+        if (check.required && !check.ok) {
+          return res.status(400).json({
+            error: customizationErrorMessage(check.kind, priceRow.product_name),
+          });
         }
+        const logoNote: string | undefined = check.note;
 
         const amountCents = Number(priceRow.unit_amount);
         if (!amountCents || amountCents <= 0) {
@@ -1073,7 +1100,12 @@ export async function registerRoutes(
 
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 
-      const url = await createSquareOrderPaymentLink({
+      // We do NOT persist an order here. Square creates the order behind the
+      // payment link and, on a completed checkout, redirects back with the
+      // Square `orderId` appended to redirectUrl. The success page uses that id
+      // to verify payment and record the order — so abandoned/cancelled
+      // checkouts never create a phantom order.
+      const { url } = await createSquareOrderPaymentLink({
         lineItems,
         redirectUrl: `${baseUrl}/checkout/success`,
       });
@@ -1082,6 +1114,52 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error('Error creating cart checkout:', error);
       res.status(500).json({ error: error.message || "Failed to create checkout session" });
+    }
+  });
+
+  // Confirm a checkout when the buyer returns to the success page. We look the
+  // order up in Square (the source of truth), verify it was actually paid, and
+  // only then record it and return the purchased items for the receipt. A bare
+  // redirect is never enough to mark something paid.
+  app.post("/api/orders/confirm", async (req, res) => {
+    try {
+      const ref =
+        typeof req.body?.ref === "string" ? req.body.ref.trim() : "";
+      if (!ref) {
+        return res.status(400).json({ error: "Missing order reference." });
+      }
+
+      // Already recorded (e.g. the buyer refreshed) — return what we have.
+      const existing = await storage.getOrderBySquareId(ref);
+      if (existing && existing.status === "paid") {
+        return res.json(existing);
+      }
+
+      const squareOrder = await retrieveSquareOrder(ref);
+      if (!squareOrder) {
+        return res.status(404).json({ error: "Order not found." });
+      }
+
+      if (!squareOrder.isPaid) {
+        // Payment not (yet) confirmed by Square. Show the items but make it
+        // clear this isn't a recorded sale, and never persist it.
+        return res.json({
+          status: "pending",
+          squareOrderId: squareOrder.orderId,
+          items: squareOrder.items,
+          totalCents: squareOrder.totalCents,
+        });
+      }
+
+      const recorded = await storage.recordPaidOrder({
+        squareOrderId: squareOrder.orderId,
+        items: squareOrder.items,
+        totalCents: squareOrder.totalCents,
+      });
+      res.json(recorded);
+    } catch (error: any) {
+      console.error("Error confirming order:", error);
+      res.status(500).json({ error: "Failed to confirm order." });
     }
   });
 

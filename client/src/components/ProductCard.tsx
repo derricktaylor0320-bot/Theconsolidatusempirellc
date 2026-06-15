@@ -3,8 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { Link } from "wouter";
 import { useCart } from "@/hooks/useCart";
 import MugCustomizer from "@/components/MugCustomizer";
+import CaseCustomizer from "@/components/CaseCustomizer";
+import { Minus, Plus } from "lucide-react";
+
+const MAX_QTY = 99;
 
 interface ProductCardProps {
   image: string;
@@ -16,11 +21,13 @@ interface ProductCardProps {
   description?: string;
   logoOptions?: string;
   handleColors?: string;
+  caseType?: string;
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType }: ProductCardProps) {
   const { addItem } = useCart();
   const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
+  const usesCaseType = !!caseType && caseType.trim().length > 0;
   const logoChoices = logoOptions
     ? logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -28,6 +35,9 @@ export default function ProductCard({ image, title, price, category, priceId, so
   const [selectedLogo, setSelectedLogo] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+
+  const clampQty = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.round(n)));
 
   const handleAddToCart = () => {
     if (!priceId) return;
@@ -36,17 +46,21 @@ export default function ProductCard({ image, title, price, category, priceId, so
       return;
     }
 
-    addItem({
-      priceId,
-      title,
-      image,
-      category,
-      unitPrice: price,
-      selectedLogo: needsLogo ? selectedLogo : undefined,
-    });
+    addItem(
+      {
+        priceId,
+        title,
+        image,
+        category,
+        unitPrice: price,
+        selectedLogo: needsLogo ? selectedLogo : undefined,
+      },
+      quantity,
+    );
 
     setErrorMessage("");
     setAdded(true);
+    setQuantity(1);
     setTimeout(() => setAdded(false), 1800);
   };
 
@@ -59,13 +73,24 @@ export default function ProductCard({ image, title, price, category, priceId, so
     >
       <Card className="overflow-hidden border-none shadow-none group">
         <CardContent className="p-0 relative aspect-square overflow-hidden bg-muted">
-          <img 
-            src={image} 
-            alt={title}
-            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-            data-testid={`img-product-${title.toLowerCase().replace(/\s+/g, '-')}`}
-          />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+          {priceId ? (
+            <Link href={`/product/${priceId}`} aria-label={`View ${title}`}>
+              <img 
+                src={image} 
+                alt={title}
+                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105 cursor-pointer"
+                data-testid={`img-product-${title.toLowerCase().replace(/\s+/g, '-')}`}
+              />
+            </Link>
+          ) : (
+            <img 
+              src={image} 
+              alt={title}
+              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+              data-testid={`img-product-${title.toLowerCase().replace(/\s+/g, '-')}`}
+            />
+          )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none" />
           {soldOut && (
             <div className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 text-xs font-bold uppercase tracking-wider rounded shadow-lg">
               Sold Out
@@ -80,12 +105,23 @@ export default function ProductCard({ image, title, price, category, priceId, so
             {category}
           </span>
           <div className="flex justify-between items-center w-full">
-            <h3 
-              className="font-display font-semibold text-lg uppercase truncate pr-4"
-              data-testid={`text-title-${title.toLowerCase().replace(/\s+/g, '-')}`}
-            >
-              {title}
-            </h3>
+            {priceId ? (
+              <Link href={`/product/${priceId}`} className="min-w-0 pr-4">
+                <h3 
+                  className="font-display font-semibold text-lg uppercase truncate hover:text-primary transition-colors cursor-pointer"
+                  data-testid={`text-title-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {title}
+                </h3>
+              </Link>
+            ) : (
+              <h3 
+                className="font-display font-semibold text-lg uppercase truncate pr-4"
+                data-testid={`text-title-${title.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                {title}
+              </h3>
+            )}
             <span 
               className="font-medium text-primary"
               data-testid={`text-price-${title.toLowerCase().replace(/\s+/g, '-')}`}
@@ -109,6 +145,24 @@ export default function ProductCard({ image, title, price, category, priceId, so
                 priceId={priceId}
                 soldOut={soldOut}
                 handleColors={handleColors as string}
+              />
+            </>
+          ) : usesCaseType ? (
+            <>
+              <p
+                className="text-xs text-muted-foreground leading-relaxed w-full mt-1"
+                data-testid={`text-custom-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                Note: Custom branded. Pick your phone model and the brand logo to print on your case.
+              </p>
+              <CaseCustomizer
+                title={title}
+                image={image}
+                category={category}
+                unitPrice={price}
+                priceId={priceId}
+                soldOut={soldOut}
+                caseType={caseType as string}
               />
             </>
           ) : (
@@ -142,6 +196,43 @@ export default function ProductCard({ image, title, price, category, priceId, so
                   </Select>
                 </div>
               )}
+              <div className="flex items-center gap-3 w-full mt-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                  Qty
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setQuantity((q) => clampQty(q - 1))}
+                    disabled={soldOut || quantity <= 1}
+                    data-testid={`button-qty-decrease-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus className="h-3 w-3" />
+                  </Button>
+                  <span
+                    className="w-8 text-center font-medium"
+                    data-testid={`text-qty-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {quantity}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setQuantity((q) => clampQty(q + 1))}
+                    disabled={soldOut || quantity >= MAX_QTY}
+                    data-testid={`button-qty-increase-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                    aria-label="Increase quantity"
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
               <Button 
                 onClick={handleAddToCart}
                 disabled={!priceId || soldOut || (needsLogo && !selectedLogo)}
