@@ -344,18 +344,25 @@ export async function ensureCatalogData() {
     //    archive them in Stripe; here we deactivate the products + their prices
     //    in the DB directly so they also disappear from the Railway prod frozen
     //    snapshot (no Stripe there) and the dev edit holds regardless of sync.
+    const retiredNameList = sql.join(
+      RETIRED_PRODUCT_NAMES.map((n) => sql`${n}`),
+      sql`, `,
+    );
     await db.execute(sql`
       UPDATE stripe.products
       SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
           _updated_at = now()
-      WHERE name = ANY(${RETIRED_PRODUCT_NAMES}) AND active = true
+      WHERE name IN (${retiredNameList}) AND active = true
     `);
     await db.execute(sql`
       UPDATE stripe.prices
       SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
           _updated_at = now()
       WHERE active = true
-        AND product IN (SELECT id FROM stripe.products WHERE name = ANY(${RETIRED_PRODUCT_NAMES}))
+        AND product IN (
+          SELECT id FROM stripe.products
+          WHERE name IN (${sql.join(RETIRED_PRODUCT_NAMES.map((n) => sql`${n}`), sql`, `)})
+        )
     `);
 
     console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo); removed retired products (Kids Sippy Cup + baby line).");
