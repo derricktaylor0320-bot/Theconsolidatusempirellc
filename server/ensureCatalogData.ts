@@ -124,6 +124,26 @@ const SAMSUNG_CASE_META = {
   fulfillment: "eBay",
 };
 
+// Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
+// under Apparel, not Accessories. It is also seasonal: hidden from the storefront
+// in spring/summer and brought back for fall/winter. Both facts are applied here
+// (productType -> 'apparel', hidden flag) so they hold in dev AND on the Railway
+// prod frozen snapshot. To bring the winter collection back for the cold season,
+// flip WINTER_HIDDEN to false and redeploy — the listing endpoints skip any
+// product whose metadata.hidden === 'true'.
+const WINTER_SEASONAL_NAMES = [
+  "Men's Logo Beanie",
+  "Men's Logo Scarf",
+  "Men's Logo Gloves",
+  "Men's Winter Bundle",
+  "Women's Logo Beanie",
+  "Women's Logo Earmuffs",
+  "Women's Logo Scarf",
+  "Women's Logo Gloves",
+  "Women's Winter Bundle",
+];
+const WINTER_HIDDEN = true;
+
 export async function ensureCatalogData() {
   try {
     // 1) Deduplicate ALL products that exist twice. Past reseeds created ~45
@@ -195,6 +215,28 @@ export async function ensureCatalogData() {
           _updated_at = now()
       WHERE active = true
         AND product IN (SELECT id FROM deactivated)
+    `);
+
+    // 1b) Winter clothing -> Apparel + seasonal hide. Merge productType 'apparel'
+    //     and the hidden flag into every winter product's metadata (active or not)
+    //     via _raw_data so the storefront (which reads the GENERATED columns) sees
+    //     it in dev and on the prod frozen snapshot. Idempotent both directions:
+    //     setting WINTER_HIDDEN back to false writes hidden='false' and the items
+    //     reappear under Apparel.
+    const winterNameList = sql.join(
+      WINTER_SEASONAL_NAMES.map((n) => sql`${n}`),
+      sql`, `,
+    );
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({ productType: "apparel", hidden: WINTER_HIDDEN ? "true" : "false" })}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name IN (${winterNameList})
     `);
 
     // 2) Tumbler price -> $30 on the surviving active price.

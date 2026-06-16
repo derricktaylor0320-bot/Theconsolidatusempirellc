@@ -183,61 +183,61 @@ const ALL_PRODUCTS = [
     price: 1800,
     metadata: { category: 'Intimates', productType: 'apparel', sortOrder: '39', imageUrl: "/assets/generated_images/women's_black_logo_panties.png", gender: 'Women', fulfillment: 'Amazon/Etsy' }
   },
-  // WINTER ACCESSORIES - MEN'S
+  // WINTER APPAREL - MEN'S (seasonal: hidden in spring/summer, see ensureCatalogData)
   {
     name: "Men's Logo Beanie",
     description: "Black ribbed knit beanie with leather patch featuring Khomplete Khemistri Apparel logo. Gold embroidered shield crest on premium leather patch. Warm cuffed design. One size fits most.",
     price: 1200,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '29', imageUrl: "/assets/generated_images/men's_beanie_with_logo_patch.png", gender: 'Men', fulfillment: 'Amazon' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '29', imageUrl: "/assets/generated_images/men's_beanie_with_logo_patch.png", gender: 'Men', fulfillment: 'Amazon' }
   },
   {
     name: "Men's Logo Scarf",
     description: "Black knit winter scarf with Khomplete Khemistri Apparel logo embroidered on end. Gold shield crest design. Warm acrylic material. Perfect for cold weather.",
     price: 1800,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '30', imageUrl: "/assets/generated_images/men's_black_logo_scarf.png", gender: 'Men', fulfillment: 'Amazon' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '30', imageUrl: "/assets/generated_images/men's_black_logo_scarf.png", gender: 'Men', fulfillment: 'Amazon' }
   },
   {
     name: "Men's Logo Gloves",
     description: "Black touchscreen compatible winter gloves with Khomplete Khemistri Apparel logo on back of hand. Gold embroidered shield design. Warm knit material. Sizes: M, L, XL.",
     price: 1500,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '31', imageUrl: "/assets/generated_images/men's_black_logo_gloves.png", gender: 'Men', fulfillment: 'Amazon' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '31', imageUrl: "/assets/generated_images/men's_black_logo_gloves.png", gender: 'Men', fulfillment: 'Amazon' }
   },
   {
     name: "Men's Winter Bundle",
     description: "Complete men's winter set with matching beanie, scarf, and gloves featuring the K.K.A (Khomplete Khemistri Apparel) logo with gold embroidery. Available in Gray, Red, and Beige. Perfect gift set.",
     price: 6000,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '32', imageUrl: "/attached_assets/Screenshot_20251214_071010_Etsy_1765714465398.jpg", gender: 'Men', fulfillment: 'Etsy', bundle: 'true' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '32', imageUrl: "/attached_assets/Screenshot_20251214_071010_Etsy_1765714465398.jpg", gender: 'Men', fulfillment: 'Etsy', bundle: 'true' }
   },
-  // WINTER ACCESSORIES - WOMEN'S
+  // WINTER APPAREL - WOMEN'S (seasonal: hidden in spring/summer, see ensureCatalogData)
   {
     name: "Women's Logo Beanie",
     description: "Pink ribbed knit beanie with Khomplete Khemistri Apparel logo embroidered on front. Gold shield crest design. Soft cuffed style. One size fits most.",
     price: 1200,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '33', imageUrl: "/assets/generated_images/women's_pink_logo_beanie.png", gender: 'Women', fulfillment: 'Amazon' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '33', imageUrl: "/assets/generated_images/women's_pink_logo_beanie.png", gender: 'Women', fulfillment: 'Amazon' }
   },
   {
     name: "Women's Logo Earmuffs",
     description: "Pink fuzzy earmuffs with Khomplete Khemistri Apparel logo on side. Plush faux fur ear warmers with gold embroidered shield design. Adjustable headband. One size fits most.",
     price: 1500,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '34', imageUrl: "/assets/generated_images/women's_pink_logo_earmuffs.png", gender: 'Women', fulfillment: 'Amazon' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '34', imageUrl: "/assets/generated_images/women's_pink_logo_earmuffs.png", gender: 'Women', fulfillment: 'Amazon' }
   },
   {
     name: "Women's Logo Scarf",
     description: "Pink knit winter scarf with Khomplete Khemistri Apparel logo embroidered on end. Gold shield crest design. Soft and warm. Perfect for cold weather.",
     price: 1800,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '35', imageUrl: "/assets/generated_images/women's_pink_logo_scarf.png", gender: 'Women', fulfillment: 'Amazon' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '35', imageUrl: "/assets/generated_images/women's_pink_logo_scarf.png", gender: 'Women', fulfillment: 'Amazon' }
   },
   {
     name: "Women's Logo Gloves",
     description: "Pink touchscreen compatible winter gloves with Khomplete Khemistri Apparel logo on back of hand. Gold embroidered shield design. Soft knit material. Sizes: S, M, L.",
     price: 1500,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '36', imageUrl: "/assets/generated_images/women's_pink_logo_gloves.png", gender: 'Women', fulfillment: 'Amazon' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '36', imageUrl: "/assets/generated_images/women's_pink_logo_gloves.png", gender: 'Women', fulfillment: 'Amazon' }
   },
   {
     name: "Women's Winter Bundle",
     description: "Complete women's winter set with matching beanie, scarf, and gloves featuring the K.K.A (Khomplete Khemistri Apparel) logo with gold embroidery. Available in Gray, Red, and Beige. Perfect gift set.",
     price: 6000,
-    metadata: { category: 'Winter', productType: 'accessory', sortOrder: '37', imageUrl: "/attached_assets/Screenshot_20251214_071010_Etsy_1765714465398.jpg", gender: 'Women', fulfillment: 'Etsy', bundle: 'true' }
+    metadata: { category: 'Winter', productType: 'apparel', hidden: 'true', sortOrder: '37', imageUrl: "/attached_assets/Screenshot_20251214_071010_Etsy_1765714465398.jpg", gender: 'Women', fulfillment: 'Etsy', bundle: 'true' }
   },
   // KIDS COLLECTION
   {
@@ -835,6 +835,7 @@ export async function registerRoutes(
           const prices = await stripe.prices.list({ product: product.id, active: true, limit: 1 });
           const price = prices.data[0];
           const metadata = product.metadata || {};
+          if (metadata.hidden === 'true') continue;
           
           products.push({
             id: product.id,
@@ -863,6 +864,7 @@ export async function registerRoutes(
       // Group prices by product and format for frontend
       const productsMap = new Map();
       for (const row of rows) {
+        if (((row.product_metadata || {}) as any).hidden === 'true') continue;
         if (!productsMap.has(row.product_id)) {
           const metadata = (row.product_metadata || {}) as any;
           const images = (row.product_images || []) as any[];
@@ -925,6 +927,7 @@ export async function registerRoutes(
         for (const product of stripeProducts.data) {
           const metadata = product.metadata || {};
           if (metadata.productType !== type) continue;
+          if (metadata.hidden === 'true') continue;
           
           const prices = await stripe.prices.list({ product: product.id, active: true, limit: 1 });
           const price = prices.data[0];
@@ -956,6 +959,7 @@ export async function registerRoutes(
       
       const productsMap = new Map();
       for (const row of rows) {
+        if (((row.product_metadata || {}) as any).hidden === 'true') continue;
         if (!productsMap.has(row.product_id)) {
           const metadata = (row.product_metadata || {}) as any;
           const images = (row.product_images || []) as any[];
