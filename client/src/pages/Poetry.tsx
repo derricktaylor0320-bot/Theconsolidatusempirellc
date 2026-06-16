@@ -249,8 +249,10 @@ export default function Poetry() {
               <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
                 Looking for something personal? I can create custom poetry for weddings, anniversaries, memorials, birthdays, or any special occasion. Each piece is crafted with care to capture your unique story.
               </p>
-              <Button variant="outline" size="lg" data-testid="button-custom-poetry">
-                Request Custom Poetry
+              <Button asChild variant="outline" size="lg" data-testid="button-custom-poetry">
+                <a href="mailto:theconsolidatusempire@gmail.com?subject=Custom%20Poetry%20Request&body=Hi%2C%20I%27d%20like%20to%20request%20a%20custom%20poem.%0D%0A%0D%0AOccasion%3A%20%0D%0ANames%2FDetails%3A%20%0D%0APreferred%20format%20(Wooden%20Plaque%20%2440%20%2F%20Glass%20Frame%20%2430)%3A%20%0D%0AAnything%20else%20you%27d%20like%20me%20to%20know%3A%20">
+                  Request Custom Poetry
+                </a>
               </Button>
             </div>
           </div>
