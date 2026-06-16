@@ -8,6 +8,7 @@ import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
 import { checkCustomization, customizationErrorMessage } from "@shared/customization";
+import { updateOrderFulfillmentSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Stripe contains some products that were created more than once (same name,
@@ -269,7 +270,7 @@ const ALL_PRODUCTS = [
     name: 'Coffee Mug',
     description: 'Personalized 11 oz ceramic coffee mug with your choice of Khomplete Khemistri logo. Microwave and dishwasher safe. Available in multiple colors — perfect for your morning brew.',
     price: 1500,
-    metadata: { category: 'Drinkware', productType: 'accessory', imageUrl: '/assets/generated_images/black_branded_mug.png', handleColors: 'Black, Blue, Red, Green, Yellow/Gold', amazonLink: 'https://a.co/d/08wcx6Bh', fulfillment: 'Amazon' }
+    metadata: { category: 'Drinkware', productType: 'accessory', imageUrl: '/assets/coffee_mug_personalized.jpg', handleColors: 'Black, Blue, Red, Green, Yellow/Gold', amazonLink: 'https://a.co/d/08wcx6Bh', fulfillment: 'Amazon' }
   },
   {
     name: 'Custom iPhone Case',
@@ -293,7 +294,7 @@ const ALL_PRODUCTS = [
     name: 'Signature Scent Candle',
     description: 'Premium scented candle with Khomplete Khemistri Accessories branding',
     price: 1500,
-    metadata: { category: 'Home', productType: 'accessory', imageUrl: '/assets/1764815519810_1764815959048.jpg' }
+    metadata: { category: 'Home', productType: 'accessory', imageUrl: '/assets/scented_candles_branded.png' }
   },
   {
     name: 'Branded Tote Bag',
@@ -318,12 +319,6 @@ const ALL_PRODUCTS = [
     description: 'Luxury unisex wristwatch with your choice of Khomplete Khemistri logo from our extensive catalog (Apparel Logo, Accessories Eagle Badge, 5 Swords Crest, and more). Premium metal case and band. SELECT YOUR COLOR AND LOGO at checkout! Available in Gold, Black, and Silver. A stunning statement piece for any occasion.',
     price: 5000,
     metadata: { category: 'Accessories', productType: 'accessory', imageUrl: '/attached_assets/kka_gold_watch.jpg', gender: 'Unisex', colors: 'Gold, Black, Silver', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest, and more from catalog' }
-  },
-  {
-    name: 'Branded Scrunchies',
-    description: 'Fabric scrunchie hair tie with Khomplete Khemistri logo pattern. Black satin with gold printed logos. Fashion hair accessory set.',
-    price: 1000,
-    metadata: { category: 'Accessories', productType: 'accessory', imageUrl: '/attached_assets/copilot_image_1765114167490_1765212687857.jpeg', gender: 'Women' }
   },
   // BED LINENS - SHEET SETS
   {
@@ -1292,11 +1287,44 @@ export async function registerRoutes(
   // Protected: list every recorded order (newest first) for the owner.
   app.get("/api/orders", requireAuth, async (req, res) => {
     try {
-      const orders = await storage.getAllOrders();
-      res.json(orders);
+      const parseIntParam = (value: unknown, fallback: number, max: number) => {
+        const parsed = Number.parseInt(String(value), 10);
+        if (Number.isNaN(parsed) || parsed < 0) return fallback;
+        return Math.min(parsed, max);
+      };
+
+      const limit = parseIntParam(req.query.limit, 25, 100);
+      const offset = parseIntParam(req.query.offset, 0, Number.MAX_SAFE_INTEGER);
+
+      const { orders, total } = await storage.getAllOrders({ limit, offset });
+      res.json({ orders, total, limit, offset });
     } catch (error: any) {
       console.error('Error fetching orders:', error);
       res.status(500).json({ error: "Failed to fetch orders" });
+    }
+  });
+
+  // Protected: update an order's fulfillment status (e.g. mark shipped) for the
+  // owner. Uses the same requireAuth gate as the orders list above — this is a
+  // single shared-hub sign-in (signed-in === owner), there is no role system.
+  app.patch("/api/orders/:id/fulfillment", requireAuth, async (req, res) => {
+    try {
+      const parsed = updateOrderFulfillmentSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid fulfillment status" });
+      }
+
+      const order = await storage.updateOrderFulfillment(
+        req.params.id,
+        parsed.data.fulfillmentStatus,
+      );
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error: any) {
+      console.error('Error updating order fulfillment:', error);
+      res.status(500).json({ error: "Failed to update order" });
     }
   });
 

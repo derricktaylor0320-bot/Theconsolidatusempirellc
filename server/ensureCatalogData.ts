@@ -37,7 +37,7 @@ const MUG_PRODUCT_ID = "prod_kkcoffeemug";
 const MUG_PRICE_ID = "price_kkcoffeemug";
 const MUG_NAME = "Coffee Mug";
 const MUG_PRICE_CENTS = 1500;
-const MUG_IMAGE = "/assets/generated_images/black_branded_mug.png";
+const MUG_IMAGE = "/assets/coffee_mug_personalized.jpg";
 const MUG_DESCRIPTION =
   "Personalized 11 oz ceramic coffee mug with your choice of Khomplete Khemistri logo. Microwave and dishwasher safe. Available in multiple colors — perfect for your morning brew.";
 // The mug uses handle-color customization (color + matching logo from the
@@ -70,7 +70,14 @@ const RETIRED_PRODUCT_NAMES = [
   "Baby Bib",
   "Baby Romper",
   "Baby Beanie",
+  "Branded Scrunchies",
 ];
+
+// Scented candle product image. Like the tumbler, the storefront image must be
+// served from /assets; prod (frozen snapshot, no Stripe) gets it via the
+// metadata merge below.
+const CANDLE_NAME = "Signature Scent Candle";
+const CANDLE_IMAGE = "/assets/scented_candles_branded.png";
 
 const IPHONE_CASE_PRODUCT_ID = "prod_kkiphonecase";
 const IPHONE_CASE_PRICE_ID = "price_kkiphonecase";
@@ -196,6 +203,19 @@ export async function ensureCatalogData() {
           ),
           _updated_at = now()
       WHERE name = ${TUMBLER_NAME} AND active = true
+    `);
+
+    // 3b) Scented candle -> served product image (prod frozen snapshot path).
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({ imageUrl: CANDLE_IMAGE })}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${CANDLE_NAME} AND active = true
     `);
 
     // 4) Coffee Mug. In dev a real Stripe-synced "Coffee Mug" already exists, so
