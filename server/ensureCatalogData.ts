@@ -124,6 +124,31 @@ const SAMSUNG_CASE_META = {
   fulfillment: "eBay",
 };
 
+// Branded Logo Fitted Hat ($40, apparel). A new product that must exist in
+// whatever DB this server is connected to. In dev seedProducts creates it in
+// Stripe (synced to the DB) so the guarded insert below is a no-op; on the
+// Railway prod frozen snapshot (no Stripe) the insert is what actually creates
+// it. Color + logo are selected at checkout (see colors/logoOptions metadata).
+const HAT_PRODUCT_ID = "prod_kkfittedhat";
+const HAT_PRICE_ID = "price_kkfittedhat";
+const HAT_NAME = "Branded Logo Fitted Hat";
+const HAT_PRICE_CENTS = 4000;
+const HAT_IMAGE = "/assets/generated_images/fitted_hat_branded.png";
+const HAT_DESCRIPTION =
+  "Premium structured fitted baseball cap with embroidered Khomplete Khemistri branding on the front. 100% acrylic, hand-wash only. SELECT YOUR COLOR AND LOGO at checkout — choose the Apparel Logo, Accessories Eagle Badge, or 5 Swords Crest.";
+const HAT_META = {
+  category: "Headwear",
+  productType: "apparel",
+  sortOrder: "13",
+  imageUrl: HAT_IMAGE,
+  gender: "Unisex",
+  fulfillment: "Amazon",
+  amazonLink: "https://a.co/d/0iMR1uMI",
+  cost: "24.99",
+  colors: "Black, Navy, Gray, Khaki, Red",
+  logoOptions: STANDARD_LOGO_OPTIONS,
+};
+
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
 // under Apparel, not Accessories. It is also seasonal: hidden from the storefront
 // in spring/summer and brought back for fall/winter. Both facts are applied here
@@ -416,6 +441,60 @@ export async function ensureCatalogData() {
       `);
     }
 
+    // 6b) Branded Logo Fitted Hat ($40, color + logo). Same self-applying
+    //     pattern as the mug/cases: create only when absent (no-op in dev where
+    //     Stripe sync made it; the real creator on the Railway prod snapshot),
+    //     then keep the description/metadata current on the surviving product.
+    const hatProductRaw = JSON.stringify({
+      id: HAT_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: HAT_NAME,
+      description: HAT_DESCRIPTION,
+      metadata: HAT_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const hatPriceRaw = JSON.stringify({
+      id: HAT_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: HAT_PRICE_CENTS,
+      product: HAT_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${hatProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${HAT_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${hatPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${HAT_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${HAT_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(HAT_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(HAT_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${HAT_NAME} AND active = true
+    `);
+
     // 7) Remove retired products (Kids Sippy Cup + the baby line) from the
     //    storefront. In dev removing them from ALL_PRODUCTS lets seedProducts
     //    archive them in Stripe; here we deactivate the products + their prices
@@ -461,7 +540,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo); removed retired products (Kids Sippy Cup + baby line); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), and Branded Logo Fitted Hat ($40, color + logo); removed retired products (Kids Sippy Cup + baby line); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
