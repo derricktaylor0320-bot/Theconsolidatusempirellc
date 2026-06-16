@@ -3,9 +3,10 @@ import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
 import { createSquarePaymentLink, createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
+import { sendEmail, buildOrderReceiptEmail } from "./email";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
-import { setupAuth } from "./auth";
+import { setupAuth, requireAuth } from "./auth";
 import { checkCustomization, customizationErrorMessage } from "@shared/customization";
 import { z } from "zod";
 
@@ -267,12 +268,6 @@ const ALL_PRODUCTS = [
     description: 'Soft knit baby beanie with Khomplete Khemistri Apparel logo patch. Black cotton stretch material. Keep your little one warm and stylish. One size fits 0-12 months.',
     price: 1000,
     metadata: { category: 'Baby', productType: 'apparel', sortOrder: '23', imageUrl: '/assets/generated_images/black_baby_beanie_hat.png', gender: 'Kids' }
-  },
-  {
-    name: 'Kids Sippy Cup',
-    description: 'Insulated stainless steel sippy cup with Khomplete Khemistri Apparel logo. Black with gold shield crest design. Spill-proof lid with handles for little hands. 12oz capacity, BPA-free.',
-    price: 1500,
-    metadata: { category: 'Baby', productType: 'accessory', sortOrder: '24', imageUrl: '/assets/generated_images/branded_baby_sippy_cup.png', gender: 'Kids' }
   },
   // FOOTWEAR COLLECTION
   {
@@ -1156,6 +1151,33 @@ export async function registerRoutes(
         items: squareOrder.items,
         totalCents: squareOrder.totalCents,
       });
+
+      // Send the buyer an itemized receipt. This runs only on the first
+      // confirmation (a refresh hits the early "already paid" return above), so
+      // we don't spam the buyer. Best-effort: never fail the request if the
+      // email can't be sent — the order is already recorded.
+      if (squareOrder.buyerEmail) {
+        try {
+          const receipt = buildOrderReceiptEmail({
+            items: squareOrder.items,
+            totalCents: squareOrder.totalCents,
+            orderRef: squareOrder.orderId,
+          });
+          await sendEmail({
+            to: squareOrder.buyerEmail,
+            subject: receipt.subject,
+            html: receipt.html,
+            text: receipt.text,
+          });
+        } catch (emailError) {
+          console.error("Failed to send order receipt email:", emailError);
+        }
+      } else {
+        console.warn(
+          `[orders] No buyer email found for Square order ${squareOrder.orderId}; skipping receipt email.`,
+        );
+      }
+
       res.json(recorded);
     } catch (error: any) {
       console.error("Error confirming order:", error);
@@ -1214,6 +1236,17 @@ export async function registerRoutes(
       }
       
       res.status(500).json({ error: "Failed to subscribe. Please try again." });
+    }
+  });
+
+  // Protected: list every recorded order (newest first) for the owner.
+  app.get("/api/orders", requireAuth, async (req, res) => {
+    try {
+      const orders = await storage.getAllOrders();
+      res.json(orders);
+    } catch (error: any) {
+      console.error('Error fetching orders:', error);
+      res.status(500).json({ error: "Failed to fetch orders" });
     }
   });
 

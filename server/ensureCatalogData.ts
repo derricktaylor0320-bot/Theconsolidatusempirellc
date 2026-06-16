@@ -58,6 +58,9 @@ const MUG_META = {
 // Stripe's 500-char metadata limit); products only carry a short `caseType`.
 const CASE_PRICE_CENTS = 3000;
 
+// The Kids Sippy Cup is being retired from the storefront.
+const SIPPY_CUP_NAME = "Kids Sippy Cup";
+
 const IPHONE_CASE_PRODUCT_ID = "prod_kkiphonecase";
 const IPHONE_CASE_PRICE_ID = "price_kkiphonecase";
 const IPHONE_CASE_NAME = "Custom iPhone Case";
@@ -293,7 +296,26 @@ export async function ensureCatalogData() {
       `);
     }
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo).");
+    // 7) Remove the Kids Sippy Cup from the storefront. The owner is no longer
+    //    offering it. In dev removing it from ALL_PRODUCTS lets seedProducts
+    //    archive it in Stripe; here we deactivate the product + its prices in the
+    //    DB directly so it also disappears from the Railway prod frozen snapshot
+    //    (no Stripe there) and so the dev edit holds regardless of sync timing.
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+          _updated_at = now()
+      WHERE name = ${SIPPY_CUP_NAME} AND active = true
+    `);
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${SIPPY_CUP_NAME})
+    `);
+
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo); removed Kids Sippy Cup.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
