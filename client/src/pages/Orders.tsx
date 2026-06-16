@@ -2,10 +2,25 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { Loader2, Package, Lock } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Loader2, Package, Lock, Truck, CheckCircle2, Undo2 } from "lucide-react";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import type { Order } from "@shared/schema";
+import { useState } from "react";
+import type { Order, FulfillmentStatus } from "@shared/schema";
+
+const PAGE_SIZE = 25;
+
+type OrdersResponse = {
+  orders: Order[];
+  total: number;
+  limit: number;
+  offset: number;
+};
 
 function formatCents(cents: number) {
   return (cents / 100).toLocaleString("en-US", {
@@ -28,21 +43,57 @@ function formatDate(value: string | Date | null | undefined) {
 export default function Orders() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
+  const [page, setPage] = useState(0);
+  const queryClient = useQueryClient();
 
   const {
-    data: orders,
+    data,
     isLoading,
+    isFetching,
     error,
-  } = useQuery<Order[]>({
-    queryKey: ["/api/orders"],
+  } = useQuery<OrdersResponse>({
+    queryKey: ["/api/orders", page],
     queryFn: async () => {
-      const res = await fetch("/api/orders", { credentials: "include" });
+      const offset = page * PAGE_SIZE;
+      const res = await fetch(
+        `/api/orders?limit=${PAGE_SIZE}&offset=${offset}`,
+        { credentials: "include" },
+      );
       if (!res.ok) throw new Error("Failed to load orders");
-      return (await res.json()) as Order[];
+      return (await res.json()) as OrdersResponse;
     },
     enabled: isAuthenticated,
     retry: false,
+    placeholderData: keepPreviousData,
   });
+
+  const fulfillmentMutation = useMutation({
+    mutationFn: async ({
+      id,
+      fulfillmentStatus,
+    }: {
+      id: string;
+      fulfillmentStatus: FulfillmentStatus;
+    }) => {
+      const res = await fetch(`/api/orders/${id}/fulfillment`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ fulfillmentStatus }),
+      });
+      if (!res.ok) throw new Error("Failed to update order");
+      return (await res.json()) as Order;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+    },
+  });
+
+  const orders = data?.orders;
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const rangeStart = total === 0 ? 0 : page * PAGE_SIZE + 1;
+  const rangeEnd = Math.min(total, page * PAGE_SIZE + PAGE_SIZE);
 
   if (authLoading) {
     return (
@@ -129,11 +180,17 @@ export default function Orders() {
             <div className="space-y-4">
               {orders.map((order) => {
                 const isPaid = order.status === "paid";
+                const isFulfilled = order.fulfillmentStatus === "fulfilled";
+                const isUpdating =
+                  fulfillmentMutation.isPending &&
+                  fulfillmentMutation.variables?.id === order.id;
                 return (
                   <div
                     key={order.id}
                     className={`rounded-xl p-6 border ${
-                      isPaid
+                      isFulfilled
+                        ? "bg-emerald-500/5 border-emerald-500/30"
+                        : isPaid
                         ? "bg-muted/30 border-primary/10"
                         : "bg-yellow-500/5 border-yellow-500/30 opacity-90"
                     }`}
@@ -156,16 +213,33 @@ export default function Orders() {
                           </p>
                         ) : null}
                       </div>
-                      <span
-                        className={`text-xs uppercase tracking-wider font-display px-3 py-1 rounded-full ${
-                          isPaid
-                            ? "bg-primary/20 text-primary"
-                            : "bg-yellow-500/20 text-yellow-500"
-                        }`}
-                        data-testid={`status-order-${order.id}`}
-                      >
-                        {isPaid ? "Paid" : "Pending"}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`text-xs uppercase tracking-wider font-display px-3 py-1 rounded-full ${
+                            isPaid
+                              ? "bg-primary/20 text-primary"
+                              : "bg-yellow-500/20 text-yellow-500"
+                          }`}
+                          data-testid={`status-order-${order.id}`}
+                        >
+                          {isPaid ? "Paid" : "Pending"}
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1 text-xs uppercase tracking-wider font-display px-3 py-1 rounded-full ${
+                            isFulfilled
+                              ? "bg-emerald-500/20 text-emerald-400"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                          data-testid={`status-fulfillment-${order.id}`}
+                        >
+                          {isFulfilled ? (
+                            <CheckCircle2 className="w-3 h-3" />
+                          ) : (
+                            <Truck className="w-3 h-3" />
+                          )}
+                          {isFulfilled ? "Fulfilled" : "Unfulfilled"}
+                        </span>
+                      </div>
                     </div>
 
                     <ul className="divide-y divide-primary/10">
@@ -200,11 +274,86 @@ export default function Orders() {
                         {formatCents(order.totalCents)}
                       </span>
                     </div>
+
+                    <div className="flex justify-end pt-4">
+                      <Button
+                        variant={isFulfilled ? "outline" : "default"}
+                        size="sm"
+                        disabled={isUpdating}
+                        className={
+                          isFulfilled
+                            ? "uppercase tracking-wider font-display border-primary/20"
+                            : "uppercase tracking-wider font-display bg-emerald-600 text-white hover:bg-emerald-600/90"
+                        }
+                        onClick={() =>
+                          fulfillmentMutation.mutate({
+                            id: order.id,
+                            fulfillmentStatus: isFulfilled
+                              ? "unfulfilled"
+                              : "fulfilled",
+                          })
+                        }
+                        data-testid={`button-toggle-fulfillment-${order.id}`}
+                      >
+                        {isUpdating ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : isFulfilled ? (
+                          <>
+                            <Undo2 className="w-4 h-4" />
+                            Mark Unfulfilled
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            Mark Fulfilled
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 );
               })}
             </div>
           )}
+
+          {!isLoading && !error && total > 0 ? (
+            <div className="flex flex-wrap items-center justify-between gap-4 mt-8">
+              <p
+                className="text-sm text-muted-foreground"
+                data-testid="text-orders-range"
+              >
+                Showing {rangeStart}–{rangeEnd} of {total}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  className="uppercase tracking-wider font-display border-primary/20"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0 || isFetching}
+                  data-testid="button-prev-page"
+                >
+                  Previous
+                </Button>
+                <span
+                  className="text-sm text-muted-foreground px-2"
+                  data-testid="text-page-indicator"
+                >
+                  Page {page + 1} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  className="uppercase tracking-wider font-display border-primary/20"
+                  onClick={() =>
+                    setPage((p) => Math.min(totalPages - 1, p + 1))
+                  }
+                  disabled={page >= totalPages - 1 || isFetching}
+                  data-testid="button-next-page"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          ) : null}
 
           <div className="mt-10">
             <Link href="/hub">

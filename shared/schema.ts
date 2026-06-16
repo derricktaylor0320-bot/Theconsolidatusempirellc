@@ -36,10 +36,19 @@ export interface OrderItem {
 export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   status: text("status").notNull().default("pending"), // 'pending' | 'paid'
+  // Fulfillment progress, owner-controlled from the orders page.
+  fulfillmentStatus: text("fulfillment_status").notNull().default("unfulfilled"), // 'unfulfilled' | 'fulfilled'
   items: jsonb("items").$type<OrderItem[]>().notNull(),
   totalCents: integer("total_cents").notNull(),
   squareOrderId: text("square_order_id").unique(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const FULFILLMENT_STATUSES = ["unfulfilled", "fulfilled"] as const;
+export type FulfillmentStatus = (typeof FULFILLMENT_STATUSES)[number];
+
+export const updateOrderFulfillmentSchema = z.object({
+  fulfillmentStatus: z.enum(FULFILLMENT_STATUSES),
 });
 
 export const orderItemSchema = z.object({

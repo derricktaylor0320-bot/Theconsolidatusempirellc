@@ -1,6 +1,6 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, orders } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders } from "@shared/schema";
 import { db } from "./db";
-import { and, eq, isNull, desc } from "drizzle-orm";
+import { and, eq, isNull, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Product operations
@@ -17,7 +17,8 @@ export interface IStorage {
   getAllSubscribers(): Promise<Subscriber[]>;
 
   // Order operations
-  getAllOrders(): Promise<Order[]>;
+  getAllOrders(options?: { limit?: number; offset?: number }): Promise<{ orders: Order[]; total: number }>;
+  updateOrderFulfillment(id: string, fulfillmentStatus: FulfillmentStatus): Promise<Order | undefined>;
   getOrderBySquareId(squareOrderId: string): Promise<Order | undefined>;
   recordPaidOrder(order: {
     squareOrderId: string;
@@ -100,8 +101,28 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(subscribers);
   }
 
-  async getAllOrders(): Promise<Order[]> {
-    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+  async getAllOrders(options?: { limit?: number; offset?: number }): Promise<{ orders: Order[]; total: number }> {
+    const limit = options?.limit;
+    const offset = options?.offset ?? 0;
+
+    const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(orders);
+
+    let query = db.select().from(orders).orderBy(desc(orders.createdAt)).$dynamic();
+    if (limit !== undefined) {
+      query = query.limit(limit).offset(offset);
+    }
+    const rows = await query;
+
+    return { orders: rows, total: count };
+  }
+
+  async updateOrderFulfillment(id: string, fulfillmentStatus: FulfillmentStatus): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ fulfillmentStatus })
+      .where(eq(orders.id, id))
+      .returning();
+    return order || undefined;
   }
 
   async getOrderBySquareId(squareOrderId: string): Promise<Order | undefined> {

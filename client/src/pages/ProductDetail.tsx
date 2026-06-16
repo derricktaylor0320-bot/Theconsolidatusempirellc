@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
+import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -16,6 +17,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Minus, Plus } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { logoOptionImage } from "@/lib/logoCatalog";
 
 const MAX_QTY = 99;
 
@@ -86,7 +88,7 @@ export default function ProductDetail() {
             </Link>
           </div>
         ) : (
-          <ProductDetailContent product={product} />
+          <ProductDetailContent product={product} allProducts={products || []} />
         )}
       </main>
       <Footer />
@@ -94,7 +96,13 @@ export default function ProductDetail() {
   );
 }
 
-function ProductDetailContent({ product }: { product: ApiProduct }) {
+function ProductDetailContent({
+  product,
+  allProducts,
+}: {
+  product: ApiProduct;
+  allProducts: ApiProduct[];
+}) {
   const { addItem } = useCart();
   const price = parseFloat(product.price);
   const listing = listingForType(product.productType);
@@ -102,6 +110,20 @@ function ProductDetailContent({ product }: { product: ApiProduct }) {
 
   const usesHandleColors = !!product.handleColors && product.handleColors.trim().length > 0;
   const usesCaseType = !!product.caseType && product.caseType.trim().length > 0;
+
+  const relatedProducts = allProducts
+    .filter((p) => p.priceId && p.priceId !== product.priceId)
+    .filter((p) =>
+      product.productType
+        ? p.productType === product.productType
+        : p.category === product.category,
+    )
+    .sort((a, b) => {
+      const aMatch = a.category === product.category ? 0 : 1;
+      const bMatch = b.category === product.category ? 0 : 1;
+      return aMatch - bMatch;
+    })
+    .slice(0, 4);
   const logoChoices = product.logoOptions
     ? product.logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -275,6 +297,30 @@ function ProductDetailContent({ product }: { product: ApiProduct }) {
                       ))}
                     </SelectContent>
                   </Select>
+                  {selectedLogo && logoOptionImage(selectedLogo) && (
+                    <div
+                      className="flex items-center gap-3 rounded-lg border border-primary/20 bg-muted/40 p-3"
+                      data-testid="preview-detail-logo"
+                    >
+                      <img
+                        src={logoOptionImage(selectedLogo)}
+                        alt={`${selectedLogo} preview`}
+                        className="h-16 w-16 rounded-md object-contain bg-black/80 p-1"
+                        data-testid="img-detail-logo-preview"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                          Your logo
+                        </span>
+                        <span
+                          className="text-sm font-medium"
+                          data-testid="text-detail-logo-name"
+                        >
+                          {selectedLogo}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -350,6 +396,31 @@ function ProductDetailContent({ product }: { product: ApiProduct }) {
           )}
         </div>
       </div>
+
+      {relatedProducts.length > 0 && (
+        <section className="max-w-6xl mx-auto mt-20" data-testid="section-related-products">
+          <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wider text-center mb-10 text-primary">
+            You Might Also Like
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {relatedProducts.map((related) => (
+              <ProductCard
+                key={related.id}
+                title={related.title}
+                price={parseFloat(related.price)}
+                category={related.category}
+                image={related.imageUrl}
+                priceId={related.priceId || undefined}
+                soldOut={related.soldOut}
+                description={related.description}
+                logoOptions={related.logoOptions || undefined}
+                handleColors={related.handleColors || undefined}
+                caseType={related.caseType || undefined}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </motion.div>
   );
 }

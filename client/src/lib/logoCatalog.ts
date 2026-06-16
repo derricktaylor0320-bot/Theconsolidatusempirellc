@@ -116,6 +116,30 @@ export const allLogos: Record<string, LogoEntry> = {
   "403": { src: compassSunburst, alt: "Khomplete Khemistri Apparel Sunburst Emblem", color: "Apparel Sunburst", section: "Compass Collection" },
 };
 
+// Maps the simple text logo-option labels (used by products that carry a
+// comma-separated `logoOptions` string — e.g. clogs, leggings, slippers,
+// tumbler, watch) to a representative image in the catalog above, so the
+// product detail page can show a thumbnail preview of the shopper's choice.
+// These labels don't map 1:1 to catalog IDs, hence this explicit mapping.
+export const logoOptionImages: Record<string, string> = {
+  "Apparel Logo": logoGold3D,
+  "Accessories Eagle Badge": logoAccessoriesEagle,
+  "5 Swords Crest": crestBlueValuesSwords,
+};
+
+// Resolves a logo-option label (from a product's `logoOptions`) to its preview
+// image, tolerating extra whitespace and case differences. Returns undefined
+// when no matching image is known.
+export function logoOptionImage(choice: string): string | undefined {
+  const trimmed = choice.trim();
+  if (logoOptionImages[trimmed]) return logoOptionImages[trimmed];
+  const lower = trimmed.toLowerCase();
+  const match = Object.keys(logoOptionImages).find(
+    (key) => key.toLowerCase() === lower,
+  );
+  return match ? logoOptionImages[match] : undefined;
+}
+
 // Handle colors offered for the Coffee Mug (and any product whose metadata
 // carries `handleColors`). Keep this list in sync with the server metadata.
 export const MUG_HANDLE_COLORS = ["Black", "Blue", "Red", "Green", "Yellow/Gold"];

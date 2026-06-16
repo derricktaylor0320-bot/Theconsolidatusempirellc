@@ -110,11 +110,18 @@ export async function ensureTablesExist() {
       CREATE TABLE IF NOT EXISTS orders (
         id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
         status TEXT NOT NULL DEFAULT 'pending',
+        fulfillment_status TEXT NOT NULL DEFAULT 'unfulfilled',
         items JSONB NOT NULL,
         total_cents INTEGER NOT NULL,
         square_order_id TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       )
+    `);
+    // Backfill the fulfillment column on databases created before it was added,
+    // so existing deployments don't error on "column does not exist".
+    await db.execute(sql`
+      ALTER TABLE orders
+      ADD COLUMN IF NOT EXISTS fulfillment_status TEXT NOT NULL DEFAULT 'unfulfilled'
     `);
     // One stored order per Square order id (lets us upsert idempotently when a
     // buyer refreshes the success page).
