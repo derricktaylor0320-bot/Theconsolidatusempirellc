@@ -1,12 +1,13 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useCart } from "@/hooks/useCart";
 import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
+import { allLogos, LOGO_SECTIONS } from "@/lib/logoCatalog";
 import { Minus, Plus } from "lucide-react";
 
 const MAX_QTY = 99;
@@ -192,15 +193,24 @@ export default function ProductCard({ image, title, price, category, priceId, so
                     >
                       <SelectValue placeholder="Choose your logo *" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {logoChoices.map((choice) => (
-                        <SelectItem
-                          key={choice}
-                          value={choice}
-                          data-testid={`option-logo-${choice.toLowerCase().replace(/\s+/g, '-')}`}
-                        >
-                          {choice}
-                        </SelectItem>
+                    <SelectContent className="max-h-72">
+                      {LOGO_SECTIONS.map((section) => (
+                        <SelectGroup key={section.name}>
+                          <SelectLabel>{section.name}</SelectLabel>
+                          {section.ids.map((id) => {
+                            const logo = allLogos[id];
+                            if (!logo) return null;
+                            return (
+                              <SelectItem
+                                key={id}
+                                value={logo.alt}
+                                data-testid={`option-logo-${id}`}
+                              >
+                                {logo.alt}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectGroup>
                       ))}
                     </SelectContent>
                   </Select>

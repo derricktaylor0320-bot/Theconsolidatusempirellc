@@ -20,6 +20,30 @@ import { LOGO_ALT_SET } from "./logoNames";
 // Em dash used by the client to join the choice (color/model) and the logo name.
 const DELIM = " \u2014 ";
 
+// Sentinel placed in a product's `logoOptions` (in the API response) to mean
+// "offer the entire branded logo catalog." Every purchasable product is logo
+// customizable by default; the pickers render the full catalog from
+// logoCatalog, so the actual string value here is only a truthy flag.
+export const FULL_LOGO_CATALOG_OPTION = "__FULL_LOGO_CATALOG__";
+
+// Product types that are NOT logo-customizable (a brand logo doesn't physically
+// apply to them). The poetry plaques / glass frames are art pieces.
+const NON_LOGO_PRODUCT_TYPES = new Set(["poetry"]);
+
+// True when a product should present the full logo catalog picker by default.
+// This is every purchasable product EXCEPT: those with their own specialized
+// customizer (handle colors, phone-case models, or sizes) and non-logo product
+// types (e.g. poetry plaques/frames). Shared so the storefront UI and the
+// server-side checkout enforcement agree on which products require a logo.
+export function isDefaultLogoCustomizable(metadata: any): boolean {
+  const m = metadata || {};
+  if (m.handleColors || m.caseType || m.sizes) return false;
+  if (NON_LOGO_PRODUCT_TYPES.has(String(m.productType || "").toLowerCase())) {
+    return false;
+  }
+  return true;
+}
+
 export type CustomizationKind =
   | "handleColor"
   | "phoneModel"
@@ -91,11 +115,24 @@ export function checkCustomization(
 
   const logoOptions = splitList(meta.logoOptions);
   if (logoOptions.length > 0) {
-    // These products now present the full visual logo catalog picker, so the
-    // customer's choice is a catalog logo `alt` name validated against the
-    // shared allowlist. The old plain-text labels (e.g. "Apparel Logo") are
-    // still accepted for backward compatibility with any pre-existing carts.
-    const ok = !!sel && (LOGO_ALT_SET.has(sel) || logoOptions.includes(sel));
+    // These products present the full visual logo catalog picker, so the
+    // customer's choice must be a real catalog logo `alt` name validated against
+    // the shared allowlist. Legacy plain-text labels (e.g. "Apparel Logo") are
+    // not accepted — they can't be mapped to an actual logo at fulfillment.
+    const ok = !!sel && LOGO_ALT_SET.has(sel);
+    return {
+      required: true,
+      kind: "logoOption",
+      ok,
+      note: ok ? `Logo: ${sel}` : undefined,
+    };
+  }
+
+  // Default: every other purchasable product is logo-customizable from the full
+  // branded logo catalog. The customer must pick a real catalog logo, captured
+  // as the order note so fulfillment knows which logo to apply.
+  if (isDefaultLogoCustomizable(meta)) {
+    const ok = !!sel && LOGO_ALT_SET.has(sel);
     return {
       required: true,
       kind: "logoOption",

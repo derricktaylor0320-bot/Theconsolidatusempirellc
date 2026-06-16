@@ -7,7 +7,7 @@ import { sendEmail, buildOrderReceiptEmail } from "./email";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
-import { checkCustomization, customizationErrorMessage } from "@shared/customization";
+import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
 import { updateOrderFulfillmentSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -846,7 +846,7 @@ export async function registerRoutes(
             sortOrder: parseInt(metadata.sortOrder || '99'),
             soldOut: metadata.soldOut === 'true',
             gender: metadata.gender || null,
-            logoOptions: metadata.logoOptions || null,
+            logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
@@ -874,7 +874,7 @@ export async function registerRoutes(
             productType: metadata.productType || 'general',
             soldOut: metadata.soldOut === 'true',
             gender: metadata.gender || null,
-            logoOptions: metadata.logoOptions || null,
+            logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
@@ -934,7 +934,7 @@ export async function registerRoutes(
             productType: metadata.productType || 'general',
             sortOrder: parseInt(metadata.sortOrder || '99'),
             gender: metadata.gender || null,
-            logoOptions: metadata.logoOptions || null,
+            logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
@@ -964,7 +964,7 @@ export async function registerRoutes(
             sortOrder: parseInt(metadata.sortOrder || '99'),
             soldOut: metadata.soldOut === 'true',
             gender: metadata.gender || null,
-            logoOptions: metadata.logoOptions || null,
+            logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
