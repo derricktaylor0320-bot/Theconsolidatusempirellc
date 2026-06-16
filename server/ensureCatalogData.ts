@@ -71,6 +71,21 @@ const RETIRED_PRODUCT_NAMES = [
   "Baby Romper",
   "Baby Beanie",
   "Branded Scrunchies",
+  // Old per-size bedding products, consolidated into a single Comforter Set and
+  // Sheet Set (each with a size selector). Fleece blankets retired entirely.
+  "Khomplete Khemistri Accessories Bed Sheet Set - Twin",
+  "Khomplete Khemistri Accessories Bed Sheet Set - Full",
+  "Khomplete Khemistri Accessories Bed Sheet Set - Queen",
+  "Khomplete Khemistri Accessories Bed Sheet Set - King",
+  "Khomplete Khemistri Accessories Bed Sheet Set - California King",
+  "Khomplete Khemistri Accessories Fleece Blanket - Twin",
+  "Khomplete Khemistri Accessories Fleece Blanket - Full/Queen",
+  "Khomplete Khemistri Accessories Fleece Blanket - King",
+  "Khomplete Khemistri Accessories Duvet Set - Twin",
+  "Khomplete Khemistri Accessories Duvet Set - Full",
+  "Khomplete Khemistri Accessories Duvet Set - Queen",
+  "Khomplete Khemistri Accessories Duvet Set - King",
+  "Khomplete Khemistri Accessories Duvet Set - California King",
 ];
 
 // Scented candle product image. Like the tumbler, the storefront image must be
@@ -385,7 +400,26 @@ export async function ensureCatalogData() {
         )
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo); removed retired products (Kids Sippy Cup + baby line).");
+    // 8) Clean up leftover active prices on INACTIVE products. Deactivating a
+    //    product (dedup in step 1, retired in step 7, or historical removals
+    //    like the Duvet sets / Matte Black Mug / older High-Top Sneakers carried
+    //    in this frozen prod snapshot) does NOT archive its PRICE objects. An
+    //    inactive product is never shown in the storefront, so these are
+    //    harmless, but they leave stray active prices that make the catalog
+    //    confusing to audit and could surface in price-level reports. This is the
+    //    generic, idempotent catch-all (mirrors seedProducts' final pass): for
+    //    every inactive product, deactivate any still-active price via _raw_data
+    //    (stripe.* columns are GENERATED). Runs last so it reflects every
+    //    (de)activation/insert above.
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE active = false)
+    `);
+
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo); removed retired products (Kids Sippy Cup + baby line); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

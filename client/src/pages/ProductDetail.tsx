@@ -4,20 +4,15 @@ import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "wouter";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Minus, Plus } from "lucide-react";
+import { ArrowLeft, Check, Minus, Plus } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
-import { logoOptionImage } from "@/lib/logoCatalog";
+import { useRecentlyViewed, readRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { allLogos, LOGO_SECTIONS } from "@/lib/logoCatalog";
 
 const MAX_QTY = 99;
 
@@ -35,6 +30,7 @@ interface ApiProduct {
   logoOptions?: string | null;
   handleColors?: string | null;
   caseType?: string | null;
+  sizes?: string | null;
 }
 
 function listingForType(productType?: string) {
@@ -103,7 +99,8 @@ function ProductDetailContent({
   product: ApiProduct;
   allProducts: ApiProduct[];
 }) {
-  const { addItem } = useCart();
+  const { addItem, items: cartItems } = useCart();
+  const { recordView } = useRecentlyViewed();
   const price = parseFloat(product.price);
   const listing = listingForType(product.productType);
   const soldOut = !!product.soldOut;
@@ -111,25 +108,105 @@ function ProductDetailContent({
   const usesHandleColors = !!product.handleColors && product.handleColors.trim().length > 0;
   const usesCaseType = !!product.caseType && product.caseType.trim().length > 0;
 
-  const relatedProducts = allProducts
-    .filter((p) => p.priceId && p.priceId !== product.priceId)
-    .filter((p) =>
+  useEffect(() => {
+    if (product.priceId) recordView(product.priceId);
+  }, [product.priceId, recordView]);
+
+  const RELATED_LIMIT = 4;
+
+  const relatedProducts = useMemo(() => {
+    const inDepartment = (p: ApiProduct) =>
       product.productType
         ? p.productType === product.productType
-        : p.category === product.category,
-    )
-    .sort((a, b) => {
-      const aMatch = a.category === product.category ? 0 : 1;
-      const bMatch = b.category === product.category ? 0 : 1;
-      return aMatch - bMatch;
-    })
-    .slice(0, 4);
+        : p.category === product.category;
+
+    // Only ever suggest items in the current product's department, never the
+    // current product itself, and never sold-out items.
+    const candidates = allProducts.filter(
+      (p) =>
+        p.priceId &&
+        p.priceId !== product.priceId &&
+        !p.soldOut &&
+        inDepartment(p),
+    );
+
+    // Build interest signals from recently viewed history (most recent first)
+    // and current cart contents, excluding the product being viewed.
+    const recentViewed = readRecentlyViewed().filter(
+      (id) => id !== product.priceId,
+    );
+    const cartPriceIds = cartItems
+      .map((i) => i.priceId)
+      .filter((id) => id !== product.priceId);
+
+    const byPriceId = new Map(
+      allProducts
+        .filter((p) => p.priceId)
+        .map((p) => [p.priceId as string, p]),
+    );
+
+    // Weight a product type / category by how strongly the shopper has shown
+    // interest in it. Recent views are weighted by recency; cart items count
+    // strongest because they signal real purchase intent.
+    const categoryWeight = new Map<string, number>();
+    const typeWeight = new Map<string, number>();
+    const bump = (
+      map: Map<string, number>,
+      key: string | undefined | null,
+      amount: number,
+    ) => {
+      if (!key) return;
+      map.set(key, (map.get(key) || 0) + amount);
+    };
+
+    recentViewed.forEach((id, idx) => {
+      const p = byPriceId.get(id);
+      if (!p) return;
+      const recencyWeight = Math.max(1, 6 - idx);
+      bump(categoryWeight, p.category, recencyWeight);
+      bump(typeWeight, p.productType, recencyWeight);
+    });
+
+    cartPriceIds.forEach((id) => {
+      const p = byPriceId.get(id);
+      if (!p) return;
+      bump(categoryWeight, p.category, 8);
+      bump(typeWeight, p.productType, 8);
+    });
+
+    const score = (p: ApiProduct) => {
+      let s = 0;
+      // Same-category items within the department are the closest match.
+      if (p.category === product.category) s += 5;
+      // Personalization: lean toward what the shopper has been browsing/buying.
+      s += categoryWeight.get(p.category) || 0;
+      s += typeWeight.get(p.productType || "") || 0;
+      // Small random jitter so identical scores stay fresh on each visit.
+      // Computed once per product (not per comparison) for stable ordering.
+      s += Math.random();
+      return s;
+    };
+
+    // Precompute one score per candidate, then sort — keeps ordering stable.
+    const ranked = candidates
+      .map((p) => ({ p, s: score(p) }))
+      .sort((a, b) => b.s - a.s)
+      .map((x) => x.p);
+
+    return ranked.slice(0, RELATED_LIMIT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.priceId, allProducts, cartItems]);
   const logoChoices = product.logoOptions
     ? product.logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsLogo = logoChoices.length > 0;
+  const sizeChoices = product.sizes
+    ? product.sizes.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsSize = sizeChoices.length > 0;
 
   const [selectedLogo, setSelectedLogo] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -142,6 +219,10 @@ function ProductDetailContent({
       setErrorMessage("Please select a logo variation.");
       return;
     }
+    if (needsSize && !selectedSize) {
+      setErrorMessage("Please select a size.");
+      return;
+    }
 
     addItem(
       {
@@ -150,7 +231,7 @@ function ProductDetailContent({
         image: product.imageUrl,
         category: product.category,
         unitPrice: price,
-        selectedLogo: needsLogo ? selectedLogo : undefined,
+        selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
       },
       quantity,
     );
@@ -267,60 +348,124 @@ function ProductDetailContent({
           ) : (
             <div className="mt-auto space-y-4">
               {needsLogo && (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <p
                     className="text-sm text-muted-foreground leading-relaxed"
                     data-testid="text-detail-custom-note"
                   >
-                    Note: All items are custom branded. Please select your preferred logo variation below to complete your order.
+                    Note: All items are custom branded. Pick the logo you want from the full Branded Logo Collection below to complete your order.
                   </p>
-                  <Select
-                    value={selectedLogo}
-                    onValueChange={(v) => {
-                      setSelectedLogo(v);
-                      setErrorMessage("");
-                    }}
-                    disabled={soldOut}
-                  >
-                    <SelectTrigger className="w-full" data-testid="select-detail-logo">
-                      <SelectValue placeholder="Choose your logo *" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {logoChoices.map((choice) => (
-                        <SelectItem
-                          key={choice}
-                          value={choice}
-                          data-testid={`option-detail-logo-${choice.toLowerCase().replace(/\s+/g, "-")}`}
-                        >
-                          {choice}
-                        </SelectItem>
+                  <ScrollArea className="max-h-[360px] rounded-lg border border-primary/10 bg-muted/20 p-3 pr-4" data-testid="picker-detail-logo">
+                    <div className="space-y-5">
+                      {LOGO_SECTIONS.map((section) => (
+                        <div key={section.name} className="space-y-2">
+                          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                            {section.name}
+                          </p>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                            {section.ids.map((id) => {
+                              const logo = allLogos[id];
+                              if (!logo) return null;
+                              const isSelected = selectedLogo === logo.alt;
+                              return (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  disabled={soldOut}
+                                  onClick={() => {
+                                    setSelectedLogo(logo.alt);
+                                    setErrorMessage("");
+                                  }}
+                                  className={`relative rounded-lg border-2 overflow-hidden bg-muted transition-colors disabled:opacity-50 ${
+                                    isSelected
+                                      ? "border-primary"
+                                      : "border-transparent hover:border-border"
+                                  }`}
+                                  data-testid={`button-detail-logo-${id}`}
+                                  title={logo.alt}
+                                >
+                                  <img
+                                    src={logo.src}
+                                    alt={logo.alt}
+                                    className="aspect-square object-cover w-full h-full"
+                                    loading="lazy"
+                                  />
+                                  {isSelected && (
+                                    <span className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                      <Check className="h-6 w-6 text-primary" />
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
                       ))}
-                    </SelectContent>
-                  </Select>
-                  {selectedLogo && logoOptionImage(selectedLogo) && (
-                    <div
-                      className="flex items-center gap-3 rounded-lg border border-primary/20 bg-muted/40 p-3"
-                      data-testid="preview-detail-logo"
-                    >
-                      <img
-                        src={logoOptionImage(selectedLogo)}
-                        alt={`${selectedLogo} preview`}
-                        className="h-16 w-16 rounded-md object-contain bg-black/80 p-1"
-                        data-testid="img-detail-logo-preview"
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-xs uppercase tracking-widest text-muted-foreground">
-                          Your logo
-                        </span>
-                        <span
-                          className="text-sm font-medium"
-                          data-testid="text-detail-logo-name"
-                        >
+                    </div>
+                  </ScrollArea>
+                  <p className="text-sm" data-testid="text-detail-logo-selection">
+                    {selectedLogo ? (
+                      <>
+                        <span className="text-muted-foreground">Selected logo: </span>
+                        <span className="font-medium" data-testid="text-detail-logo-name">
                           {selectedLogo}
                         </span>
-                      </div>
-                    </div>
-                  )}
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Choose a logo to continue.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {needsSize && (
+                <div className="space-y-3">
+                  <p
+                    className="text-sm text-muted-foreground leading-relaxed"
+                    data-testid="text-detail-size-note"
+                  >
+                    Select your size to complete your order.
+                  </p>
+                  <div className="flex flex-wrap gap-2" data-testid="picker-detail-size">
+                    {sizeChoices.map((choice) => {
+                      const isSelected = selectedSize === choice;
+                      return (
+                        <button
+                          key={choice}
+                          type="button"
+                          disabled={soldOut}
+                          onClick={() => {
+                            setSelectedSize(choice);
+                            setErrorMessage("");
+                          }}
+                          className={`px-5 py-2.5 rounded-lg border-2 text-sm font-medium uppercase tracking-wider transition-colors disabled:opacity-50 ${
+                            isSelected
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                          data-testid={`button-detail-size-${choice.toLowerCase().replace(/\s+/g, "-")}`}
+                        >
+                          {choice}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-sm" data-testid="text-detail-size-selection">
+                    {selectedSize ? (
+                      <>
+                        <span className="text-muted-foreground">Selected size: </span>
+                        <span className="font-medium" data-testid="text-detail-size-name">
+                          {selectedSize}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Choose a size to continue.
+                      </span>
+                    )}
+                  </p>
                 </div>
               )}
 
@@ -364,7 +509,7 @@ function ProductDetailContent({
 
               <Button
                 onClick={handleAddToCart}
-                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo)}
+                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize)}
                 className={`w-full transition-colors uppercase tracking-wider font-display text-sm h-12 disabled:opacity-50 ${
                   soldOut
                     ? "bg-gray-400 text-white cursor-not-allowed"
@@ -374,7 +519,7 @@ function ProductDetailContent({
                 }`}
                 data-testid="button-detail-add"
               >
-                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : "Add to Cart"}
+                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : needsSize && !selectedSize ? "Select a Size" : "Add to Cart"}
               </Button>
 
               {errorMessage && (
@@ -416,6 +561,7 @@ function ProductDetailContent({
                 logoOptions={related.logoOptions || undefined}
                 handleColors={related.handleColors || undefined}
                 caseType={related.caseType || undefined}
+                sizes={related.sizes || undefined}
               />
             ))}
           </div>

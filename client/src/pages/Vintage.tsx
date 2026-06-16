@@ -84,6 +84,7 @@ export default function Vintage() {
                 logoOptions={product.logoOptions}
                 handleColors={product.handleColors}
                 caseType={product.caseType}
+                sizes={product.sizes}
               />
             ))}
           </div>

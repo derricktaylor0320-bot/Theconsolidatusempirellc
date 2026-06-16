@@ -320,86 +320,18 @@ const ALL_PRODUCTS = [
     price: 5000,
     metadata: { category: 'Accessories', productType: 'accessory', imageUrl: '/attached_assets/kka_gold_watch.jpg', gender: 'Unisex', colors: 'Gold, Black, Silver', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest, and more from catalog' }
   },
-  // BED LINENS - SHEET SETS
+  // BEDDING - one Comforter Set and one Sheet Set, each with selectable sizes.
   {
-    name: 'Khomplete Khemistri Accessories Bed Sheet Set - Twin',
-    description: 'TWIN SIZE - Premium cotton bed sheet set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered on pillowcase. Elegant burgundy brown sheets. Includes fitted sheet, flat sheet, and 1 pillowcase.',
-    price: 6000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '50', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Twin' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Bed Sheet Set - Full',
-    description: 'FULL SIZE - Premium cotton bed sheet set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered on pillowcases. Elegant burgundy brown sheets. Includes fitted sheet, flat sheet, and 2 pillowcases.',
-    price: 7000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '51', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Full' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Bed Sheet Set - Queen',
-    description: 'QUEEN SIZE - Premium cotton bed sheet set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered on pillowcases. Elegant burgundy brown sheets. Includes fitted sheet, flat sheet, and 2 pillowcases.',
-    price: 8000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '52', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Queen' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Bed Sheet Set - King',
-    description: 'KING SIZE - Premium cotton bed sheet set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered on pillowcases. Elegant burgundy brown sheets. Includes fitted sheet, flat sheet, and 2 pillowcases.',
-    price: 9000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '53', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'King' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Bed Sheet Set - California King',
-    description: 'CALIFORNIA KING SIZE - Premium cotton bed sheet set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered on pillowcases. Elegant burgundy brown sheets. Includes fitted sheet, flat sheet, and 2 pillowcases.',
+    name: 'Khomplete Khemistri Accessories Comforter Set',
+    description: 'Luxury velvet comforter set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold. Rich chocolate brown. Includes comforter and matching pillow shams. Select your size at checkout: Twin, Full, Queen, or King.',
     price: 9900,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '54', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'California King' }
-  },
-  // BED LINENS - FLEECE BLANKETS
-  {
-    name: 'Khomplete Khemistri Accessories Fleece Blanket - Twin',
-    description: 'TWIN SIZE (60" x 80") - Plush fleece throw blanket featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered in center. Deep burgundy brown. Soft and cozy. Perfect for bed or couch.',
-    price: 6000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '55', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Twin' }
+    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '50', imageUrl: '/assets/kk_comforter_set.png', fulfillment: 'Amazon', sizes: 'Twin, Full, Queen, King' }
   },
   {
-    name: 'Khomplete Khemistri Accessories Fleece Blanket - Full/Queen',
-    description: 'FULL/QUEEN SIZE (80" x 90") - Plush fleece throw blanket featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered in center. Deep burgundy brown. Soft and cozy. Perfect for bed or couch.',
-    price: 7000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '56', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Full/Queen' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Fleece Blanket - King',
-    description: 'KING SIZE (90" x 100") - Plush fleece throw blanket featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered in center. Deep burgundy brown. Soft and cozy. Perfect for bed or couch.',
+    name: 'Khomplete Khemistri Accessories Sheet Set',
+    description: 'Premium satin sheet set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold. Elegant chocolate brown. Includes fitted sheet, flat sheet, and matching pillowcases. Select your size at checkout: Twin, Full, Queen, or King.',
     price: 8000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '57', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'King' }
-  },
-  // BED LINENS - DUVET/COMFORTER SETS
-  {
-    name: 'Khomplete Khemistri Accessories Duvet Set - Twin',
-    description: 'TWIN SIZE - Elegant duvet comforter set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered at foot. Rich burgundy brown. Includes duvet cover and 1 pillowsham. Insert not included.',
-    price: 6000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '58', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Twin' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Duvet Set - Full',
-    description: 'FULL SIZE - Elegant duvet comforter set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered at foot. Rich burgundy brown. Includes duvet cover and 2 pillowshams. Insert not included.',
-    price: 7000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '59', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Full' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Duvet Set - Queen',
-    description: 'QUEEN SIZE - Elegant duvet comforter set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered at foot. Rich burgundy brown. Includes duvet cover and 2 pillowshams. Insert not included.',
-    price: 8000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '60', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'Queen' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Duvet Set - King',
-    description: 'KING SIZE - Elegant duvet comforter set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered at foot. Rich burgundy brown. Includes duvet cover and 2 pillowshams. Insert not included.',
-    price: 9000,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '61', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'King' }
-  },
-  {
-    name: 'Khomplete Khemistri Accessories Duvet Set - California King',
-    description: 'CALIFORNIA KING SIZE - Elegant duvet comforter set featuring the Khomplete Khemistri Accessories eagle badge with full brand name embroidered at foot. Rich burgundy brown. Includes duvet cover and 2 pillowshams. Insert not included.',
-    price: 9900,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '62', imageUrl: '/attached_assets/kk_accessories_bedding_logo.jpg', fulfillment: 'Amazon', size: 'California King' }
+    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '51', imageUrl: '/assets/kk_sheet_set.png', fulfillment: 'Amazon', sizes: 'Twin, Full, Queen, King' }
   },
   // VINTAGE BALTIMORE
   {
@@ -596,9 +528,55 @@ async function seedProducts() {
     }
     
     console.log(`Found ${allExistingProducts.length} existing products in Stripe`);
-    
+
+    // Group every copy of a name so per-product updates target the SAME
+    // deterministic keeper the dedup below selects. Picking the first match
+    // (allExistingProducts.find) could land on an archived/duplicate copy after
+    // cleanup, so metadata/price edits would silently apply to a hidden record.
+    const existingByName = new Map<string, any[]>();
+    for (const p of allExistingProducts) {
+      const arr = existingByName.get(p.name) ?? [];
+      arr.push(p);
+      existingByName.set(p.name, arr);
+    }
+
+    // Choose the keeper among copies of a name, mirroring the dedup ranking
+    // (highest priority first): (a) active; (b) has an active price; (c) matches
+    // canonical productType; (d) matches canonical price; (e) carries sortOrder
+    // metadata; (f) lowest id (stable tie-break). Prices are looked up only when
+    // a name actually has more than one copy.
+    const pickKeeper = async (
+      copies: any[],
+      canonical: { price: number; metadata: Record<string, any> },
+    ): Promise<any> => {
+      if (copies.length === 1) return copies[0];
+      const activePriceByCopy = new Map<string, number | null>();
+      for (const c of copies) {
+        const prices = await stripe.prices.list({ product: c.id, active: true, limit: 1 });
+        activePriceByCopy.set(c.id, prices.data[0]?.unit_amount ?? null);
+      }
+      const scoreOf = (c: any): number[] => {
+        const price = activePriceByCopy.get(c.id);
+        return [
+          c.active ? 1 : 0,
+          price != null ? 1 : 0,
+          c.metadata?.productType === canonical.metadata.productType ? 1 : 0,
+          price != null && price === canonical.price ? 1 : 0,
+          c.metadata?.sortOrder ? 1 : 0,
+        ];
+      };
+      return [...copies].sort((a, b) => {
+        const sa = scoreOf(a), sb = scoreOf(b);
+        for (let i = 0; i < sa.length; i++) {
+          if (sa[i] !== sb[i]) return sb[i] - sa[i];
+        }
+        return a.id < b.id ? -1 : 1;
+      })[0];
+    };
+
     for (const productDef of ALL_PRODUCTS) {
-      const existingProduct = allExistingProducts.find(p => p.name === productDef.name);
+      const copies = existingByName.get(productDef.name) ?? [];
+      const existingProduct = copies.length ? await pickKeeper(copies, productDef) : undefined;
       
       if (!existingProduct) {
         console.log(`Creating product: ${productDef.name}...`);
@@ -763,6 +741,40 @@ async function seedProducts() {
       }
     }
 
+    // Clean up leftover active prices on INACTIVE products. Deactivating a
+    // product in Stripe (the "no longer in ALL_PRODUCTS" step above, or
+    // historical removals like the Duvet sets, Matte Black Mug, older High-Top
+    // Sneakers) does NOT archive its PRICE objects. An inactive product is never
+    // shown in the storefront, so these stray prices are harmless, but they make
+    // the Stripe catalog / synced DB confusing to audit and could surface in
+    // price-level reports. Re-fetch products fresh so this reflects all the
+    // (de)activation above, then archive every active price on an inactive
+    // product. Generic + idempotent: covers retired, deduped, and pre-existing
+    // inactive products in one pass.
+    const finalProducts: any[] = [];
+    {
+      let more = true;
+      let after: string | undefined;
+      while (more) {
+        const params: any = { limit: 100 };
+        if (after) params.starting_after = after;
+        const response = await stripe.products.list(params);
+        finalProducts.push(...response.data);
+        more = response.has_more;
+        if (response.data.length > 0) {
+          after = response.data[response.data.length - 1].id;
+        }
+      }
+    }
+    for (const product of finalProducts) {
+      if (product.active) continue;
+      const leftoverPrices = await stripe.prices.list({ product: product.id, active: true, limit: 100 });
+      for (const pr of leftoverPrices.data) {
+        console.log(`Archiving leftover price on inactive product "${product.name}": ${pr.id}...`);
+        await stripe.prices.update(pr.id, { active: false });
+      }
+    }
+
     console.log('Product seeding complete!');
   } catch (error) {
     console.error('Error seeding products:', error);
@@ -837,6 +849,7 @@ export async function registerRoutes(
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
+            sizes: metadata.sizes || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -864,6 +877,7 @@ export async function registerRoutes(
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
+            sizes: metadata.sizes || null,
             price: null,
             priceId: null,
           });
@@ -923,6 +937,7 @@ export async function registerRoutes(
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
+            sizes: metadata.sizes || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -952,6 +967,7 @@ export async function registerRoutes(
             logoOptions: metadata.logoOptions || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
+            sizes: metadata.sizes || null,
             price: null,
             priceId: null,
           });

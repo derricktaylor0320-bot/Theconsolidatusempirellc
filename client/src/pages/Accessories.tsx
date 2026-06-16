@@ -47,6 +47,7 @@ export default function Accessories() {
                 logoOptions={product.logoOptions}
                 handleColors={product.handleColors}
                 caseType={product.caseType}
+                sizes={product.sizes}
               />
             ))}
           </div>

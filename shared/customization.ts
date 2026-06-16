@@ -24,6 +24,7 @@ export type CustomizationKind =
   | "handleColor"
   | "phoneModel"
   | "logoOption"
+  | "size"
   | "none";
 
 export interface CustomizationCheck {
@@ -80,9 +81,21 @@ export function checkCustomization(
     return { required: true, kind: "phoneModel", ok, note: ok ? sel : undefined };
   }
 
+  const sizes = splitList(meta.sizes);
+  if (sizes.length > 0) {
+    // Bedding (and any size-only product) requires the shopper to pick a size.
+    // The client sends the chosen size as the selection string.
+    const ok = !!sel && sizes.includes(sel);
+    return { required: true, kind: "size", ok, note: ok ? `Size: ${sel}` : undefined };
+  }
+
   const logoOptions = splitList(meta.logoOptions);
   if (logoOptions.length > 0) {
-    const ok = !!sel && logoOptions.includes(sel);
+    // These products now present the full visual logo catalog picker, so the
+    // customer's choice is a catalog logo `alt` name validated against the
+    // shared allowlist. The old plain-text labels (e.g. "Apparel Logo") are
+    // still accepted for backward compatibility with any pre-existing carts.
+    const ok = !!sel && (LOGO_ALT_SET.has(sel) || logoOptions.includes(sel));
     return {
       required: true,
       kind: "logoOption",
@@ -105,6 +118,8 @@ export function customizationErrorMessage(
       return `Please choose your phone model and a logo for "${productName}" before checking out.`;
     case "logoOption":
       return `Please select a logo variation for "${productName}" before checking out.`;
+    case "size":
+      return `Please choose a size for "${productName}" before checking out.`;
     default:
       return `Please complete your customization for "${productName}" before checking out.`;
   }

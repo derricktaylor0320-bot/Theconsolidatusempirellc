@@ -22,9 +22,10 @@ interface ProductCardProps {
   logoOptions?: string;
   handleColors?: string;
   caseType?: string;
+  sizes?: string;
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes }: ProductCardProps) {
   const { addItem } = useCart();
   const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
   const usesCaseType = !!caseType && caseType.trim().length > 0;
@@ -32,7 +33,12 @@ export default function ProductCard({ image, title, price, category, priceId, so
     ? logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsLogo = logoChoices.length > 0;
+  const sizeChoices = sizes
+    ? sizes.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsSize = sizeChoices.length > 0;
   const [selectedLogo, setSelectedLogo] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -45,6 +51,10 @@ export default function ProductCard({ image, title, price, category, priceId, so
       setErrorMessage("Please select a logo variation.");
       return;
     }
+    if (needsSize && !selectedSize) {
+      setErrorMessage("Please select a size.");
+      return;
+    }
 
     addItem(
       {
@@ -53,7 +63,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
         image,
         category,
         unitPrice: price,
-        selectedLogo: needsLogo ? selectedLogo : undefined,
+        selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
       },
       quantity,
     );
@@ -196,6 +206,35 @@ export default function ProductCard({ image, title, price, category, priceId, so
                   </Select>
                 </div>
               )}
+              {needsSize && (
+                <div className="w-full mt-1 space-y-2">
+                  <p
+                    className="text-xs text-muted-foreground leading-relaxed"
+                    data-testid={`text-size-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    Choose your size to complete your order.
+                  </p>
+                  <Select value={selectedSize} onValueChange={(v) => { setSelectedSize(v); setErrorMessage(""); }} disabled={soldOut}>
+                    <SelectTrigger
+                      className="w-full"
+                      data-testid={`select-size-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      <SelectValue placeholder="Choose your size *" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sizeChoices.map((choice) => (
+                        <SelectItem
+                          key={choice}
+                          value={choice}
+                          data-testid={`option-size-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          {choice}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="flex items-center gap-3 w-full mt-2">
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
                   Qty
@@ -235,7 +274,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
               </div>
               <Button 
                 onClick={handleAddToCart}
-                disabled={!priceId || soldOut || (needsLogo && !selectedLogo)}
+                disabled={!priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize)}
                 className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
                   soldOut 
                     ? 'bg-gray-400 text-white cursor-not-allowed' 
@@ -245,7 +284,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
                 }`}
                 data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : 'Add to Cart'}
+                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : needsSize && !selectedSize ? 'Select a Size' : 'Add to Cart'}
               </Button>
               {errorMessage && (
                 <p

@@ -49,6 +49,7 @@ export default function Home() {
                 logoOptions={product.logoOptions}
                 handleColors={product.handleColors}
                 caseType={product.caseType}
+                sizes={product.sizes}
               />
             ))}
           </div>
