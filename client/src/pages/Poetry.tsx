@@ -219,7 +219,7 @@ export default function Poetry() {
                       <CardContent className="flex-grow p-4">
                         <h3 className="font-display text-lg font-bold mb-2">{product.title}</h3>
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
-                        <p className="text-xl font-bold text-primary">${(product.price / 100).toFixed(2)}</p>
+                        <p className="text-xl font-bold text-primary" data-testid={`text-price-poetry-${product.id}`}>${Number(product.price).toFixed(2)}</p>
                       </CardContent>
                       <CardFooter className="p-4 pt-0">
                         <Button 
