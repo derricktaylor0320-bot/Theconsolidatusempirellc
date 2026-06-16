@@ -17,6 +17,7 @@ import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import CheckoutCancel from "@/pages/CheckoutCancel";
 import LogoCustomizer from "@/pages/LogoCustomizer";
 import Cart from "@/pages/Cart";
+import ProductDetail from "@/pages/ProductDetail";
 import Vintage from "@/pages/Vintage";
 import Policies from "@/pages/Policies";
 import Poetry from "@/pages/Poetry";
@@ -24,6 +25,7 @@ import VIP from "@/pages/VIP";
 import AuthPage from "@/pages/AuthPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import SsoDemo from "@/pages/SsoDemo";
+import Orders from "@/pages/Orders";
 
 function Router() {
   return (
@@ -36,11 +38,13 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/sso-demo" component={SsoDemo} />
+      <Route path="/orders" component={Orders} />
       <Route path="/fr2p" component={FR2P} />
       <Route path="/pocket-booster" component={PocketBooster} />
       <Route path="/apparel" component={Apparel} />
       <Route path="/accessories" component={Accessories} />
       <Route path="/cart" component={Cart} />
+      <Route path="/product/:priceId" component={ProductDetail} />
       <Route path="/vintage" component={Vintage} />
       <Route path="/policies" component={Policies} />
       <Route path="/poetry" component={Poetry} />

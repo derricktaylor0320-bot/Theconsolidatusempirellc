@@ -149,3 +149,86 @@ export function buildPasswordResetEmail(resetUrl: string): {
 
   return { subject, html, text };
 }
+
+interface ReceiptItem {
+  name: string;
+  quantity: number;
+  amountCents: number; // per-unit price in cents
+  note?: string;
+}
+
+function formatUsd(cents: number): string {
+  return `$${(Math.max(0, Math.round(cents)) / 100).toFixed(2)}`;
+}
+
+export function buildOrderReceiptEmail(input: {
+  items: ReceiptItem[];
+  totalCents: number;
+  orderRef?: string;
+}): { subject: string; html: string; text: string } {
+  const subject = "Your Consolidatus Empire order receipt";
+
+  const refLine = input.orderRef ? `Order reference: ${input.orderRef}\n` : "";
+  const textLines = input.items.map((it) => {
+    const lineTotal = formatUsd(it.amountCents * it.quantity);
+    const noteSuffix = it.note ? ` (${it.note})` : "";
+    return `- ${it.name}${noteSuffix} x${it.quantity} — ${lineTotal}`;
+  });
+  const text =
+    `Thanks for your order!\n\n` +
+    refLine +
+    `\nItems:\n${textLines.join("\n")}\n\n` +
+    `Total: ${formatUsd(input.totalCents)}\n\n` +
+    `If you have any questions about your order, just reply to this email.`;
+
+  const rows = input.items
+    .map((it) => {
+      const lineTotal = formatUsd(it.amountCents * it.quantity);
+      const unit = formatUsd(it.amountCents);
+      const note = it.note
+        ? `<div style="font-size:13px; color:#9c9089; margin-top:4px;">${it.note}</div>`
+        : "";
+      return `
+      <tr>
+        <td style="padding:12px 0; border-bottom:1px solid #4a2b1a; color:#d9d2cc; font-size:14px;">
+          ${it.name}${note}
+        </td>
+        <td style="padding:12px 0; border-bottom:1px solid #4a2b1a; color:#d9d2cc; font-size:14px; text-align:center; white-space:nowrap;">
+          ${it.quantity} &times; ${unit}
+        </td>
+        <td style="padding:12px 0; border-bottom:1px solid #4a2b1a; color:#f5f5f5; font-size:14px; text-align:right; white-space:nowrap;">
+          ${lineTotal}
+        </td>
+      </tr>`;
+    })
+    .join("");
+
+  const refHtml = input.orderRef
+    ? `<p style="font-size:13px; line-height:1.6; margin:0 0 16px; color:#9c9089;">Order reference: <span style="color:#d9d2cc;">${input.orderRef}</span></p>`
+    : "";
+
+  const html = `
+  <div style="font-family: Arial, Helvetica, sans-serif; background:#1a0d12; padding:32px; color:#f5f5f5;">
+    <div style="max-width:520px; margin:0 auto; background:#221017; border:1px solid #4a2b1a; border-radius:12px; padding:32px;">
+      <h1 style="font-size:20px; margin:0 0 8px; color:#e6b94d; text-transform:uppercase; letter-spacing:1px;">Thanks for your order</h1>
+      <p style="font-size:15px; line-height:1.6; margin:0 0 16px; color:#d9d2cc;">
+        Here's a receipt for your purchase from the Consolidatus Empire. We'll be in touch as your order is prepared.
+      </p>
+      ${refHtml}
+      <table style="width:100%; border-collapse:collapse; margin:8px 0 0;">
+        <tbody>
+          ${rows}
+          <tr>
+            <td style="padding:16px 0 0; color:#e6b94d; font-size:15px; font-weight:bold;" colspan="2">Total</td>
+            <td style="padding:16px 0 0; color:#e6b94d; font-size:15px; font-weight:bold; text-align:right;">${formatUsd(input.totalCents)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px; line-height:1.6; margin:24px 0 0; color:#9c9089;">
+        If you have any questions about your order, just reply to this email.
+      </p>
+    </div>
+  </div>`;
+
+  return { subject, html, text };
+}

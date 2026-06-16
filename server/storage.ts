@@ -1,6 +1,6 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, orders } from "@shared/schema";
 import { db } from "./db";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Product operations
@@ -15,6 +15,15 @@ export interface IStorage {
   addSubscriber(subscriber: InsertSubscriber): Promise<Subscriber | null>;
   getSubscriberByEmail(email: string): Promise<Subscriber | undefined>;
   getAllSubscribers(): Promise<Subscriber[]>;
+
+  // Order operations
+  getAllOrders(): Promise<Order[]>;
+  getOrderBySquareId(squareOrderId: string): Promise<Order | undefined>;
+  recordPaidOrder(order: {
+    squareOrderId: string;
+    items: OrderItem[];
+    totalCents: number;
+  }): Promise<Order>;
 
   // User / auth operations
   createUser(user: InsertUser): Promise<User>;
@@ -89,6 +98,45 @@ export class DatabaseStorage implements IStorage {
 
   async getAllSubscribers(): Promise<Subscriber[]> {
     return await db.select().from(subscribers);
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+  }
+
+  async getOrderBySquareId(squareOrderId: string): Promise<Order | undefined> {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.squareOrderId, squareOrderId));
+    return order || undefined;
+  }
+
+  async recordPaidOrder(input: {
+    squareOrderId: string;
+    items: OrderItem[];
+    totalCents: number;
+  }): Promise<Order> {
+    // Idempotent: if the buyer refreshes the success page we update the same
+    // row (keyed by the Square order id) instead of inserting a duplicate.
+    const [order] = await db
+      .insert(orders)
+      .values({
+        status: "paid",
+        items: input.items,
+        totalCents: input.totalCents,
+        squareOrderId: input.squareOrderId,
+      })
+      .onConflictDoUpdate({
+        target: orders.squareOrderId,
+        set: {
+          status: "paid",
+          items: input.items,
+          totalCents: input.totalCents,
+        },
+      })
+      .returning();
+    return order;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {

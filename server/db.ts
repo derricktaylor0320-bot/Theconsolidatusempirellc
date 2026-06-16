@@ -104,6 +104,25 @@ export async function ensureTablesExist() {
       ON password_reset_tokens (user_id)
     `);
 
+    // Paid orders captured at checkout (only recorded after Square confirms
+    // payment on the buyer's return).
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS orders (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        status TEXT NOT NULL DEFAULT 'pending',
+        items JSONB NOT NULL,
+        total_cents INTEGER NOT NULL,
+        square_order_id TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    // One stored order per Square order id (lets us upsert idempotently when a
+    // buyer refreshes the success page).
+    await db.execute(sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS "IDX_orders_square_order_id"
+      ON orders (square_order_id)
+    `);
+
     // Session store table used by connect-pg-simple for shared hub sessions.
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS "session" (

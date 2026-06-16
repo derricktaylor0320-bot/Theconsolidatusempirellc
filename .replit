@@ -42,12 +42,12 @@ integrations = ["javascript_database:1.0.0", "stripe:1.0.0", "google-sheet:1.0.0
 path = "scripts/post-merge.sh"
 timeoutMs = 120000
 
-[[ports]]
-localPort = 5000
-externalPort = 80
-
 [userenv]
 
 [userenv.shared]
 SQUARE_APPLICATION_ID = "sq0idp-C4n0XMpeXciV8OatReDNdg"
 SQUARE_LOCATION_ID = "LY6ZGMK901DK6"
+
+[[ports]]
+localPort = 5000
+externalPort = 80

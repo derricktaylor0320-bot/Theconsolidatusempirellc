@@ -100,6 +100,11 @@ export default function Navbar() {
                       Centralized Hub
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/orders" data-testid="link-menu-orders">
+                      Orders
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleLogout}
                     data-testid="button-logout"

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -19,6 +19,43 @@ export const insertProductSchema = createInsertSchema(products).omit({
 
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
+
+// A single purchased line item, stored inside the order's `items` jsonb column.
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  amountCents: number; // per-unit price in cents
+  note?: string;
+}
+
+// Paid orders captured at checkout. We do NOT persist anything when the buyer
+// is sent to Square; only once they return AND Square confirms the order is
+// paid do we record it (keyed by the Square order id). This means abandoned or
+// cancelled checkouts never create a row. `status` is kept for forward
+// flexibility but persisted rows are always "paid".
+export const orders = pgTable("orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  status: text("status").notNull().default("pending"), // 'pending' | 'paid'
+  items: jsonb("items").$type<OrderItem[]>().notNull(),
+  totalCents: integer("total_cents").notNull(),
+  squareOrderId: text("square_order_id").unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const orderItemSchema = z.object({
+  name: z.string(),
+  quantity: z.number().int().positive(),
+  amountCents: z.number().int().nonnegative(),
+  note: z.string().optional(),
+});
+
+export const insertOrderSchema = z.object({
+  items: z.array(orderItemSchema),
+  totalCents: z.number().int().nonnegative(),
+});
+
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type Order = typeof orders.$inferSelect;
 
 export const subscribers = pgTable("subscribers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

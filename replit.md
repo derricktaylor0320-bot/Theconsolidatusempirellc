@@ -4,6 +4,16 @@
 
 The Consolidatus Empire is a premium e-commerce platform for Khomplete Khemistri Mgmt LLC, featuring multiple brand divisions including apparel, accessories, creative studios, and integrated services. The platform is built as a full-stack TypeScript application with React frontend and Express backend, using PostgreSQL for data persistence and Stripe for payment processing.
 
+## Live Deployment
+
+- **Host:** Railway — project "The Consolidatus Empire", environment `production`
+- **Live URL:** https://khomplete-khemistri-apparel.up.railway.app
+- **Services:**
+  - `poetic-balance` — the web app, deployed from GitHub repo `derricktaylor0320-bot/kkmgllc-operations` (branch `main`)
+  - `Postgres` — database holding all migrated store data (Stripe-synced catalog + app tables)
+- **Deploys:** trigger from the latest `main` commit in Railway (the GitHub auto-deploy webhook is not wired, so use Railway's "Deploy" / redeploy).
+- See `.agents/memory/railway-portability.md` for full setup steps and gotchas.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
