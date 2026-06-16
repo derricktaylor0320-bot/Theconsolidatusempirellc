@@ -117,7 +117,7 @@ export default function Apparel() {
               <section>
                 <div className="border-t border-primary/20 pt-12">
                   <h2 className="font-display text-3xl font-bold uppercase tracking-wider text-center mb-8 text-primary" data-testid="section-kids">
-                    Baby & Kids Collection
+                    Kids Collection
                   </h2>
                   <p className="text-center text-muted-foreground mb-8">For the Little Ones</p>
                   {renderProductGrid(kidsProducts)}
