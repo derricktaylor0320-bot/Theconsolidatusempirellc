@@ -49,6 +49,8 @@ export type CustomizationKind =
   | "phoneModel"
   | "logoOption"
   | "size"
+  | "color"
+  | "colorSoldOut"
   | "none";
 
 export interface CustomizationCheck {
@@ -82,7 +84,17 @@ function isValidChoiceWithLogo(
   return LOGO_ALT_SET.has(logoName);
 }
 
-export function checkCustomization(
+// The colors a product is offered in, and the subset currently out of stock.
+export function colorList(metadata: any): string[] {
+  return splitList((metadata || {}).colors);
+}
+export function soldOutColorList(metadata: any): string[] {
+  return splitList((metadata || {}).soldOutColors);
+}
+
+// Validates the logo/handle/model/size choice. Color is layered on top of this
+// by checkCustomization.
+function checkLogoChoice(
   metadata: any,
   selectedLogo: unknown,
 ): CustomizationCheck {
@@ -144,6 +156,38 @@ export function checkCustomization(
   return { required: false, kind: "none", ok: true };
 }
 
+// Full customization check: the logo/handle/model/size choice PLUS, for products
+// offered in multiple colors, a required in-stock color. The chosen color is
+// appended to the order note so fulfillment knows which color to make.
+export function checkCustomization(
+  metadata: any,
+  selectedLogo: unknown,
+  selectedColor?: unknown,
+): CustomizationCheck {
+  const meta = metadata || {};
+  const base = checkLogoChoice(meta, selectedLogo);
+
+  const colors = colorList(meta);
+  // A color choice only matters when there are 2+ real options. A single value
+  // (often free-text like "specify at checkout") is not a pickable variant.
+  if (colors.length < 2) return base;
+
+  // Report a missing/invalid logo first so the shopper fixes one thing at a time.
+  if (base.required && !base.ok) return base;
+
+  const color = typeof selectedColor === "string" ? selectedColor.trim() : "";
+  if (!color || !colors.includes(color)) {
+    return { required: true, kind: "color", ok: false };
+  }
+  if (soldOutColorList(meta).includes(color)) {
+    return { required: true, kind: "colorSoldOut", ok: false };
+  }
+
+  const colorNote = `Color: ${color}`;
+  const note = base.note ? `${base.note} | ${colorNote}` : colorNote;
+  return { required: true, kind: base.kind === "none" ? "color" : base.kind, ok: true, note };
+}
+
 export function customizationErrorMessage(
   kind: CustomizationKind,
   productName: string,
@@ -157,6 +201,10 @@ export function customizationErrorMessage(
       return `Please select a logo variation for "${productName}" before checking out.`;
     case "size":
       return `Please choose a size for "${productName}" before checking out.`;
+    case "color":
+      return `Please choose a color for "${productName}" before checking out.`;
+    case "colorSoldOut":
+      return `That color of "${productName}" is sold out. Please choose another color.`;
     default:
       return `Please complete your customization for "${productName}" before checking out.`;
   }

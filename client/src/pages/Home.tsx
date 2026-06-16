@@ -45,11 +45,14 @@ export default function Home() {
                 category={product.category}
                 image={product.imageUrl}
                 priceId={product.priceId}
+                soldOut={product.soldOut}
                 description={product.description}
                 logoOptions={product.logoOptions}
                 handleColors={product.handleColors}
                 caseType={product.caseType}
                 sizes={product.sizes}
+                colors={product.colors}
+                soldOutColors={product.soldOutColors}
               />
             ))}
           </div>

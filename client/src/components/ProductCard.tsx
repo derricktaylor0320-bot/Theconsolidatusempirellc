@@ -24,9 +24,11 @@ interface ProductCardProps {
   handleColors?: string;
   caseType?: string;
   sizes?: string;
+  colors?: string;
+  soldOutColors?: string;
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, colors, soldOutColors }: ProductCardProps) {
   const { addItem } = useCart();
   const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
   const usesCaseType = !!caseType && caseType.trim().length > 0;
@@ -38,8 +40,20 @@ export default function ProductCard({ image, title, price, category, priceId, so
     ? sizes.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsSize = sizeChoices.length > 0;
+  const colorChoices = colors
+    ? colors.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsColor = colorChoices.length >= 2 && colorChoices.length <= 30;
+  const soldOutColorSet = new Set(
+    (soldOutColors
+      ? soldOutColors.split(",").map((s) => s.trim()).filter(Boolean)
+      : []
+    ).map((c) => c.toLowerCase()),
+  );
+  const isColorSoldOut = (c: string) => soldOutColorSet.has(c.toLowerCase());
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -56,6 +70,14 @@ export default function ProductCard({ image, title, price, category, priceId, so
       setErrorMessage("Please select a size.");
       return;
     }
+    if (needsColor && !selectedColor) {
+      setErrorMessage("Please select a color.");
+      return;
+    }
+    if (needsColor && selectedColor && isColorSoldOut(selectedColor)) {
+      setErrorMessage("That color is sold out. Please choose another.");
+      return;
+    }
 
     addItem(
       {
@@ -65,6 +87,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
         category,
         unitPrice: price,
         selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
+        selectedColor: needsColor ? selectedColor : undefined,
       },
       quantity,
     );
@@ -216,6 +239,39 @@ export default function ProductCard({ image, title, price, category, priceId, so
                   </Select>
                 </div>
               )}
+              {needsColor && (
+                <div className="w-full mt-1 space-y-2">
+                  <p
+                    className="text-xs text-muted-foreground leading-relaxed"
+                    data-testid={`text-color-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    Choose your color to complete your order.
+                  </p>
+                  <Select value={selectedColor} onValueChange={(v) => { setSelectedColor(v); setErrorMessage(""); }} disabled={soldOut}>
+                    <SelectTrigger
+                      className="w-full"
+                      data-testid={`select-color-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      <SelectValue placeholder="Choose your color *" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colorChoices.map((choice) => {
+                        const out = isColorSoldOut(choice);
+                        return (
+                          <SelectItem
+                            key={choice}
+                            value={choice}
+                            disabled={out}
+                            data-testid={`option-color-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            {choice}{out ? " \u2014 Sold out" : ""}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               {needsSize && (
                 <div className="w-full mt-1 space-y-2">
                   <p
@@ -284,7 +340,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
               </div>
               <Button 
                 onClick={handleAddToCart}
-                disabled={!priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize)}
+                disabled={!priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
                 className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
                   soldOut 
                     ? 'bg-gray-400 text-white cursor-not-allowed' 
@@ -294,7 +350,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
                 }`}
                 data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : needsSize && !selectedSize ? 'Select a Size' : 'Add to Cart'}
+                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : needsSize && !selectedSize ? 'Select a Size' : needsColor && !selectedColor ? 'Select a Color' : 'Add to Cart'}
               </Button>
               {errorMessage && (
                 <p

@@ -15,6 +15,7 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
   selectedLogo?: string;
+  selectedColor?: string;
 }
 
 interface CartContextValue {
@@ -22,11 +23,12 @@ interface CartContextValue {
   itemCount: number;
   total: number;
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
-  removeItem: (priceId: string, selectedLogo?: string) => void;
+  removeItem: (priceId: string, selectedLogo?: string, selectedColor?: string) => void;
   updateQuantity: (
     priceId: string,
     selectedLogo: string | undefined,
     quantity: number,
+    selectedColor?: string,
   ) => void;
   clearCart: () => void;
 }
@@ -36,8 +38,8 @@ const MAX_QTY = 99;
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-function lineKey(priceId: string, selectedLogo?: string) {
-  return `${priceId}__${selectedLogo || ""}`;
+function lineKey(priceId: string, selectedLogo?: string, selectedColor?: string) {
+  return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}`;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -64,13 +66,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     (item: Omit<CartItem, "quantity">, quantity = 1) => {
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) => {
-        const key = lineKey(item.priceId, item.selectedLogo);
+        const key = lineKey(item.priceId, item.selectedLogo, item.selectedColor);
         const existing = prev.find(
-          (i) => lineKey(i.priceId, i.selectedLogo) === key,
+          (i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor) === key,
         );
         if (existing) {
           return prev.map((i) =>
-            lineKey(i.priceId, i.selectedLogo) === key
+            lineKey(i.priceId, i.selectedLogo, i.selectedColor) === key
               ? { ...i, quantity: Math.min(MAX_QTY, i.quantity + qty) }
               : i,
           );
@@ -81,20 +83,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const removeItem = useCallback((priceId: string, selectedLogo?: string) => {
-    const key = lineKey(priceId, selectedLogo);
-    setItems((prev) =>
-      prev.filter((i) => lineKey(i.priceId, i.selectedLogo) !== key),
-    );
-  }, []);
+  const removeItem = useCallback(
+    (priceId: string, selectedLogo?: string, selectedColor?: string) => {
+      const key = lineKey(priceId, selectedLogo, selectedColor);
+      setItems((prev) =>
+        prev.filter((i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor) !== key),
+      );
+    },
+    [],
+  );
 
   const updateQuantity = useCallback(
-    (priceId: string, selectedLogo: string | undefined, quantity: number) => {
-      const key = lineKey(priceId, selectedLogo);
+    (
+      priceId: string,
+      selectedLogo: string | undefined,
+      quantity: number,
+      selectedColor?: string,
+    ) => {
+      const key = lineKey(priceId, selectedLogo, selectedColor);
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) =>
         prev.map((i) =>
-          lineKey(i.priceId, i.selectedLogo) === key
+          lineKey(i.priceId, i.selectedLogo, i.selectedColor) === key
             ? { ...i, quantity: qty }
             : i,
         ),

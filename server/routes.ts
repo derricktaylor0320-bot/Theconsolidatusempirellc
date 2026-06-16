@@ -848,6 +848,7 @@ export async function registerRoutes(
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             colors: metadata.colors || null,
+            soldOutColors: metadata.soldOutColors || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
@@ -877,6 +878,7 @@ export async function registerRoutes(
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             colors: metadata.colors || null,
+            soldOutColors: metadata.soldOutColors || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
@@ -938,6 +940,7 @@ export async function registerRoutes(
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             colors: metadata.colors || null,
+            soldOutColors: metadata.soldOutColors || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
@@ -969,6 +972,7 @@ export async function registerRoutes(
             gender: metadata.gender || null,
             logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
             colors: metadata.colors || null,
+            soldOutColors: metadata.soldOutColors || null,
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
@@ -1013,7 +1017,14 @@ export async function registerRoutes(
       // choice — including a real logo — before checkout, enforced here and not
       // just in the UI so this endpoint can't be used to bypass the customizer.
       const productMetadata = (priceRow.product_metadata || {}) as any;
-      const check = checkCustomization(productMetadata, selectedLogo);
+      // Server-authoritative stock: a sold-out item can never be purchased,
+      // even via a crafted request that bypasses the disabled UI.
+      if (productMetadata.soldOut === 'true') {
+        return res.status(400).json({
+          error: `"${(priceRow.product_name as string) || productName || "This item"}" is sold out.`,
+        });
+      }
+      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor);
       if (check.required && !check.ok) {
         return res.status(400).json({
           error: customizationErrorMessage(
@@ -1137,7 +1148,14 @@ export async function registerRoutes(
         // products (handle color, phone model, or plain logo option). The chosen
         // model/color AND the logo are validated here — never trust the UI alone.
         const productMetadata = (priceRow.product_metadata || {}) as any;
-        const check = checkCustomization(productMetadata, item?.selectedLogo);
+        // Server-authoritative stock: never let a sold-out item through checkout,
+        // even if the client UI was bypassed.
+        if (productMetadata.soldOut === 'true') {
+          return res.status(400).json({
+            error: `"${priceRow.product_name || "One of your items"}" is sold out.`,
+          });
+        }
+        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor);
         if (check.required && !check.ok) {
           return res.status(400).json({
             error: customizationErrorMessage(check.kind, priceRow.product_name),

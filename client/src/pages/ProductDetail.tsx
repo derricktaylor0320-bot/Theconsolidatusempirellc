@@ -32,6 +32,7 @@ interface ApiProduct {
   caseType?: string | null;
   sizes?: string | null;
   colors?: string | null;
+  soldOutColors?: string | null;
 }
 
 function listingForType(productType?: string) {
@@ -197,6 +198,22 @@ function ProductDetailContent({
     return ranked.slice(0, RELATED_LIMIT);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.priceId, allProducts, cartItems]);
+
+  // When the whole item is sold out, offer in-stock items at the same price or
+  // less — a real "shop these instead" substitute of equal-or-lesser value.
+  const alternatives = useMemo(() => {
+    if (!soldOut) return [];
+    return allProducts
+      .filter(
+        (p) =>
+          p.priceId &&
+          p.priceId !== product.priceId &&
+          !p.soldOut &&
+          parseFloat(p.price) <= price,
+      )
+      .sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
+      .slice(0, 4);
+  }, [soldOut, allProducts, product.priceId, price]);
   const logoChoices = product.logoOptions
     ? product.logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -208,7 +225,14 @@ function ProductDetailContent({
   const colorChoices = product.colors
     ? product.colors.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
-  const hasColorChoices = needsLogo && colorChoices.length > 0 && colorChoices.length <= 30;
+  const soldOutColorSet = new Set(
+    (product.soldOutColors
+      ? product.soldOutColors.split(",").map((s) => s.trim()).filter(Boolean)
+      : []
+    ).map((c) => c.toLowerCase()),
+  );
+  const isColorSoldOut = (c: string) => soldOutColorSet.has(c.toLowerCase());
+  const needsColor = colorChoices.length >= 2 && colorChoices.length <= 30;
 
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -233,6 +257,14 @@ function ProductDetailContent({
       setErrorMessage("Please select a size.");
       return;
     }
+    if (needsColor && !selectedColor) {
+      setErrorMessage("Please select a color.");
+      return;
+    }
+    if (needsColor && selectedColor && isColorSoldOut(selectedColor)) {
+      setErrorMessage("That color is sold out. Please choose another.");
+      return;
+    }
 
     addItem(
       {
@@ -242,6 +274,7 @@ function ProductDetailContent({
         category: product.category,
         unitPrice: price,
         selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
+        selectedColor: needsColor ? selectedColor : undefined,
       },
       quantity,
     );
@@ -357,6 +390,53 @@ function ProductDetailContent({
             </div>
           ) : (
             <div className="mt-auto space-y-4">
+              {needsColor && (
+                <div className="space-y-2" data-testid="picker-detail-color">
+                  <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                    Choose your color
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {colorChoices.map((color) => {
+                      const active = selectedColor === color;
+                      const out = isColorSoldOut(color);
+                      return (
+                        <button
+                          key={color}
+                          type="button"
+                          disabled={soldOut || out}
+                          onClick={() => {
+                            setSelectedColor(active ? "" : color);
+                            setErrorMessage("");
+                          }}
+                          className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors disabled:opacity-50 ${
+                            out
+                              ? "border-border text-muted-foreground line-through cursor-not-allowed"
+                              : active
+                              ? "border-primary bg-primary text-black"
+                              : "border-border hover:border-primary/60"
+                          }`}
+                          data-testid={`button-detail-color-${color.toLowerCase().replace(/\s+/g, "-")}`}
+                          title={out ? `${color} is sold out` : color}
+                        >
+                          {color}{out ? " \u2014 Sold out" : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {selectedColor ? (
+                    <p className="text-sm" data-testid="text-detail-color-selection">
+                      <span className="text-muted-foreground">Selected color: </span>
+                      <span className="font-medium" data-testid="text-detail-color-name">
+                        {selectedColor}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Choose a color to continue.
+                    </p>
+                  )}
+                </div>
+              )}
               {needsLogo && (
                 <div className="space-y-3">
                   <p
@@ -365,34 +445,6 @@ function ProductDetailContent({
                   >
                     Note: All items are custom branded. Pick the logo you want from the full Branded Logo Collection below to complete your order.
                   </p>
-                  {hasColorChoices && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                        Your product color (for logo suggestions)
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {colorChoices.map((color) => {
-                          const active = selectedColor === color;
-                          return (
-                            <button
-                              key={color}
-                              type="button"
-                              disabled={soldOut}
-                              onClick={() => setSelectedColor(active ? "" : color)}
-                              className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors disabled:opacity-50 ${
-                                active
-                                  ? "border-primary bg-primary text-black"
-                                  : "border-border hover:border-primary/60"
-                              }`}
-                              data-testid={`button-detail-color-${color.toLowerCase().replace(/\s+/g, "-")}`}
-                            >
-                              {color}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
                   {selectedColor && recommendedIds.length > 0 && (
                     <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3" data-testid="picker-detail-recommended">
                       <p className="text-xs font-medium uppercase tracking-widest text-primary">
@@ -592,7 +644,7 @@ function ProductDetailContent({
 
               <Button
                 onClick={handleAddToCart}
-                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize)}
+                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
                 className={`w-full transition-colors uppercase tracking-wider font-display text-sm h-12 disabled:opacity-50 ${
                   soldOut
                     ? "bg-gray-400 text-white cursor-not-allowed"
@@ -602,7 +654,7 @@ function ProductDetailContent({
                 }`}
                 data-testid="button-detail-add"
               >
-                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : needsSize && !selectedSize ? "Select a Size" : "Add to Cart"}
+                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : needsSize && !selectedSize ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : "Add to Cart"}
               </Button>
 
               {errorMessage && (
@@ -624,6 +676,37 @@ function ProductDetailContent({
           )}
         </div>
       </div>
+
+      {soldOut && alternatives.length > 0 && (
+        <section className="max-w-6xl mx-auto mt-20" data-testid="section-alternatives">
+          <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wider text-center mb-3 text-primary">
+            Sold Out — Shop These Instead
+          </h2>
+          <p className="text-center text-muted-foreground mb-10">
+            These in-stock items are the same price as "{product.title}" (${price.toFixed(2)}) or less.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {alternatives.map((alt) => (
+              <ProductCard
+                key={alt.id}
+                title={alt.title}
+                price={parseFloat(alt.price)}
+                category={alt.category}
+                image={alt.imageUrl}
+                priceId={alt.priceId || undefined}
+                soldOut={alt.soldOut}
+                description={alt.description}
+                logoOptions={alt.logoOptions || undefined}
+                handleColors={alt.handleColors || undefined}
+                caseType={alt.caseType || undefined}
+                sizes={alt.sizes || undefined}
+                colors={alt.colors || undefined}
+                soldOutColors={alt.soldOutColors || undefined}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {relatedProducts.length > 0 && (
         <section className="max-w-6xl mx-auto mt-20" data-testid="section-related-products">

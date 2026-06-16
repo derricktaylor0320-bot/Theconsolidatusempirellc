@@ -24,6 +24,7 @@ export default function Cart() {
             priceId: i.priceId,
             quantity: i.quantity,
             selectedLogo: i.selectedLogo,
+            selectedColor: i.selectedColor,
           })),
         }),
       });
@@ -72,6 +73,8 @@ export default function Cart() {
               {items.map((item) => {
                 const slug = `${item.priceId}-${(item.selectedLogo || "")
                   .toLowerCase()
+                  .replace(/\s+/g, "-")}-${(item.selectedColor || "")
+                  .toLowerCase()
                   .replace(/\s+/g, "-")}`;
                 return (
                   <div
@@ -94,7 +97,7 @@ export default function Cart() {
                         </h3>
                         <button
                           onClick={() =>
-                            removeItem(item.priceId, item.selectedLogo)
+                            removeItem(item.priceId, item.selectedLogo, item.selectedColor)
                           }
                           className="text-muted-foreground hover:text-red-500 shrink-0"
                           data-testid={`button-remove-${slug}`}
@@ -111,6 +114,14 @@ export default function Cart() {
                           {item.category === "Bedding" ? "Size" : "Logo"}: {item.selectedLogo}
                         </p>
                       )}
+                      {item.selectedColor && (
+                        <p
+                          className="text-xs text-muted-foreground mt-1"
+                          data-testid={`text-cart-color-${slug}`}
+                        >
+                          Color: {item.selectedColor}
+                        </p>
+                      )}
                       <p className="text-sm text-primary mt-1">
                         ${item.unitPrice.toFixed(2)}
                       </p>
@@ -125,6 +136,7 @@ export default function Cart() {
                                 item.priceId,
                                 item.selectedLogo,
                                 item.quantity - 1,
+                                item.selectedColor,
                               )
                             }
                             disabled={item.quantity <= 1}
@@ -148,6 +160,7 @@ export default function Cart() {
                                 item.priceId,
                                 item.selectedLogo,
                                 item.quantity + 1,
+                                item.selectedColor,
                               )
                             }
                             data-testid={`button-increase-${slug}`}

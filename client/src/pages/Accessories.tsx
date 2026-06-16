@@ -48,6 +48,8 @@ export default function Accessories() {
                 handleColors={product.handleColors}
                 caseType={product.caseType}
                 sizes={product.sizes}
+                colors={product.colors}
+                soldOutColors={product.soldOutColors}
               />
             ))}
           </div>
