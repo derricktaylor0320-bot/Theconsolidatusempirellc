@@ -23,12 +23,14 @@ const TUMBLER_NAME = "40 Oz Branded Tumbler";
 const TUMBLER_PRICE_CENTS = 3000;
 const TUMBLER_DESCRIPTION =
   "Premium 40 oz insulated stainless steel tumbler with handle and your choice of Khomplete Khemistri logo. Keeps drinks cold or hot for hours. Available in a wide range of colors — tell us your preferred color at checkout.";
+const TUMBLER_IMAGE = "/assets/tumbler_40oz_personalized.jpg";
 const TUMBLER_META = {
   logoOptions: STANDARD_LOGO_OPTIONS,
   amazonLink: "https://a.co/d/03kljFGN",
   cost: "20",
   fulfillment: "Amazon",
   colors: "Multiple colors available — specify your color choice at checkout",
+  imageUrl: TUMBLER_IMAGE,
 };
 
 const MUG_PRODUCT_ID = "prod_kkcoffeemug";
@@ -58,8 +60,17 @@ const MUG_META = {
 // Stripe's 500-char metadata limit); products only carry a short `caseType`.
 const CASE_PRICE_CENTS = 3000;
 
-// The Kids Sippy Cup is being retired from the storefront.
-const SIPPY_CUP_NAME = "Kids Sippy Cup";
+// Products retired from the storefront. Removing them from ALL_PRODUCTS lets
+// seedProducts archive them in Stripe (dev); deactivating them here also clears
+// them from the Railway prod frozen snapshot (no Stripe there). The baby line
+// was pulled because custom/personalized baby items cost too much to produce.
+const RETIRED_PRODUCT_NAMES = [
+  "Kids Sippy Cup",
+  "Baby Onesie",
+  "Baby Bib",
+  "Baby Romper",
+  "Baby Beanie",
+];
 
 const IPHONE_CASE_PRODUCT_ID = "prod_kkiphonecase";
 const IPHONE_CASE_PRICE_ID = "price_kkiphonecase";
@@ -93,43 +104,75 @@ const SAMSUNG_CASE_META = {
 
 export async function ensureCatalogData() {
   try {
-    // 1) Deduplicate the tumbler. It was created twice in Stripe (a reseed side
-    //    effect), so two products share the name. Instead of leaning on the
-    //    storefront's name-dedupe, make the catalog itself tidy: keep ONE
-    //    canonical product active and deactivate the rest (and their prices).
-    //    Keep the lowest-id tumbler, preferring one that has an active price;
-    //    deterministic so dev and prod converge on the same keeper. Writes go
-    //    through _raw_data (generated columns). In dev this reinforces the Stripe
-    //    archive done by seedProducts; in prod (frozen snapshot, no Stripe keys)
-    //    this is the only thing that removes the duplicate.
+    // 1) Deduplicate ALL products that exist twice. Past reseeds created ~45
+    //    products a second time (same name, different ids, both active). Rather
+    //    than leaning forever on the storefront's name-dedupe, make the catalog
+    //    itself tidy: for every duplicated name keep ONE canonical copy active
+    //    and deactivate the rest (and their active prices). Deactivation is
+    //    non-destructive — order rows store product NAMES + amounts (see
+    //    shared/schema.ts `orders.items`), never price/product ids, so no order
+    //    history can break, and nothing is deleted (reversible by flipping
+    //    `active` back). Writes go through `_raw_data` (every column is
+    //    GENERATED). In dev this reinforces the Stripe archive seedProducts
+    //    does; in prod (frozen snapshot, no Stripe keys) this is the ONLY thing
+    //    that removes the duplicates.
+    //
+    //    Keeper selection is deterministic and documented. Most pairs are
+    //    identical, so any stable rule works; a few pairs genuinely differ and
+    //    must keep the CORRECT copy, captured in the `corrections` table below:
+    //      - Men's / Women's Winter Bundle: copies disagree on price; the
+    //        canonical price is $60 (ALL_PRODUCTS), so keep the $60 copy (the
+    //        old name-dedupe kept the cheaper stale copy — a real bug this fixes).
+    //      - Chemistry Socks: copies disagree on productType (accessory vs
+    //        apparel); the canonical copy is apparel (sortOrder 11).
+    //    Ranking, highest priority first: (a) has an active price; (b) matches
+    //    the corrected productType; (c) matches the corrected price; (d) carries
+    //    sortOrder metadata (keeps the windbreaker copy that sorts correctly);
+    //    (e) lowest id (stable tie-break). This matches seedProducts' keeper.
     await db.execute(sql`
-      WITH keeper AS (
-        SELECT p.id
+      WITH dup_names AS (
+        SELECT name FROM stripe.products
+        WHERE active = true
+        GROUP BY name HAVING COUNT(*) > 1
+      ),
+      corrections(name, pref_price, pref_ptype) AS (
+        VALUES
+          ('Men''s Winter Bundle', 6000, NULL::text),
+          ('Women''s Winter Bundle', 6000, NULL::text),
+          ('Chemistry Socks', NULL::int, 'apparel')
+      ),
+      ranked AS (
+        SELECT p.id,
+          ROW_NUMBER() OVER (
+            PARTITION BY p.name
+            ORDER BY
+              (EXISTS (SELECT 1 FROM stripe.prices pr WHERE pr.product = p.id AND pr.active = true)) DESC,
+              (c.pref_ptype IS NOT NULL AND p.metadata->>'productType' = c.pref_ptype) DESC,
+              (c.pref_price IS NOT NULL AND EXISTS (
+                 SELECT 1 FROM stripe.prices pr
+                 WHERE pr.product = p.id AND pr.active = true
+                   AND (pr._raw_data->>'unit_amount')::int = c.pref_price
+               )) DESC,
+              ((p.metadata->>'sortOrder') IS NOT NULL) DESC,
+              p.id
+          ) AS rn
         FROM stripe.products p
-        WHERE p.name = ${TUMBLER_NAME} AND p.active = true
-        ORDER BY
-          (EXISTS (SELECT 1 FROM stripe.prices pr WHERE pr.product = p.id AND pr.active = true)) DESC,
-          p.id
-        LIMIT 1
+        JOIN dup_names d ON d.name = p.name
+        LEFT JOIN corrections c ON c.name = p.name
+        WHERE p.active = true
+      ),
+      deactivated AS (
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+            _updated_at = now()
+        WHERE id IN (SELECT id FROM ranked WHERE rn > 1)
+        RETURNING id
       )
-      UPDATE stripe.products
-      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
-          _updated_at = now()
-      WHERE name = ${TUMBLER_NAME}
-        AND active = true
-        AND id NOT IN (SELECT id FROM keeper)
-    `);
-
-    // 1b) Deactivate any prices that belong to the now-deactivated tumbler copies
-    //     so a stale price id can never be used for checkout.
-    await db.execute(sql`
       UPDATE stripe.prices
       SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
           _updated_at = now()
       WHERE active = true
-        AND product IN (
-          SELECT id FROM stripe.products WHERE name = ${TUMBLER_NAME} AND active = false
-        )
+        AND product IN (SELECT id FROM deactivated)
     `);
 
     // 2) Tumbler price -> $30 on the surviving active price.
@@ -296,26 +339,26 @@ export async function ensureCatalogData() {
       `);
     }
 
-    // 7) Remove the Kids Sippy Cup from the storefront. The owner is no longer
-    //    offering it. In dev removing it from ALL_PRODUCTS lets seedProducts
-    //    archive it in Stripe; here we deactivate the product + its prices in the
-    //    DB directly so it also disappears from the Railway prod frozen snapshot
-    //    (no Stripe there) and so the dev edit holds regardless of sync timing.
+    // 7) Remove retired products (Kids Sippy Cup + the baby line) from the
+    //    storefront. In dev removing them from ALL_PRODUCTS lets seedProducts
+    //    archive them in Stripe; here we deactivate the products + their prices
+    //    in the DB directly so they also disappear from the Railway prod frozen
+    //    snapshot (no Stripe there) and the dev edit holds regardless of sync.
     await db.execute(sql`
       UPDATE stripe.products
       SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
           _updated_at = now()
-      WHERE name = ${SIPPY_CUP_NAME} AND active = true
+      WHERE name = ANY(${RETIRED_PRODUCT_NAMES}) AND active = true
     `);
     await db.execute(sql`
       UPDATE stripe.prices
       SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
           _updated_at = now()
       WHERE active = true
-        AND product IN (SELECT id FROM stripe.products WHERE name = ${SIPPY_CUP_NAME})
+        AND product IN (SELECT id FROM stripe.products WHERE name = ANY(${RETIRED_PRODUCT_NAMES}))
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo); removed Kids Sippy Cup.");
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), and phone cases ($30, model + logo); removed retired products (Kids Sippy Cup + baby line).");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

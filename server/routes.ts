@@ -238,36 +238,12 @@ const ALL_PRODUCTS = [
     price: 6000,
     metadata: { category: 'Winter', productType: 'accessory', sortOrder: '37', imageUrl: "/attached_assets/Screenshot_20251214_071010_Etsy_1765714465398.jpg", gender: 'Women', fulfillment: 'Etsy', bundle: 'true' }
   },
-  // BABY & KIDS COLLECTION
-  {
-    name: 'Baby Onesie',
-    description: 'Adorable baby bodysuit with Khomplete Khemistri Apparel logo on front chest. White cotton with black and gold shield crest. Snap closure for easy changing. Sizes: 0-3M, 3-6M, 6-12M.',
-    price: 2000,
-    metadata: { category: 'Baby', productType: 'apparel', sortOrder: '19', imageUrl: '/assets/generated_images/white_baby_onesie_branded.png', gender: 'Kids' }
-  },
-  {
-    name: 'Baby Bib',
-    description: 'Branded baby bib with Khomplete Khemistri Apparel logo. Black fabric with gold shield design. Velcro closure for easy on/off. Keep your little one stylish during mealtime.',
-    price: 1200,
-    metadata: { category: 'Baby', productType: 'apparel', sortOrder: '20', imageUrl: '/assets/generated_images/black_branded_baby_bib.png', gender: 'Kids' }
-  },
+  // KIDS COLLECTION
   {
     name: 'Toddler T-Shirt',
     description: 'Kids t-shirt with Khomplete Khemistri Apparel logo on front. Black cotton with gold shield crest logo. Perfect for your little one to match the family. Sizes: 2T, 3T, 4T.',
     price: 2000,
     metadata: { category: 'Kids', productType: 'apparel', sortOrder: '21', imageUrl: '/assets/generated_images/black_toddler_t-shirt_branded.png', gender: 'Kids' }
-  },
-  {
-    name: 'Baby Romper',
-    description: 'Comfortable baby romper one-piece with Khomplete Khemistri Apparel logo on chest. Gray heather cotton with snap buttons. Perfect for everyday wear. Sizes: 0-3M, 3-6M, 6-12M, 12-18M.',
-    price: 2200,
-    metadata: { category: 'Baby', productType: 'apparel', sortOrder: '22', imageUrl: '/assets/generated_images/gray_baby_romper_branded.png', gender: 'Kids' }
-  },
-  {
-    name: 'Baby Beanie',
-    description: 'Soft knit baby beanie with Khomplete Khemistri Apparel logo patch. Black cotton stretch material. Keep your little one warm and stylish. One size fits 0-12 months.',
-    price: 1000,
-    metadata: { category: 'Baby', productType: 'apparel', sortOrder: '23', imageUrl: '/assets/generated_images/black_baby_beanie_hat.png', gender: 'Kids' }
   },
   // FOOTWEAR COLLECTION
   {
@@ -287,7 +263,7 @@ const ALL_PRODUCTS = [
     name: '40 Oz Branded Tumbler',
     description: 'Premium 40 oz insulated stainless steel tumbler with handle and your choice of Khomplete Khemistri logo. Keeps drinks cold or hot for hours. Available in a wide range of colors — tell us your preferred color at checkout.',
     price: 3000,
-    metadata: { category: 'Drinkware', productType: 'accessory', colors: 'Multiple colors available — specify your color choice at checkout', imageUrl: '/assets/Screenshot_20251202_194149_Amazon_Shopping_1764813802811.jpg', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest', amazonLink: 'https://a.co/d/03kljFGN', cost: '20', fulfillment: 'Amazon' }
+    metadata: { category: 'Drinkware', productType: 'accessory', colors: 'Multiple colors available — specify your color choice at checkout', imageUrl: '/assets/tumbler_40oz_personalized.jpg', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest', amazonLink: 'https://a.co/d/03kljFGN', cost: '20', fulfillment: 'Amazon' }
   },
   {
     name: 'Coffee Mug',
@@ -687,34 +663,108 @@ async function seedProducts() {
       }
     }
 
-    // Collapse duplicate "40 Oz Branded Tumbler" products in Stripe so only one
-    // stays active. The catalog was reseeded once and created the tumbler twice
-    // (same name, different ids). Keep the lowest-id copy that has an active
-    // price; archive the rest (and their prices). Making Stripe — the source of
-    // truth — tidy lets the sync set active=false in the DB so the storefront's
-    // name-dedupe is no longer load-bearing for this item.
-    const tumblers = allExistingProducts.filter(
-      p => p.name === '40 Oz Branded Tumbler' && p.active
-    );
-    if (tumblers.length > 1) {
-      const withActivePrice: string[] = [];
-      for (const t of tumblers) {
-        const prices = await stripe.prices.list({ product: t.id, active: true, limit: 1 });
-        if (prices.data.length > 0) withActivePrice.push(t.id);
+    // Collapse ALL duplicate products in Stripe so each name stays active only
+    // once. Past reseeds created ~45 products a second time (same name, different
+    // ids, both active). Making Stripe — the source of truth — tidy lets the sync
+    // set active=false in the DB so the storefront's name-dedupe is no longer
+    // load-bearing. Archiving is non-destructive (orders store product names +
+    // amounts, not price/product ids) and reversible.
+    //
+    // Keeper selection is deterministic and mirrors ensureCatalogData so dev
+    // (Stripe) and prod (DB snapshot) converge on the SAME keeper. Most pairs
+    // are identical; a few differ and must keep the correct copy, driven by the
+    // canonical ALL_PRODUCTS price/productType: e.g. the Winter Bundles keep the
+    // $60 copy (not the cheaper stale one) and Chemistry Socks keeps the apparel
+    // copy. Ranking, highest priority first: (a) has an active price; (b) matches
+    // canonical productType; (c) matches canonical price; (d) carries sortOrder
+    // metadata; (e) lowest id (stable tie-break).
+    const activeByName = new Map<string, any[]>();
+    for (const p of allExistingProducts) {
+      if (!p.active) continue;
+      const arr = activeByName.get(p.name) ?? [];
+      arr.push(p);
+      activeByName.set(p.name, arr);
+    }
+    const canonicalByName = new Map(ALL_PRODUCTS.map(p => [p.name, p]));
+    for (const [name, copies] of Array.from(activeByName.entries())) {
+      if (copies.length < 2) continue;
+      const canonical = canonicalByName.get(name);
+
+      // Look up each copy's active price once.
+      const activePriceByCopy = new Map<string, number | null>();
+      for (const c of copies) {
+        const prices = await stripe.prices.list({ product: c.id, active: true, limit: 1 });
+        activePriceByCopy.set(c.id, prices.data[0]?.unit_amount ?? null);
       }
-      const eligible = withActivePrice.length
-        ? tumblers.filter(t => withActivePrice.includes(t.id))
-        : tumblers;
-      const keeperId = eligible.map(t => t.id).sort()[0];
-      for (const t of tumblers) {
-        if (t.id === keeperId) continue;
-        console.log(`Archiving duplicate tumbler product: ${t.id}...`);
-        const dupPrices = await stripe.prices.list({ product: t.id, active: true, limit: 100 });
+
+      const scoreOf = (c: any): number[] => {
+        const price = activePriceByCopy.get(c.id);
+        return [
+          price != null ? 1 : 0,
+          canonical && c.metadata?.productType === canonical.metadata.productType ? 1 : 0,
+          canonical && price != null && price === canonical.price ? 1 : 0,
+          c.metadata?.sortOrder ? 1 : 0,
+        ];
+      };
+
+      const keeper = [...copies].sort((a, b) => {
+        const sa = scoreOf(a), sb = scoreOf(b);
+        for (let i = 0; i < sa.length; i++) {
+          if (sa[i] !== sb[i]) return sb[i] - sa[i];
+        }
+        return a.id < b.id ? -1 : 1;
+      })[0];
+
+      for (const c of copies) {
+        if (c.id === keeper.id) continue;
+        console.log(`Archiving duplicate "${name}": ${c.id}...`);
+        const dupPrices = await stripe.prices.list({ product: c.id, active: true, limit: 100 });
         for (const pr of dupPrices.data) {
           await stripe.prices.update(pr.id, { active: false });
         }
-        await stripe.products.update(t.id, { active: false });
-        console.log(`Archived duplicate tumbler: ${t.id} (kept ${keeperId})`);
+        await stripe.products.update(c.id, { active: false });
+        console.log(`Archived duplicate "${name}": ${c.id} (kept ${keeper.id})`);
+      }
+    }
+
+    // Self-heal: a product that belongs in the catalog (ALL_PRODUCTS) must
+    // always have exactly ONE active copy. A past partial/crashed run could
+    // archive EVERY copy of a name, which silently removes the item from the
+    // store (this happened to "Kids Sippy Cup"). For any catalog name that has
+    // copies in Stripe but none active, revive the canonical keeper (lowest id —
+    // matches the dedup tie-break), ensure it carries an active price, and clear
+    // any stray active price left on its other inactive copies. Names with no
+    // copies at all are handled by the create branch above.
+    const allByName = new Map<string, any[]>();
+    for (const p of allExistingProducts) {
+      const arr = allByName.get(p.name) ?? [];
+      arr.push(p);
+      allByName.set(p.name, arr);
+    }
+    for (const productDef of ALL_PRODUCTS) {
+      const copies = allByName.get(productDef.name) ?? [];
+      if (copies.length === 0) continue;
+      if (copies.some(c => c.active)) continue;
+
+      const revive = [...copies].sort((a, b) => (a.id < b.id ? -1 : 1))[0];
+      console.warn(`Reactivating catalog product left with no active copy: "${productDef.name}" (${revive.id})`);
+      await stripe.products.update(revive.id, { active: true });
+
+      const activePrices = await stripe.prices.list({ product: revive.id, active: true, limit: 1 });
+      if (activePrices.data.length === 0) {
+        await stripe.prices.create({
+          product: revive.id,
+          unit_amount: productDef.price,
+          currency: 'usd',
+        });
+      }
+
+      for (const c of copies) {
+        if (c.id === revive.id) continue;
+        const strayPrices = await stripe.prices.list({ product: c.id, active: true, limit: 100 });
+        for (const pr of strayPrices.data) {
+          await stripe.prices.update(pr.id, { active: false });
+        }
       }
     }
 
