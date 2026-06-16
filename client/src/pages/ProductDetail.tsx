@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Check, Minus, Plus } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useRecentlyViewed, readRecentlyViewed } from "@/hooks/useRecentlyViewed";
-import { allLogos, LOGO_SECTIONS } from "@/lib/logoCatalog";
+import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
 
 const MAX_QTY = 99;
 
@@ -31,6 +31,7 @@ interface ApiProduct {
   handleColors?: string | null;
   caseType?: string | null;
   sizes?: string | null;
+  colors?: string | null;
 }
 
 function listingForType(productType?: string) {
@@ -204,9 +205,18 @@ function ProductDetailContent({
     ? product.sizes.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsSize = sizeChoices.length > 0;
+  const colorChoices = product.colors
+    ? product.colors.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const hasColorChoices = needsLogo && colorChoices.length > 0 && colorChoices.length <= 30;
 
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const recommendedIds = useMemo(
+    () => (selectedColor ? recommendedLogoIdsForColor(selectedColor).slice(0, 12) : []),
+    [selectedColor],
+  );
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -355,6 +365,79 @@ function ProductDetailContent({
                   >
                     Note: All items are custom branded. Pick the logo you want from the full Branded Logo Collection below to complete your order.
                   </p>
+                  {hasColorChoices && (
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                        Your product color (for logo suggestions)
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {colorChoices.map((color) => {
+                          const active = selectedColor === color;
+                          return (
+                            <button
+                              key={color}
+                              type="button"
+                              disabled={soldOut}
+                              onClick={() => setSelectedColor(active ? "" : color)}
+                              className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors disabled:opacity-50 ${
+                                active
+                                  ? "border-primary bg-primary text-black"
+                                  : "border-border hover:border-primary/60"
+                              }`}
+                              data-testid={`button-detail-color-${color.toLowerCase().replace(/\s+/g, "-")}`}
+                            >
+                              {color}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  {selectedColor && recommendedIds.length > 0 && (
+                    <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3" data-testid="picker-detail-recommended">
+                      <p className="text-xs font-medium uppercase tracking-widest text-primary">
+                        Recommended for {selectedColor}
+                      </p>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {recommendedIds.map((id) => {
+                          const logo = allLogos[id];
+                          if (!logo) return null;
+                          const isSelected = selectedLogo === logo.alt;
+                          return (
+                            <button
+                              key={`rec-${id}`}
+                              type="button"
+                              disabled={soldOut}
+                              onClick={() => {
+                                setSelectedLogo(logo.alt);
+                                setErrorMessage("");
+                              }}
+                              className={`relative rounded-lg border-2 overflow-hidden bg-muted transition-colors disabled:opacity-50 ${
+                                isSelected ? "border-primary" : "border-transparent hover:border-border"
+                              }`}
+                              data-testid={`button-detail-recommended-${id}`}
+                              title={logo.alt}
+                            >
+                              <img
+                                src={logo.src}
+                                alt={logo.alt}
+                                className="aspect-square object-cover w-full h-full"
+                                loading="lazy"
+                              />
+                              {isSelected && (
+                                <span className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                  <Check className="h-6 w-6 text-primary" />
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        These pair well with {selectedColor}. You can still pick any logo from the full collection below.
+                      </p>
+                    </div>
+                  )}
                   <ScrollArea className="max-h-[360px] rounded-lg border border-primary/10 bg-muted/20 p-3 pr-4" data-testid="picker-detail-logo">
                     <div className="space-y-5">
                       {LOGO_SECTIONS.map((section) => (

@@ -156,3 +156,43 @@ export function orderedLogosForColor(color: string): string[] {
   const rest = Object.keys(allLogos).filter((id) => !recommendedSet.has(id));
   return [...recommended.filter((id) => allLogos[id]), ...rest];
 }
+
+// For general products, the customer's chosen product color maps to color
+// keywords; any logo whose color/name mentions one of those keywords is
+// suggested for that color. This drives the "Recommended for <color>" picker on
+// the product detail page (keyword-based so it needs no per-logo hand mapping).
+const COLOR_SYNONYMS: Record<string, string[]> = {
+  black: ["black"],
+  white: ["white"],
+  navy: ["navy", "blue"],
+  blue: ["blue", "navy", "cyan", "teal", "sky"],
+  gray: ["grey", "gray", "slate", "silver"],
+  grey: ["grey", "gray", "slate", "silver"],
+  silver: ["silver", "grey", "gray"],
+  brown: ["brown", "tan"],
+  tan: ["tan", "brown", "gold"],
+  gold: ["gold"],
+  yellow: ["gold", "yellow"],
+  green: ["green", "teal", "forest", "lime", "emerald", "olive"],
+  olive: ["olive", "green", "forest"],
+  teal: ["teal", "cyan", "green"],
+  cyan: ["cyan", "sky", "teal", "blue"],
+  pink: ["pink"],
+  purple: ["purple", "maroon"],
+  red: ["red", "maroon"],
+  maroon: ["maroon", "red"],
+  orange: ["orange", "coral"],
+  coral: ["coral", "orange", "red", "pink"],
+};
+
+// Logo IDs suggested for a given product color, matched by keyword against each
+// logo's color description and name. Returns [] when nothing matches.
+export function recommendedLogoIdsForColor(color: string): string[] {
+  const key = color.trim().toLowerCase();
+  if (!key) return [];
+  const keywords = COLOR_SYNONYMS[key] || [key];
+  return Object.keys(allLogos).filter((id) => {
+    const hay = `${allLogos[id].color} ${allLogos[id].alt}`.toLowerCase();
+    return keywords.some((k) => hay.includes(k));
+  });
+}
