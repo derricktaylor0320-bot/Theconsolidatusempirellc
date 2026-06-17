@@ -7,7 +7,7 @@ import { sendEmail, buildOrderReceiptEmail } from "./email";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
-import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
+import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
 import { updateOrderFulfillmentSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -823,6 +823,7 @@ export async function registerRoutes(
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
+            apparelSizes: apparelSizesFor(metadata, product.name).join(', ') || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -854,6 +855,7 @@ export async function registerRoutes(
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
+            apparelSizes: apparelSizesFor(metadata, row.product_name).join(', ') || null,
             price: null,
             priceId: null,
           });
@@ -917,6 +919,7 @@ export async function registerRoutes(
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
+            apparelSizes: apparelSizesFor(metadata, product.name).join(', ') || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -950,6 +953,7 @@ export async function registerRoutes(
             handleColors: metadata.handleColors || null,
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
+            apparelSizes: apparelSizesFor(metadata, row.product_name).join(', ') || null,
             price: null,
             priceId: null,
           });
@@ -998,7 +1002,7 @@ export async function registerRoutes(
           error: `"${(priceRow.product_name as string) || productName || "This item"}" is sold out.`,
         });
       }
-      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor);
+      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor, req.body?.selectedSize, priceRow.product_name);
       if (check.required && !check.ok) {
         return res.status(400).json({
           error: customizationErrorMessage(
@@ -1008,7 +1012,7 @@ export async function registerRoutes(
         });
       }
 
-      const amountCents = Number(priceRow.unit_amount);
+      const amountCents = Number(priceRow.unit_amount) + (check.upchargeCents || 0);
       if (!amountCents || amountCents <= 0) {
         return res.status(400).json({ error: "Invalid product price" });
       }
@@ -1129,7 +1133,7 @@ export async function registerRoutes(
             error: `"${priceRow.product_name || "One of your items"}" is sold out.`,
           });
         }
-        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor);
+        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor, item?.selectedSize, priceRow.product_name);
         if (check.required && !check.ok) {
           return res.status(400).json({
             error: customizationErrorMessage(check.kind, priceRow.product_name),
@@ -1137,7 +1141,7 @@ export async function registerRoutes(
         }
         const logoNote: string | undefined = check.note;
 
-        const amountCents = Number(priceRow.unit_amount);
+        const amountCents = Number(priceRow.unit_amount) + (check.upchargeCents || 0);
         if (!amountCents || amountCents <= 0) {
           return res.status(400).json({ error: "Invalid product price." });
         }

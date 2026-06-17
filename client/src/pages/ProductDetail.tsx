@@ -13,6 +13,7 @@ import { ArrowLeft, Check, Minus, Plus } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useRecentlyViewed, readRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
+import { sizeUpchargeDollars } from "@shared/customization";
 
 const MAX_QTY = 99;
 
@@ -31,6 +32,7 @@ interface ApiProduct {
   handleColors?: string | null;
   caseType?: string | null;
   sizes?: string | null;
+  apparelSizes?: string | null;
   colors?: string | null;
   soldOutColors?: string | null;
 }
@@ -222,6 +224,10 @@ function ProductDetailContent({
     ? product.sizes.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsSize = sizeChoices.length > 0;
+  const apparelSizeChoices = product.apparelSizes
+    ? product.apparelSizes.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsApparelSize = apparelSizeChoices.length > 0;
   const colorChoices = product.colors
     ? product.colors.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -236,7 +242,10 @@ function ProductDetailContent({
 
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedApparelSize, setSelectedApparelSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
+  const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize) : 0;
+  const effectiveUnitPrice = price + sizeUpcharge;
   const recommendedIds = useMemo(
     () => (selectedColor ? recommendedLogoIdsForColor(selectedColor).slice(0, 12) : []),
     [selectedColor],
@@ -257,6 +266,10 @@ function ProductDetailContent({
       setErrorMessage("Please select a size.");
       return;
     }
+    if (needsApparelSize && !selectedApparelSize) {
+      setErrorMessage("Please select a size.");
+      return;
+    }
     if (needsColor && !selectedColor) {
       setErrorMessage("Please select a color.");
       return;
@@ -272,9 +285,10 @@ function ProductDetailContent({
         title: product.title,
         image: product.imageUrl,
         category: product.category,
-        unitPrice: price,
+        unitPrice: effectiveUnitPrice,
         selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
         selectedColor: needsColor ? selectedColor : undefined,
+        selectedSize: needsApparelSize ? selectedApparelSize : undefined,
       },
       quantity,
     );
@@ -340,7 +354,7 @@ function ProductDetailContent({
             className="text-2xl font-medium text-primary mb-6"
             data-testid="text-detail-price"
           >
-            ${price.toFixed(2)}
+            ${effectiveUnitPrice.toFixed(2)}
           </p>
 
           {product.description && (
@@ -604,6 +618,56 @@ function ProductDetailContent({
                 </div>
               )}
 
+              {needsApparelSize && (
+                <div className="space-y-3">
+                  <p
+                    className="text-sm text-muted-foreground leading-relaxed"
+                    data-testid="text-detail-apparel-size-note"
+                  >
+                    Select your size. Extended sizes (2XL and up) cost a little more.
+                  </p>
+                  <div className="flex flex-wrap gap-2" data-testid="picker-detail-apparel-size">
+                    {apparelSizeChoices.map((choice) => {
+                      const isSelected = selectedApparelSize === choice;
+                      const up = sizeUpchargeDollars(choice);
+                      return (
+                        <button
+                          key={choice}
+                          type="button"
+                          disabled={soldOut}
+                          onClick={() => {
+                            setSelectedApparelSize(choice);
+                            setErrorMessage("");
+                          }}
+                          className={`px-5 py-2.5 rounded-lg border-2 text-sm font-medium uppercase tracking-wider transition-colors disabled:opacity-50 ${
+                            isSelected
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                          data-testid={`button-detail-apparel-size-${choice.toLowerCase().replace(/\s+/g, "-")}`}
+                        >
+                          {choice}{up > 0 ? ` (+$${up})` : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-sm" data-testid="text-detail-apparel-size-selection">
+                    {selectedApparelSize ? (
+                      <>
+                        <span className="text-muted-foreground">Selected size: </span>
+                        <span className="font-medium" data-testid="text-detail-apparel-size-name">
+                          {selectedApparelSize}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Choose a size to continue.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              )}
+
               <div className="flex items-center gap-3">
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
                   Qty
@@ -644,7 +708,7 @@ function ProductDetailContent({
 
               <Button
                 onClick={handleAddToCart}
-                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
+                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
                 className={`w-full transition-colors uppercase tracking-wider font-display text-sm h-12 disabled:opacity-50 ${
                   soldOut
                     ? "bg-gray-400 text-white cursor-not-allowed"
@@ -654,7 +718,7 @@ function ProductDetailContent({
                 }`}
                 data-testid="button-detail-add"
               >
-                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : needsSize && !selectedSize ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : "Add to Cart"}
+                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : "Add to Cart"}
               </Button>
 
               {errorMessage && (
@@ -700,6 +764,7 @@ function ProductDetailContent({
                 handleColors={alt.handleColors || undefined}
                 caseType={alt.caseType || undefined}
                 sizes={alt.sizes || undefined}
+                apparelSizes={alt.apparelSizes || undefined}
                 colors={alt.colors || undefined}
                 soldOutColors={alt.soldOutColors || undefined}
               />
@@ -728,6 +793,7 @@ function ProductDetailContent({
                 handleColors={related.handleColors || undefined}
                 caseType={related.caseType || undefined}
                 sizes={related.sizes || undefined}
+                apparelSizes={related.apparelSizes || undefined}
               />
             ))}
           </div>

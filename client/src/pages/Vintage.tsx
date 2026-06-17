@@ -85,6 +85,7 @@ export default function Vintage() {
                 handleColors={product.handleColors}
                 caseType={product.caseType}
                 sizes={product.sizes}
+                apparelSizes={product.apparelSizes}
                 colors={product.colors}
                 soldOutColors={product.soldOutColors}
                 imageFit="contain"

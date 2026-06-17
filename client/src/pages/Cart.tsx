@@ -25,6 +25,7 @@ export default function Cart() {
             quantity: i.quantity,
             selectedLogo: i.selectedLogo,
             selectedColor: i.selectedColor,
+            selectedSize: i.selectedSize,
           })),
         }),
       });
@@ -75,6 +76,8 @@ export default function Cart() {
                   .toLowerCase()
                   .replace(/\s+/g, "-")}-${(item.selectedColor || "")
                   .toLowerCase()
+                  .replace(/\s+/g, "-")}-${(item.selectedSize || "")
+                  .toLowerCase()
                   .replace(/\s+/g, "-")}`;
                 return (
                   <div
@@ -97,7 +100,7 @@ export default function Cart() {
                         </h3>
                         <button
                           onClick={() =>
-                            removeItem(item.priceId, item.selectedLogo, item.selectedColor)
+                            removeItem(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize)
                           }
                           className="text-muted-foreground hover:text-red-500 shrink-0"
                           data-testid={`button-remove-${slug}`}
@@ -122,6 +125,14 @@ export default function Cart() {
                           Color: {item.selectedColor}
                         </p>
                       )}
+                      {item.selectedSize && (
+                        <p
+                          className="text-xs text-muted-foreground mt-1"
+                          data-testid={`text-cart-size-${slug}`}
+                        >
+                          Size: {item.selectedSize}
+                        </p>
+                      )}
                       <p className="text-sm text-primary mt-1">
                         ${item.unitPrice.toFixed(2)}
                       </p>
@@ -137,6 +148,7 @@ export default function Cart() {
                                 item.selectedLogo,
                                 item.quantity - 1,
                                 item.selectedColor,
+                                item.selectedSize,
                               )
                             }
                             disabled={item.quantity <= 1}
@@ -161,6 +173,7 @@ export default function Cart() {
                                 item.selectedLogo,
                                 item.quantity + 1,
                                 item.selectedColor,
+                                item.selectedSize,
                               )
                             }
                             data-testid={`button-increase-${slug}`}

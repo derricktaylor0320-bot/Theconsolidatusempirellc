@@ -8,6 +8,7 @@ import { useCart } from "@/hooks/useCart";
 import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
 import { allLogos, LOGO_SECTIONS } from "@/lib/logoCatalog";
+import { sizeUpchargeDollars } from "@shared/customization";
 import { Minus, Plus } from "lucide-react";
 
 const MAX_QTY = 99;
@@ -24,12 +25,13 @@ interface ProductCardProps {
   handleColors?: string;
   caseType?: string;
   sizes?: string;
+  apparelSizes?: string;
   colors?: string;
   soldOutColors?: string;
   imageFit?: "cover" | "contain";
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, colors, soldOutColors, imageFit = "cover" }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, apparelSizes, colors, soldOutColors, imageFit = "cover" }: ProductCardProps) {
   const fitClass = imageFit === "contain" ? "object-contain p-2" : "object-cover";
   const { addItem } = useCart();
   const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
@@ -42,6 +44,10 @@ export default function ProductCard({ image, title, price, category, priceId, so
     ? sizes.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsSize = sizeChoices.length > 0;
+  const apparelSizeChoices = apparelSizes
+    ? apparelSizes.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsApparelSize = apparelSizeChoices.length > 0;
   const colorChoices = colors
     ? colors.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -55,10 +61,14 @@ export default function ProductCard({ image, title, price, category, priceId, so
   const isColorSoldOut = (c: string) => soldOutColorSet.has(c.toLowerCase());
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedApparelSize, setSelectedApparelSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+
+  const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize) : 0;
+  const effectiveUnitPrice = price + sizeUpcharge;
 
   const clampQty = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.round(n)));
 
@@ -69,6 +79,10 @@ export default function ProductCard({ image, title, price, category, priceId, so
       return;
     }
     if (needsSize && !selectedSize) {
+      setErrorMessage("Please select a size.");
+      return;
+    }
+    if (needsApparelSize && !selectedApparelSize) {
       setErrorMessage("Please select a size.");
       return;
     }
@@ -87,9 +101,10 @@ export default function ProductCard({ image, title, price, category, priceId, so
         title,
         image,
         category,
-        unitPrice: price,
+        unitPrice: effectiveUnitPrice,
         selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
         selectedColor: needsColor ? selectedColor : undefined,
+        selectedSize: needsApparelSize ? selectedApparelSize : undefined,
       },
       quantity,
     );
@@ -162,7 +177,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
               className="font-medium text-primary"
               data-testid={`text-price-${title.toLowerCase().replace(/\s+/g, '-')}`}
             >
-              ${price.toFixed(2)}
+              ${effectiveUnitPrice.toFixed(2)}
             </span>
           </div>
           {usesHandleColors ? (
@@ -303,6 +318,38 @@ export default function ProductCard({ image, title, price, category, priceId, so
                   </Select>
                 </div>
               )}
+              {needsApparelSize && (
+                <div className="w-full mt-1 space-y-2">
+                  <p
+                    className="text-xs text-muted-foreground leading-relaxed"
+                    data-testid={`text-apparel-size-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    Choose your size. Extended sizes (2XL+) cost a little more.
+                  </p>
+                  <Select value={selectedApparelSize} onValueChange={(v) => { setSelectedApparelSize(v); setErrorMessage(""); }} disabled={soldOut}>
+                    <SelectTrigger
+                      className="w-full"
+                      data-testid={`select-apparel-size-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      <SelectValue placeholder="Choose your size *" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {apparelSizeChoices.map((choice) => {
+                        const up = sizeUpchargeDollars(choice);
+                        return (
+                          <SelectItem
+                            key={choice}
+                            value={choice}
+                            data-testid={`option-apparel-size-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            {choice}{up > 0 ? ` (+$${up})` : ""}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="flex items-center gap-3 w-full mt-2">
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
                   Qty
@@ -342,7 +389,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
               </div>
               <Button 
                 onClick={handleAddToCart}
-                disabled={!priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
+                disabled={!priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
                 className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
                   soldOut 
                     ? 'bg-gray-400 text-white cursor-not-allowed' 
@@ -352,7 +399,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
                 }`}
                 data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : needsSize && !selectedSize ? 'Select a Size' : needsColor && !selectedColor ? 'Select a Color' : 'Add to Cart'}
+                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? 'Select a Size' : needsColor && !selectedColor ? 'Select a Color' : 'Add to Cart'}
               </Button>
               {errorMessage && (
                 <p

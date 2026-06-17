@@ -59,6 +59,80 @@ export interface CustomizationCheck {
   ok: boolean;
   /** The normalized note to attach to the order line item when ok. */
   note?: string;
+  /**
+   * Extra cents to add to the base unit price for this choice (e.g. an
+   * extended apparel size surcharge). Always applied server-side; the UI total
+   * mirrors it for display only.
+   */
+  upchargeCents?: number;
+}
+
+// The standard wearable-apparel size run, smallest to largest. Apparel that is
+// logo-customizable also offers a size; this is layered ON TOP of the logo
+// (unlike bedding's size-only `sizes` metadata).
+export const APPAREL_SIZES = [
+  "XS",
+  "S",
+  "M",
+  "L",
+  "XL",
+  "2XL",
+  "3XL",
+  "4XL",
+  "5XL",
+  "6XL",
+] as const;
+
+// Extended-size surcharge in cents. Standard sizes (XS–XL) carry no surcharge.
+const SIZE_UPCHARGE_CENTS: Record<string, number> = {
+  "2XL": 300,
+  "3XL": 500,
+  "4XL": 500,
+  "5XL": 500,
+  "6XL": 500,
+};
+
+/** Surcharge (in cents) for an apparel size. 0 for standard sizes. */
+export function sizeUpchargeCents(size: unknown): number {
+  const s = typeof size === "string" ? size.trim() : "";
+  return SIZE_UPCHARGE_CENTS[s] || 0;
+}
+
+/** Surcharge (in dollars) for an apparel size — for client-side display. */
+export function sizeUpchargeDollars(size: unknown): number {
+  return sizeUpchargeCents(size) / 100;
+}
+
+// Apparel that should NOT get a wearable-size selector even though it is
+// productType "apparel": footwear, headwear, winter one-size items, socks, and
+// kids/toddler sizing all use their own size systems (or are one-size).
+const SIZE_EXCLUDED_CATEGORIES = new Set([
+  "footwear",
+  "headwear",
+  "winter",
+  "socks",
+  "kids",
+]);
+const SIZE_EXCLUDED_NAME_RX =
+  /\b(slipper|clog|sneaker|high[\s-]?top|flip[\s-]?flop|sock|glove|beanie|scarf|ear[\s-]?muff|mitten|bundle|toddler)s?\b/i;
+
+// The wearable sizes a product is offered in. Derived from existing product
+// facts (productType / category / name) — NOT from stored metadata — so it
+// behaves identically in dev (live Stripe) and prod (frozen snapshot) with no
+// catalog edits. Returns [] for anything that isn't sized wearable clothing.
+export function apparelSizesFor(
+  metadata: any,
+  productName?: unknown,
+): readonly string[] {
+  const m = metadata || {};
+  if (String(m.productType || "").toLowerCase() !== "apparel") return [];
+  // Items with their own specialized customizer aren't plain garments.
+  if (m.handleColors || m.caseType) return [];
+  const category = String(m.category || "").toLowerCase();
+  if (SIZE_EXCLUDED_CATEGORIES.has(category)) return [];
+  const name = typeof productName === "string" ? productName : "";
+  if (SIZE_EXCLUDED_NAME_RX.test(name)) return [];
+  return APPAREL_SIZES;
 }
 
 function splitList(value: unknown): string[] {
@@ -163,29 +237,62 @@ export function checkCustomization(
   metadata: any,
   selectedLogo: unknown,
   selectedColor?: unknown,
+  selectedSize?: unknown,
+  productName?: unknown,
 ): CustomizationCheck {
   const meta = metadata || {};
   const base = checkLogoChoice(meta, selectedLogo);
 
-  const colors = colorList(meta);
-  // A color choice only matters when there are 2+ real options. A single value
-  // (often free-text like "specify at checkout") is not a pickable variant.
-  if (colors.length < 2) return base;
-
   // Report a missing/invalid logo first so the shopper fixes one thing at a time.
   if (base.required && !base.ok) return base;
 
-  const color = typeof selectedColor === "string" ? selectedColor.trim() : "";
-  if (!color || !colors.includes(color)) {
-    return { required: true, kind: "color", ok: false };
-  }
-  if (soldOutColorList(meta).includes(color)) {
-    return { required: true, kind: "colorSoldOut", ok: false };
+  const notes: string[] = base.note ? [base.note] : [];
+  let upchargeCents = 0;
+
+  // Wearable apparel size (XS–6XL) — layered ON TOP of the logo (separate from
+  // bedding's size-only `sizes` metadata). Required for sized garments.
+  const apparelSizes = apparelSizesFor(meta, productName);
+  const sizeRequired = apparelSizes.length > 0;
+  if (sizeRequired) {
+    const size = typeof selectedSize === "string" ? selectedSize.trim() : "";
+    if (!size || !apparelSizes.includes(size)) {
+      return { required: true, kind: "size", ok: false };
+    }
+    notes.push(`Size: ${size}`);
+    upchargeCents += sizeUpchargeCents(size);
   }
 
-  const colorNote = `Color: ${color}`;
-  const note = base.note ? `${base.note} | ${colorNote}` : colorNote;
-  return { required: true, kind: base.kind === "none" ? "color" : base.kind, ok: true, note };
+  // A color choice only matters when there are 2+ real options. A single value
+  // (often free-text like "specify at checkout") is not a pickable variant.
+  const colors = colorList(meta);
+  const colorRequired = colors.length >= 2;
+  if (colorRequired) {
+    const color = typeof selectedColor === "string" ? selectedColor.trim() : "";
+    if (!color || !colors.includes(color)) {
+      return { required: true, kind: "color", ok: false };
+    }
+    if (soldOutColorList(meta).includes(color)) {
+      return { required: true, kind: "colorSoldOut", ok: false };
+    }
+    notes.push(`Color: ${color}`);
+  }
+
+  const required = base.required || sizeRequired || colorRequired;
+  const kind: CustomizationKind =
+    base.kind !== "none"
+      ? base.kind
+      : sizeRequired
+        ? "size"
+        : colorRequired
+          ? "color"
+          : "none";
+  return {
+    required,
+    kind,
+    ok: true,
+    note: notes.length ? notes.join(" | ") : undefined,
+    upchargeCents: upchargeCents || undefined,
+  };
 }
 
 export function customizationErrorMessage(
