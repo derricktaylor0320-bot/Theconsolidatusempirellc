@@ -10,7 +10,9 @@ export default function Apparel() {
     queryKey: ["/api/products/type/apparel"],
   });
 
-  const allProducts = (products as any[] || []);
+  const allProducts = (products as any[] || []).filter(
+    (p: any) => p.category !== 'Sleepwear' && p.category !== 'Intimates'
+  );
   
   const mensProducts = allProducts.filter((p: any) => p.gender === 'Men');
   const womensProducts = allProducts.filter((p: any) => p.gender === 'Women');

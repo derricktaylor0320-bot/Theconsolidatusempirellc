@@ -43,6 +43,7 @@ export default function Navbar() {
     { href: "/canvas", label: "Branded Logo Collection" },
     { href: "/apparel", label: "Apparel" },
     { href: "/accessories", label: "Accessories" },
+    { href: "/bedding", label: "Bedding & Intimates" },
     { href: "/vintage", label: "Vintage Baltimore" },
     { href: "/poetry", label: "Poetry on a Plaque" },
     { href: "/fr2p", label: "The FR2P Club" },
