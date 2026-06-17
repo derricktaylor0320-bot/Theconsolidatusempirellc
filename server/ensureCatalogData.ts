@@ -222,6 +222,43 @@ const VINTAGE_PRODUCTS: {
   },
 ];
 
+// Consolidated bedding (Comforter Set $99, Sheet Set $80), each with a size
+// selector (Twin/Full/Queen/King). Same self-applying pattern as the mug/cases:
+// in dev seedProducts creates them in Stripe (synced to the DB) so the guarded
+// inserts are no-ops; on the Railway prod frozen snapshot (no Stripe) the inserts
+// are what actually create them. Size-only (no logo) — the eagle/"Sleep and Dream
+// in Luxury" emblem IS the design, enforced by the `sizes` metadata path in
+// shared/customization.ts.
+const BEDDING_PRICE_COMFORTER_CENTS = 9900;
+const BEDDING_PRICE_SHEET_CENTS = 8000;
+const BEDDING_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkcomforterset",
+    priceId: "price_kkcomforterset",
+    name: "Khomplete Khemistri Accessories Comforter Set",
+    description:
+      'Luxury velvet comforter set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold. Rich chocolate brown. Includes comforter and matching pillow shams. Select your size at checkout: Twin, Full, Queen, or King.',
+    priceCents: BEDDING_PRICE_COMFORTER_CENTS,
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "50", imageUrl: "/assets/kk_comforter_set.png", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
+  },
+  {
+    productId: "prod_kksheetset",
+    priceId: "price_kksheetset",
+    name: "Khomplete Khemistri Accessories Sheet Set",
+    description:
+      'Premium satin sheet set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold. Elegant chocolate brown. Includes fitted sheet, flat sheet, and matching pillowcases. Select your size at checkout: Twin, Full, Queen, or King.',
+    priceCents: BEDDING_PRICE_SHEET_CENTS,
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "51", imageUrl: "/assets/kk_sheet_set.png", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
+  },
+];
+
 // Scented candle product image. Like the tumbler, the storefront image must be
 // served from /assets; prod (frozen snapshot, no Stripe) gets it via the
 // metadata merge below.
@@ -754,6 +791,73 @@ export async function ensureCatalogData() {
       `);
     }
 
+    // 6d) Consolidated bedding (Comforter Set $99, Sheet Set $80), each with a
+    //     size selector. Same self-applying pattern as the mug/cases/vintage:
+    //     create only when absent (no-op in dev where Stripe sync made them; the
+    //     real creator on the Railway prod frozen snapshot), then keep the
+    //     description/metadata current and the price server-authoritative on the
+    //     surviving active product.
+    for (const b of BEDDING_PRODUCTS) {
+      const bProductRaw = JSON.stringify({
+        id: b.productId,
+        object: "product",
+        active: true,
+        name: b.name,
+        description: b.description,
+        metadata: b.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const bPriceRaw = JSON.stringify({
+        id: b.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: b.priceCents,
+        product: b.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${bProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${b.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${bPriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${b.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${b.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(b.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(b.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${b.name} AND active = true
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(b.priceCents)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${b.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(b.priceCents)}
+      `);
+    }
+
     // 7) Remove retired products (Kids Sippy Cup + the baby line) from the
     //    storefront. In dev removing them from ALL_PRODUCTS lets seedProducts
     //    archive them in Stripe; here we deactivate the products + their prices
@@ -799,7 +903,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), and the 10-design Vintage Baltimore collection ($30 graphic tees); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
