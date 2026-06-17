@@ -35,6 +35,7 @@ interface ApiProduct {
   apparelSizes?: string | null;
   colors?: string | null;
   soldOutColors?: string | null;
+  scents?: string | null;
 }
 
 function listingForType(productType?: string) {
@@ -239,11 +240,16 @@ function ProductDetailContent({
   );
   const isColorSoldOut = (c: string) => soldOutColorSet.has(c.toLowerCase());
   const needsColor = colorChoices.length >= 2 && colorChoices.length <= 30;
+  const scentChoices = product.scents
+    ? product.scents.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsScent = scentChoices.length > 0;
 
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedApparelSize, setSelectedApparelSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
+  const [selectedScent, setSelectedScent] = useState("");
   const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize) : 0;
   const effectiveUnitPrice = price + sizeUpcharge;
   const recommendedIds = useMemo(
@@ -278,6 +284,10 @@ function ProductDetailContent({
       setErrorMessage("That color is sold out. Please choose another.");
       return;
     }
+    if (needsScent && !selectedScent) {
+      setErrorMessage("Please select a scent.");
+      return;
+    }
 
     addItem(
       {
@@ -289,6 +299,7 @@ function ProductDetailContent({
         selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
         selectedColor: needsColor ? selectedColor : undefined,
         selectedSize: needsApparelSize ? selectedApparelSize : undefined,
+        selectedScent: needsScent ? selectedScent : undefined,
       },
       quantity,
     );
@@ -447,6 +458,50 @@ function ProductDetailContent({
                   ) : (
                     <p className="text-sm text-muted-foreground">
                       Choose a color to continue.
+                    </p>
+                  )}
+                </div>
+              )}
+              {needsScent && (
+                <div className="space-y-2" data-testid="picker-detail-scent">
+                  <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                    Choose your scent
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {scentChoices.map((scent) => {
+                      const active = selectedScent === scent;
+                      return (
+                        <button
+                          key={scent}
+                          type="button"
+                          disabled={soldOut}
+                          onClick={() => {
+                            setSelectedScent(active ? "" : scent);
+                            setErrorMessage("");
+                          }}
+                          className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors disabled:opacity-50 ${
+                            active
+                              ? "border-primary bg-primary text-black"
+                              : "border-border hover:border-primary/60"
+                          }`}
+                          data-testid={`button-detail-scent-${scent.toLowerCase().replace(/\s+/g, "-")}`}
+                          title={scent}
+                        >
+                          {scent}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {selectedScent ? (
+                    <p className="text-sm" data-testid="text-detail-scent-selection">
+                      <span className="text-muted-foreground">Selected scent: </span>
+                      <span className="font-medium" data-testid="text-detail-scent-name">
+                        {selectedScent}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Choose a scent to continue.
                     </p>
                   )}
                 </div>
@@ -708,7 +763,7 @@ function ProductDetailContent({
 
               <Button
                 onClick={handleAddToCart}
-                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
+                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor))) || (needsScent && !selectedScent)}
                 className={`w-full transition-colors uppercase tracking-wider font-display text-sm h-12 disabled:opacity-50 ${
                   soldOut
                     ? "bg-gray-400 text-white cursor-not-allowed"
@@ -718,7 +773,7 @@ function ProductDetailContent({
                 }`}
                 data-testid="button-detail-add"
               >
-                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : "Add to Cart"}
+                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : needsScent && !selectedScent ? "Select a Scent" : "Add to Cart"}
               </Button>
 
               {errorMessage && (
@@ -767,6 +822,7 @@ function ProductDetailContent({
                 apparelSizes={alt.apparelSizes || undefined}
                 colors={alt.colors || undefined}
                 soldOutColors={alt.soldOutColors || undefined}
+                scents={alt.scents || undefined}
               />
             ))}
           </div>
@@ -794,6 +850,7 @@ function ProductDetailContent({
                 caseType={related.caseType || undefined}
                 sizes={related.sizes || undefined}
                 apparelSizes={related.apparelSizes || undefined}
+                scents={related.scents || undefined}
               />
             ))}
           </div>

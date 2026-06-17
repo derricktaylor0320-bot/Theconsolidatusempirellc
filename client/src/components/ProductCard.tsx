@@ -28,10 +28,11 @@ interface ProductCardProps {
   apparelSizes?: string;
   colors?: string;
   soldOutColors?: string;
+  scents?: string;
   imageFit?: "cover" | "contain";
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, apparelSizes, colors, soldOutColors, imageFit = "cover" }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, apparelSizes, colors, soldOutColors, scents, imageFit = "cover" }: ProductCardProps) {
   const fitClass = imageFit === "contain" ? "object-contain p-2" : "object-cover";
   const { addItem } = useCart();
   const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
@@ -52,6 +53,10 @@ export default function ProductCard({ image, title, price, category, priceId, so
     ? colors.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsColor = colorChoices.length >= 2 && colorChoices.length <= 30;
+  const scentChoices = scents
+    ? scents.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const needsScent = scentChoices.length > 0;
   const soldOutColorSet = new Set(
     (soldOutColors
       ? soldOutColors.split(",").map((s) => s.trim()).filter(Boolean)
@@ -63,6 +68,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedApparelSize, setSelectedApparelSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
+  const [selectedScent, setSelectedScent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -94,6 +100,10 @@ export default function ProductCard({ image, title, price, category, priceId, so
       setErrorMessage("That color is sold out. Please choose another.");
       return;
     }
+    if (needsScent && !selectedScent) {
+      setErrorMessage("Please select a scent.");
+      return;
+    }
 
     addItem(
       {
@@ -105,6 +115,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
         selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
         selectedColor: needsColor ? selectedColor : undefined,
         selectedSize: needsApparelSize ? selectedApparelSize : undefined,
+        selectedScent: needsScent ? selectedScent : undefined,
       },
       quantity,
     );
@@ -289,6 +300,35 @@ export default function ProductCard({ image, title, price, category, priceId, so
                   </Select>
                 </div>
               )}
+              {needsScent && (
+                <div className="w-full mt-1 space-y-2">
+                  <p
+                    className="text-xs text-muted-foreground leading-relaxed"
+                    data-testid={`text-scent-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    Choose your scent to complete your order.
+                  </p>
+                  <Select value={selectedScent} onValueChange={(v) => { setSelectedScent(v); setErrorMessage(""); }} disabled={soldOut}>
+                    <SelectTrigger
+                      className="w-full"
+                      data-testid={`select-scent-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      <SelectValue placeholder="Choose your scent *" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {scentChoices.map((choice) => (
+                        <SelectItem
+                          key={choice}
+                          value={choice}
+                          data-testid={`option-scent-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          {choice}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               {needsSize && (
                 <div className="w-full mt-1 space-y-2">
                   <p
@@ -389,7 +429,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
               </div>
               <Button 
                 onClick={handleAddToCart}
-                disabled={!priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor)))}
+                disabled={!priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor))) || (needsScent && !selectedScent)}
                 className={`w-full mt-2 transition-colors uppercase tracking-wider font-display text-sm h-10 disabled:opacity-50 ${
                   soldOut 
                     ? 'bg-gray-400 text-white cursor-not-allowed' 
@@ -399,7 +439,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
                 }`}
                 data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? 'Select a Size' : needsColor && !selectedColor ? 'Select a Color' : 'Add to Cart'}
+                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? 'Select a Size' : needsColor && !selectedColor ? 'Select a Color' : needsScent && !selectedScent ? 'Select a Scent' : 'Add to Cart'}
               </Button>
               {errorMessage && (
                 <p

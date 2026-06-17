@@ -36,6 +36,7 @@ export default function Apparel() {
           apparelSizes={product.apparelSizes}
           colors={product.colors}
           soldOutColors={product.soldOutColors}
+          scents={product.scents}
         />
       ))}
     </div>

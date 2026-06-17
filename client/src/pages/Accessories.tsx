@@ -51,6 +51,7 @@ export default function Accessories() {
                 apparelSizes={product.apparelSizes}
                 colors={product.colors}
                 soldOutColors={product.soldOutColors}
+                scents={product.scents}
               />
             ))}
           </div>

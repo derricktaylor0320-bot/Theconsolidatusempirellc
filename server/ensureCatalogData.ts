@@ -69,6 +69,7 @@ const BODY_BUTTER_META = {
   category: "Body Care",
   productType: "accessory",
   customize: "none",
+  scented: "true",
   imageUrl: BODY_BUTTER_IMAGE,
 };
 
@@ -426,7 +427,7 @@ export async function ensureCatalogData() {
       SET _raw_data = jsonb_set(
             _raw_data,
             '{metadata}',
-            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({ imageUrl: CANDLE_IMAGE })}::jsonb,
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({ imageUrl: CANDLE_IMAGE, scented: "true" })}::jsonb,
             true
           ),
           _updated_at = now()

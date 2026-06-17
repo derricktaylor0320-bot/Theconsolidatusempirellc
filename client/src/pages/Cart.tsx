@@ -26,6 +26,7 @@ export default function Cart() {
             selectedLogo: i.selectedLogo,
             selectedColor: i.selectedColor,
             selectedSize: i.selectedSize,
+            selectedScent: i.selectedScent,
           })),
         }),
       });
@@ -78,6 +79,8 @@ export default function Cart() {
                   .toLowerCase()
                   .replace(/\s+/g, "-")}-${(item.selectedSize || "")
                   .toLowerCase()
+                  .replace(/\s+/g, "-")}-${(item.selectedScent || "")
+                  .toLowerCase()
                   .replace(/\s+/g, "-")}`;
                 return (
                   <div
@@ -100,7 +103,7 @@ export default function Cart() {
                         </h3>
                         <button
                           onClick={() =>
-                            removeItem(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize)
+                            removeItem(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent)
                           }
                           className="text-muted-foreground hover:text-red-500 shrink-0"
                           data-testid={`button-remove-${slug}`}
@@ -133,6 +136,14 @@ export default function Cart() {
                           Size: {item.selectedSize}
                         </p>
                       )}
+                      {item.selectedScent && (
+                        <p
+                          className="text-xs text-muted-foreground mt-1"
+                          data-testid={`text-cart-scent-${slug}`}
+                        >
+                          Scent: {item.selectedScent}
+                        </p>
+                      )}
                       <p className="text-sm text-primary mt-1">
                         ${item.unitPrice.toFixed(2)}
                       </p>
@@ -149,6 +160,7 @@ export default function Cart() {
                                 item.quantity - 1,
                                 item.selectedColor,
                                 item.selectedSize,
+                                item.selectedScent,
                               )
                             }
                             disabled={item.quantity <= 1}
@@ -174,6 +186,7 @@ export default function Cart() {
                                 item.quantity + 1,
                                 item.selectedColor,
                                 item.selectedSize,
+                                item.selectedScent,
                               )
                             }
                             data-testid={`button-increase-${slug}`}

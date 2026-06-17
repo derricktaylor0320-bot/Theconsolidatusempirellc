@@ -7,7 +7,7 @@ import { sendEmail, buildOrderReceiptEmail } from "./email";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
-import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
+import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
 import { updateOrderFulfillmentSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -300,13 +300,13 @@ const ALL_PRODUCTS = [
     name: 'Signature Scent Candle',
     description: 'Premium scented candle with Khomplete Khemistri Accessories branding',
     price: 1500,
-    metadata: { category: 'Home', productType: 'accessory', imageUrl: '/assets/scented_candles_branded.png' }
+    metadata: { category: 'Home', productType: 'accessory', scented: 'true', imageUrl: '/assets/scented_candles_branded.png' }
   },
   {
     name: 'Whipped Body Butters',
     description: 'Luxurious Khomplete Khemistri whipped body butter in a 4 oz jar. Rich, fast-absorbing moisture that leaves skin soft and smooth. $12 per jar.',
     price: 1200,
-    metadata: { category: 'Body Care', productType: 'accessory', customize: 'none', imageUrl: '/assets/whipped_body_butters_branded.png' }
+    metadata: { category: 'Body Care', productType: 'accessory', customize: 'none', scented: 'true', imageUrl: '/assets/whipped_body_butters_branded.png' }
   },
   {
     name: 'Branded Tote Bag',
@@ -830,6 +830,7 @@ export async function registerRoutes(
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
             apparelSizes: apparelSizesFor(metadata, product.name).join(', ') || null,
+            scents: scentsFor(metadata).join(', ') || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -862,6 +863,7 @@ export async function registerRoutes(
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
             apparelSizes: apparelSizesFor(metadata, row.product_name).join(', ') || null,
+            scents: scentsFor(metadata).join(', ') || null,
             price: null,
             priceId: null,
           });
@@ -926,6 +928,7 @@ export async function registerRoutes(
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
             apparelSizes: apparelSizesFor(metadata, product.name).join(', ') || null,
+            scents: scentsFor(metadata).join(', ') || null,
             price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
             priceId: price?.id || null,
           });
@@ -960,6 +963,7 @@ export async function registerRoutes(
             caseType: metadata.caseType || null,
             sizes: metadata.sizes || null,
             apparelSizes: apparelSizesFor(metadata, row.product_name).join(', ') || null,
+            scents: scentsFor(metadata).join(', ') || null,
             price: null,
             priceId: null,
           });
@@ -1008,7 +1012,7 @@ export async function registerRoutes(
           error: `"${(priceRow.product_name as string) || productName || "This item"}" is sold out.`,
         });
       }
-      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor, req.body?.selectedSize, priceRow.product_name);
+      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor, req.body?.selectedSize, priceRow.product_name, req.body?.selectedScent);
       if (check.required && !check.ok) {
         return res.status(400).json({
           error: customizationErrorMessage(
@@ -1139,7 +1143,7 @@ export async function registerRoutes(
             error: `"${priceRow.product_name || "One of your items"}" is sold out.`,
           });
         }
-        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor, item?.selectedSize, priceRow.product_name);
+        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor, item?.selectedSize, priceRow.product_name, item?.selectedScent);
         if (check.required && !check.ok) {
           return res.status(400).json({
             error: customizationErrorMessage(check.kind, priceRow.product_name),

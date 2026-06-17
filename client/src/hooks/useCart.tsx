@@ -17,6 +17,7 @@ export interface CartItem {
   selectedLogo?: string;
   selectedColor?: string;
   selectedSize?: string;
+  selectedScent?: string;
 }
 
 interface CartContextValue {
@@ -29,6 +30,7 @@ interface CartContextValue {
     selectedLogo?: string,
     selectedColor?: string,
     selectedSize?: string,
+    selectedScent?: string,
   ) => void;
   updateQuantity: (
     priceId: string,
@@ -36,6 +38,7 @@ interface CartContextValue {
     quantity: number,
     selectedColor?: string,
     selectedSize?: string,
+    selectedScent?: string,
   ) => void;
   clearCart: () => void;
 }
@@ -50,8 +53,9 @@ function lineKey(
   selectedLogo?: string,
   selectedColor?: string,
   selectedSize?: string,
+  selectedScent?: string,
 ) {
-  return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}__${selectedSize || ""}`;
+  return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}__${selectedSize || ""}__${selectedScent || ""}`;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -78,13 +82,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     (item: Omit<CartItem, "quantity">, quantity = 1) => {
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) => {
-        const key = lineKey(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize);
+        const key = lineKey(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent);
         const existing = prev.find(
-          (i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize) === key,
+          (i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) === key,
         );
         if (existing) {
           return prev.map((i) =>
-            lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize) === key
+            lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) === key
               ? { ...i, quantity: Math.min(MAX_QTY, i.quantity + qty) }
               : i,
           );
@@ -96,10 +100,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const removeItem = useCallback(
-    (priceId: string, selectedLogo?: string, selectedColor?: string, selectedSize?: string) => {
-      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize);
+    (priceId: string, selectedLogo?: string, selectedColor?: string, selectedSize?: string, selectedScent?: string) => {
+      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent);
       setItems((prev) =>
-        prev.filter((i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize) !== key),
+        prev.filter((i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) !== key),
       );
     },
     [],
@@ -112,12 +116,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       quantity: number,
       selectedColor?: string,
       selectedSize?: string,
+      selectedScent?: string,
     ) => {
-      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize);
+      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent);
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) =>
         prev.map((i) =>
-          lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize) === key
+          lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) === key
             ? { ...i, quantity: qty }
             : i,
         ),

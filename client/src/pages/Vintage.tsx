@@ -88,6 +88,7 @@ export default function Vintage() {
                 apparelSizes={product.apparelSizes}
                 colors={product.colors}
                 soldOutColors={product.soldOutColors}
+                scents={product.scents}
                 imageFit="contain"
               />
             ))}

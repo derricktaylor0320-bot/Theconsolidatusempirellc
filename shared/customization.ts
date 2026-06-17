@@ -38,6 +38,9 @@ const NON_LOGO_PRODUCT_TYPES = new Set(["poetry", "vintage"]);
 export function isDefaultLogoCustomizable(metadata: any): boolean {
   const m = metadata || {};
   if (m.handleColors || m.caseType || m.sizes) return false;
+  // Scented goods (candles, body butters) let the customer pick a scent instead
+  // of a brand logo, so they don't get the logo picker.
+  if (String(m.scented || "").toLowerCase() === "true") return false;
   // Explicit opt-out for products that carry their own branding and aren't
   // logo-customizable (e.g. scented/consumable goods like Whipped Body Butters).
   if (String(m.customize || "").toLowerCase() === "none") return false;
@@ -54,6 +57,7 @@ export type CustomizationKind =
   | "size"
   | "color"
   | "colorSoldOut"
+  | "scent"
   | "none";
 
 export interface CustomizationCheck {
@@ -136,6 +140,37 @@ export function apparelSizesFor(
   const name = typeof productName === "string" ? productName : "";
   if (SIZE_EXCLUDED_NAME_RX.test(name)) return [];
   return APPAREL_SIZES;
+}
+
+// Scent options for scented/consumable goods (candles, body butters). A product
+// opts in with metadata `scented: 'true'`; the canonical list lives here so dev
+// and the frozen prod snapshot stay identical with only a one-line metadata flag.
+export const SCENTS = [
+  "Oatmeal Milk & Honey",
+  "Lavender",
+  "Strawberries & Cream",
+  "Lemongrass",
+  "Georgia Peach",
+  "Watermelon",
+  "Cedarwood & Vanilla",
+  "Cool Water",
+  "Mahogany Teakwood",
+  "Cashmere & Silk",
+  "Citrus Splash",
+  "Nagchampa",
+  "Tropical Paradise",
+  "Mix and Match",
+] as const;
+
+export function isScented(metadata: any): boolean {
+  return String((metadata || {}).scented || "").toLowerCase() === "true";
+}
+
+// The scents a product is offered in — the full list when it's a scented good,
+// otherwise none. Mirrors apparelSizesFor: derived from a metadata flag so there
+// is no per-product list duplication between dev and the frozen prod snapshot.
+export function scentsFor(metadata: any): string[] {
+  return isScented(metadata) ? [...SCENTS] : [];
 }
 
 function splitList(value: unknown): string[] {
@@ -242,6 +277,7 @@ export function checkCustomization(
   selectedColor?: unknown,
   selectedSize?: unknown,
   productName?: unknown,
+  selectedScent?: unknown,
 ): CustomizationCheck {
   const meta = metadata || {};
   const base = checkLogoChoice(meta, selectedLogo);
@@ -280,7 +316,20 @@ export function checkCustomization(
     notes.push(`Color: ${color}`);
   }
 
-  const required = base.required || sizeRequired || colorRequired;
+  // Scent (candles, body butters). Layered like color/size — required whenever
+  // the product is a scented good. The chosen scent is added to the order note.
+  const scents = scentsFor(meta);
+  const scentRequired = scents.length > 0;
+  if (scentRequired) {
+    const scent = typeof selectedScent === "string" ? selectedScent.trim() : "";
+    if (!scent || !scents.includes(scent)) {
+      return { required: true, kind: "scent", ok: false };
+    }
+    notes.push(`Scent: ${scent}`);
+  }
+
+  const required =
+    base.required || sizeRequired || colorRequired || scentRequired;
   const kind: CustomizationKind =
     base.kind !== "none"
       ? base.kind
@@ -288,7 +337,9 @@ export function checkCustomization(
         ? "size"
         : colorRequired
           ? "color"
-          : "none";
+          : scentRequired
+            ? "scent"
+            : "none";
   return {
     required,
     kind,
@@ -315,6 +366,8 @@ export function customizationErrorMessage(
       return `Please choose a color for "${productName}" before checking out.`;
     case "colorSoldOut":
       return `That color of "${productName}" is sold out. Please choose another color.`;
+    case "scent":
+      return `Please choose a scent for "${productName}" before checking out.`;
     default:
       return `Please complete your customization for "${productName}" before checking out.`;
   }
