@@ -275,7 +275,7 @@ const BEDDING_PRODUCTS: {
     description:
       'Luxury branded body pillow featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Generous 60" x 20" size for full-body comfort.',
     priceCents: BEDDING_PRICE_BODYPILLOW_CENTS,
-    meta: { category: "Bedding", productType: "accessory", sortOrder: "53", imageUrl: "/assets/kk_pillowcase_set.png", fulfillment: "Amazon", customize: "none" },
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "53", imageUrl: "/assets/kk_body_pillow.png", fulfillment: "Amazon", customize: "none" },
   },
 ];
 

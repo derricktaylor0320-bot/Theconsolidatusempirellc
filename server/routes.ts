@@ -356,7 +356,7 @@ const ALL_PRODUCTS = [
     name: 'Khomplete Khemistri Accessories Body Pillow',
     description: 'Luxury branded body pillow featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Generous 60" x 20" size for full-body comfort.',
     price: 3600,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '53', imageUrl: '/assets/kk_pillowcase_set.png', fulfillment: 'Amazon', customize: 'none' }
+    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '53', imageUrl: '/assets/kk_body_pillow.png', fulfillment: 'Amazon', customize: 'none' }
   },
   // VINTAGE BALTIMORE
   {
