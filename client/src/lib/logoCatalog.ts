@@ -41,7 +41,7 @@ import honorNavySilver from "@assets/1764209634941_1764211158726.jpg";
 import honorAllGold from "@assets/1764210327974_1764211486802.jpg";
 import honorPurpleGold from "@assets/shield_purple_gold.jpg";
 import honorWhiteGold from "@assets/shield_white_gold.jpg";
-import kkmgEagleShield from "@assets/copilot_image_1781464086819_1781464937481.jpeg";
+import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.jpeg";
 import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
 import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";

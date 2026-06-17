@@ -54,7 +54,7 @@ import honorWhiteGold from "@assets/shield_white_gold.jpg";
 import legacyCollage from "@assets/Screenshot_20251126_202634_Photos_1764214454254.jpg";
 
 // Import KKMG LLC Eagle Shield (#214)
-import kkmgEagleShield from "@assets/1781352952354_1781362246255.png";
+import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 
 // Import Luxury Banners
 import luxuryBanner from "@assets/1764816894577_1764816974804.jpg";
