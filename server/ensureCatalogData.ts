@@ -232,6 +232,7 @@ const VINTAGE_PRODUCTS: {
 const BEDDING_PRICE_COMFORTER_CENTS = 9900;
 const BEDDING_PRICE_SHEET_CENTS = 8000;
 const BEDDING_PRICE_PILLOWCASE_CENTS = 2500;
+const BEDDING_PRICE_BODYPILLOW_CENTS = 3600;
 const BEDDING_PRODUCTS: {
   productId: string;
   priceId: string;
@@ -263,9 +264,18 @@ const BEDDING_PRODUCTS: {
     priceId: "price_kkpillowcaseset",
     name: "Khomplete Khemistri Accessories Pillowcase Set",
     description:
-      'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Select your size at checkout: Queen (30" x 26") or King (36" x 20").',
+      'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Select your size at checkout: Twin, Full, Queen, or King.',
     priceCents: BEDDING_PRICE_PILLOWCASE_CENTS,
-    meta: { category: "Bedding", productType: "accessory", sortOrder: "52", imageUrl: "/assets/kk_pillowcase_set.png", fulfillment: "Amazon", sizes: "Queen, King" },
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "52", imageUrl: "/assets/kk_pillowcase_set.png", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
+  },
+  {
+    productId: "prod_kkbodypillow",
+    priceId: "price_kkbodypillow",
+    name: "Khomplete Khemistri Accessories Body Pillow",
+    description:
+      'Luxury branded body pillow featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Generous 60" x 20" size for full-body comfort.',
+    priceCents: BEDDING_PRICE_BODYPILLOW_CENTS,
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "53", imageUrl: "/assets/kk_pillowcase_set.png", fulfillment: "Amazon", customize: "none" },
   },
 ];
 

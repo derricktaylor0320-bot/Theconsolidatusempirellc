@@ -348,9 +348,15 @@ const ALL_PRODUCTS = [
   },
   {
     name: 'Khomplete Khemistri Accessories Pillowcase Set',
-    description: 'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Select your size at checkout: Queen (30" x 26") or King (36" x 20").',
+    description: 'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Select your size at checkout: Twin, Full, Queen, or King.',
     price: 2500,
-    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '52', imageUrl: '/assets/kk_pillowcase_set.png', fulfillment: 'Amazon', sizes: 'Queen, King' }
+    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '52', imageUrl: '/assets/kk_pillowcase_set.png', fulfillment: 'Amazon', sizes: 'Twin, Full, Queen, King' }
+  },
+  {
+    name: 'Khomplete Khemistri Accessories Body Pillow',
+    description: 'Luxury branded body pillow featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Generous 60" x 20" size for full-body comfort.',
+    price: 3600,
+    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '53', imageUrl: '/assets/kk_pillowcase_set.png', fulfillment: 'Amazon', customize: 'none' }
   },
   // VINTAGE BALTIMORE
   {
@@ -579,13 +585,24 @@ async function seedProducts() {
         
         console.log(`Created: ${productDef.name} at $${(productDef.price / 100).toFixed(2)}`);
       } else {
-        // Update existing product metadata if imageUrl changed
-        const currentImageUrl = existingProduct.metadata?.imageUrl;
-        if (currentImageUrl !== productDef.metadata.imageUrl) {
-          console.log(`Updating image for: ${productDef.name}...`);
+        // Update existing product when the description OR any desired metadata
+        // field drifts from Stripe (not just imageUrl). Comparing only imageUrl
+        // meant edits like a changed `sizes` list never reached Stripe, so the
+        // incremental sync kept overwriting the DB with the stale value. Only the
+        // desired keys are compared so a stable catalog triggers no needless
+        // Stripe writes on boot.
+        const want = productDef.metadata as unknown as Record<string, string>;
+        const have = (existingProduct.metadata ?? {}) as Record<string, string>;
+        const metaChanged = Object.keys(want).some(
+          (k) => String(have[k] ?? "") !== String(want[k] ?? ""),
+        );
+        const descChanged =
+          (existingProduct.description ?? "") !== (productDef.description ?? "");
+        if (metaChanged || descChanged) {
+          console.log(`Updating metadata for: ${productDef.name}...`);
           await stripe.products.update(existingProduct.id, {
             description: productDef.description,
-            metadata: productDef.metadata as unknown as Record<string, string>,
+            metadata: want,
           });
           console.log(`Updated: ${productDef.name}`);
         }
