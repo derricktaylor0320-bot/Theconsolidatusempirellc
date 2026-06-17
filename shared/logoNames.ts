@@ -63,6 +63,8 @@ export const LOGO_ALTS: string[] = [
   "KKMG LLC Compass",
   "KKMG LLC Compass II",
   "Khomplete Khemistri Apparel Sunburst Emblem",
+  // Canvas Collection (Pride)
+  "Khomplete Khemistri Apparel Pride Rainbow Crest",
 ];
 
 export const LOGO_ALT_SET: Set<string> = new Set(LOGO_ALTS);

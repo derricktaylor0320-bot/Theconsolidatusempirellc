@@ -68,6 +68,7 @@ import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.p
 import logoKKShieldSwords from "@assets/generated_images/kk_shield_with_swords.png";
 import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_logo.png";
 import logoBeddingLuxury from "@assets/kk_accessories_bedding_logo.jpg";
+import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
 
 // Compass Collection — 400-403
@@ -101,6 +102,7 @@ export default function Canvas() {
     { id: "119", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
     { id: "120", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
     { id: "121", src: logoBeddingLuxury, alt: "Khomplete Khemistri Accessories - Sleep and Dream in Luxury", color: "Bedding Luxury" },
+    { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
   ];
 
   const badges = [
