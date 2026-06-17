@@ -79,6 +79,39 @@ export const requireAuth: RequestHandler = (req, res, next) => {
   res.status(401).json({ error: "Not authenticated" });
 };
 
+// Guards owner-only admin endpoints (e.g. the orders dashboard, which exposes
+// customer contact details and shipping addresses). The allowlist is the
+// comma-separated OWNER_EMAILS env var. If it's unset we fall back to "any
+// signed-in user" — the pre-existing behavior — so the owner is never locked
+// out of their own store, but we warn once so they know to lock it down.
+let warnedOwnerAllowlistMissing = false;
+export const requireOwner: RequestHandler = (req, res, next) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  const allowlist = (process.env.OWNER_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (allowlist.length === 0) {
+    if (!warnedOwnerAllowlistMissing) {
+      console.warn(
+        "[auth] OWNER_EMAILS is not set — order admin endpoints (customer PII) are open to any signed-in account. Set OWNER_EMAILS to restrict access.",
+      );
+      warnedOwnerAllowlistMissing = true;
+    }
+    return next();
+  }
+
+  const email = (req.user as User | undefined)?.email?.toLowerCase();
+  if (email && allowlist.includes(email)) {
+    return next();
+  }
+  return res.status(403).json({ error: "Not authorized" });
+};
+
 export function setupAuth(app: Express) {
   const PgStore = connectPgSimple(session);
 

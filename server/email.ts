@@ -161,6 +161,101 @@ function formatUsd(cents: number): string {
   return `$${(Math.max(0, Math.round(cents)) / 100).toFixed(2)}`;
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// Email sent to the customer when the owner marks their order shipped. Includes
+// the carrier + tracking number (and a clickable tracking link when one is
+// available for that carrier).
+export function buildShippingNotificationEmail(input: {
+  items: { name: string; quantity: number }[];
+  orderRef?: string;
+  carrier?: string | null;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
+}): { subject: string; html: string; text: string } {
+  const subject = "Your Consolidatus Empire order has shipped";
+
+  const itemLines = input.items.map((it) => `- ${it.name} x${it.quantity}`);
+  const refLine = input.orderRef ? `Order reference: ${input.orderRef}\n` : "";
+  const carrierLine = input.carrier ? `Carrier: ${input.carrier}\n` : "";
+  const trackingLine = input.trackingNumber
+    ? `Tracking number: ${input.trackingNumber}\n`
+    : "";
+  const trackingUrlLine = input.trackingUrl
+    ? `Track your package: ${input.trackingUrl}\n`
+    : "";
+
+  const text =
+    `Good news — your order is on its way!\n\n` +
+    refLine +
+    carrierLine +
+    trackingLine +
+    trackingUrlLine +
+    `\nItems:\n${itemLines.join("\n")}\n\n` +
+    `If you have any questions about your order, just reply to this email.`;
+
+  const itemsHtml = input.items
+    .map(
+      (it) =>
+        `<li style="padding:4px 0; color:#d9d2cc; font-size:14px;">${escapeHtml(
+          it.name,
+        )} <span style="color:#9c9089;">&times; ${it.quantity}</span></li>`,
+    )
+    .join("");
+
+  const refHtml = input.orderRef
+    ? `<p style="font-size:13px; line-height:1.6; margin:0 0 16px; color:#9c9089;">Order reference: <span style="color:#d9d2cc;">${escapeHtml(
+        input.orderRef,
+      )}</span></p>`
+    : "";
+
+  const carrierHtml = input.carrier
+    ? `<p style="font-size:14px; line-height:1.6; margin:0 0 4px; color:#d9d2cc;">Carrier: <strong style="color:#f5f5f5;">${escapeHtml(
+        input.carrier,
+      )}</strong></p>`
+    : "";
+
+  const trackingHtml = input.trackingNumber
+    ? `<p style="font-size:14px; line-height:1.6; margin:0 0 16px; color:#d9d2cc;">Tracking number: <strong style="color:#f5f5f5;">${escapeHtml(
+        input.trackingNumber,
+      )}</strong></p>`
+    : "";
+
+  const trackButtonHtml = input.trackingUrl
+    ? `<a href="${escapeHtml(input.trackingUrl)}"
+        style="display:inline-block; background:#e6b94d; color:#1a0d12; text-decoration:none; font-weight:bold; padding:12px 24px; border-radius:8px; text-transform:uppercase; letter-spacing:1px; margin:8px 0 8px;">
+        Track your package
+      </a>`
+    : "";
+
+  const html = `
+  <div style="font-family: Arial, Helvetica, sans-serif; background:#1a0d12; padding:32px; color:#f5f5f5;">
+    <div style="max-width:520px; margin:0 auto; background:#221017; border:1px solid #4a2b1a; border-radius:12px; padding:32px;">
+      <h1 style="font-size:20px; margin:0 0 8px; color:#e6b94d; text-transform:uppercase; letter-spacing:1px;">Your order has shipped</h1>
+      <p style="font-size:15px; line-height:1.6; margin:0 0 16px; color:#d9d2cc;">
+        Good news — your order from the Consolidatus Empire is on its way.
+      </p>
+      ${refHtml}
+      ${carrierHtml}
+      ${trackingHtml}
+      ${trackButtonHtml}
+      <p style="font-size:14px; line-height:1.6; margin:16px 0 8px; color:#e6b94d; font-weight:bold;">What's shipping</p>
+      <ul style="margin:0 0 16px; padding-left:18px;">${itemsHtml}</ul>
+      <p style="font-size:13px; line-height:1.6; margin:24px 0 0; color:#9c9089;">
+        If you have any questions about your order, just reply to this email.
+      </p>
+    </div>
+  </div>`;
+
+  return { subject, html, text };
+}
+
 export function buildOrderReceiptEmail(input: {
   items: ReceiptItem[];
   totalCents: number;

@@ -1,8 +1,19 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
-import { Loader2, Package, Lock, Truck, CheckCircle2, Undo2 } from "lucide-react";
+import {
+  Loader2,
+  Package,
+  Lock,
+  Truck,
+  CheckCircle2,
+  Undo2,
+  Mail,
+  MapPin,
+  ExternalLink,
+} from "lucide-react";
 import {
   keepPreviousData,
   useMutation,
@@ -12,6 +23,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import type { Order, FulfillmentStatus } from "@shared/schema";
+import { CARRIERS, trackingUrlFor } from "@shared/shipping";
 
 const PAGE_SIZE = 25;
 
@@ -67,22 +79,33 @@ export default function Orders() {
     placeholderData: keepPreviousData,
   });
 
+  // Per-order draft inputs for the carrier + tracking number the owner types in
+  // before marking an order shipped.
+  const [carrierInputs, setCarrierInputs] = useState<Record<string, string>>({});
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>(
+    {},
+  );
+
   const fulfillmentMutation = useMutation({
     mutationFn: async ({
       id,
       fulfillmentStatus,
+      carrier,
+      trackingNumber,
     }: {
       id: string;
       fulfillmentStatus: FulfillmentStatus;
+      carrier?: string;
+      trackingNumber?: string;
     }) => {
       const res = await fetch(`/api/orders/${id}/fulfillment`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ fulfillmentStatus }),
+        body: JSON.stringify({ fulfillmentStatus, carrier, trackingNumber }),
       });
       if (!res.ok) throw new Error("Failed to update order");
-      return (await res.json()) as Order;
+      return (await res.json()) as Order & { shippingEmailSent?: boolean };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
@@ -242,6 +265,43 @@ export default function Orders() {
                       </div>
                     </div>
 
+                    {order.customerEmail || order.shippingAddress ? (
+                      <div
+                        className="mb-4 rounded-lg bg-background/40 border border-primary/10 p-4 text-sm space-y-2"
+                        data-testid={`customer-info-${order.id}`}
+                      >
+                        {order.customerName ? (
+                          <p
+                            className="font-medium"
+                            data-testid={`text-customer-name-${order.id}`}
+                          >
+                            {order.customerName}
+                          </p>
+                        ) : null}
+                        {order.customerEmail ? (
+                          <p className="flex items-center gap-2 text-muted-foreground">
+                            <Mail className="w-4 h-4 shrink-0 text-primary" />
+                            <a
+                              href={`mailto:${order.customerEmail}`}
+                              className="hover:text-primary break-all"
+                              data-testid={`link-customer-email-${order.id}`}
+                            >
+                              {order.customerEmail}
+                            </a>
+                          </p>
+                        ) : null}
+                        {order.shippingAddress ? (
+                          <p
+                            className="flex items-start gap-2 text-muted-foreground whitespace-pre-line"
+                            data-testid={`text-shipping-address-${order.id}`}
+                          >
+                            <MapPin className="w-4 h-4 shrink-0 text-primary mt-0.5" />
+                            <span>{order.shippingAddress}</span>
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
+
                     <ul className="divide-y divide-primary/10">
                       {order.items.map((item, idx) => (
                         <li
@@ -275,41 +335,140 @@ export default function Orders() {
                       </span>
                     </div>
 
-                    <div className="flex justify-end pt-4">
-                      <Button
-                        variant={isFulfilled ? "outline" : "default"}
-                        size="sm"
-                        disabled={isUpdating}
-                        className={
-                          isFulfilled
-                            ? "uppercase tracking-wider font-display border-primary/20"
-                            : "uppercase tracking-wider font-display bg-emerald-600 text-white hover:bg-emerald-600/90"
-                        }
-                        onClick={() =>
-                          fulfillmentMutation.mutate({
-                            id: order.id,
-                            fulfillmentStatus: isFulfilled
-                              ? "unfulfilled"
-                              : "fulfilled",
-                          })
-                        }
-                        data-testid={`button-toggle-fulfillment-${order.id}`}
-                      >
-                        {isUpdating ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : isFulfilled ? (
-                          <>
-                            <Undo2 className="w-4 h-4" />
-                            Mark Unfulfilled
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 className="w-4 h-4" />
-                            Mark Fulfilled
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                    {isFulfilled ? (
+                      <div className="pt-4 space-y-3">
+                        {order.carrier || order.trackingNumber ? (
+                          <div
+                            className="rounded-lg bg-emerald-500/5 border border-emerald-500/20 p-4 text-sm space-y-1"
+                            data-testid={`tracking-info-${order.id}`}
+                          >
+                            {order.carrier ? (
+                              <p className="text-muted-foreground">
+                                Carrier:{" "}
+                                <span className="text-foreground font-medium">
+                                  {order.carrier}
+                                </span>
+                              </p>
+                            ) : null}
+                            {order.trackingNumber ? (
+                              <p className="text-muted-foreground break-all">
+                                Tracking:{" "}
+                                <span className="text-foreground font-medium font-mono">
+                                  {order.trackingNumber}
+                                </span>
+                              </p>
+                            ) : null}
+                            {trackingUrlFor(order.carrier, order.trackingNumber) ? (
+                              <a
+                                href={
+                                  trackingUrlFor(
+                                    order.carrier,
+                                    order.trackingNumber,
+                                  )!
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-primary hover:underline"
+                                data-testid={`link-track-${order.id}`}
+                              >
+                                Track package <ExternalLink className="w-3 h-3" />
+                              </a>
+                            ) : null}
+                          </div>
+                        ) : null}
+                        <div className="flex justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isUpdating}
+                            className="uppercase tracking-wider font-display border-primary/20"
+                            onClick={() =>
+                              fulfillmentMutation.mutate({
+                                id: order.id,
+                                fulfillmentStatus: "unfulfilled",
+                              })
+                            }
+                            data-testid={`button-toggle-fulfillment-${order.id}`}
+                          >
+                            {isUpdating ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <Undo2 className="w-4 h-4" />
+                                Mark Unfulfilled
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="pt-4 space-y-3">
+                        <p className="text-xs text-muted-foreground">
+                          Add tracking (optional) — when you mark this shipped, the
+                          customer is emailed automatically
+                          {order.customerEmail ? "." : " (no email on file)."}
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <select
+                            value={carrierInputs[order.id] ?? ""}
+                            onChange={(e) =>
+                              setCarrierInputs((prev) => ({
+                                ...prev,
+                                [order.id]: e.target.value,
+                              }))
+                            }
+                            className="h-10 rounded-md border border-primary/20 bg-background px-3 text-sm sm:w-40"
+                            data-testid={`select-carrier-${order.id}`}
+                          >
+                            <option value="">Carrier…</option>
+                            {CARRIERS.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                          <Input
+                            value={trackingInputs[order.id] ?? ""}
+                            onChange={(e) =>
+                              setTrackingInputs((prev) => ({
+                                ...prev,
+                                [order.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="Tracking number"
+                            className="sm:flex-1"
+                            data-testid={`input-tracking-${order.id}`}
+                          />
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            disabled={isUpdating}
+                            className="uppercase tracking-wider font-display bg-emerald-600 text-white hover:bg-emerald-600/90"
+                            onClick={() =>
+                              fulfillmentMutation.mutate({
+                                id: order.id,
+                                fulfillmentStatus: "fulfilled",
+                                carrier: carrierInputs[order.id]?.trim() || undefined,
+                                trackingNumber:
+                                  trackingInputs[order.id]?.trim() || undefined,
+                              })
+                            }
+                            data-testid={`button-toggle-fulfillment-${order.id}`}
+                          >
+                            {isUpdating ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <CheckCircle2 className="w-4 h-4" />
+                                Mark Shipped
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

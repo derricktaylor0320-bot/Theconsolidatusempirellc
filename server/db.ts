@@ -123,6 +123,14 @@ export async function ensureTablesExist() {
       ALTER TABLE orders
       ADD COLUMN IF NOT EXISTS fulfillment_status TEXT NOT NULL DEFAULT 'unfulfilled'
     `);
+    // Buyer contact + ship-to details and tracking info. Added later, so we
+    // backfill on existing deployments (Railway prod has no migration step).
+    await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email TEXT`);
+    await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_name TEXT`);
+    await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address TEXT`);
+    await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS carrier TEXT`);
+    await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_number TEXT`);
+    await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipped_at TIMESTAMP`);
     // One stored order per Square order id (lets us upsert idempotently when a
     // buyer refreshes the success page).
     await db.execute(sql`

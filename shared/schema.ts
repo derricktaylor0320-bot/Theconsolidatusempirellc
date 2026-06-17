@@ -41,6 +41,16 @@ export const orders = pgTable("orders", {
   items: jsonb("items").$type<OrderItem[]>().notNull(),
   totalCents: integer("total_cents").notNull(),
   squareOrderId: text("square_order_id").unique(),
+  // Buyer contact + ship-to details captured from Square at checkout. The owner
+  // needs the address to place the order with the fulfilling company (Amazon,
+  // Etsy, etc.), and the email to send the shipping/tracking notification.
+  customerEmail: text("customer_email"),
+  customerName: text("customer_name"),
+  shippingAddress: text("shipping_address"),
+  // Tracking info entered by the owner when they mark the order shipped.
+  carrier: text("carrier"),
+  trackingNumber: text("tracking_number"),
+  shippedAt: timestamp("shipped_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -49,6 +59,10 @@ export type FulfillmentStatus = (typeof FULFILLMENT_STATUSES)[number];
 
 export const updateOrderFulfillmentSchema = z.object({
   fulfillmentStatus: z.enum(FULFILLMENT_STATUSES),
+  // Optional tracking details supplied when marking an order shipped. Cleared
+  // when an order is reverted to unfulfilled.
+  carrier: z.string().trim().max(60).optional(),
+  trackingNumber: z.string().trim().max(120).optional(),
 });
 
 export const orderItemSchema = z.object({

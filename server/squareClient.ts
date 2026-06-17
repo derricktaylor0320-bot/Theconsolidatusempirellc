@@ -190,6 +190,10 @@ export interface RetrievedOrder {
   // The buyer's email as captured by Square at checkout, when available. Used to
   // send the order receipt. May be null if Square didn't collect/expose one.
   buyerEmail: string | null;
+  // The buyer's name and ship-to address as captured by Square, when available.
+  // The owner uses these to place the order with the fulfilling company.
+  buyerName: string | null;
+  shippingAddress: string | null;
 }
 
 function looksLikeEmail(value: unknown): value is string {
@@ -213,6 +217,40 @@ function extractEmailFromOrder(order: any): string | null {
     }
   }
   return null;
+}
+
+// Finds the first shipping recipient on the order so we can capture the buyer's
+// name + ship-to address. Returns the recipient object (with display_name and
+// an `address`), or null when Square didn't collect one.
+function findRecipient(order: any): any | null {
+  const fulfillments: any[] = Array.isArray(order?.fulfillments)
+    ? order.fulfillments
+    : [];
+  for (const f of fulfillments) {
+    const recipient =
+      f?.shipment_details?.recipient ||
+      f?.delivery_details?.recipient ||
+      f?.pickup_details?.recipient;
+    if (recipient) return recipient;
+  }
+  return null;
+}
+
+function formatAddress(address: any): string | null {
+  if (!address || typeof address !== 'object') return null;
+  const cityLine = [address.locality, address.administrative_district_level_1]
+    .filter(Boolean)
+    .join(', ');
+  const parts = [
+    address.address_line_1,
+    address.address_line_2,
+    address.address_line_3,
+    [cityLine, address.postal_code].filter(Boolean).join(' ').trim(),
+    address.country,
+  ]
+    .map((p) => (typeof p === 'string' ? p.trim() : ''))
+    .filter((p) => p.length > 0);
+  return parts.length > 0 ? parts.join('\n') : null;
 }
 
 async function fetchBuyerEmailFromPayments(order: any): Promise<string | null> {
@@ -283,6 +321,13 @@ export async function retrieveSquareOrder(
     buyerEmail = await fetchBuyerEmailFromPayments(order);
   }
 
+  const recipient = findRecipient(order);
+  const buyerName =
+    typeof recipient?.display_name === 'string' && recipient.display_name.trim()
+      ? recipient.display_name.trim()
+      : null;
+  const shippingAddress = formatAddress(recipient?.address);
+
   return {
     orderId: order.id,
     state: String(order?.state || 'UNKNOWN'),
@@ -290,5 +335,7 @@ export async function retrieveSquareOrder(
     totalCents,
     items,
     buyerEmail,
+    buyerName,
+    shippingAddress,
   };
 }

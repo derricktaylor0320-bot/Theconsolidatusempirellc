@@ -1,6 +1,6 @@
 import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders } from "@shared/schema";
 import { db } from "./db";
-import { and, eq, isNull, desc, sql } from "drizzle-orm";
+import { and, eq, ne, isNull, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Product operations
@@ -18,12 +18,20 @@ export interface IStorage {
 
   // Order operations
   getAllOrders(options?: { limit?: number; offset?: number }): Promise<{ orders: Order[]; total: number }>;
-  updateOrderFulfillment(id: string, fulfillmentStatus: FulfillmentStatus): Promise<Order | undefined>;
+  updateOrderFulfillment(
+    id: string,
+    fulfillmentStatus: FulfillmentStatus,
+    tracking?: { carrier?: string | null; trackingNumber?: string | null },
+  ): Promise<{ order: Order; transitionedToFulfilled: boolean } | undefined>;
   getOrderBySquareId(squareOrderId: string): Promise<Order | undefined>;
+  getOrderById(id: string): Promise<Order | undefined>;
   recordPaidOrder(order: {
     squareOrderId: string;
     items: OrderItem[];
     totalCents: number;
+    customerEmail?: string | null;
+    customerName?: string | null;
+    shippingAddress?: string | null;
   }): Promise<Order>;
 
   // User / auth operations
@@ -116,13 +124,55 @@ export class DatabaseStorage implements IStorage {
     return { orders: rows, total: count };
   }
 
-  async updateOrderFulfillment(id: string, fulfillmentStatus: FulfillmentStatus): Promise<Order | undefined> {
+  async updateOrderFulfillment(
+    id: string,
+    fulfillmentStatus: FulfillmentStatus,
+    tracking?: { carrier?: string | null; trackingNumber?: string | null },
+  ): Promise<{ order: Order; transitionedToFulfilled: boolean } | undefined> {
+    if (fulfillmentStatus === "fulfilled") {
+      // Record the carrier/tracking number supplied by the owner and stamp the
+      // ship date. The WHERE clause only matches rows that aren't already
+      // fulfilled, so concurrent requests can't both flip the order and both
+      // fire the customer's shipping email — at most one wins the transition.
+      const carrier = tracking?.carrier?.trim();
+      const trackingNumber = tracking?.trackingNumber?.trim();
+      const [transitioned] = await db
+        .update(orders)
+        .set({
+          fulfillmentStatus,
+          carrier: carrier ? carrier : null,
+          trackingNumber: trackingNumber ? trackingNumber : null,
+          shippedAt: new Date(),
+        })
+        .where(
+          and(eq(orders.id, id), ne(orders.fulfillmentStatus, "fulfilled")),
+        )
+        .returning();
+
+      if (transitioned) {
+        return { order: transitioned, transitionedToFulfilled: true };
+      }
+      // No row changed: the order was already fulfilled (or doesn't exist).
+      const existing = await this.getOrderById(id);
+      return existing
+        ? { order: existing, transitionedToFulfilled: false }
+        : undefined;
+    }
+
+    // Reverting to unfulfilled wipes the shipping details.
     const [order] = await db
       .update(orders)
-      .set({ fulfillmentStatus })
+      .set({
+        fulfillmentStatus,
+        carrier: null,
+        trackingNumber: null,
+        shippedAt: null,
+      })
       .where(eq(orders.id, id))
       .returning();
-    return order || undefined;
+    return order
+      ? { order, transitionedToFulfilled: false }
+      : undefined;
   }
 
   async getOrderBySquareId(squareOrderId: string): Promise<Order | undefined> {
@@ -133,13 +183,24 @@ export class DatabaseStorage implements IStorage {
     return order || undefined;
   }
 
+  async getOrderById(id: string): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order || undefined;
+  }
+
   async recordPaidOrder(input: {
     squareOrderId: string;
     items: OrderItem[];
     totalCents: number;
+    customerEmail?: string | null;
+    customerName?: string | null;
+    shippingAddress?: string | null;
   }): Promise<Order> {
     // Idempotent: if the buyer refreshes the success page we update the same
     // row (keyed by the Square order id) instead of inserting a duplicate.
+    const customerEmail = input.customerEmail ?? null;
+    const customerName = input.customerName ?? null;
+    const shippingAddress = input.shippingAddress ?? null;
     const [order] = await db
       .insert(orders)
       .values({
@@ -147,6 +208,9 @@ export class DatabaseStorage implements IStorage {
         items: input.items,
         totalCents: input.totalCents,
         squareOrderId: input.squareOrderId,
+        customerEmail,
+        customerName,
+        shippingAddress,
       })
       .onConflictDoUpdate({
         target: orders.squareOrderId,
@@ -154,6 +218,9 @@ export class DatabaseStorage implements IStorage {
           status: "paid",
           items: input.items,
           totalCents: input.totalCents,
+          customerEmail,
+          customerName,
+          shippingAddress,
         },
       })
       .returning();

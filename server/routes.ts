@@ -3,10 +3,11 @@ import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
 import { createSquarePaymentLink, createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
-import { sendEmail, buildOrderReceiptEmail } from "./email";
+import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
+import { trackingUrlFor } from "@shared/shipping";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
-import { setupAuth, requireAuth } from "./auth";
+import { setupAuth, requireAuth, requireOwner } from "./auth";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
 import { updateOrderFulfillmentSchema } from "@shared/schema";
 import { z } from "zod";
@@ -1221,6 +1222,9 @@ export async function registerRoutes(
         squareOrderId: squareOrder.orderId,
         items: squareOrder.items,
         totalCents: squareOrder.totalCents,
+        customerEmail: squareOrder.buyerEmail,
+        customerName: squareOrder.buyerName,
+        shippingAddress: squareOrder.shippingAddress,
       });
 
       // Send the buyer an itemized receipt. This runs only on the first
@@ -1311,7 +1315,7 @@ export async function registerRoutes(
   });
 
   // Protected: list every recorded order (newest first) for the owner.
-  app.get("/api/orders", requireAuth, async (req, res) => {
+  app.get("/api/orders", requireOwner, async (req, res) => {
     try {
       const parseIntParam = (value: unknown, fallback: number, max: number) => {
         const parsed = Number.parseInt(String(value), 10);
@@ -1331,23 +1335,58 @@ export async function registerRoutes(
   });
 
   // Protected: update an order's fulfillment status (e.g. mark shipped) for the
-  // owner. Uses the same requireAuth gate as the orders list above — this is a
-  // single shared-hub sign-in (signed-in === owner), there is no role system.
-  app.patch("/api/orders/:id/fulfillment", requireAuth, async (req, res) => {
+  // owner. Owner-gated (OWNER_EMAILS allowlist) since this exposes/uses customer
+  // contact details and triggers the shipping-notification email.
+  app.patch("/api/orders/:id/fulfillment", requireOwner, async (req, res) => {
     try {
       const parsed = updateOrderFulfillmentSchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid fulfillment status" });
       }
 
-      const order = await storage.updateOrderFulfillment(
+      const result = await storage.updateOrderFulfillment(
         req.params.id,
         parsed.data.fulfillmentStatus,
+        {
+          carrier: parsed.data.carrier,
+          trackingNumber: parsed.data.trackingNumber,
+        },
       );
-      if (!order) {
+      if (!result) {
         return res.status(404).json({ error: "Order not found" });
       }
-      res.json(order);
+      const { order, transitionedToFulfilled } = result;
+
+      // Notify the customer their order shipped. Best-effort: never fail the
+      // request if the email can't be sent. The storage layer guarantees
+      // transitionedToFulfilled is true for only one request per
+      // unfulfilled -> fulfilled change, so the customer is emailed once.
+      let shippingEmailSent = false;
+      if (transitionedToFulfilled && order.customerEmail) {
+        try {
+          const trackingUrl = trackingUrlFor(order.carrier, order.trackingNumber);
+          const shipped = buildShippingNotificationEmail({
+            items: order.items.map((it) => ({
+              name: it.name,
+              quantity: it.quantity,
+            })),
+            orderRef: order.squareOrderId ?? undefined,
+            carrier: order.carrier,
+            trackingNumber: order.trackingNumber,
+            trackingUrl,
+          });
+          shippingEmailSent = await sendEmail({
+            to: order.customerEmail,
+            subject: shipped.subject,
+            html: shipped.html,
+            text: shipped.text,
+          });
+        } catch (emailError) {
+          console.error("Failed to send shipping notification email:", emailError);
+        }
+      }
+
+      res.json({ ...order, shippingEmailSent });
     } catch (error: any) {
       console.error('Error updating order fulfillment:', error);
       res.status(500).json({ error: "Failed to update order" });
