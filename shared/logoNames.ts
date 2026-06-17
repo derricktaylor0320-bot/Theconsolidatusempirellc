@@ -29,7 +29,6 @@ export const LOGO_ALTS: string[] = [
   "Khomplete Khemistri Accessories Eagle",
   "Crossed Swords with Khomplete Khemistri",
   "KKA Crossed Swords Logo",
-  "Khomplete Khemistri Accessories - Sleep and Dream in Luxury",
   // Badge of Honor
   "Blue & Gold Values Crest - Friendship, Trust, Harmony",
   "Royal Blue & Gold Crest",
