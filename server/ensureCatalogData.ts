@@ -231,6 +231,7 @@ const VINTAGE_PRODUCTS: {
 // shared/customization.ts.
 const BEDDING_PRICE_COMFORTER_CENTS = 9900;
 const BEDDING_PRICE_SHEET_CENTS = 8000;
+const BEDDING_PRICE_PILLOWCASE_CENTS = 2500;
 const BEDDING_PRODUCTS: {
   productId: string;
   priceId: string;
@@ -256,6 +257,15 @@ const BEDDING_PRODUCTS: {
       'Premium satin sheet set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold. Elegant chocolate brown. Includes fitted sheet, flat sheet, and matching pillowcases. Select your size at checkout: Twin, Full, Queen, or King.',
     priceCents: BEDDING_PRICE_SHEET_CENTS,
     meta: { category: "Bedding", productType: "accessory", sortOrder: "51", imageUrl: "/assets/kk_sheet_set.png", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
+  },
+  {
+    productId: "prod_kkpillowcaseset",
+    priceId: "price_kkpillowcaseset",
+    name: "Khomplete Khemistri Accessories Pillowcase Set",
+    description:
+      'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Select your size at checkout: Queen (30" x 26") or King (36" x 20").',
+    priceCents: BEDDING_PRICE_PILLOWCASE_CENTS,
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "52", imageUrl: "/assets/kk_pillowcase_set.png", fulfillment: "Amazon", sizes: "Queen, King" },
   },
 ];
 

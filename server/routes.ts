@@ -346,6 +346,12 @@ const ALL_PRODUCTS = [
     price: 8000,
     metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '51', imageUrl: '/assets/kk_sheet_set.png', fulfillment: 'Amazon', sizes: 'Twin, Full, Queen, King' }
   },
+  {
+    name: 'Khomplete Khemistri Accessories Pillowcase Set',
+    description: 'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Select your size at checkout: Queen (30" x 26") or King (36" x 20").',
+    price: 2500,
+    metadata: { category: 'Bedding', productType: 'accessory', sortOrder: '52', imageUrl: '/assets/kk_pillowcase_set.png', fulfillment: 'Amazon', sizes: 'Queen, King' }
+  },
   // VINTAGE BALTIMORE
   {
     name: 'Cherry Hill Tribute Tee',
