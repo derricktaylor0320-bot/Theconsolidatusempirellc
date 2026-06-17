@@ -38,6 +38,9 @@ const NON_LOGO_PRODUCT_TYPES = new Set(["poetry", "vintage"]);
 export function isDefaultLogoCustomizable(metadata: any): boolean {
   const m = metadata || {};
   if (m.handleColors || m.caseType || m.sizes) return false;
+  // Explicit opt-out for products that carry their own branding and aren't
+  // logo-customizable (e.g. scented/consumable goods like Whipped Body Butters).
+  if (String(m.customize || "").toLowerCase() === "none") return false;
   if (NON_LOGO_PRODUCT_TYPES.has(String(m.productType || "").toLowerCase())) {
     return false;
   }

@@ -51,7 +51,8 @@ import logoAccessoriesEagle from "@assets/generated_images/kk_accessories_standa
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
 import logoKKShieldSwords from "@assets/generated_images/kk_shield_with_swords.png";
 import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_logo.png";
-import logoBeddingLuxury from "@assets/kk_accessories_bedding_logo.jpg";
+import logoBeddingLuxury from "@assets/1781696898016_1781711718659.png";
+import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
 
@@ -86,6 +87,7 @@ export const allLogos: Record<string, LogoEntry> = {
   "120": { src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords", section: "Canvas Collection" },
   "121": { src: logoBeddingLuxury, alt: "Khomplete Khemistri Accessories - Sleep and Dream in Luxury", color: "Bedding Luxury", section: "Canvas Collection" },
   "122": { src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow", section: "Canvas Collection" },
+  "123": { src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold", section: "Canvas Collection" },
   "200": { src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", section: "Badge of Honor" },
   "201": { src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold", section: "Badge of Honor" },
   "202": { src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", section: "Badge of Honor" },

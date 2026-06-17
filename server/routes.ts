@@ -303,6 +303,12 @@ const ALL_PRODUCTS = [
     metadata: { category: 'Home', productType: 'accessory', imageUrl: '/assets/scented_candles_branded.png' }
   },
   {
+    name: 'Whipped Body Butters',
+    description: 'Luxurious Khomplete Khemistri whipped body butter in a 4 oz jar. Rich, fast-absorbing moisture that leaves skin soft and smooth. $12 per jar.',
+    price: 1200,
+    metadata: { category: 'Body Care', productType: 'accessory', customize: 'none', imageUrl: '/assets/whipped_body_butters_branded.png' }
+  },
+  {
     name: 'Branded Tote Bag',
     description: 'Spacious canvas tote bag with Khomplete Khemistri Apparel logo. Natural cream canvas with black and gold logo. Perfect for shopping, gym, or everyday use.',
     price: 2200,

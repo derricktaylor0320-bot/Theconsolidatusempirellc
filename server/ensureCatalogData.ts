@@ -52,6 +52,26 @@ const MUG_META = {
   fulfillment: "Amazon",
 };
 
+// Whipped Body Butters. New consumable product ($12, 4 oz jar). Same
+// self-applying pattern as the mug/cases: in dev seedProducts creates it in
+// Stripe (synced to the DB) so the guarded insert is a no-op; on the Railway
+// prod frozen snapshot (no Stripe) the insert is what actually creates it.
+// Not logo-customizable (carries its own branding) — enforced by the
+// `customize: 'none'` metadata flag in shared/customization.ts.
+const BODY_BUTTER_PRODUCT_ID = "prod_kkbodybutter";
+const BODY_BUTTER_PRICE_ID = "price_kkbodybutter";
+const BODY_BUTTER_NAME = "Whipped Body Butters";
+const BODY_BUTTER_PRICE_CENTS = 1200;
+const BODY_BUTTER_IMAGE = "/assets/whipped_body_butters_branded.png";
+const BODY_BUTTER_DESCRIPTION =
+  "Luxurious Khomplete Khemistri whipped body butter in a 4 oz jar. Rich, fast-absorbing moisture that leaves skin soft and smooth. $12 per jar.";
+const BODY_BUTTER_META = {
+  category: "Body Care",
+  productType: "accessory",
+  customize: "none",
+  imageUrl: BODY_BUTTER_IMAGE,
+};
+
 // Custom phone cases. Like the mug, these are new products that must exist in
 // whatever DB this server is connected to. In dev seedProducts creates them in
 // Stripe (synced to the DB) so the guarded inserts below are no-ops; in Railway
@@ -477,6 +497,71 @@ export async function ensureCatalogData() {
           ),
           _updated_at = now()
       WHERE name = ${MUG_NAME}
+    `);
+
+    // 5b) Whipped Body Butters ($12, 4 oz). Create only when absent (no-op in dev
+    //     where Stripe sync made it; the real creator on the Railway prod
+    //     snapshot), then ensure the metadata/description/price stay current.
+    const bodyButterProductRaw = JSON.stringify({
+      id: BODY_BUTTER_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: BODY_BUTTER_NAME,
+      description: BODY_BUTTER_DESCRIPTION,
+      metadata: BODY_BUTTER_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const bodyButterPriceRaw = JSON.stringify({
+      id: BODY_BUTTER_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: BODY_BUTTER_PRICE_CENTS,
+      product: BODY_BUTTER_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${bodyButterProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${BODY_BUTTER_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${bodyButterPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${BODY_BUTTER_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${BODY_BUTTER_PRODUCT_ID})
+    `);
+
+    // Keep the body butter's branding/description/image current in both envs.
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(BODY_BUTTER_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(BODY_BUTTER_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${BODY_BUTTER_NAME} AND active = true
+    `);
+
+    // Force the body butter's active price to $12 (self-heals any drift), the
+    // same convergence the tumbler uses. Pricing stays server-authoritative.
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(BODY_BUTTER_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${BODY_BUTTER_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(BODY_BUTTER_PRICE_CENTS)}
     `);
 
     // 6) Custom phone cases ($30, model + logo). Same self-applying pattern as

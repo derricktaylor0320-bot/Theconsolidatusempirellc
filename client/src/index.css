@@ -33,72 +33,72 @@
 }
 
 :root {
-  /* Luxurious Rich Brown Background */
+  /* Luxurious Rich Chocolate Brown Background */
   --background: 25 45% 12%; 
   /* Bright Gold Text */
-  --foreground: 45 85% 85%; 
+  --foreground: 45 88% 88%; 
   
   /* Slightly lighter brown for cards to create depth */
   --card: 25 40% 16%;
-  --card-foreground: 45 85% 90%;
+  --card-foreground: 45 88% 92%;
   
   --popover: 25 40% 16%;
-  --popover-foreground: 45 85% 90%;
+  --popover-foreground: 45 88% 92%;
   
-  /* Rich Bright Metallic Gold for primary actions */
-  --primary: 43 90% 55%; 
+  /* Shiny Metallic Gold for primary actions */
+  --primary: 45 96% 60%; 
   --primary-foreground: 25 45% 8%; /* Dark brown text on gold buttons */
   
   /* Secondary elements - slightly lighter brown */
   --secondary: 25 35% 20%; 
-  --secondary-foreground: 45 85% 92%;
+  --secondary-foreground: 45 88% 94%;
   
   --muted: 25 30% 18%;
-  --muted-foreground: 45 50% 75%;
+  --muted-foreground: 45 55% 78%;
   
-  --accent: 43 90% 55%; /* Bright Gold accent */
+  --accent: 45 96% 60%; /* Shiny Gold accent */
   --accent-foreground: 25 45% 8%;
   
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 45 85% 95%;
 
-  /* Gold borders */
-  --border: 43 70% 40%;
-  --input: 25 35% 20%;
-  --ring: 43 90% 55%;
+  /* Brighter shiny gold borders that stand out */
+  --border: 44 88% 52%;
+  --input: 25 35% 22%;
+  --ring: 45 96% 60%;
 
   --radius: 0.5rem;
 }
 
 .dark {
-  /* Same luxurious brown and gold palette */
+  /* Same luxurious chocolate brown and shiny gold palette */
   --background: 25 45% 12%; 
-  --foreground: 45 85% 85%; 
+  --foreground: 45 88% 88%; 
   
   --card: 25 40% 16%;
-  --card-foreground: 45 85% 90%;
+  --card-foreground: 45 88% 92%;
   
   --popover: 25 40% 16%;
-  --popover-foreground: 45 85% 90%;
+  --popover-foreground: 45 88% 92%;
   
-  --primary: 43 90% 55%; 
+  --primary: 45 96% 60%; 
   --primary-foreground: 25 45% 8%; 
   
   --secondary: 25 35% 20%; 
-  --secondary-foreground: 45 85% 92%;
+  --secondary-foreground: 45 88% 94%;
   
   --muted: 25 30% 18%;
-  --muted-foreground: 45 50% 75%;
+  --muted-foreground: 45 55% 78%;
   
-  --accent: 43 90% 55%; 
+  --accent: 45 96% 60%; 
   --accent-foreground: 25 45% 8%;
   
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 45 85% 95%;
   
-  --border: 43 70% 40%;
-  --input: 25 35% 20%;
-  --ring: 43 90% 55%;
+  --border: 44 88% 52%;
+  --input: 25 35% 22%;
+  --ring: 45 96% 60%;
 }
 
 @layer base {
