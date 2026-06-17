@@ -86,6 +86,119 @@ const RETIRED_PRODUCT_NAMES = [
   "Khomplete Khemistri Accessories Duvet Set - Queen",
   "Khomplete Khemistri Accessories Duvet Set - King",
   "Khomplete Khemistri Accessories Duvet Set - California King",
+  // Old placeholder Vintage Baltimore tees, replaced by 10 real Baltimore
+  // designs (see VINTAGE_PRODUCTS below). These names have no replacement, so
+  // they are retired entirely from the storefront.
+  "Memorial Stadium Tribute Tee",
+  "Yellow Bowl Restaurant Tee",
+  "Baltimore Trailways / Greyhound Station Tee",
+  "Shane's Sandwich Shop Tee",
+  "Memorial Stadium Navy Tee",
+  "Shot Tower Marketplace Tee",
+  "Washington Monument Baltimore Tee",
+  "Chicken George Gold Tee",
+  "Stop, Shop & Save Tee",
+  "McCrory's Tee",
+  "J.J. Newberry's Tee",
+];
+
+// Vintage Baltimore collection ($30 graphic tees). The 10 real designs that
+// replace the old placeholder vintage tees. Same self-applying pattern as the
+// mug/cases/hat: in dev seedProducts creates/updates them in Stripe (synced to
+// the DB) so the guarded inserts are no-ops and the metadata UPDATE is
+// idempotent; on the Railway prod frozen snapshot (no Stripe) the inserts create
+// the 5 brand-new products and the UPDATE refreshes image/description on the 5
+// that carried over (Cherry Hill, Fort McHenry, B&O, Great Blacks in Wax, Super
+// Pride). Vintage tees are NOT logo-customizable (the graphic IS the design) —
+// enforced by NON_LOGO_PRODUCT_TYPES in shared/customization.ts.
+const VINTAGE_PRICE_CENTS = 3000;
+const VINTAGE_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkvintagecherryhill",
+    priceId: "price_kkvintagecherryhill",
+    name: "Cherry Hill Tribute Tee",
+    description:
+      "Cherry Hill, Baltimore, MD. A tribute to one of Baltimore's first planned African American communities. From its mid-20th-century post-war housing boom to its proud, resilient present, Cherry Hill's story runs deep in South Baltimore. Wear your community pride. Black tee.",
+    meta: { category: "Baltimore Pride", productType: "vintage", sortOrder: "60", imageUrl: "/attached_assets/1781657754385_1781663129062.png" },
+  },
+  {
+    productId: "prod_kkvintageftmchenry",
+    priceId: "price_kkvintageftmchenry",
+    name: "Fort McHenry Tee",
+    description:
+      "Fort McHenry — Baltimore, Maryland. War of 1812.\n\nFort McHenry was built between 1798 and 1803 to defend Baltimore from naval invasion. During the War of 1812, on September 13-14, 1814, the British navy bombarded the fort for 25 hours. Despite the intense attack, the fort's garrison held their ground and the American flag continued to fly, inspiring Francis Scott Key to write \"The Star-Spangled Banner.\" Now a national monument and historic shrine. Royal blue tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "61", imageUrl: "/attached_assets/Screenshot_20260616_215848_Gallery_1781663170048.jpg" },
+  },
+  {
+    productId: "prod_kkvintagemuseums",
+    priceId: "price_kkvintagemuseums",
+    name: "Celebrate Baltimore's Museums Tee",
+    description:
+      "Celebrate Baltimore's Museums. A tribute to the city's cultural treasures — The Walters Art Museum, the B&O Railroad Museum, the Reginald F. Lewis Museum and more. The back honors prominent Baltimore museums: the National Great Blacks In Wax Museum, American Visionary Art Museum, Maryland Center for History and Culture, National Aquarium, Maryland Science Center, Fort McHenry National Monument, Port Discovery Children's Museum, and the James E. Lewis Museum of Art. Heather gray tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "62", imageUrl: "/attached_assets/1781660600583_1781663395049.jpg" },
+  },
+  {
+    productId: "prod_kkvintageconstellation",
+    priceId: "price_kkvintageconstellation",
+    name: "USS Constellation Tee",
+    description:
+      "USS Constellation — The Historic Warship. Baltimore, Maryland. Since 1854.\n\nDesigned and built in 1854, USS Constellation is a legend of the U.S. Navy — the last all-sail sloop-of-war ever constructed by the Navy. Commissioned in August 1854, she embodies American maritime heritage, serving for over a century. Now docked at Baltimore's Inner Harbor, she is a National Historic Landmark. Navy tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "63", imageUrl: "/attached_assets/1781660105777_1781663431031.jpg" },
+  },
+  {
+    productId: "prod_kkvintagegreatblacks",
+    priceId: "price_kkvintagegreatblacks",
+    name: "National Great Blacks in Wax Museum Tee",
+    description:
+      "The National Great Blacks In Wax Museum — North Avenue, Baltimore. Founded as America's first wax museum dedicated solely to the study and celebration of African American history. Opened on East North Avenue in Baltimore, Maryland, the museum stands as a testament to the rich legal, cultural, and historical contributions of Black people across America. Purple tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "64", imageUrl: "/attached_assets/1781660024391_1781663431048.jpg" },
+  },
+  {
+    productId: "prod_kkvintagemurrys",
+    priceId: "price_kkvintagemurrys",
+    name: "Murry's Tee",
+    description:
+      "Murry's — Your Neighborhood Food Store! A nostalgic tribute to the beloved Baltimore grocery institution, complete with the classic retro chef logo. Soft black tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "65", imageUrl: "/attached_assets/1781659209780_1781663431055.jpg" },
+  },
+  {
+    productId: "prod_kkvintagestopnsave",
+    priceId: "price_kkvintagestopnsave",
+    name: "Stop-N-Save Tee",
+    description:
+      "A History of Stop-N-Save. Established in 1952 by entrepreneur Henry Barksdale, Stop-N-Save was a pioneering Black-owned supermarket chain and cornerstone of the Baltimore community. More than a store, it provided employment, accessible groceries, and vital support for generations of residents in historic neighborhoods. Key locations included Harford Road (the original store), Mondawmin, and Greenmount Avenue. A Baltimore legacy of resilience and service. Est. 1952. Black tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "66", imageUrl: "/attached_assets/1781658935332_1781663431066.jpg" },
+  },
+  {
+    productId: "prod_kkvintagesuperpride",
+    priceId: "price_kkvintagesuperpride",
+    name: "Super Pride Markets Tee",
+    description:
+      "Super Pride Markets: A Baltimore Landmark. Established in 1948 by civil rights leader and visionary businessman Henry G. Parks Jr., Super Pride Markets became a pillar of the Baltimore community. This prominent Black-owned supermarket chain provided essential services, fresh groceries, and hundreds of jobs to generations in the 20th century. Super Pride stood as a symbol of economic empowerment, community resilience, and opportunity in the heart of Baltimore. Gold tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "67", imageUrl: "/attached_assets/1781658663211_1781663431071.jpg" },
+  },
+  {
+    productId: "prod_kkvintageunionbus",
+    priceId: "price_kkvintageunionbus",
+    name: "Union Bus Terminal Tee",
+    description:
+      "Baltimore Greyhound-Trailways Union Bus Terminal. Howard & Fayette St. Est. 1941, Baltimore, MD. A tribute to the Art Deco landmark that served as a bustling hub for regional travel. The back traces its history — 1941 construction, the 1940s-1980s operational heyday, the 1987 closure of the original Art Deco terminal, and the move to the current facility on Haines Street. Black tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "68", imageUrl: "/attached_assets/1781658177886_1781663431075.jpg" },
+  },
+  {
+    productId: "prod_kkvintagebandorr",
+    priceId: "price_kkvintagebandorr",
+    name: "B&O Railroad Tribute Tee",
+    description:
+      "Baltimore & Ohio Railroad — The Birthplace of American Railroading. Baltimore, Maryland. Founded 1827.\n\nThe B&O was the first common carrier railroad in the U.S., founded in Baltimore to compete with New York's Erie Canal. The first stone for the line was laid on July 4, 1828, connecting Baltimore to the Ohio River. Mount Clare Station, built in 1830, is the oldest passenger rail terminal in the United States. It fueled Baltimore's growth, linking the East Coast with the expanding American West — linking 13 great states with the nation. Denim blue tee.",
+    meta: { category: "Legacy Spots", productType: "vintage", sortOrder: "69", imageUrl: "/attached_assets/1781657385584_1781663431078.png" },
+  },
 ];
 
 // Scented candle product image. Like the tumbler, the storefront image must be
@@ -495,6 +608,66 @@ export async function ensureCatalogData() {
       WHERE name = ${HAT_NAME} AND active = true
     `);
 
+    // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
+    //     pattern as the mug/cases/hat. For each of the 10 designs: create only
+    //     when absent (no-op in dev where Stripe sync made them; the real creator
+    //     on the Railway prod snapshot for the 5 brand-new designs), then refresh
+    //     description + metadata (new image, sortOrder, productType) on the
+    //     surviving active product by name. This is what swaps the 5 carried-over
+    //     designs (Cherry Hill, Fort McHenry, B&O, Great Blacks in Wax, Super
+    //     Pride) to their new artwork on the prod frozen snapshot.
+    for (const v of VINTAGE_PRODUCTS) {
+      const vProductRaw = JSON.stringify({
+        id: v.productId,
+        object: "product",
+        active: true,
+        name: v.name,
+        description: v.description,
+        metadata: v.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const vPriceRaw = JSON.stringify({
+        id: v.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: VINTAGE_PRICE_CENTS,
+        product: v.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${vProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${v.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${vPriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${v.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${v.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(v.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(v.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${v.name} AND active = true
+      `);
+    }
+
     // 7) Remove retired products (Kids Sippy Cup + the baby line) from the
     //    storefront. In dev removing them from ALL_PRODUCTS lets seedProducts
     //    archive them in Stripe; here we deactivate the products + their prices
@@ -540,7 +713,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), and Branded Logo Fitted Hat ($40, color + logo); removed retired products (Kids Sippy Cup + baby line); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), and the 10-design Vintage Baltimore collection ($30 graphic tees); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

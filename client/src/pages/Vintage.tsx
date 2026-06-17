@@ -87,6 +87,7 @@ export default function Vintage() {
                 sizes={product.sizes}
                 colors={product.colors}
                 soldOutColors={product.soldOutColors}
+                imageFit="contain"
               />
             ))}
           </div>

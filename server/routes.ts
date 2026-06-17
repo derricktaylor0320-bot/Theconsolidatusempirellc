@@ -341,100 +341,64 @@ const ALL_PRODUCTS = [
   },
   // VINTAGE BALTIMORE
   {
-    name: 'Memorial Stadium Tribute Tee',
-    description: 'The Old Gray Lady of 33rd Street. Home to Baltimore Colts 1953-1983, Baltimore Orioles 1954-1991. Demolished 2001-2002. Never Forgotten. Time Will Not Dim The Glory Of Their Deeds.',
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/assets/1764718803250_1764814033310.jpg' }
-  },
-  {
-    name: 'Yellow Bowl Restaurant Tee',
-    description: 'Baltimore\'s Yellow Bowl - A Legacy of Soul Food. Celebrating the iconic Greenmount Avenue restaurant that served the community for generations. Available in Black and Yellow.',
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/assets/1764718158966_1764814033324.jpg' }
-  },
-  {
     name: 'Cherry Hill Tribute Tee',
-    description: 'Baltimore Cherry Hill - Celebrating the history and pride of this iconic Baltimore neighborhood. Wear your community pride.',
+    description: "Cherry Hill, Baltimore, MD. A tribute to one of Baltimore's first planned African American communities. From its mid-20th-century post-war housing boom to its proud, resilient present, Cherry Hill's story runs deep in South Baltimore. Wear your community pride. Black tee.",
     price: 3000,
-    metadata: { category: 'Baltimore Pride', productType: 'vintage', imageUrl: '/assets/image_1764716203628_1764814033395.jpeg' }
-  },
-  {
-    name: 'B&O Railroad Tribute Tee',
-    description: 'Baltimore & Ohio Railroad - America\'s First. Est. 1830. The Nation\'s First Common Carrier. Connecting 13 Great States. Symbol of American Innovation. Available in multiple colors.',
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/assets/1764714412543_1764814033463.jpg' }
-  },
-  {
-    name: 'Baltimore Trailways / Greyhound Station Tee',
-    description: 'Baltimore Trailways / Greyhound Station - West Fayette Street. This bus station served as a vital transportation hub for decades. A landmark for travelers, connecting Baltimoreans to cities across the country. Though the station is now gone, its memory remains a significant part of Baltimore\'s transit heritage.',
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765197832200_1765197897952.jpg' }
-  },
-  {
-    name: "Shane's Sandwich Shop Tee",
-    description: "Shane's Sandwich Shop - Baltimore, MD. A Baltimore Landmark. Founder Harley Brinsfield started Harley's Market around 1640, serving subs and secret sauce burgers. Radio Fame hosted jazz shows and made it a neighborhood cure. Both Harley's chains eventually closing, but Shane's chains' legacy lives on as Baltimore's food history.",
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765197579253_1765197897977.jpg' }
-  },
-    {
-    name: 'Memorial Stadium Navy Tee',
-    description: "Memorial Stadium - East 33rd Street. Baltimore's beloved stadium, home to the Colts and Orioles. A Place In Our Hearts. A Place In History. Navy blue edition.",
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/copilot_image_1765193892692_1765197897994.jpeg' }
-  },
-  {
-    name: 'National Great Blacks in Wax Museum Tee',
-    description: 'The National Great Blacks in Wax Museum - Baltimore, Maryland. A Vision Preserved: The History. The museum was founded in 1983 by educators Dr. Joanne Martin and Dr. Elmer Martin. The museum\'s mission is to stimulate an interest in Black history and use great decor as youth.',
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765195062381_1765197898004.jpg' }
-  },
-  {
-    name: 'Shot Tower Marketplace Tee',
-    description: 'Shot Tower Marketplace - Baltimore. Pray For Me. History of the Baltimore Shot Tower: Built 1828, designed by Caspar Wever. At 234 feet tall, was the tallest structure in the United States until 1846. Operated until 1892. A City Landmark and Museum.',
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170112320_1765198682968.jpg' }
+    metadata: { category: 'Baltimore Pride', productType: 'vintage', sortOrder: '60', imageUrl: '/attached_assets/1781657754385_1781663129062.png' }
   },
   {
     name: 'Fort McHenry Tee',
-    description: 'Fort McHenry - Baltimore. Pray For Me. Defended Baltimore during War of 1812. Inspired Francis Scott Key\'s "The Star Spangled Banner." The fortress sustained 25 hours of bombardment. U.S. National Monument and Historic Shrine. A City Landmark and Museum.',
+    description: "Fort McHenry — Baltimore, Maryland. War of 1812.\n\nFort McHenry was built between 1798 and 1803 to defend Baltimore from naval invasion. During the War of 1812, on September 13-14, 1814, the British navy bombarded the fort for 25 hours. Despite the intense attack, the fort's garrison held their ground and the American flag continued to fly, inspiring Francis Scott Key to write \"The Star-Spangled Banner.\" Now a national monument and historic shrine. Royal blue tee.",
     price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170277431_1765198682982.jpg' }
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '61', imageUrl: '/attached_assets/Screenshot_20260616_215848_Gallery_1781663170048.jpg' }
   },
   {
-    name: 'Washington Monument Baltimore Tee',
-    description: 'Washington Monument - Baltimore. Pray For Me. Dedicated July 4, 1815. 178 feet tall. The first major monument to George Washington. An architectural landmark. Baltimore\'s iconic column in Mount Vernon Place.',
+    name: "Celebrate Baltimore's Museums Tee",
+    description: "Celebrate Baltimore's Museums. A tribute to the city's cultural treasures — The Walters Art Museum, the B&O Railroad Museum, the Reginald F. Lewis Museum and more. The back honors prominent Baltimore museums: the National Great Blacks In Wax Museum, American Visionary Art Museum, Maryland Center for History and Culture, National Aquarium, Maryland Science Center, Fort McHenry National Monument, Port Discovery Children's Museum, and the James E. Lewis Museum of Art. Heather gray tee.",
     price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170340921_1765198682990.jpg' }
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '62', imageUrl: '/attached_assets/1781660600583_1781663395049.jpg' }
   },
   {
-    name: 'Chicken George Gold Tee',
-    description: 'Chicken George - Famous Fried Chicken - Baltimore Since 1970s. Known for its famous fried chicken. A beloved Baltimore eatery. Multiple locations across the city including Harford Rd, Edmonson Ave, Park Heights Ave.',
+    name: 'USS Constellation Tee',
+    description: "USS Constellation — The Historic Warship. Baltimore, Maryland. Since 1854.\n\nDesigned and built in 1854, USS Constellation is a legend of the U.S. Navy — the last all-sail sloop-of-war ever constructed by the Navy. Commissioned in August 1854, she embodies American maritime heritage, serving for over a century. Now docked at Baltimore's Inner Harbor, she is a National Historic Landmark. Navy tee.",
     price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170414148_1765198682998.jpg' }
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '63', imageUrl: '/attached_assets/1781660105777_1781663431031.jpg' }
+  },
+  {
+    name: 'National Great Blacks in Wax Museum Tee',
+    description: "The National Great Blacks In Wax Museum — North Avenue, Baltimore. Founded as America's first wax museum dedicated solely to the study and celebration of African American history. Opened on East North Avenue in Baltimore, Maryland, the museum stands as a testament to the rich legal, cultural, and historical contributions of Black people across America. Purple tee.",
+    price: 3000,
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '64', imageUrl: '/attached_assets/1781660024391_1781663431048.jpg' }
+  },
+  {
+    name: "Murry's Tee",
+    description: "Murry's — Your Neighborhood Food Store! A nostalgic tribute to the beloved Baltimore grocery institution, complete with the classic retro chef logo. Soft black tee.",
+    price: 3000,
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '65', imageUrl: '/attached_assets/1781659209780_1781663431055.jpg' }
+  },
+  {
+    name: 'Stop-N-Save Tee',
+    description: "A History of Stop-N-Save. Established in 1952 by entrepreneur Henry Barksdale, Stop-N-Save was a pioneering Black-owned supermarket chain and cornerstone of the Baltimore community. More than a store, it provided employment, accessible groceries, and vital support for generations of residents in historic neighborhoods. Key locations included Harford Road (the original store), Mondawmin, and Greenmount Avenue. A Baltimore legacy of resilience and service. Est. 1952. Black tee.",
+    price: 3000,
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '66', imageUrl: '/attached_assets/1781658935332_1781663431066.jpg' }
   },
   {
     name: 'Super Pride Markets Tee',
-    description: 'Super Pride Markets - Baltimore Since 1970s. A beloved Baltimore grocery chain. Known for community involvement. Original locations: Wark Heights, Eastern Ave, North Ave.',
+    description: "Super Pride Markets: A Baltimore Landmark. Established in 1948 by civil rights leader and visionary businessman Henry G. Parks Jr., Super Pride Markets became a pillar of the Baltimore community. This prominent Black-owned supermarket chain provided essential services, fresh groceries, and hundreds of jobs to generations in the 20th century. Super Pride stood as a symbol of economic empowerment, community resilience, and opportunity in the heart of Baltimore. Gold tee.",
     price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170623315_1765198683006.jpg' }
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '67', imageUrl: '/attached_assets/1781658663211_1781663431071.jpg' }
   },
   {
-    name: 'Stop, Shop & Save Tee',
-    description: 'Stop, Shop & Save - Baltimore Since 1940s. A popular Baltimore grocery chain known for fresh produce & meats. Original locations: West Baltimore Blvd, York Rd, Northwood.',
+    name: 'Union Bus Terminal Tee',
+    description: "Baltimore Greyhound-Trailways Union Bus Terminal. Howard & Fayette St. Est. 1941, Baltimore, MD. A tribute to the Art Deco landmark that served as a bustling hub for regional travel. The back traces its history — 1941 construction, the 1940s-1980s operational heyday, the 1987 closure of the original Art Deco terminal, and the move to the current facility on Haines Street. Black tee.",
     price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170666925_1765198683015.jpg' }
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '68', imageUrl: '/attached_assets/1781658177886_1781663431075.jpg' }
   },
   {
-    name: "McCrory's Tee",
-    description: "McCrory's - Baltimore Since 1882. A beloved Baltimore 5-&10 store known for its lunch counter. Multiple locations across the city: North Howard St, Lexington St, Eastern Ave.",
+    name: 'B&O Railroad Tribute Tee',
+    description: "Baltimore & Ohio Railroad — The Birthplace of American Railroading. Baltimore, Maryland. Founded 1827.\n\nThe B&O was the first common carrier railroad in the U.S., founded in Baltimore to compete with New York's Erie Canal. The first stone for the line was laid on July 4, 1828, connecting Baltimore to the Ohio River. Mount Clare Station, built in 1830, is the oldest passenger rail terminal in the United States. It fueled Baltimore's growth, linking the East Coast with the expanding American West — linking 13 great states with the nation. Denim blue tee.",
     price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170774205_1765198683024.jpg' }
-  },
-  {
-    name: "J.J. Newberry's Tee",
-    description: "J.J. Newberry's - Baltimore Since 1900s. A beloved American 5-&10 store known for its lunch counter & diverse goods. Multiple locations across the city: North Howard St, Lexington St, Eastern Ave.",
-    price: 3000,
-    metadata: { category: 'Legacy Spots', productType: 'vintage', imageUrl: '/attached_assets/1765170828481_1765198683036.jpg' }
+    metadata: { category: 'Legacy Spots', productType: 'vintage', sortOrder: '69', imageUrl: '/attached_assets/1781657385584_1781663431078.png' }
   },
   // POETRY ON A PLAQUE
   {

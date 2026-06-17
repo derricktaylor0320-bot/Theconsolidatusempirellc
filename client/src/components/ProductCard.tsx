@@ -26,9 +26,11 @@ interface ProductCardProps {
   sizes?: string;
   colors?: string;
   soldOutColors?: string;
+  imageFit?: "cover" | "contain";
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, colors, soldOutColors }: ProductCardProps) {
+export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, colors, soldOutColors, imageFit = "cover" }: ProductCardProps) {
+  const fitClass = imageFit === "contain" ? "object-contain p-2" : "object-cover";
   const { addItem } = useCart();
   const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
   const usesCaseType = !!caseType && caseType.trim().length > 0;
@@ -112,7 +114,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
               <img 
                 src={image} 
                 alt={title}
-                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105 cursor-pointer"
+                className={`${fitClass} w-full h-full transition-transform duration-500 group-hover:scale-105 cursor-pointer`}
                 data-testid={`img-product-${title.toLowerCase().replace(/\s+/g, '-')}`}
               />
             </Link>
@@ -120,7 +122,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
             <img 
               src={image} 
               alt={title}
-              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+              className={`${fitClass} w-full h-full transition-transform duration-500 group-hover:scale-105`}
               data-testid={`img-product-${title.toLowerCase().replace(/\s+/g, '-')}`}
             />
           )}

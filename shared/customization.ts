@@ -28,7 +28,7 @@ export const FULL_LOGO_CATALOG_OPTION = "__FULL_LOGO_CATALOG__";
 
 // Product types that are NOT logo-customizable (a brand logo doesn't physically
 // apply to them). The poetry plaques / glass frames are art pieces.
-const NON_LOGO_PRODUCT_TYPES = new Set(["poetry"]);
+const NON_LOGO_PRODUCT_TYPES = new Set(["poetry", "vintage"]);
 
 // True when a product should present the full logo catalog picker by default.
 // This is every purchasable product EXCEPT: those with their own specialized

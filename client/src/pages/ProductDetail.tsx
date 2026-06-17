@@ -309,7 +309,7 @@ function ProductDetailContent({
           <img
             src={product.imageUrl}
             alt={product.title}
-            className="object-cover w-full h-full"
+            className={`${product.productType === "vintage" ? "object-contain p-3" : "object-cover"} w-full h-full`}
             data-testid="img-product-detail"
           />
           {soldOut && (
