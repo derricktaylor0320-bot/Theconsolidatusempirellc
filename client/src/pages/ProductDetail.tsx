@@ -239,7 +239,7 @@ function ProductDetailContent({
     ).map((c) => c.toLowerCase()),
   );
   const isColorSoldOut = (c: string) => soldOutColorSet.has(c.toLowerCase());
-  const needsColor = colorChoices.length >= 2 && colorChoices.length <= 30;
+  const needsColor = colorChoices.length >= 2 && colorChoices.length <= 60;
   const scentChoices = product.scents
     ? product.scents.split(",").map((s) => s.trim()).filter(Boolean)
     : [];

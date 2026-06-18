@@ -52,7 +52,7 @@ export default function ProductCard({ image, title, price, category, priceId, so
   const colorChoices = colors
     ? colors.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
-  const needsColor = colorChoices.length >= 2 && colorChoices.length <= 30;
+  const needsColor = colorChoices.length >= 2 && colorChoices.length <= 60;
   const scentChoices = scents
     ? scents.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
