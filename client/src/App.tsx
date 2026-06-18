@@ -22,6 +22,7 @@ import ProductDetail from "@/pages/ProductDetail";
 import Vintage from "@/pages/Vintage";
 import Policies from "@/pages/Policies";
 import Poetry from "@/pages/Poetry";
+import HotDogs from "@/pages/HotDogs";
 import VIP from "@/pages/VIP";
 import AuthPage from "@/pages/AuthPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/vintage" component={Vintage} />
       <Route path="/policies" component={Policies} />
       <Route path="/poetry" component={Poetry} />
+      <Route path="/hot-dogs" component={HotDogs} />
       <Route path="/vip" component={VIP} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
       <Route path="/checkout/cancel" component={CheckoutCancel} />
