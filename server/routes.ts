@@ -328,6 +328,12 @@ const ALL_PRODUCTS = [
     metadata: { category: 'Bags', productType: 'accessory', imageUrl: '/assets/kk_drawstring_backpack.png', gender: 'Unisex', colors: 'Black, Orange, Royal Blue, Pink, White' }
   },
   {
+    name: 'Personalized Coffee Cup Sleeve',
+    description: 'Personalized reusable neoprene coffee cup sleeve with your choice of any Khomplete Khemistri logo from our full catalog. Insulated to keep hot drinks hot and cold drinks cold while keeping your hands comfortable. Universal fit for 22-24 oz cups. SELECT YOUR COLOR AND LOGO at checkout! Available in 34 colors: White, Black, Navy Blue, Royal Blue, Pink, Deep Sky Blue, Red, Blush Pink, Maroon, Sage, Candy, Pastel, Lavender, Baby Blue, Light Grey, Charcoal, Teal, Blackish Green, Peach Yellow, Coral, Violet, Rose Red, Orange, Magenta, Bright Gold, Kelly Green, Grass Green, Turquoise, Robin Egg Blue, Aquamarine, Light Teal, Mint Green, Mint, and Hot Pink.',
+    price: 1500,
+    metadata: { category: 'Drinkware', productType: 'accessory', imageUrl: '/assets/kk_coffee_sleeve.png', gender: 'Unisex', colors: 'White, Black, Navy Blue, Royal Blue, Pink, Deep Sky Blue, Red, Blush Pink, Maroon, Sage, Candy, Pastel, Lavender, Baby Blue, Light Grey, Charcoal, Teal, Blackish Green, Peach Yellow, Coral, Violet, Rose Red, Orange, Magenta, Bright Gold, Kelly Green, Grass Green, Turquoise, Robin Egg Blue, Aquamarine, Light Teal, Mint Green, Mint, Hot Pink' }
+  },
+  {
     name: 'Logo Keychain',
     description: 'Gold metal keychain with Khomplete Khemistri shield and swords crest charm. Black and gold enamel design. A stylish accessory for your keys.',
     price: 1200,
