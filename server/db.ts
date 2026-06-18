@@ -138,6 +138,24 @@ export async function ensureTablesExist() {
       ON orders (square_order_id)
     `);
 
+    // Media gallery items (singing video clips + audio projects). Created here
+    // so the table exists on both Replit dev and the Railway prod snapshot
+    // (which has no migration step).
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS media_items (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        title TEXT NOT NULL,
+        collection TEXT NOT NULL,
+        media_type TEXT NOT NULL,
+        source_type TEXT NOT NULL,
+        url TEXT NOT NULL,
+        file_name TEXT,
+        description TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
     // Session store table used by connect-pg-simple for shared hub sessions.
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS "session" (

@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
@@ -9,8 +9,83 @@ import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth, requireOwner } from "./auth";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
-import { updateOrderFulfillmentSchema } from "@shared/schema";
+import { updateOrderFulfillmentSchema, insertMediaLinkSchema, mediaUploadFieldsSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { randomUUID } from "crypto";
+
+// Where uploaded media files (singing clips, audio projects) live on disk.
+// In dev this is a local folder; on Railway set MEDIA_DIR to a mounted volume
+// path (e.g. /data/media) so uploads survive redeploys. Created on boot if
+// missing. Files are served read-only at /media-files via express.static,
+// which supports HTTP range requests (needed for video/audio seeking).
+export const MEDIA_DIR =
+  process.env.MEDIA_DIR || path.resolve(process.cwd(), "uploads", "media");
+try {
+  fs.mkdirSync(MEDIA_DIR, { recursive: true });
+} catch (err) {
+  console.error("Failed to create MEDIA_DIR:", err);
+}
+// In production, uploads MUST land on a mounted persistent volume (e.g.
+// Railway: MEDIA_DIR=/data/media) or they'll silently vanish on the next
+// redeploy. Warn loudly if it's unset so a misconfig is obvious in the logs.
+if (process.env.NODE_ENV === "production" && !process.env.MEDIA_DIR) {
+  console.warn(
+    "[media] MEDIA_DIR is not set in production — uploaded files will be LOST on redeploy. Point MEDIA_DIR at a mounted volume.",
+  );
+}
+
+// Server-controlled allowlist of accepted media types mapped to the ONLY
+// extension we'll store them under. We never trust the uploader's filename or
+// rely on the (spoofable) browser mime alone for the stored name: forcing a
+// safe extension from this map means a file can only ever be served as a known
+// video/audio type — never as .html/.svg/.js on our own origin (which would be
+// a same-origin script-hosting / stored-XSS vector).
+const ALLOWED_MEDIA_TYPES = new Map<string, string>([
+  ["video/mp4", ".mp4"],
+  ["video/quicktime", ".mov"],
+  ["video/webm", ".webm"],
+  ["video/x-matroska", ".mkv"],
+  ["video/mpeg", ".mpeg"],
+  ["video/3gpp", ".3gp"],
+  ["audio/mpeg", ".mp3"],
+  ["audio/mp3", ".mp3"],
+  ["audio/mp4", ".m4a"],
+  ["audio/x-m4a", ".m4a"],
+  ["audio/aac", ".aac"],
+  ["audio/wav", ".wav"],
+  ["audio/x-wav", ".wav"],
+  ["audio/wave", ".wav"],
+  ["audio/webm", ".weba"],
+  ["audio/ogg", ".ogg"],
+  ["audio/flac", ".flac"],
+  ["audio/x-flac", ".flac"],
+]);
+
+const mediaUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, MEDIA_DIR),
+    filename: (_req, file, cb) => {
+      // Extension comes from our allowlist, NOT the user's originalname.
+      const ext = ALLOWED_MEDIA_TYPES.get(file.mimetype) || ".bin";
+      cb(null, `${randomUUID()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 500 * 1024 * 1024 }, // 500 MB per file
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MEDIA_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Unsupported file type. Please upload a common video (MP4, MOV, WebM) or audio (MP3, M4A, WAV) file.",
+        ),
+      );
+    }
+  },
+});
 
 // Stripe contains some products that were created more than once (same name,
 // different ids). Collapse them so each product name appears only once on the
@@ -815,6 +890,127 @@ export async function registerRoutes(
       );
     });
   
+  // Serve uploaded media files (read-only). express.static honors HTTP range
+  // requests, so video/audio scrubbing works. Registered before the SPA/vite
+  // catch-all so /media-files/* resolves to real files.
+  app.use(
+    "/media-files",
+    express.static(MEDIA_DIR, {
+      setHeaders: (res) => {
+        // Defense-in-depth: stop browsers from MIME-sniffing a stored file into
+        // something executable on our origin.
+        res.setHeader("X-Content-Type-Options", "nosniff");
+      },
+    }),
+  );
+
+  // --- Media gallery API ----------------------------------------------------
+  // Public: list every media item (grouped by collection on the client).
+  app.get("/api/media", async (_req, res) => {
+    try {
+      const items = await storage.getAllMediaItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching media:", error);
+      res.status(500).json({ error: "Failed to load media" });
+    }
+  });
+
+  // Owner-only: add an externally hosted clip via its link (YouTube, Vimeo,
+  // SoundCloud, or a direct media URL).
+  app.post("/api/media", requireOwner, async (req, res) => {
+    const parsed = insertMediaLinkSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res
+        .status(400)
+        .json({ error: parsed.error.errors[0]?.message || "Invalid input" });
+    }
+    try {
+      const item = await storage.createMediaItem({
+        title: parsed.data.title,
+        collection: parsed.data.collection,
+        mediaType: parsed.data.mediaType,
+        sourceType: "link",
+        url: parsed.data.url,
+        description: parsed.data.description ?? null,
+      });
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Error creating media link:", error);
+      res.status(500).json({ error: "Failed to add media" });
+    }
+  });
+
+  // Owner-only: upload a video or audio file straight to the site.
+  app.post(
+    "/api/media/upload",
+    requireOwner,
+    (req, res, next) => {
+      mediaUpload.single("file")(req, res, (err: any) => {
+        if (err) {
+          const message =
+            err.code === "LIMIT_FILE_SIZE"
+              ? "File is too large (max 500 MB)."
+              : err.message || "Upload failed";
+          return res.status(400).json({ error: message });
+        }
+        next();
+      });
+    },
+    async (req, res) => {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ error: "No file was uploaded" });
+      }
+
+      const fields = mediaUploadFieldsSchema.safeParse(req.body);
+      if (!fields.success) {
+        // Clean up the orphaned upload if the metadata is invalid.
+        fs.unlink(path.join(MEDIA_DIR, file.filename), () => {});
+        return res
+          .status(400)
+          .json({ error: fields.error.errors[0]?.message || "Invalid input" });
+      }
+
+      try {
+        const mediaType = file.mimetype.startsWith("audio/")
+          ? "audio"
+          : "video";
+        const item = await storage.createMediaItem({
+          title: fields.data.title,
+          collection: fields.data.collection,
+          mediaType,
+          sourceType: "upload",
+          url: `/media-files/${file.filename}`,
+          fileName: file.filename,
+          description: fields.data.description ?? null,
+        });
+        res.status(201).json(item);
+      } catch (error) {
+        fs.unlink(path.join(MEDIA_DIR, file.filename), () => {});
+        console.error("Error saving uploaded media:", error);
+        res.status(500).json({ error: "Failed to save upload" });
+      }
+    },
+  );
+
+  // Owner-only: delete a media item (and its file, if it was an upload).
+  app.delete("/api/media/:id", requireOwner, async (req, res) => {
+    try {
+      const deleted = await storage.deleteMediaItem(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Media not found" });
+      }
+      if (deleted.sourceType === "upload" && deleted.fileName) {
+        fs.unlink(path.join(MEDIA_DIR, deleted.fileName), () => {});
+      }
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Error deleting media:", error);
+      res.status(500).json({ error: "Failed to delete media" });
+    }
+  });
+
   // Get Stripe publishable key for frontend
   app.get("/api/stripe/config", async (req, res) => {
     try {

@@ -14,6 +14,7 @@ import {
   TrendingUp,
   Rocket,
   Beef,
+  Music,
   LogIn,
   CheckCircle2,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const APPS: AppNode[] = [
   { href: "/vintage", label: "Vintage Baltimore", Icon: Landmark },
   { href: "/poetry", label: "Poetry on a Plaque", Icon: Feather },
   { href: "/hot-dogs", label: "Hot Dogs", Icon: Beef },
+  { href: "/media", label: "Media & Music", Icon: Music },
   { href: "/canvas", label: "Logo Collection", Icon: Palette },
   { href: "/fr2p", label: "FR2P Club", Icon: TrendingUp },
   { href: "/pocket-booster", label: "Pocket Booster", Icon: Rocket },

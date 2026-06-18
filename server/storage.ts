@@ -1,4 +1,4 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems } from "@shared/schema";
 import { db } from "./db";
 import { and, eq, ne, isNull, desc, sql } from "drizzle-orm";
 
@@ -49,6 +49,20 @@ export interface IStorage {
   ): Promise<PasswordResetToken | undefined>;
   markPasswordResetTokenUsed(id: string): Promise<void>;
   deletePasswordResetTokensForUser(userId: string): Promise<void>;
+
+  // Media gallery operations
+  getAllMediaItems(): Promise<MediaItem[]>;
+  getMediaItem(id: string): Promise<MediaItem | undefined>;
+  createMediaItem(item: {
+    title: string;
+    collection: string;
+    mediaType: string;
+    sourceType: string;
+    url: string;
+    fileName?: string | null;
+    description?: string | null;
+  }): Promise<MediaItem>;
+  deleteMediaItem(id: string): Promise<MediaItem | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -291,6 +305,54 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(passwordResetTokens)
       .where(eq(passwordResetTokens.userId, userId));
+  }
+
+  // --- Media gallery ---------------------------------------------------------
+  async getAllMediaItems(): Promise<MediaItem[]> {
+    return await db
+      .select()
+      .from(mediaItems)
+      .orderBy(mediaItems.collection, mediaItems.sortOrder, desc(mediaItems.createdAt));
+  }
+
+  async getMediaItem(id: string): Promise<MediaItem | undefined> {
+    const [item] = await db
+      .select()
+      .from(mediaItems)
+      .where(eq(mediaItems.id, id));
+    return item;
+  }
+
+  async createMediaItem(item: {
+    title: string;
+    collection: string;
+    mediaType: string;
+    sourceType: string;
+    url: string;
+    fileName?: string | null;
+    description?: string | null;
+  }): Promise<MediaItem> {
+    const [created] = await db
+      .insert(mediaItems)
+      .values({
+        title: item.title,
+        collection: item.collection,
+        mediaType: item.mediaType,
+        sourceType: item.sourceType,
+        url: item.url,
+        fileName: item.fileName ?? null,
+        description: item.description ?? null,
+      })
+      .returning();
+    return created;
+  }
+
+  async deleteMediaItem(id: string): Promise<MediaItem | undefined> {
+    const [deleted] = await db
+      .delete(mediaItems)
+      .where(eq(mediaItems.id, id))
+      .returning();
+    return deleted;
   }
 }
 

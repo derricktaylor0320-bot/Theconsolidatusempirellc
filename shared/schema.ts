@@ -164,3 +164,45 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+// Media gallery: singing video clips and audio projects shown on the /media
+// page. Each item belongs to a named collection (e.g. "R&B Singing Clips").
+// `sourceType` distinguishes externally hosted links (YouTube, Vimeo,
+// SoundCloud, etc.) from files uploaded straight to the site. For uploads,
+// `url` points at the locally served file (/media-files/<fileName>) and
+// `fileName` is the stored name on disk (kept so we can delete the file).
+export const mediaItems = pgTable("media_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  collection: text("collection").notNull(),
+  mediaType: text("media_type").notNull(), // 'video' | 'audio'
+  sourceType: text("source_type").notNull(), // 'link' | 'upload'
+  url: text("url").notNull(),
+  fileName: text("file_name"), // stored filename for uploads (null for links)
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const MEDIA_TYPES = ["video", "audio"] as const;
+export type MediaType = (typeof MEDIA_TYPES)[number];
+
+// Validates the "paste a link" create form. Uploads build their row directly
+// from the multipart fields + file metadata, so they don't use this schema.
+export const insertMediaLinkSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(120),
+  collection: z.string().trim().min(1, "Collection name is required").max(80),
+  mediaType: z.enum(MEDIA_TYPES),
+  url: z.string().trim().url("Please enter a valid link (URL)"),
+  description: z.string().trim().max(500).optional(),
+});
+
+// Shared validation for the upload form's text fields.
+export const mediaUploadFieldsSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(120),
+  collection: z.string().trim().min(1, "Collection name is required").max(80),
+  description: z.string().trim().max(500).optional(),
+});
+
+export type InsertMediaLink = z.infer<typeof insertMediaLinkSchema>;
+export type MediaItem = typeof mediaItems.$inferSelect;
