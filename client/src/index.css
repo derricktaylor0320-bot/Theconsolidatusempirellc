@@ -35,15 +35,15 @@
 :root {
   /* Luxurious Rich Chocolate Brown Background */
   --background: 25 45% 12%; 
-  /* Bright Gold Text */
-  --foreground: 45 88% 88%; 
+  /* Warm Gold Text */
+  --foreground: 44 80% 72%; 
   
   /* Slightly lighter brown for cards to create depth */
   --card: 25 40% 16%;
-  --card-foreground: 45 88% 92%;
+  --card-foreground: 44 80% 74%;
   
   --popover: 25 40% 16%;
-  --popover-foreground: 45 88% 92%;
+  --popover-foreground: 44 80% 74%;
   
   /* Rich Metallic Gold for primary actions */
   --primary: 43 78% 52%; 
@@ -51,10 +51,10 @@
   
   /* Secondary elements - slightly lighter brown */
   --secondary: 25 35% 20%; 
-  --secondary-foreground: 45 88% 94%;
+  --secondary-foreground: 44 82% 78%;
   
   --muted: 25 30% 18%;
-  --muted-foreground: 45 55% 78%;
+  --muted-foreground: 43 58% 62%;
   
   --accent: 43 78% 52%; /* Rich metallic gold accent */
   --accent-foreground: 25 45% 8%;
@@ -73,22 +73,22 @@
 .dark {
   /* Same luxurious chocolate brown and shiny gold palette */
   --background: 25 45% 12%; 
-  --foreground: 45 88% 88%; 
+  --foreground: 44 80% 72%; 
   
   --card: 25 40% 16%;
-  --card-foreground: 45 88% 92%;
+  --card-foreground: 44 80% 74%;
   
   --popover: 25 40% 16%;
-  --popover-foreground: 45 88% 92%;
+  --popover-foreground: 44 80% 74%;
   
   --primary: 43 78% 52%; 
   --primary-foreground: 25 45% 8%; 
   
   --secondary: 25 35% 20%; 
-  --secondary-foreground: 45 88% 94%;
+  --secondary-foreground: 44 82% 78%;
   
   --muted: 25 30% 18%;
-  --muted-foreground: 45 55% 78%;
+  --muted-foreground: 43 58% 62%;
   
   --accent: 43 78% 52%; 
   --accent-foreground: 25 45% 8%;
