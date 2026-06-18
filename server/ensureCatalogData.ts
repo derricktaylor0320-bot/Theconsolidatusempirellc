@@ -279,6 +279,29 @@ const BEDDING_PRODUCTS: {
   },
 ];
 
+// Extra accessories that are self-created in prod the same way as bedding
+// (synthetic prod_kk*/price_kk* ids, no Stripe on the Railway frozen snapshot).
+// These carry a `colors` list (multi-color picker) and offer the full logo
+// catalog by default (no logoOptions metadata).
+const EXTRA_ACCESSORY_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkdrawstringbackpack",
+    priceId: "price_kkdrawstringbackpack",
+    name: "Personalized Drawstring Backpack",
+    description:
+      "Personalized drawstring backpack with your choice of any Khomplete Khemistri logo from our full catalog. Lightweight cinch-top bag, perfect for the gym, school, or everyday carry. SELECT YOUR COLOR AND LOGO at checkout! Available in 5 colors: Black, Orange, Royal Blue, Pink, and White.",
+    priceCents: 1200,
+    meta: { category: "Bags", productType: "accessory", imageUrl: "/assets/kk_drawstring_backpack.png", gender: "Unisex", colors: "Black, Orange, Royal Blue, Pink, White" },
+  },
+];
+
 // Scented candle product image. Like the tumbler, the storefront image must be
 // served from /assets; prod (frozen snapshot, no Stripe) gets it via the
 // metadata merge below.
@@ -875,6 +898,70 @@ export async function ensureCatalogData() {
         WHERE active = true
           AND product IN (SELECT id FROM stripe.products WHERE name = ${b.name} AND active = true)
           AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(b.priceCents)}
+      `);
+    }
+
+    // 6b) Extra accessories (e.g. Personalized Drawstring Backpack) — same
+    //     self-applying create/keep-current pattern as bedding above. Multi-color
+    //     picker via `colors`; full logo catalog by default (no logoOptions).
+    for (const e of EXTRA_ACCESSORY_PRODUCTS) {
+      const eProductRaw = JSON.stringify({
+        id: e.productId,
+        object: "product",
+        active: true,
+        name: e.name,
+        description: e.description,
+        metadata: e.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const ePriceRaw = JSON.stringify({
+        id: e.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: e.priceCents,
+        product: e.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${eProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${e.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${ePriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${e.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${e.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(e.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(e.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${e.name} AND active = true
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(e.priceCents)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${e.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(e.priceCents)}
       `);
     }
 

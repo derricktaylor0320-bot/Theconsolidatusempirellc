@@ -322,6 +322,12 @@ const ALL_PRODUCTS = [
     metadata: { category: 'Bags', productType: 'accessory', imageUrl: '/assets/generated_images/black_branded_cosmetic_bag.png', gender: 'Women' }
   },
   {
+    name: 'Personalized Drawstring Backpack',
+    description: 'Personalized drawstring backpack with your choice of any Khomplete Khemistri logo from our full catalog. Lightweight cinch-top bag, perfect for the gym, school, or everyday carry. SELECT YOUR COLOR AND LOGO at checkout! Available in 5 colors: Black, Orange, Royal Blue, Pink, and White.',
+    price: 1200,
+    metadata: { category: 'Bags', productType: 'accessory', imageUrl: '/assets/kk_drawstring_backpack.png', gender: 'Unisex', colors: 'Black, Orange, Royal Blue, Pink, White' }
+  },
+  {
     name: 'Logo Keychain',
     description: 'Gold metal keychain with Khomplete Khemistri shield and swords crest charm. Black and gold enamel design. A stylish accessory for your keys.',
     price: 1200,
