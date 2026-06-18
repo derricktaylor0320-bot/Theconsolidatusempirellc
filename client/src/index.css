@@ -45,8 +45,8 @@
   --popover: 25 40% 16%;
   --popover-foreground: 45 88% 92%;
   
-  /* Shiny Metallic Gold for primary actions */
-  --primary: 45 96% 60%; 
+  /* Rich Metallic Gold for primary actions */
+  --primary: 43 78% 52%; 
   --primary-foreground: 25 45% 8%; /* Dark brown text on gold buttons */
   
   /* Secondary elements - slightly lighter brown */
@@ -56,16 +56,16 @@
   --muted: 25 30% 18%;
   --muted-foreground: 45 55% 78%;
   
-  --accent: 45 96% 60%; /* Shiny Gold accent */
+  --accent: 43 78% 52%; /* Rich metallic gold accent */
   --accent-foreground: 25 45% 8%;
   
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 45 85% 95%;
 
-  /* Brighter shiny gold borders that stand out */
-  --border: 44 88% 52%;
+  /* Metallic gold borders that stand out */
+  --border: 43 72% 48%;
   --input: 25 35% 22%;
-  --ring: 45 96% 60%;
+  --ring: 43 78% 52%;
 
   --radius: 0.5rem;
 }
@@ -81,7 +81,7 @@
   --popover: 25 40% 16%;
   --popover-foreground: 45 88% 92%;
   
-  --primary: 45 96% 60%; 
+  --primary: 43 78% 52%; 
   --primary-foreground: 25 45% 8%; 
   
   --secondary: 25 35% 20%; 
@@ -90,15 +90,15 @@
   --muted: 25 30% 18%;
   --muted-foreground: 45 55% 78%;
   
-  --accent: 45 96% 60%; 
+  --accent: 43 78% 52%; 
   --accent-foreground: 25 45% 8%;
   
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 45 85% 95%;
   
-  --border: 44 88% 52%;
+  --border: 43 72% 48%;
   --input: 25 35% 22%;
-  --ring: 45 96% 60%;
+  --ring: 43 78% 52%;
 }
 
 @layer base {
@@ -110,5 +110,34 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-display uppercase tracking-wide;
+  }
+}
+
+@layer utilities {
+  /* Shiny metallic gold text — bright highlight sweeping through a richer gold */
+  .gold-shine {
+    background-image: linear-gradient(
+      100deg,
+      hsl(43 70% 44%) 0%,
+      hsl(46 92% 70%) 30%,
+      hsl(48 100% 86%) 48%,
+      hsl(46 92% 70%) 60%,
+      hsl(43 70% 44%) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: gold-shimmer 6s linear infinite;
+  }
+
+  @keyframes gold-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gold-shine { animation: none; }
   }
 }

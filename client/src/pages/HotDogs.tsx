@@ -24,9 +24,15 @@ const sodas = [
 ];
 
 const desserts = [
-  "Rice Pudding",
-  "Sweet Potato Pie",
-  "Pound Cake",
+  { name: "Pound Cake", price: "$3 / slice · $15 whole" },
+  { name: "Sweet Potato Pie", price: "$3 / slice · $15 whole" },
+  { name: "Rice Pudding", price: "$5 / 4 oz bowl" },
+  { name: "Banana Pudding", price: "$5 / 4 oz bowl" },
+];
+
+const aLaCarte = [
+  { name: "Canned Soda", price: "$1.50" },
+  { name: "Bag of Chips", price: "$1.75" },
 ];
 
 export default function HotDogs() {
@@ -55,7 +61,7 @@ export default function HotDogs() {
                 Coming Soon
               </span>
               <h1 className="font-display text-4xl md:text-6xl font-bold mb-4 tracking-tight uppercase">
-                Premium Choice <span className="text-primary">Hot Dogs</span>
+                Premium Choice <span className="gold-shine">Hot Dogs</span>
               </h1>
               <p className="text-xl text-secondary-foreground/70 max-w-3xl mx-auto">
                 A premium street-food experience joining the Consolidatus Empire.
@@ -194,15 +200,20 @@ export default function HotDogs() {
                         Desserts
                       </h3>
                     </div>
-                    <ul className="space-y-2">
+                    <ul className="space-y-3">
                       {desserts.map((d) => (
                         <li
-                          key={d}
-                          className="flex items-center gap-2 text-foreground"
-                          data-testid={`text-dessert-${d.toLowerCase().replace(/\s+/g, "-")}`}
+                          key={d.name}
+                          className="flex items-start justify-between gap-3 text-foreground"
+                          data-testid={`text-dessert-${d.name.toLowerCase().replace(/\s+/g, "-")}`}
                         >
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                          {d}
+                          <span className="flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                            {d.name}
+                          </span>
+                          <span className="text-sm font-medium text-primary text-right shrink-0">
+                            {d.price}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -213,6 +224,38 @@ export default function HotDogs() {
                 </Card>
               </motion.div>
             </div>
+
+            {/* A la carte */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="mt-8"
+            >
+              <Card className="max-w-3xl mx-auto" data-testid="card-a-la-carte">
+                <CardContent className="p-6">
+                  <h3 className="font-display text-xl font-bold uppercase mb-4 text-center">
+                    On Its Own
+                  </h3>
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {aLaCarte.map((item) => (
+                      <li
+                        key={item.name}
+                        className="flex items-center justify-between gap-3 text-foreground border border-border/50 rounded-lg px-4 py-3"
+                        data-testid={`text-alacarte-${item.name.toLowerCase().replace(/\s+/g, "-")}`}
+                      >
+                        <span>{item.name}</span>
+                        <span className="font-medium text-primary">{item.price}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-4 text-sm text-muted-foreground text-center">
+                    Standalone prices — or save with The Combo above.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             <div className="mt-16 bg-secondary rounded-2xl p-8 text-center max-w-3xl mx-auto">
               <h3 className="font-display text-2xl font-bold mb-3 uppercase">

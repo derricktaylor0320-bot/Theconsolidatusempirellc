@@ -56,7 +56,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 font-display font-bold text-2xl tracking-tighter uppercase hover:text-primary transition-colors">
           <img src={logo} alt="Khomplete Khemistri Logo" className="h-12 w-12 object-contain drop-shadow-md" />
-          <span>The Consolidatus <span className="text-primary">Empire</span></span>
+          <span>The Consolidatus <span className="gold-shine">Empire</span></span>
         </Link>
 
         {/* Desktop Nav */}
