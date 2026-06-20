@@ -34,6 +34,7 @@ const aLaCarte = [
   { name: "Single Hot Dog", price: "$4.50" },
   { name: "Two Hot Dogs", price: "$9.00" },
   { name: "Canned Soda", price: "$1.50" },
+  { name: "Bottled Water", price: "$1.50" },
   { name: "Bag of Chips", price: "$1.75" },
 ];
 
