@@ -31,6 +31,8 @@ const desserts = [
 ];
 
 const aLaCarte = [
+  { name: "Single Hot Dog", price: "$4.50" },
+  { name: "Two Hot Dogs", price: "$9.00" },
   { name: "Canned Soda", price: "$1.50" },
   { name: "Bag of Chips", price: "$1.75" },
 ];
@@ -251,7 +253,9 @@ export default function HotDogs() {
                     ))}
                   </ul>
                   <p className="mt-4 text-sm text-muted-foreground text-center">
-                    Standalone prices — or save with The Combo above.
+                    Two dogs, chips, and a soda on their own run $12.25 — grab{" "}
+                    <span className="text-primary font-medium">The Combo for $12</span>{" "}
+                    and save.
                   </p>
                 </CardContent>
               </Card>
