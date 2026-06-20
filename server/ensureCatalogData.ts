@@ -392,6 +392,14 @@ const WINTER_SEASONAL_NAMES = [
 ];
 const WINTER_HIDDEN = true;
 
+// Products that can't currently be produced/fulfilled and so are pulled from the
+// storefront entirely (metadata.hidden='true'). Removed because no supplier will
+// make them. Reversible: delete a name here and redeploy to bring it back.
+const DISCONTINUED_NAMES = [
+  "Personalized Custom Logo Clogs",
+  "Logo Keychain",
+];
+
 export async function ensureCatalogData() {
   try {
     // 1) Deduplicate ALL products that exist twice. Past reseeds created ~45
@@ -485,6 +493,28 @@ export async function ensureCatalogData() {
           ),
           _updated_at = now()
       WHERE name IN (${winterNameList})
+    `);
+
+    // 1c) Discontinued products -> hidden. These items can't currently be
+    //     produced/fulfilled, so they're removed from the storefront by setting
+    //     metadata.hidden='true' (the same flag the listing endpoints skip on).
+    //     Done here via _raw_data so it holds in dev AND on the prod frozen
+    //     snapshot. Non-destructive and reversible — just drop a name from
+    //     DISCONTINUED_NAMES and redeploy to bring it back.
+    const discontinuedNameList = sql.join(
+      DISCONTINUED_NAMES.map((n) => sql`${n}`),
+      sql`, `,
+    );
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({ hidden: "true" })}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name IN (${discontinuedNameList})
     `);
 
     // 2) Tumbler price -> $30 on the surviving active price.
