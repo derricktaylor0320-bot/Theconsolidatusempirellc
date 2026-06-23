@@ -1,4 +1,4 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems, restockSubscriptions } from "@shared/schema";
 import { db } from "./db";
 import { and, eq, ne, isNull, desc, sql } from "drizzle-orm";
 
@@ -63,6 +63,10 @@ export interface IStorage {
     description?: string | null;
   }): Promise<MediaItem>;
   deleteMediaItem(id: string): Promise<MediaItem | undefined>;
+  // Restock subscription operations
+  subscribeToRestock(email: string, productId: string): Promise<boolean>;
+  getRestockSubscribersByProduct(productId: string): Promise<{ id: string; email: string; productId: string }[]>;
+  clearRestockSubscriptions(productId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -353,6 +357,24 @@ export class DatabaseStorage implements IStorage {
       .where(eq(mediaItems.id, id))
       .returning();
     return deleted;
+  }
+
+  async subscribeToRestock(email: string, productId: string): Promise<boolean> {
+    try {
+      await db.insert(restockSubscriptions).values({ email, productId }).onConflictDoNothing();
+      return true;
+    } catch { return false; }
+  }
+
+  async getRestockSubscribersByProduct(productId: string): Promise<{ id: string; email: string; productId: string }[]> {
+    return await db
+      .select({ id: restockSubscriptions.id, email: restockSubscriptions.email, productId: restockSubscriptions.productId })
+      .from(restockSubscriptions)
+      .where(eq(restockSubscriptions.productId, productId));
+  }
+
+  async clearRestockSubscriptions(productId: string): Promise<void> {
+    await db.delete(restockSubscriptions).where(eq(restockSubscriptions.productId, productId));
   }
 }
 

@@ -66,6 +66,43 @@ export default function Home() {
           </div>
         </section>
 
+
+        {/* For Everyone — All Ages Section */}
+        <section className="py-20 container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold uppercase tracking-tight mb-3">
+              Something for <span className="text-primary">Everyone</span>
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              From the little ones to the grown-ups — Khomplete Khemistri Apparel has the whole family covered. Build your empire together.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-primary/20 bg-muted/30 p-8 text-center hover:border-primary/50 transition-colors">
+              <div className="text-4xl mb-4">👶</div>
+              <h3 className="font-display font-bold text-lg uppercase tracking-wide text-primary mb-2">Kids & Babies</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">Onesies, rompers, toddler tees, bibs, sippy cups, and more. Start building their brand early.</p>
+            </div>
+            <div className="rounded-2xl border border-primary/20 bg-muted/30 p-8 text-center hover:border-primary/50 transition-colors">
+              <div className="text-4xl mb-4">👑</div>
+              <h3 className="font-display font-bold text-lg uppercase tracking-wide text-primary mb-2">Adults</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">Hoodies, tees, jackets, leggings, accessories, and custom gear. Wear the brand. Represent the empire.</p>
+            </div>
+            <div className="rounded-2xl border border-primary/20 bg-muted/30 p-8 text-center hover:border-primary/50 transition-colors">
+              <div className="text-4xl mb-4">🏠</div>
+              <h3 className="font-display font-bold text-lg uppercase tracking-wide text-primary mb-2">Home & Lifestyle</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">Bedding, blankets, mugs, phone cases, tote bags, and more. Bring the Khemistri lifestyle into every room.</p>
+            </div>
+          </div>
+          <div className="text-center mt-10">
+            <Link href="/apparel">
+              <Button className="bg-primary text-black hover:bg-primary/90 font-display uppercase tracking-wider px-8">
+                Shop the Full Collection
+              </Button>
+            </Link>
+          </div>
+        </section>
+
         {/* Community Section */}
         <section className="py-24 bg-muted/30">
           <div className="container mx-auto px-4">

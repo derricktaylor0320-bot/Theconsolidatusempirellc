@@ -327,3 +327,88 @@ export function buildOrderReceiptEmail(input: {
 
   return { subject, html, text };
 }
+
+// Email sent to a subscriber when a product they signed up for is back in stock.
+export function buildRestockNotificationEmail(productTitle: string, storeUrl = "https://khomplete-khemistri-apparel.up.railway.app"): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const subject = `Back in Stock: ${productTitle} — Khomplete Khemistri Apparel`;
+  const text =
+    `Great news! "${productTitle}" is back in stock at Khomplete Khemistri Apparel.\n\n` +
+    `Head over to the store to grab it before it's gone again:\n${storeUrl}/apparel\n\n` +
+    `Thank you for your patience. — The Khomplete Khemistri Team`;
+
+  const html = `
+  <div style="font-family: Arial, Helvetica, sans-serif; background:#1a0d12; padding:32px; color:#f5f5f5;">
+    <div style="max-width:520px; margin:0 auto; background:#221017; border:1px solid #4a2b1a; border-radius:12px; padding:32px;">
+      <h1 style="font-size:20px; margin:0 0 8px; color:#e6b94d; text-transform:uppercase; letter-spacing:1px;">Back in Stock!</h1>
+      <p style="font-size:15px; line-height:1.6; margin:0 0 16px; color:#d9d2cc;">
+        Great news — <strong style="color:#f5f5f5;">${escapeHtml(productTitle)}</strong> is back in stock at Khomplete Khemistri Apparel.
+      </p>
+      <p style="font-size:14px; line-height:1.6; margin:0 0 24px; color:#9c9089;">
+        Don't wait — popular items sell out fast. Grab yours now before it's gone again.
+      </p>
+      <a href="${storeUrl}/apparel"
+        style="display:inline-block; background:#e6b94d; color:#1a0d12; text-decoration:none; font-weight:bold; padding:12px 28px; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">
+        Shop Now
+      </a>
+      <p style="font-size:13px; line-height:1.6; margin:28px 0 0; color:#9c9089;">
+        You're receiving this because you asked to be notified when this item returned to stock.
+      </p>
+    </div>
+  </div>`;
+
+  return { subject, html, text };
+}
+
+// Email blast sent to all subscribers when new products are added to the store.
+export function buildNewArrivalsEmail(
+  newItems: Array<{ title: string; price: string }>,
+  storeUrl = "https://khomplete-khemistri-apparel.up.railway.app",
+): { subject: string; html: string; text: string } {
+  const subject = "New Arrivals Just Dropped — Khomplete Khemistri Apparel";
+
+  const itemListText = newItems.map((p) => `• ${p.title} — $${parseFloat(p.price).toFixed(2)}`).join("\n");
+  const text =
+    `New items just dropped at Khomplete Khemistri Apparel!\n\n` +
+    itemListText +
+    `\n\nShop the full collection:\n${storeUrl}/apparel\n\n` +
+    `Something for everyone — kids, adults, and the whole family.\n\n` +
+    `— The Khomplete Khemistri Team`;
+
+  const itemRowsHtml = newItems
+    .map(
+      (p) =>
+        `<li style="padding:6px 0; border-bottom:1px solid #4a2b1a; color:#d9d2cc; font-size:14px;">
+          <span style="color:#f5f5f5; font-weight:bold;">${escapeHtml(p.title)}</span>
+          <span style="color:#e6b94d; margin-left:8px;">$${parseFloat(p.price).toFixed(2)}</span>
+        </li>`,
+    )
+    .join("");
+
+  const html = `
+  <div style="font-family: Arial, Helvetica, sans-serif; background:#1a0d12; padding:32px; color:#f5f5f5;">
+    <div style="max-width:520px; margin:0 auto; background:#221017; border:1px solid #4a2b1a; border-radius:12px; padding:32px;">
+      <h1 style="font-size:22px; margin:0 0 6px; color:#e6b94d; text-transform:uppercase; letter-spacing:1px;">New Arrivals Just Dropped 🔥</h1>
+      <p style="font-size:14px; color:#9c9089; margin:0 0 20px;">Khomplete Khemistri Apparel — something for everyone</p>
+      <ul style="margin:0 0 24px; padding:0; list-style:none;">
+        ${itemRowsHtml}
+      </ul>
+      <p style="font-size:14px; line-height:1.6; color:#d9d2cc; margin:0 0 24px;">
+        From kids' gear to adults' fashion — the whole family is covered. Limited quantities, so shop early.
+      </p>
+      <a href="${storeUrl}/apparel"
+        style="display:inline-block; background:#e6b94d; color:#1a0d12; text-decoration:none; font-weight:bold; padding:12px 28px; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">
+        Shop New Arrivals
+      </a>
+      <p style="font-size:12px; line-height:1.6; margin:28px 0 0; color:#9c9089;">
+        You're receiving this because you subscribed to updates from the Consolidatus Empire.
+        <a href="${storeUrl}" style="color:#e6b94d;">Visit our store</a>
+      </p>
+    </div>
+  </div>`;
+
+  return { subject, html, text };
+}

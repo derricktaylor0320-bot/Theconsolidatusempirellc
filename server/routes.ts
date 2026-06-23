@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
 import { createSquarePaymentLink, createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
-import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
+import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail, buildRestockNotificationEmail, buildNewArrivalsEmail } from "./email";
 import { trackingUrlFor } from "@shared/shipping";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
@@ -1621,6 +1621,104 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error('Error updating order fulfillment:', error);
       res.status(500).json({ error: "Failed to update order" });
+    }
+  });
+
+
+  // ── Restock notification signup ──────────────────────────────
+  // Public: any visitor can register their email to be notified when a
+  // specific sold-out product comes back in stock.
+  app.post("/api/restock-notify", async (req, res) => {
+    const schema = z.object({
+      email: z.string().email(),
+      productId: z.string().min(1),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Valid email and productId required" });
+    }
+    try {
+      await storage.subscribeToRestock(parsed.data.email, parsed.data.productId);
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("restock-notify error:", err);
+      res.status(500).json({ error: "Could not save subscription" });
+    }
+  });
+
+  // ── Admin: send new-arrivals email blast ─────────────────────
+  // Owner-only. Body: { productIds: string[] } — looks up those products,
+  // builds an email, and sends it to every subscriber.
+  app.post("/api/admin/send-new-arrivals", requireOwner, async (req, res) => {
+    const schema = z.object({
+      productIds: z.array(z.string()).min(1).max(20),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "productIds array (1–20 items) required" });
+    }
+    try {
+      // Resolve the selected products from Stripe catalog
+      const allProducts = await stripeStorage.listProducts();
+      const selected = allProducts.filter((p: any) => parsed.data.productIds.includes(p.id));
+      if (selected.length === 0) {
+        return res.status(404).json({ error: "None of the supplied productIds were found" });
+      }
+      const newItems = selected.map((p: any) => ({
+        title: p.name,
+        price: String((p.price ?? 0) / 100),
+      }));
+
+      const subscribers = await storage.getAllSubscribers();
+      if (subscribers.length === 0) {
+        return res.json({ sent: 0, message: "No subscribers to email" });
+      }
+
+      const email = buildNewArrivalsEmail(newItems);
+      let sent = 0;
+      const errors: string[] = [];
+      for (const sub of subscribers) {
+        const ok = await sendEmail({ to: sub.email, subject: email.subject, html: email.html, text: email.text });
+        if (ok) sent++;
+        else errors.push(sub.email);
+      }
+      res.json({ sent, total: subscribers.length, errors: errors.length > 0 ? errors : undefined });
+    } catch (err) {
+      console.error("send-new-arrivals error:", err);
+      res.status(500).json({ error: "Failed to send new arrivals email" });
+    }
+  });
+
+  // ── Admin: notify restock subscribers for a product ──────────
+  // Owner-only. Body: { productId: string } — sends emails to all who
+  // subscribed for restock on that product, then clears the list.
+  app.post("/api/admin/notify-restock", requireOwner, async (req, res) => {
+    const schema = z.object({ productId: z.string().min(1) });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "productId required" });
+    }
+    try {
+      const subs = await storage.getRestockSubscribersByProduct(parsed.data.productId);
+      if (subs.length === 0) {
+        return res.json({ sent: 0, message: "No restock subscribers for this product" });
+      }
+      // Get product title from Stripe
+      const allProducts = await stripeStorage.listProducts();
+      const product = allProducts.find((p: any) => p.id === parsed.data.productId);
+      const productTitle = product?.name ?? "An item you wanted";
+      const email = buildRestockNotificationEmail(productTitle);
+      let sent = 0;
+      for (const sub of subs) {
+        const ok = await sendEmail({ to: sub.email, subject: email.subject, html: email.html, text: email.text });
+        if (ok) sent++;
+      }
+      // Clear the list so subscribers aren't emailed again on future restock cycles
+      await storage.clearRestockSubscriptions(parsed.data.productId);
+      res.json({ sent, total: subs.length });
+    } catch (err) {
+      console.error("notify-restock error:", err);
+      res.status(500).json({ error: "Failed to send restock emails" });
     }
   });
 

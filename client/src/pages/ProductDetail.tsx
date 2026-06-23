@@ -259,6 +259,23 @@ function ProductDetailContent({
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [notifyEmail, setNotifyEmail] = useState("");
+  const [notifyStatus, setNotifyStatus] = useState<"idle"|"sending"|"done"|"error">("idle");
+
+  const handleNotifyMe = async () => {
+    if (!notifyEmail.includes("@") || !product.priceId) return;
+    setNotifyStatus("sending");
+    try {
+      const res = await fetch("/api/restock-notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: notifyEmail, productId: product.priceId }),
+      });
+      setNotifyStatus(res.ok ? "done" : "error");
+    } catch {
+      setNotifyStatus("error");
+    }
+  };
 
   const clampQty = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.round(n)));
 
