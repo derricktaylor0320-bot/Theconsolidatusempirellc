@@ -325,7 +325,7 @@ function AddMediaDialog() {
               <Label htmlFor="up-title">Title</Label>
               <Input
                 id="up-title"
-                placeholder="e.g. Studio Take 1"
+                placeholder="e.g. Singing Take 1"
                 value={upTitle}
                 onChange={(e) => setUpTitle(e.target.value)}
                 data-testid="input-upload-title"
@@ -445,8 +445,8 @@ export default function Media() {
               Media & <span className="gold-shine">Music</span>
             </motion.h1>
             <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-              Singing clips, studio sessions, and audio projects — straight from
-              the Empire. Tap any title to watch or listen.
+              Singing clips and audio projects — straight from the Empire. Tap
+              any title to watch or listen.
             </p>
             {isAuthenticated && (
               <div className="mt-6 flex justify-center">
