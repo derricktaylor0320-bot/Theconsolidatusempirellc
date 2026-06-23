@@ -4,8 +4,8 @@ import type { PublicUser } from "@shared/schema";
 // ---------------------------------------------------------------------------
 // Cross-app Single Sign-On (SSO) handoff tokens.
 //
-// The hub owns the login. The embedded apps (Pocket Booster, Prospect Identity,
-// FR2P Club, GuardConnect) are separate deployments that can't read the hub's
+// The hub owns the login. The embedded apps (Prospect Identity, FR2P Club)
+// are separate deployments that can't read the hub's
 // session cookie. To share the hub identity we mint a short-lived, signed token
 // the embedded app can either:
 //   1. POST to the hub's `/api/auth/sso/verify` endpoint (no secret needed), or
