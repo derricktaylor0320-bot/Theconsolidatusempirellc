@@ -1,15 +1,16 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useCart } from "@/hooks/useCart";
 import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
-import { allLogos, LOGO_SECTIONS } from "@/lib/logoCatalog";
+import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
 import { sizeUpchargeDollars } from "@shared/customization";
-import { Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus } from "lucide-react";
 
 const MAX_QTY = 99;
 
@@ -72,6 +73,11 @@ export default function ProductCard({ image, title, price, category, priceId, so
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+
+  const recommendedLogoIds = useMemo(
+    () => (selectedColor ? recommendedLogoIdsForColor(selectedColor).slice(0, 8) : []),
+    [selectedColor],
+  );
 
   const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize) : 0;
   const effectiveUnitPrice = price + sizeUpcharge;
@@ -235,36 +241,91 @@ export default function ProductCard({ image, title, price, category, priceId, so
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-custom-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    Note: All items are custom branded. Please select your preferred logo variation below to complete your order.
+                    Note: All items are custom branded. Tap the logo you want from the full Branded Logo Collection below to complete your order.
                   </p>
-                  <Select value={selectedLogo} onValueChange={(v) => { setSelectedLogo(v); setErrorMessage(""); }} disabled={soldOut}>
-                    <SelectTrigger
-                      className="w-full"
-                      data-testid={`select-logo-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  {needsColor && selectedColor && recommendedLogoIds.length > 0 && (
+                    <div
+                      className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-2"
+                      data-testid={`picker-recommended-${title.toLowerCase().replace(/\s+/g, '-')}`}
                     >
-                      <SelectValue placeholder="Choose your logo *" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-72">
+                      <p className="text-[10px] font-medium uppercase tracking-widest text-primary">
+                        Recommended for {selectedColor}
+                      </p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {recommendedLogoIds.map((id) => {
+                          const logo = allLogos[id];
+                          if (!logo) return null;
+                          const isSelected = selectedLogo === logo.alt;
+                          return (
+                            <button
+                              key={`rec-${id}`}
+                              type="button"
+                              disabled={soldOut}
+                              onClick={() => { setSelectedLogo(logo.alt); setErrorMessage(""); }}
+                              className={`relative rounded-md border-2 overflow-hidden bg-muted transition-colors disabled:opacity-50 ${isSelected ? "border-primary" : "border-transparent hover:border-border"}`}
+                              data-testid={`button-recommended-logo-${id}`}
+                              title={logo.alt}
+                            >
+                              <img src={logo.src} alt={logo.alt} className="aspect-square object-cover w-full h-full" loading="lazy" />
+                              {isSelected && (
+                                <span className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                  <Check className="h-5 w-5 text-primary" />
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        These pair well with {selectedColor}. You can still pick any logo below.
+                      </p>
+                    </div>
+                  )}
+                  <ScrollArea
+                    className="max-h-72 rounded-lg border border-primary/10 bg-muted/20 p-2 pr-3"
+                    data-testid={`picker-logo-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <div className="space-y-4">
                       {LOGO_SECTIONS.map((section) => (
-                        <SelectGroup key={section.name}>
-                          <SelectLabel>{section.name}</SelectLabel>
-                          {section.ids.map((id) => {
-                            const logo = allLogos[id];
-                            if (!logo) return null;
-                            return (
-                              <SelectItem
-                                key={id}
-                                value={logo.alt}
-                                data-testid={`option-logo-${id}`}
-                              >
-                                {logo.alt}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectGroup>
+                        <div key={section.name} className="space-y-2">
+                          <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                            {section.name}
+                          </p>
+                          <div className="grid grid-cols-4 gap-2">
+                            {section.ids.map((id) => {
+                              const logo = allLogos[id];
+                              if (!logo) return null;
+                              const isSelected = selectedLogo === logo.alt;
+                              return (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  disabled={soldOut}
+                                  onClick={() => { setSelectedLogo(logo.alt); setErrorMessage(""); }}
+                                  className={`relative rounded-md border-2 overflow-hidden bg-muted transition-colors disabled:opacity-50 ${isSelected ? "border-primary" : "border-transparent hover:border-border"}`}
+                                  data-testid={`button-logo-${id}`}
+                                  title={logo.alt}
+                                >
+                                  <img src={logo.src} alt={logo.alt} className="aspect-square object-cover w-full h-full" loading="lazy" />
+                                  {isSelected && (
+                                    <span className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                      <Check className="h-5 w-5 text-primary" />
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </div>
+                  </ScrollArea>
+                  {selectedLogo && (
+                    <p className="text-xs" data-testid={`text-logo-selection-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <span className="text-muted-foreground">Selected logo: </span>
+                      <span className="font-medium">{selectedLogo}</span>
+                    </p>
+                  )}
                 </div>
               )}
               {needsColor && (
