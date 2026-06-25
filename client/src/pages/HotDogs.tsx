@@ -32,10 +32,10 @@ const desserts = [
 
 const aLaCarte = [
   { name: "Single Hot Dog", price: "$4.50" },
-  { name: "Two Hot Dogs", price: "$9.00" },
+  { name: "Two Hot Dogs", price: "$8.00" },
   { name: "Premium Soda", price: "$3.00" },
   { name: "Bottled Water", price: "$1.50" },
-  { name: "Bag of Chips", price: "$1.75" },
+  { name: "Bag of Chips", price: "$1.00" },
 ];
 
 export default function HotDogs() {
@@ -260,9 +260,9 @@ export default function HotDogs() {
                     ))}
                   </ul>
                   <p className="mt-4 text-sm text-muted-foreground text-center">
-                    Two dogs, chips, and a premium soda on their own run $13.75 — grab{" "}
-                    <span className="text-primary font-medium">The Combo for $12</span>{" "}
-                    and save.
+                    Two dogs, chips, and a premium soda — a whole meal, made to
+                    order. Grab{" "}
+                    <span className="text-primary font-medium">The Combo for $12</span>.
                   </p>
                 </CardContent>
               </Card>
