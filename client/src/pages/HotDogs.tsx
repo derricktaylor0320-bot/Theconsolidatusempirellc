@@ -98,7 +98,7 @@ export default function HotDogs() {
                     className="text-5xl font-bold text-primary mb-4"
                     data-testid="text-combo-price"
                   >
-                    $12
+                    $11
                   </p>
                   <p className="text-lg text-muted-foreground max-w-xl mx-auto">
                     Two hot dogs, a bag of chips, and a premium soda. Pick your
@@ -260,9 +260,9 @@ export default function HotDogs() {
                     ))}
                   </ul>
                   <p className="mt-4 text-sm text-muted-foreground text-center">
-                    Two dogs, chips, and a premium soda — a whole meal, made to
-                    order. Grab{" "}
-                    <span className="text-primary font-medium">The Combo for $12</span>.
+                    Two dogs, chips, and a premium soda on their own run $12 — grab{" "}
+                    <span className="text-primary font-medium">The Combo for $11</span>{" "}
+                    and save.
                   </p>
                 </CardContent>
               </Card>
