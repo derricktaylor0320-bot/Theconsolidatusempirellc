@@ -18,9 +18,9 @@ const proteins = [
 ];
 
 const sodas = [
-  "Poppi",
-  "Olipop",
-  "Slice",
+  { name: "Swoon", price: "$3" },
+  { name: "Poppi", price: "$3" },
+  { name: "OLIPOP", price: "$3" },
 ];
 
 const desserts = [
@@ -33,7 +33,7 @@ const desserts = [
 const aLaCarte = [
   { name: "Single Hot Dog", price: "$4.50" },
   { name: "Two Hot Dogs", price: "$9.00" },
-  { name: "Canned Soda", price: "$1.50" },
+  { name: "Premium Soda", price: "$3.00" },
   { name: "Bottled Water", price: "$1.50" },
   { name: "Bag of Chips", price: "$1.75" },
 ];
@@ -101,7 +101,7 @@ export default function HotDogs() {
                     $12
                   </p>
                   <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                    Two hot dogs, a bag of chips, and a canned soda. Pick your
+                    Two hot dogs, a bag of chips, and a premium soda. Pick your
                     meat below — every combo is made to order.
                   </p>
                 </CardContent>
@@ -170,17 +170,23 @@ export default function HotDogs() {
                     <ul className="space-y-2">
                       {sodas.map((s) => (
                         <li
-                          key={s}
-                          className="flex items-center gap-2 text-foreground"
-                          data-testid={`text-soda-${s.toLowerCase().replace(/\s+/g, "-")}`}
+                          key={s.name}
+                          className="flex items-center justify-between gap-3 text-foreground"
+                          data-testid={`text-soda-${s.name.toLowerCase().replace(/\s+/g, "-")}`}
                         >
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                          {s}
+                          <span className="flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                            {s.name}
+                          </span>
+                          <span className="text-sm font-medium text-primary text-right shrink-0">
+                            {s.price}
+                          </span>
                         </li>
                       ))}
                     </ul>
                     <p className="mt-4 text-sm text-muted-foreground">
-                      Ice cold, included with every combo.
+                      Premium healthy-choice sodas — ice cold. $3 each, or one
+                      included with every combo.
                     </p>
                   </CardContent>
                 </Card>
@@ -254,7 +260,7 @@ export default function HotDogs() {
                     ))}
                   </ul>
                   <p className="mt-4 text-sm text-muted-foreground text-center">
-                    Two dogs, chips, and a soda on their own run $12.25 — grab{" "}
+                    Two dogs, chips, and a premium soda on their own run $13.75 — grab{" "}
                     <span className="text-primary font-medium">The Combo for $12</span>{" "}
                     and save.
                   </p>
