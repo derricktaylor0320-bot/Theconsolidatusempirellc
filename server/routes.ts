@@ -3,7 +3,9 @@ import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
 import { getStripePublishableKey, getUncachableStripeClient } from "./stripeClient";
 import { createSquarePaymentLink, createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
-import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail, buildRestockNotificationEmail, buildNewArrivalsEmail } from "./email";
+import { getStorefrontProducts, dedupeByName } from "./storefrontProducts";
+import { syncStorefrontToSquare, squareConfigured } from "./squareCatalogSync";
+import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
 import { trackingUrlFor } from "@shared/shipping";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
@@ -86,40 +88,6 @@ const mediaUpload = multer({
     }
   },
 });
-
-// Stripe contains some products that were created more than once (same name,
-// different ids). Collapse them so each product name appears only once on the
-// site. Key matching is normalized (case/whitespace-insensitive). When a name
-// collides, deterministically keep the best copy: one with a price first, then
-// lowest sortOrder, then lowest price, then lowest id (stable tie-break).
-function dedupeByName<T extends {
-  title: string;
-  priceId?: string | null;
-  sortOrder?: number;
-  price?: string | null;
-  id?: string;
-}>(items: T[]): T[] {
-  const better = (a: T, b: T): boolean => {
-    const ap = a.priceId ? 0 : 1, bp = b.priceId ? 0 : 1;
-    if (ap !== bp) return ap < bp;
-    const as = typeof a.sortOrder === 'number' ? a.sortOrder : 99;
-    const bs = typeof b.sortOrder === 'number' ? b.sortOrder : 99;
-    if (as !== bs) return as < bs;
-    const apr = a.price != null ? parseFloat(a.price) : Infinity;
-    const bpr = b.price != null ? parseFloat(b.price) : Infinity;
-    if (apr !== bpr) return apr < bpr;
-    return (a.id ?? '') < (b.id ?? '');
-  };
-  const byName = new Map<string, T>();
-  for (const item of items) {
-    const key = item.title.trim().toLowerCase();
-    const existing = byName.get(key);
-    if (!existing || better(item, existing)) {
-      byName.set(key, item);
-    }
-  }
-  return Array.from(byName.values());
-}
 
 // All products to seed in Stripe (for both test and live modes)
 const ALL_PRODUCTS = [
@@ -885,9 +853,29 @@ export async function registerRoutes(
   seedProducts()
     .catch(err => console.error('Product seeding failed:', err))
     .finally(() => {
-      ensureCatalogData().catch(err =>
-        console.error('ensureCatalogData failed:', err),
-      );
+      ensureCatalogData()
+        .catch(err => console.error('ensureCatalogData failed:', err))
+        .finally(() => {
+          // Mirror the storefront catalog into Square's Item Library so the
+          // owner sees every website product in Square. Non-blocking and fully
+          // guarded: skipped when Square isn't configured, and failures never
+          // affect startup. Idempotent, so re-running on each boot is safe.
+          // Production-only: dev and prod share one Square account but can hold
+          // different product sets, so letting both auto-sync would ping-pong
+          // (each boot deleting the other's items). Production is the authority;
+          // dev can still sync on demand via /api/admin/square/sync-catalog.
+          if (squareConfigured() && process.env.NODE_ENV === 'production') {
+            syncStorefrontToSquare()
+              .then(r =>
+                console.log(
+                  `Square catalog sync: ${r.created} created, ${r.updated} updated, ${r.archived} removed${r.pruned ? '' : ' (prune skipped)'} (${r.total} products).`,
+                ),
+              )
+              .catch(err =>
+                console.error('Square catalog sync failed:', err?.message || err),
+              );
+          }
+        });
     });
   
   // Serve uploaded media files (read-only). express.static honors HTTP range
@@ -1024,92 +1012,7 @@ export async function registerRoutes(
   // Get all products from Stripe (with fallback to direct Stripe API)
   app.get("/api/products", async (req, res) => {
     try {
-      // First try database
-      let rows: any[] = [];
-      try {
-        rows = await stripeStorage.listProductsWithPrices();
-      } catch (dbError) {
-        console.log('Database query failed, falling back to Stripe API');
-      }
-      
-      // If database has no products, fetch directly from Stripe
-      if (!rows || rows.length === 0) {
-        console.log('No products in database, fetching from Stripe API...');
-        const stripe = await getUncachableStripeClient();
-        const stripeProducts = await stripe.products.list({ active: true, limit: 100 });
-        
-        const products = [];
-        for (const product of stripeProducts.data) {
-          const prices = await stripe.prices.list({ product: product.id, active: true, limit: 1 });
-          const price = prices.data[0];
-          const metadata = product.metadata || {};
-          if (metadata.hidden === 'true') continue;
-          
-          products.push({
-            id: product.id,
-            title: product.name,
-            description: product.description || '',
-            category: metadata.category || 'General',
-            imageUrl: metadata.imageUrl || (product.images?.[0] || ''),
-            productType: metadata.productType || 'general',
-            sortOrder: parseInt(metadata.sortOrder || '99'),
-            soldOut: metadata.soldOut === 'true',
-            gender: metadata.gender || null,
-            logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
-            colors: metadata.colors || null,
-            soldOutColors: metadata.soldOutColors || null,
-            handleColors: metadata.handleColors || null,
-            caseType: metadata.caseType || null,
-            sizes: metadata.sizes || null,
-            apparelSizes: apparelSizesFor(metadata, product.name).join(', ') || null,
-            scents: scentsFor(metadata).join(', ') || null,
-            price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
-            priceId: price?.id || null,
-          });
-        }
-        
-        return res.json(dedupeByName(products));
-      }
-      
-      // Group prices by product and format for frontend
-      const productsMap = new Map();
-      for (const row of rows) {
-        if (((row.product_metadata || {}) as any).hidden === 'true') continue;
-        if (!productsMap.has(row.product_id)) {
-          const metadata = (row.product_metadata || {}) as any;
-          const images = (row.product_images || []) as any[];
-          
-          productsMap.set(row.product_id, {
-            id: row.product_id,
-            title: row.product_name,
-            description: row.product_description,
-            category: metadata.category || 'General',
-            imageUrl: metadata.imageUrl || (images.length > 0 ? images[0] : ''),
-            productType: metadata.productType || 'general',
-            soldOut: metadata.soldOut === 'true',
-            gender: metadata.gender || null,
-            logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
-            colors: metadata.colors || null,
-            soldOutColors: metadata.soldOutColors || null,
-            handleColors: metadata.handleColors || null,
-            caseType: metadata.caseType || null,
-            sizes: metadata.sizes || null,
-            apparelSizes: apparelSizesFor(metadata, row.product_name).join(', ') || null,
-            scents: scentsFor(metadata).join(', ') || null,
-            price: null,
-            priceId: null,
-          });
-        }
-        
-        // Add price info (using first active price)
-        const product = productsMap.get(row.product_id);
-        if (row.price_id && !product.priceId) {
-          product.price = (row.unit_amount as any) ? ((row.unit_amount as number) / 100).toFixed(2) : '0.00';
-          product.priceId = row.price_id;
-        }
-      }
-
-      res.json(dedupeByName(Array.from(productsMap.values())));
+      res.json(await getStorefrontProducts());
     } catch (error) {
       console.error('Error fetching products:', error);
       res.status(500).json({ error: "Failed to fetch products" });
@@ -1565,6 +1468,26 @@ export async function registerRoutes(
     }
   });
 
+  // Protected: mirror every storefront product into the owner's Square Item
+  // Library (one-way: website -> Square). Idempotent and safe to re-run; only
+  // touches items this sync created (SKU prefix KKWEB-), never the owner's
+  // hand-made Square items. Owner-gated since it writes to the live Square
+  // account.
+  app.post("/api/admin/square/sync-catalog", requireOwner, async (req, res) => {
+    try {
+      if (!squareConfigured()) {
+        return res.status(400).json({
+          error: "Square is not configured (SQUARE_ACCESS_TOKEN / SQUARE_LOCATION_ID).",
+        });
+      }
+      const result = await syncStorefrontToSquare();
+      res.json(result);
+    } catch (error: any) {
+      console.error('Square catalog sync failed:', error);
+      res.status(500).json({ error: error?.message || "Square catalog sync failed" });
+    }
+  });
+
   // Protected: update an order's fulfillment status (e.g. mark shipped) for the
   // owner. Owner-gated (OWNER_EMAILS allowlist) since this exposes/uses customer
   // contact details and triggers the shipping-notification email.
@@ -1621,104 +1544,6 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error('Error updating order fulfillment:', error);
       res.status(500).json({ error: "Failed to update order" });
-    }
-  });
-
-
-  // ── Restock notification signup ──────────────────────────────
-  // Public: any visitor can register their email to be notified when a
-  // specific sold-out product comes back in stock.
-  app.post("/api/restock-notify", async (req, res) => {
-    const schema = z.object({
-      email: z.string().email(),
-      productId: z.string().min(1),
-    });
-    const parsed = schema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ error: "Valid email and productId required" });
-    }
-    try {
-      await storage.subscribeToRestock(parsed.data.email, parsed.data.productId);
-      res.json({ ok: true });
-    } catch (err) {
-      console.error("restock-notify error:", err);
-      res.status(500).json({ error: "Could not save subscription" });
-    }
-  });
-
-  // ── Admin: send new-arrivals email blast ─────────────────────
-  // Owner-only. Body: { productIds: string[] } — looks up those products,
-  // builds an email, and sends it to every subscriber.
-  app.post("/api/admin/send-new-arrivals", requireOwner, async (req, res) => {
-    const schema = z.object({
-      productIds: z.array(z.string()).min(1).max(20),
-    });
-    const parsed = schema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ error: "productIds array (1–20 items) required" });
-    }
-    try {
-      // Resolve the selected products from Stripe catalog
-      const allProducts = await stripeStorage.listProducts();
-      const selected = allProducts.filter((p: any) => parsed.data.productIds.includes(p.id));
-      if (selected.length === 0) {
-        return res.status(404).json({ error: "None of the supplied productIds were found" });
-      }
-      const newItems = selected.map((p: any) => ({
-        title: p.name,
-        price: String((p.price ?? 0) / 100),
-      }));
-
-      const subscribers = await storage.getAllSubscribers();
-      if (subscribers.length === 0) {
-        return res.json({ sent: 0, message: "No subscribers to email" });
-      }
-
-      const email = buildNewArrivalsEmail(newItems);
-      let sent = 0;
-      const errors: string[] = [];
-      for (const sub of subscribers) {
-        const ok = await sendEmail({ to: sub.email, subject: email.subject, html: email.html, text: email.text });
-        if (ok) sent++;
-        else errors.push(sub.email);
-      }
-      res.json({ sent, total: subscribers.length, errors: errors.length > 0 ? errors : undefined });
-    } catch (err) {
-      console.error("send-new-arrivals error:", err);
-      res.status(500).json({ error: "Failed to send new arrivals email" });
-    }
-  });
-
-  // ── Admin: notify restock subscribers for a product ──────────
-  // Owner-only. Body: { productId: string } — sends emails to all who
-  // subscribed for restock on that product, then clears the list.
-  app.post("/api/admin/notify-restock", requireOwner, async (req, res) => {
-    const schema = z.object({ productId: z.string().min(1) });
-    const parsed = schema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ error: "productId required" });
-    }
-    try {
-      const subs = await storage.getRestockSubscribersByProduct(parsed.data.productId);
-      if (subs.length === 0) {
-        return res.json({ sent: 0, message: "No restock subscribers for this product" });
-      }
-      // Get product title from Stripe
-      const allProducts = await stripeStorage.listProducts();
-      const product = allProducts.find((p: any) => p.id === parsed.data.productId);
-      const productTitle = product?.name ?? "An item you wanted";
-      const email = buildRestockNotificationEmail(productTitle);
-      let sent = 0;
-      for (const sub of subs) {
-        const ok = await sendEmail({ to: sub.email, subject: email.subject, html: email.html, text: email.text });
-        if (ok) sent++;
-      }
-      // Clear the list so subscribers aren't emailed again on future restock cycles
-      await storage.clearRestockSubscriptions(parsed.data.productId);
-      res.json({ sent, total: subs.length });
-    } catch (err) {
-      console.error("notify-restock error:", err);
-      res.status(500).json({ error: "Failed to send restock emails" });
     }
   });
 
