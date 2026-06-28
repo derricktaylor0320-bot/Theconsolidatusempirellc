@@ -324,7 +324,7 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     name: "Khomplete Khemistri Sneakers \u2014 Grey/Silver",
     description:
       "Premium Khomplete Khemistri athletic sneakers in a cool grey colorway with a lace-anchored Khomplete Khemistri Apparel crest badge in polished silver. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7500,
+    priceCents: 7000,
     meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_grey.jpg" },
   },
   {
@@ -333,7 +333,7 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     name: "Khomplete Khemistri Sneakers \u2014 Sand/Gold",
     description:
       "Premium Khomplete Khemistri athletic sneakers in a warm sand/tan colorway with a lace-anchored Khomplete Khemistri Apparel crest badge in gold. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7500,
+    priceCents: 7000,
     meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_sand.jpg" },
   },
   {
@@ -342,7 +342,7 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     name: "Khomplete Khemistri Sneakers \u2014 Black/Red",
     description:
       "Premium Khomplete Khemistri athletic sneakers in a black colorway with red accents and a lace-anchored Khomplete Khemistri Apparel crest badge in red. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7500,
+    priceCents: 7000,
     meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_black.jpg" },
   },
   {
@@ -351,7 +351,7 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     name: "Khomplete Khemistri Sneakers \u2014 White/Silver",
     description:
       "Premium Khomplete Khemistri athletic sneakers in a clean white colorway with a lace-anchored Khomplete Khemistri Apparel crest badge in polished silver. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7500,
+    priceCents: 7000,
     meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_white.jpg" },
   },
 ];
