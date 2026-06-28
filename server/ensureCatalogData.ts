@@ -309,6 +309,15 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     priceCents: 1500,
     meta: { category: "Drinkware", productType: "accessory", imageUrl: "/assets/kk_coffee_sleeve.png", gender: "Unisex", colors: "White, Black, Navy Blue, Royal Blue, Pink, Deep Sky Blue, Red, Blush Pink, Maroon, Sage, Candy, Pastel, Lavender, Baby Blue, Light Grey, Charcoal, Teal, Blackish Green, Peach Yellow, Coral, Violet, Rose Red, Orange, Magenta, Bright Gold, Kelly Green, Grass Green, Turquoise, Robin Egg Blue, Aquamarine, Light Teal, Mint Green, Mint, Hot Pink" },
   },
+  {
+    productId: "prod_kksatinrobe",
+    priceId: "price_kksatinrobe",
+    name: "Khomplete Khemistri Elements Satin Robe",
+    description:
+      "Luxurious satin robe featuring the Khomplete Khemistri Elements emblem embroidered in gold, finished with elegant gold piping, a self-tie belt, and side pockets. Smooth, lightweight satin in a relaxed unisex fit. One flat price for every size, XS to 6XL. SELECT YOUR COLOR AND SIZE at checkout! Available in 41 colors.",
+    priceCents: 4000,
+    meta: { category: "Sleepwear", productType: "accessory", sortOrder: "24", imageUrl: "/assets/satin_robe_kk_elements.png", gender: "Unisex", sizes: "XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL", colors: "Black, White, Ivory, Champagne, Gold, Silver, Grey Silver, Navy, Royal, Sky Blue, Turquoise, Teal, Aqua, Mint, Eucalyptus, Sage Green, Olive, Emerald Green, Green, Lime, Yellow, Lemon Yellow, Antique Gold, Copper, Burnt Orange, Orange, Coral, Red, Wine, Hot Pink, Blush, Light Pink, Dusty Rose, Mauve, Lavender, Dusty Plum, Plum, Purple, Dark Purple, Brown, Dark Brown" },
+  },
 ];
 
 // Scented candle product image. Like the tumbler, the storefront image must be

@@ -11,7 +11,12 @@ export default function Accessories() {
   });
 
   const allProducts = (products as any[]) || [];
-  const visibleProducts = allProducts.filter((p) => p.category !== "Bedding");
+  const visibleProducts = allProducts.filter(
+    (p) =>
+      p.category !== "Bedding" &&
+      p.category !== "Sleepwear" &&
+      p.category !== "Intimates",
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

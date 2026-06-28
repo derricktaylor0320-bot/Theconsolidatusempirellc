@@ -388,6 +388,13 @@ const ALL_PRODUCTS = [
     price: 5000,
     metadata: { category: 'Accessories', productType: 'accessory', imageUrl: '/attached_assets/kka_gold_watch.jpg', gender: 'Unisex', colors: 'Gold, Black, Silver', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest, and more from catalog' }
   },
+  // SLEEPWEAR & LOUNGEWEAR — Satin Robe (flat $40, all sizes; shows on the Bedding & Intimates page)
+  {
+    name: 'Khomplete Khemistri Elements Satin Robe',
+    description: 'Luxurious satin robe featuring the Khomplete Khemistri Elements emblem embroidered in gold, finished with elegant gold piping, a self-tie belt, and side pockets. Smooth, lightweight satin in a relaxed unisex fit. One flat price for every size, XS to 6XL. SELECT YOUR COLOR AND SIZE at checkout! Available in 41 colors.',
+    price: 4000,
+    metadata: { category: 'Sleepwear', productType: 'accessory', sortOrder: '24', imageUrl: '/assets/satin_robe_kk_elements.png', gender: 'Unisex', sizes: 'XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL', colors: 'Black, White, Ivory, Champagne, Gold, Silver, Grey Silver, Navy, Royal, Sky Blue, Turquoise, Teal, Aqua, Mint, Eucalyptus, Sage Green, Olive, Emerald Green, Green, Lime, Yellow, Lemon Yellow, Antique Gold, Copper, Burnt Orange, Orange, Coral, Red, Wine, Hot Pink, Blush, Light Pink, Dusty Rose, Mauve, Lavender, Dusty Plum, Plum, Purple, Dark Purple, Brown, Dark Brown' }
+  },
   // BEDDING - one Comforter Set and one Sheet Set, each with selectable sizes.
   {
     name: 'Khomplete Khemistri Accessories Comforter Set',
