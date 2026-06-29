@@ -42,6 +42,8 @@ import honorAllGold from "@assets/1764210327974_1764211486802.jpg";
 import honorPurpleGold from "@assets/shield_purple_gold.jpg";
 import honorWhiteGold from "@assets/shield_white_gold.jpg";
 import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
+import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png";
+import eagleCrestGold from "@assets/IMG_20260628_234902_1782729067467.png";
 import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.jpeg";
 import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
 import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";
@@ -101,6 +103,8 @@ export const allLogos: Record<string, LogoEntry> = {
   "212": { src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords", section: "Badge of Honor" },
   "213": { src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", section: "Badge of Honor" },
   "214": { src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", section: "Badge of Honor" },
+  "215": { src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", section: "Badge of Honor" },
+  "216": { src: eagleCrestGold, alt: "Apparel Eagle Crest - Gold", color: "All-Gold Eagle Crest", section: "Badge of Honor" },
   "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "Shield of Honor" },
   "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "Shield of Honor" },
   "302": { src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold", section: "Shield of Honor" },

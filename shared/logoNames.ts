@@ -45,6 +45,8 @@ export const LOGO_ALTS: string[] = [
   "Red & Gold with Swords",
   "Khomplete Khemistri Apparel Gold Crest",
   "KKMG LLC Eagle Shield of Honor",
+  "Apparel Eagle Crest - Maroon & Gold",
+  "Apparel Eagle Crest - Gold",
   // Shield of Honor
   "The Golden Eagle Shield",
   "Navy & Gold Eagle Shield",

@@ -229,6 +229,95 @@ const VINTAGE_PRODUCTS: {
 // are what actually create them. Size-only (no logo) — the eagle/"Sleep and Dream
 // in Luxury" emblem IS the design, enforced by the `sizes` metadata path in
 // shared/customization.ts.
+// Women's graphic tees ($30, fixed design, size-only). Same self-applying pattern
+// as the Vintage collection: in dev seedProducts creates them in Stripe (synced to
+// the DB) so the guarded inserts are no-ops; on the Railway prod frozen snapshot
+// (no Stripe) the inserts are what actually create them, and the UPDATE keeps the
+// description/metadata current. The graphic IS the design — NOT logo-customizable
+// (customize: 'none'); they still offer a size selector (apparel + T-Shirts -> the
+// XS–6XL apparelSizesFor path in shared/customization.ts).
+const WOMENS_TEE_PRICE_CENTS = 3000;
+const WOMENS_TEE_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkwteewatercolorphoenix",
+    priceId: "price_kkwteewatercolorphoenix",
+    name: "Watercolor Phoenix Tee",
+    description:
+      "Soft heather gray women's tee featuring a pastel watercolor phoenix rising from an alchemy flask inside a crest, with KHOMPLETE KHEMISTRI APPAREL lettering in dreamy purple, teal, and pink tones. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "40", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_watercolor_phoenix.jpg" },
+  },
+  {
+    productId: "prod_kkwteerosegoldphoenix",
+    priceId: "price_kkwteerosegoldphoenix",
+    name: "Rose Gold Phoenix Tee",
+    description:
+      "Heather gray women's tee with an elegant rose-gold line-art phoenix rising from a flask inside a shield crest, finished with KHOMPLETE KHEMISTRI APPAREL script. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "41", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_rose_gold_phoenix.jpg" },
+  },
+  {
+    productId: "prod_kkwteemolecularheart",
+    priceId: "price_kkwteemolecularheart",
+    name: "Molecular Heart Tee",
+    description:
+      "Heather gray women's tee featuring a rose-gold honeycomb molecular heart formed from chemistry bonds, with KHOMPLETE KHEMISTRI APPAREL lettering. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "42", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_molecular_heart.jpg" },
+  },
+  {
+    productId: "prod_kkwteealchemisttriangle",
+    priceId: "price_kkwteealchemisttriangle",
+    name: "Alchemist's Triangle Tee",
+    description:
+      "Heather gray women's tee with a silver and rose-gold inverted-triangle alchemy emblem and floating molecules, finished with KHOMPLETE KHEMISTRI APPAREL. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "43", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_alchemists_triangle.jpg" },
+  },
+  {
+    productId: "prod_kkwteeladykhemistri",
+    priceId: "price_kkwteeladykhemistri",
+    name: "Lady of Khemistri Tee",
+    description:
+      "Heather gray women's tee featuring a rose-gold profile of a woman within a molecular shield crest, with KHOMPLETE KHEMISTRI APPAREL lettering. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "44", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_lady_of_khemistri.jpg" },
+  },
+  {
+    productId: "prod_kkwteecelestial",
+    priceId: "price_kkwteecelestial",
+    name: "Celestial Constellations Tee",
+    description:
+      "Heather gray women's tee with a gold crescent moon, constellations, and a molecule motif, finished with KHOMPLETE KHEMISTRI APPAREL. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "45", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_celestial_constellations.jpg" },
+  },
+  {
+    productId: "prod_kkwteehelixshield",
+    priceId: "price_kkwteehelixshield",
+    name: "Geometric Helix Shield Tee",
+    description:
+      "Heather gray women's tee featuring a silver DNA-helix diamond crest framing KHOMPLETE KHEMISTRI APPAREL, with bold geometric lettering below. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "46", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_geometric_helix_shield.jpg" },
+  },
+  {
+    productId: "prod_kkwteefloralalchemy",
+    priceId: "price_kkwteefloralalchemy",
+    name: "Floral Alchemy Tee",
+    description:
+      "Soft cream women's tee featuring a rose-gold floral alchemy flask within a teardrop frame surrounded by blossoms, with FLORAL ALCHEMY \u00b7 KHOMPLETE KHEMISTRI APPAREL lettering. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "47", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_floral_alchemy.jpg" },
+  },
+  {
+    productId: "prod_kkwteerainbowphoenix",
+    priceId: "price_kkwteerainbowphoenix",
+    name: "Rainbow Phoenix Tee",
+    description:
+      "Heather gray women's tee featuring a vibrant rainbow phoenix rising from a flask inside a crest, encircled by KHOMPLETE KHEMISTRI APPAREL and chemistry molecules. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "48", gender: "Women", customize: "none", imageUrl: "/assets/kk_womens_tee_rainbow_phoenix.jpg" },
+  },
+];
+
 const BEDDING_PRICE_COMFORTER_CENTS = 9900;
 const BEDDING_PRICE_SHEET_CENTS = 8000;
 const BEDDING_PRICE_PILLOWCASE_CENTS = 2500;
@@ -915,6 +1004,72 @@ export async function ensureCatalogData() {
             ),
             _updated_at = now()
         WHERE name = ${v.name} AND active = true
+      `);
+    }
+
+    // 6c-ii) Women's graphic tees ($30, fixed design, size-only). Same
+    //     self-applying pattern as the Vintage collection above: create only when
+    //     absent (no-op in dev where Stripe sync made them; the real creator on the
+    //     Railway prod frozen snapshot), then refresh description + metadata on the
+    //     surviving active product and force the price server-side to $30.
+    for (const w of WOMENS_TEE_PRODUCTS) {
+      const wProductRaw = JSON.stringify({
+        id: w.productId,
+        object: "product",
+        active: true,
+        name: w.name,
+        description: w.description,
+        metadata: w.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const wPriceRaw = JSON.stringify({
+        id: w.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: WOMENS_TEE_PRICE_CENTS,
+        product: w.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${wProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${w.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${wPriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${w.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${w.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(w.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(w.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${w.name} AND active = true
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(WOMENS_TEE_PRICE_CENTS)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${w.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(WOMENS_TEE_PRICE_CENTS)}
       `);
     }
 

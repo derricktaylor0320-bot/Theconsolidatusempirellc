@@ -56,6 +56,10 @@ import legacyCollage from "@assets/Screenshot_20251126_202634_Photos_17642144542
 // Import KKMG LLC Eagle Shield (#214)
 import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 
+// Import Apparel Eagle Crests (#215, #216)
+import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png";
+import eagleCrestGold from "@assets/IMG_20260628_234902_1782729067467.png";
+
 // Import Luxury Banners
 import luxuryBanner from "@assets/1764816894577_1764816974804.jpg";
 import bannerMoodVibe from "@assets/generated_images/color_mood_vibe_banner.png";
@@ -121,6 +125,8 @@ export default function Canvas() {
     { id: "212", src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords" },
     { id: "213", src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", featured: true },
     { id: "214", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
+    { id: "215", src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", featured: true },
+    { id: "216", src: eagleCrestGold, alt: "Apparel Eagle Crest - Gold", color: "All-Gold Eagle Crest", featured: true },
   ];
 
   const honorShields = [

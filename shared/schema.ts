@@ -206,20 +206,3 @@ export const mediaUploadFieldsSchema = z.object({
 
 export type InsertMediaLink = z.infer<typeof insertMediaLinkSchema>;
 export type MediaItem = typeof mediaItems.$inferSelect;
-
-// Restock notification subscriptions — customers opt-in to be emailed when
-// a specific sold-out product comes back in stock.
-export const restockSubscriptions = pgTable("restock_subscriptions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: text("email").notNull(),
-  productId: text("product_id").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const insertRestockSubscriptionSchema = createInsertSchema(restockSubscriptions).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type InsertRestockSubscription = z.infer<typeof insertRestockSubscriptionSchema>;
-export type RestockSubscription = typeof restockSubscriptions.$inferSelect;

@@ -201,6 +201,61 @@ const ALL_PRODUCTS = [
     price: 4000,
     metadata: { category: 'Bottoms', productType: 'apparel', sortOrder: '18', imageUrl: '/assets/generated_images/black_branded_leggings.png', gender: 'Women' }
   },
+  // WOMEN'S GRAPHIC TEES — fixed graphic design ($30, size-only, no logo picker)
+  {
+    name: 'Watercolor Phoenix Tee',
+    description: "Soft heather gray women's tee featuring a pastel watercolor phoenix rising from an alchemy flask inside a crest, with KHOMPLETE KHEMISTRI APPAREL lettering in dreamy purple, teal, and pink tones. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '40', imageUrl: '/assets/kk_womens_tee_watercolor_phoenix.jpg', gender: 'Women', customize: 'none' }
+  },
+  {
+    name: 'Rose Gold Phoenix Tee',
+    description: "Heather gray women's tee with an elegant rose-gold line-art phoenix rising from a flask inside a shield crest, finished with KHOMPLETE KHEMISTRI APPAREL script. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '41', imageUrl: '/assets/kk_womens_tee_rose_gold_phoenix.jpg', gender: 'Women', customize: 'none' }
+  },
+  {
+    name: 'Molecular Heart Tee',
+    description: "Heather gray women's tee featuring a rose-gold honeycomb molecular heart formed from chemistry bonds, with KHOMPLETE KHEMISTRI APPAREL lettering. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '42', imageUrl: '/assets/kk_womens_tee_molecular_heart.jpg', gender: 'Women', customize: 'none' }
+  },
+  {
+    name: "Alchemist's Triangle Tee",
+    description: "Heather gray women's tee with a silver and rose-gold inverted-triangle alchemy emblem and floating molecules, finished with KHOMPLETE KHEMISTRI APPAREL. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '43', imageUrl: "/assets/kk_womens_tee_alchemists_triangle.jpg", gender: 'Women', customize: 'none' }
+  },
+  {
+    name: 'Lady of Khemistri Tee',
+    description: "Heather gray women's tee featuring a rose-gold profile of a woman within a molecular shield crest, with KHOMPLETE KHEMISTRI APPAREL lettering. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '44', imageUrl: '/assets/kk_womens_tee_lady_of_khemistri.jpg', gender: 'Women', customize: 'none' }
+  },
+  {
+    name: 'Celestial Constellations Tee',
+    description: "Heather gray women's tee with a gold crescent moon, constellations, and a molecule motif, finished with KHOMPLETE KHEMISTRI APPAREL. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '45', imageUrl: '/assets/kk_womens_tee_celestial_constellations.jpg', gender: 'Women', customize: 'none' }
+  },
+  {
+    name: 'Geometric Helix Shield Tee',
+    description: "Heather gray women's tee featuring a silver DNA-helix diamond crest framing KHOMPLETE KHEMISTRI APPAREL, with bold geometric lettering below. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '46', imageUrl: '/assets/kk_womens_tee_geometric_helix_shield.jpg', gender: 'Women', customize: 'none' }
+  },
+  {
+    name: 'Floral Alchemy Tee',
+    description: "Soft cream women's tee featuring a rose-gold floral alchemy flask within a teardrop frame surrounded by blossoms, with FLORAL ALCHEMY · KHOMPLETE KHEMISTRI APPAREL lettering. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '47', imageUrl: '/assets/kk_womens_tee_floral_alchemy.jpg', gender: 'Women', customize: 'none' }
+  },
+  {
+    name: 'Rainbow Phoenix Tee',
+    description: "Heather gray women's tee featuring a vibrant rainbow phoenix rising from a flask inside a crest, encircled by KHOMPLETE KHEMISTRI APPAREL and chemistry molecules. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '48', imageUrl: '/assets/kk_womens_tee_rainbow_phoenix.jpg', gender: 'Women', customize: 'none' }
+  },
   // SLEEPWEAR & LOUNGEWEAR
   {
     name: "Personalized Custom Logo Slippers",
