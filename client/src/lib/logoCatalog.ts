@@ -56,6 +56,7 @@ import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_lo
 import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
+import logoNumberThree from "@assets/logo_number_three_gold.jpg";
 
 export interface LogoEntry {
   src: string;
@@ -86,6 +87,7 @@ export const allLogos: Record<string, LogoEntry> = {
   "118": { src: logoAccessoriesEagle, alt: "Khomplete Khemistri Accessories Eagle", color: "Accessories Eagle", section: "Canvas Collection" },
   "119": { src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords", section: "Canvas Collection" },
   "120": { src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords", section: "Canvas Collection" },
+  "121": { src: logoNumberThree, alt: "Gold Number Three Crest", color: "Gold Number Three", section: "Canvas Collection" },
   "122": { src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow", section: "Canvas Collection" },
   "123": { src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold", section: "Canvas Collection" },
   "200": { src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", section: "Badge of Honor" },

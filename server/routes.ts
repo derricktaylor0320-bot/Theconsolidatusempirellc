@@ -305,6 +305,12 @@ const ALL_PRODUCTS = [
     price: 3000,
     metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '56', imageUrl: '/assets/kk_founders_tee_three_meaning_silver.jpg', gender: 'Unisex', customize: 'none' }
   },
+  {
+    name: 'The Number Three Infinity Tee — Cream',
+    description: "Cream unisex tee showcasing the Khomplete Khemistri infinity “3” crest in three metallic finishes — gold-and-black, silver-and-gold, and silver-and-black — beneath KHOMPLETE KHEMISTRI and above APPAREL & ACCESSORIES. The number three represents harmony, balance, and complete alignment — bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '68', imageUrl: '/assets/kk_founders_tee_three_infinity.jpg', gender: 'Unisex', customize: 'none' }
+  },
   // SLEEPWEAR & LOUNGEWEAR
   {
     name: "Personalized Custom Logo Slippers",

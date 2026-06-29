@@ -383,6 +383,14 @@ const WOMENS_TEE_PRODUCTS: {
       "White unisex tee with a polished silver \u201c3\u201d above KHOMPLETE KHEMISTRI APPAREL. The number three represents harmony, balance, and complete alignment \u2014 bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
     meta: { category: "T-Shirts", productType: "apparel", sortOrder: "56", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_founders_tee_three_meaning_silver.jpg" },
   },
+  {
+    productId: "prod_kkftee3infinity",
+    priceId: "price_kkftee3infinity",
+    name: "The Number Three Infinity Tee \u2014 Cream",
+    description:
+      "Cream unisex tee showcasing the Khomplete Khemistri infinity \u201c3\u201d crest in three metallic finishes \u2014 gold-and-black, silver-and-gold, and silver-and-black \u2014 beneath KHOMPLETE KHEMISTRI and above APPAREL & ACCESSORIES. The number three represents harmony, balance, and complete alignment \u2014 bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "68", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_founders_tee_three_infinity.jpg" },
+  },
 ];
 
 // Kids graphic tees ($20, fixed design, kids size selector). Same self-applying

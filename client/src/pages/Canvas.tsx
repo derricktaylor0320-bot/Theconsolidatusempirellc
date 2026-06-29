@@ -74,6 +74,7 @@ import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_lo
 import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
+import logoNumberThree from "@assets/logo_number_three_gold.jpg";
 
 // Compass Collection — 400-403
 import bannerCompass from "@assets/1781364317455_1781369690056.png";
@@ -105,6 +106,7 @@ export default function Canvas() {
     { id: "118", src: logoAccessoriesEagle, alt: "Khomplete Khemistri Accessories Eagle", color: "Accessories Eagle" },
     { id: "119", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
     { id: "120", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
+    { id: "121", src: logoNumberThree, alt: "Gold Number Three Crest", color: "Gold Number Three" },
     { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
     { id: "123", src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold" },
   ];
