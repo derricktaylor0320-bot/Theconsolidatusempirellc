@@ -359,6 +359,22 @@ const WOMENS_TEE_PRODUCTS: {
       "Espresso brown unisex tee featuring the Khomplete Khemistri founders' crest: a gold trident forming a \u201c3,\u201d engraved with the three founding partners D. Taylor, C. Oliver, and J. Young Jr., encircled by KHOMPLETE KHEMISTRI APPAREL EST. 2020. Select your size at checkout.",
     meta: { category: "T-Shirts", productType: "apparel", sortOrder: "53", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_founders_tee_brown.jpg" },
   },
+  {
+    productId: "prod_kkftee3meaningblack",
+    priceId: "price_kkftee3meaningblack",
+    name: 'The Number Three Tee \u2014 Black',
+    description:
+      "Black unisex tee with a striking gold \u201c3\u201d above KHOMPLETE KHEMISTRI APPAREL. The number three represents harmony, balance, and complete alignment \u2014 bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "54", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_founders_tee_three_meaning_black.jpg" },
+  },
+  {
+    productId: "prod_kkftee3meaningwhite",
+    priceId: "price_kkftee3meaningwhite",
+    name: 'The Number Three Tee \u2014 White',
+    description:
+      "White unisex tee with a gold-and-silver \u201c3\u201d above KHOMPLETE KHEMISTRI APPAREL. The number three represents harmony, balance, and complete alignment \u2014 bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "55", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_founders_tee_three_meaning_white.jpg" },
+  },
 ];
 
 const BEDDING_PRICE_COMFORTER_CENTS = 9900;

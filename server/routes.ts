@@ -287,6 +287,18 @@ const ALL_PRODUCTS = [
     price: 3000,
     metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '53', imageUrl: '/assets/kk_founders_tee_brown.jpg', gender: 'Unisex', customize: 'none' }
   },
+  {
+    name: 'The Number Three Tee — Black',
+    description: "Black unisex tee with a striking gold “3” above KHOMPLETE KHEMISTRI APPAREL. The number three represents harmony, balance, and complete alignment — bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '54', imageUrl: '/assets/kk_founders_tee_three_meaning_black.jpg', gender: 'Unisex', customize: 'none' }
+  },
+  {
+    name: 'The Number Three Tee — White',
+    description: "White unisex tee with a gold-and-silver “3” above KHOMPLETE KHEMISTRI APPAREL. The number three represents harmony, balance, and complete alignment — bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '55', imageUrl: '/assets/kk_founders_tee_three_meaning_white.jpg', gender: 'Unisex', customize: 'none' }
+  },
   // SLEEPWEAR & LOUNGEWEAR
   {
     name: "Personalized Custom Logo Slippers",
