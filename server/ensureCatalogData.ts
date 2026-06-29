@@ -385,6 +385,111 @@ const WOMENS_TEE_PRODUCTS: {
   },
 ];
 
+// Kids graphic tees ($20, fixed design, kids size selector). Same self-applying
+// pattern as the women's/founders tees: created only when absent (no-op in dev
+// where Stripe sync makes them; the real creator on the Railway prod frozen
+// snapshot), then description/metadata kept current and price forced to $20.
+// Size-only via the `sizes` metadata (kids sizes); category "Kids" keeps them
+// out of the adult XS–6XL apparel sizing and lands them in the Kids Collection.
+const KIDS_TEE_PRICE_CENTS = 2000;
+const KIDS_TEE_SIZES = "2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL";
+const KIDS_TEE_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkkidsastronomer",
+    priceId: "price_kkkidsastronomer",
+    name: "Little Astronomer Kids Tee \u2014 Charcoal",
+    description:
+      "Charcoal kids' tee featuring a little astronomer gazing through a telescope at a glowing solar system, with colorful A-B-C-D-E learning blocks and the Khomplete Khemistri Apparel crest. Inspires curiosity and a love of learning. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "57", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_astronomer_charcoal.jpg" },
+  },
+  {
+    productId: "prod_kkkidsstargazer",
+    priceId: "price_kkkidsstargazer",
+    name: "Young Stargazer Kids Tee \u2014 Brown",
+    description:
+      "Rich brown kids' tee with a young stargazer and telescope beneath golden constellations, plus playful alphabet blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "58", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_stargazer_brown.jpg" },
+  },
+  {
+    productId: "prod_kkkidsexplorer",
+    priceId: "price_kkkidsexplorer",
+    name: "Little Explorer Kids Tee \u2014 Orange",
+    description:
+      "Bright orange kids' tee featuring a little explorer with a globe, map, and compass at sunrise, plus colorful learning blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "59", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_explorer_orange.jpg" },
+  },
+  {
+    productId: "prod_kkkidsnature",
+    priceId: "price_kkkidsnature",
+    name: "Nature Explorers Kids Tee \u2014 Green",
+    description:
+      "Green kids' tee showing three young explorers planting, reading, and holding a globe in a sunny forest, with alphabet blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "60", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_nature_green.jpg" },
+  },
+  {
+    productId: "prod_kkkidsapplered",
+    priceId: "price_kkkidsapplered",
+    name: "ABC Apple & Books Kids Tee \u2014 Red",
+    description:
+      "Red kids' tee with a classic apple-on-books design, sparkles, and colorful A-B-C learning blocks, finished with the Khomplete Khemistri Apparel crest. A perfect back-to-school look. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "61", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_apple_books_red.jpg" },
+  },
+  {
+    productId: "prod_kkkidsdreamers",
+    priceId: "price_kkkidsdreamers",
+    name: "Future Dreamers Kids Tee \u2014 Yellow",
+    description:
+      "Sunny yellow kids' tee celebrating big dreams \u2014 a future teacher, doctor, and businessman \u2014 with colorful learning blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "62", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_dreamers_yellow.jpg" },
+  },
+  {
+    productId: "prod_kkkidsheroes",
+    priceId: "price_kkkidsheroes",
+    name: "Community Heroes Kids Tee \u2014 Royal Blue",
+    description:
+      "Royal blue kids' tee featuring a friendly community police officer with a family in a safe neighborhood, plus alphabet blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "63", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_heroes_blue.jpg" },
+  },
+  {
+    productId: "prod_kkkidsapplepink",
+    priceId: "price_kkkidsapplepink",
+    name: "ABC Apple & Books Kids Tee \u2014 Pink",
+    description:
+      "Pink kids' tee with a dreamy apples-and-books design, sparkling stars, and colorful learning blocks, finished with the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "64", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_apple_books_pink.jpg" },
+  },
+  {
+    productId: "prod_kkkidsapplewhite",
+    priceId: "price_kkkidsapplewhite",
+    name: "ABC Apple & Books Kids Tee \u2014 White",
+    description:
+      "Clean white kids' tee with a bright apples-on-books design, sparkles, and colorful A-B-C blocks, plus the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "65", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_apple_books_white.jpg" },
+  },
+  {
+    productId: "prod_kkkidsappleblack",
+    priceId: "price_kkkidsappleblack",
+    name: "ABC Apple & Books Kids Tee \u2014 Black & Gold",
+    description:
+      "Black kids' tee with a striking golden apple-on-books design, gold sparkles, and matching learning blocks, finished with the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "66", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_apple_books_black.jpg" },
+  },
+  {
+    productId: "prod_kkkidsrocket",
+    priceId: "price_kkkidsrocket",
+    name: "Rocket & Jet Kids Tee \u2014 Red",
+    description:
+      "Red kids' tee blasting off with a cartoon rocket and fighter jet among the stars, topped with the Khomplete Khemistri Apparel crest. Built for little dreamers who reach for the sky. Select your size at checkout.",
+    meta: { category: "Kids", productType: "apparel", sortOrder: "67", gender: "Kids", customize: "none", sizes: KIDS_TEE_SIZES, imageUrl: "/assets/kk_kids_tee_rocket_jet_red.jpg" },
+  },
+];
+
 const BEDDING_PRICE_COMFORTER_CENTS = 9900;
 const BEDDING_PRICE_SHEET_CENTS = 8000;
 const BEDDING_PRICE_PILLOWCASE_CENTS = 2500;
@@ -1137,6 +1242,72 @@ export async function ensureCatalogData() {
         WHERE active = true
           AND product IN (SELECT id FROM stripe.products WHERE name = ${w.name} AND active = true)
           AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(WOMENS_TEE_PRICE_CENTS)}
+      `);
+    }
+
+    // 6c2) Kids graphic tees ($20, fixed design, kids size selector). Same
+    //      self-applying pattern as the women's tees above: create only when
+    //      absent (no-op in dev where Stripe sync makes them; the real creator
+    //      on the Railway prod frozen snapshot), then keep description/metadata
+    //      current and the price server-authoritative at $20.
+    for (const k of KIDS_TEE_PRODUCTS) {
+      const kProductRaw = JSON.stringify({
+        id: k.productId,
+        object: "product",
+        active: true,
+        name: k.name,
+        description: k.description,
+        metadata: k.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const kPriceRaw = JSON.stringify({
+        id: k.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: KIDS_TEE_PRICE_CENTS,
+        product: k.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${kProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${k.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${kPriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${k.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${k.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(k.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(k.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${k.name} AND active = true
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(KIDS_TEE_PRICE_CENTS)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${k.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(KIDS_TEE_PRICE_CENTS)}
       `);
     }
 

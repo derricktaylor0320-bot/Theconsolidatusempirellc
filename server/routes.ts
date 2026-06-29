@@ -400,6 +400,73 @@ const ALL_PRODUCTS = [
     price: 2000,
     metadata: { category: 'Kids', productType: 'apparel', sortOrder: '21', imageUrl: '/assets/generated_images/black_toddler_t-shirt_branded.png', gender: 'Kids' }
   },
+  // KIDS GRAPHIC TEE COLLECTION ($20, fixed design, size-only)
+  {
+    name: 'Little Astronomer Kids Tee — Charcoal',
+    description: "Charcoal kids' tee featuring a little astronomer gazing through a telescope at a glowing solar system, with colorful A-B-C-D-E learning blocks and the Khomplete Khemistri Apparel crest. Inspires curiosity and a love of learning. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '57', imageUrl: '/assets/kk_kids_tee_astronomer_charcoal.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'Young Stargazer Kids Tee — Brown',
+    description: "Rich brown kids' tee with a young stargazer and telescope beneath golden constellations, plus playful alphabet blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '58', imageUrl: '/assets/kk_kids_tee_stargazer_brown.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'Little Explorer Kids Tee — Orange',
+    description: "Bright orange kids' tee featuring a little explorer with a globe, map, and compass at sunrise, plus colorful learning blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '59', imageUrl: '/assets/kk_kids_tee_explorer_orange.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'Nature Explorers Kids Tee — Green',
+    description: "Green kids' tee showing three young explorers planting, reading, and holding a globe in a sunny forest, with alphabet blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '60', imageUrl: '/assets/kk_kids_tee_nature_green.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'ABC Apple & Books Kids Tee — Red',
+    description: "Red kids' tee with a classic apple-on-books design, sparkles, and colorful A-B-C learning blocks, finished with the Khomplete Khemistri Apparel crest. A perfect back-to-school look. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '61', imageUrl: '/assets/kk_kids_tee_apple_books_red.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'Future Dreamers Kids Tee — Yellow',
+    description: "Sunny yellow kids' tee celebrating big dreams — a future teacher, doctor, and businessman — with colorful learning blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '62', imageUrl: '/assets/kk_kids_tee_dreamers_yellow.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'Community Heroes Kids Tee — Royal Blue',
+    description: "Royal blue kids' tee featuring a friendly community police officer with a family in a safe neighborhood, plus alphabet blocks and the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '63', imageUrl: '/assets/kk_kids_tee_heroes_blue.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'ABC Apple & Books Kids Tee — Pink',
+    description: "Pink kids' tee with a dreamy apples-and-books design, sparkling stars, and colorful learning blocks, finished with the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '64', imageUrl: '/assets/kk_kids_tee_apple_books_pink.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'ABC Apple & Books Kids Tee — White',
+    description: "Clean white kids' tee with a bright apples-on-books design, sparkles, and colorful A-B-C blocks, plus the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '65', imageUrl: '/assets/kk_kids_tee_apple_books_white.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'ABC Apple & Books Kids Tee — Black & Gold',
+    description: "Black kids' tee with a striking golden apple-on-books design, gold sparkles, and matching learning blocks, finished with the Khomplete Khemistri Apparel crest. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '66', imageUrl: '/assets/kk_kids_tee_apple_books_black.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
+  {
+    name: 'Rocket & Jet Kids Tee — Red',
+    description: "Red kids' tee blasting off with a cartoon rocket and fighter jet among the stars, topped with the Khomplete Khemistri Apparel crest. Built for little dreamers who reach for the sky. Select your size at checkout.",
+    price: 2000,
+    metadata: { category: 'Kids', productType: 'apparel', sortOrder: '67', imageUrl: '/assets/kk_kids_tee_rocket_jet_red.jpg', gender: 'Kids', customize: 'none', sizes: '2T, 3T, 4T, Youth XS, Youth S, Youth M, Youth L, Youth XL' }
+  },
   // FOOTWEAR COLLECTION
   {
     name: 'Classic White High-Tops',
