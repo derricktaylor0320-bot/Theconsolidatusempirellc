@@ -39,6 +39,7 @@ export default function Apparel() {
           colors={product.colors}
           soldOutColors={product.soldOutColors}
           scents={product.scents}
+          imageFit={product.imageUrl?.includes("kk_sneaker") ? "contain" : "cover"}
         />
       ))}
     </div>
