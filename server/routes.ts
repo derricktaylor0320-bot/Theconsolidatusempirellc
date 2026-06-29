@@ -256,6 +256,37 @@ const ALL_PRODUCTS = [
     price: 3000,
     metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '48', imageUrl: '/assets/kk_womens_tee_rainbow_phoenix.jpg', gender: 'Women', customize: 'none' }
   },
+  // FOUNDERS "3" TRIDENT CREST TEES (unisex) — signature emblem of the three founding partners ($30, size-only)
+  {
+    name: 'Founders "3" Crest Tee — Navy',
+    description: "Navy unisex tee featuring the Khomplete Khemistri founders' crest: a chrome-blue and gold trident forming a “3,” engraved with the three founding partners D. Taylor, C. Oliver, and J. Young Jr., encircled by KHOMPLETE KHEMISTRI APPAREL EST. 2020. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '49', imageUrl: '/assets/kk_founders_tee_navy.jpg', gender: 'Unisex', customize: 'none' }
+  },
+  {
+    name: 'Founders "3" Crest Tee — Black & Gold',
+    description: "Black unisex tee featuring the Khomplete Khemistri founders' crest: a gold and silver trident forming a “3,” engraved with the three founding partners D. Taylor, C. Oliver, and J. Young Jr., encircled by KHOMPLETE KHEMISTRI APPAREL EST. 2020. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '50', imageUrl: '/assets/kk_founders_tee_black_gold.jpg', gender: 'Unisex', customize: 'none' }
+  },
+  {
+    name: 'Founders "3" Crest Tee — Black & Silver',
+    description: "Black unisex tee featuring the Khomplete Khemistri founders' crest: a polished silver trident forming a “3,” engraved with the three founding partners D. Taylor, C. Oliver, and J. Young Jr., encircled by KHOMPLETE KHEMISTRI APPAREL EST. 2020. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '51', imageUrl: '/assets/kk_founders_tee_black_silver.jpg', gender: 'Unisex', customize: 'none' }
+  },
+  {
+    name: 'Founders "3" Crest Tee — Burgundy',
+    description: "Burgundy unisex tee featuring the Khomplete Khemistri founders' crest: a gold trident forming a “3,” engraved with the three founding partners D. Taylor, C. Oliver, and J. Young Jr., encircled by KHOMPLETE KHEMISTRI APPAREL EST. 2020. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '52', imageUrl: '/assets/kk_founders_tee_burgundy.jpg', gender: 'Unisex', customize: 'none' }
+  },
+  {
+    name: 'Founders "3" Crest Tee — Espresso Brown',
+    description: "Espresso brown unisex tee featuring the Khomplete Khemistri founders' crest: a gold trident forming a “3,” engraved with the three founding partners D. Taylor, C. Oliver, and J. Young Jr., encircled by KHOMPLETE KHEMISTRI APPAREL EST. 2020. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '53', imageUrl: '/assets/kk_founders_tee_brown.jpg', gender: 'Unisex', customize: 'none' }
+  },
   // SLEEPWEAR & LOUNGEWEAR
   {
     name: "Personalized Custom Logo Slippers",
