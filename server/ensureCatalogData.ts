@@ -375,6 +375,14 @@ const WOMENS_TEE_PRODUCTS: {
       "White unisex tee with a gold-and-silver \u201c3\u201d above KHOMPLETE KHEMISTRI APPAREL. The number three represents harmony, balance, and complete alignment \u2014 bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
     meta: { category: "T-Shirts", productType: "apparel", sortOrder: "55", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_founders_tee_three_meaning_white.jpg" },
   },
+  {
+    productId: "prod_kkftee3meaningsilver",
+    priceId: "price_kkftee3meaningsilver",
+    name: 'The Number Three Tee \u2014 Silver',
+    description:
+      "White unisex tee with a polished silver \u201c3\u201d above KHOMPLETE KHEMISTRI APPAREL. The number three represents harmony, balance, and complete alignment \u2014 bringing together your mind, body, and spirit to create something powerful. It symbolizes growth and expansion, reminding you that your creativity, expression, and inner strength are naturally manifesting into reality. You are fully supported in building exactly what you envision. Select your size at checkout.",
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "56", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_founders_tee_three_meaning_silver.jpg" },
+  },
 ];
 
 const BEDDING_PRICE_COMFORTER_CENTS = 9900;
