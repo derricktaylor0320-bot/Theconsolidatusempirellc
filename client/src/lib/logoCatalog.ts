@@ -56,7 +56,7 @@ import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_lo
 import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
-import logoNumberThree from "@assets/logo_number_three_gold.jpg";
+import logoNumberThree from "@assets/logo_number_three_gold_clean.png";
 import logoFoundersTrident from "@assets/logo_founders_trident_three.jpg";
 
 export interface LogoEntry {

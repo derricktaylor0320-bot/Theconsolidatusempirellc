@@ -323,6 +323,12 @@ const ALL_PRODUCTS = [
     price: 6000,
     metadata: { category: 'Hoodies', productType: 'apparel', sortOrder: '70', imageUrl: '/assets/kk_forging_future_hoodie_green.jpg', gender: 'Unisex', customize: 'none' }
   },
+  {
+    name: 'Personalized Polo Shirt',
+    description: "Personalized embroidered polo shirt featuring the Khomplete Khemistri trident \u201c3\u201d crest encircled by KHOMPLETE KHEMISTRI APPAREL EST 2020. Soft, breathable pique knit with a classic three-button collar. CHOOSE YOUR COLOR AND SIZE at checkout. Available in 15 colors and sizes XS through 5XL.",
+    price: 4500,
+    metadata: { category: 'Polos', productType: 'apparel', sortOrder: '71', gender: 'Unisex', imageUrl: '/assets/kk_polo_trident_three.jpg', sizes: 'XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL', colors: 'Black, Green, Bright Green, Grey, Lake Blue, Light Blue, Navy Blue, Orange, Pink, Purple, Red, Rose Red, Royal Blue, Wine Red, Yellow' }
+  },
   // SLEEPWEAR & LOUNGEWEAR
   {
     name: "Personalized Custom Logo Slippers",
