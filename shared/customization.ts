@@ -119,6 +119,9 @@ const SIZE_EXCLUDED_CATEGORIES = new Set([
   "winter",
   "socks",
   "kids",
+  // Polos carry their own explicit `sizes` metadata (flat-priced, capped at 5XL),
+  // so they must NOT also get the derived XS–6XL apparel size run.
+  "polos",
 ]);
 const SIZE_EXCLUDED_NAME_RX =
   /\b(slipper|clog|sneaker|high[\s-]?top|flip[\s-]?flop|sock|glove|beanie|scarf|ear[\s-]?muff|mitten|bundle|toddler)s?\b/i;
