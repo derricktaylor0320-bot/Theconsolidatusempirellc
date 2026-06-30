@@ -73,6 +73,11 @@ export default function ProductCard({ image, title, price, category, priceId, so
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [logoCollection, setLogoCollection] = useState("All");
+  const logoCollectionTabs = useMemo(
+    () => ["All", ...LOGO_SECTIONS.map((s) => s.name)],
+    [],
+  );
 
   const recommendedLogoIds = useMemo(
     () => (selectedColor ? recommendedLogoIdsForColor(selectedColor).slice(0, 8) : []),
@@ -281,12 +286,26 @@ export default function ProductCard({ image, title, price, category, priceId, so
                       </p>
                     </div>
                   )}
+                  <div className="flex flex-wrap gap-1.5" data-testid={`tabs-logo-collection-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+                    {logoCollectionTabs.map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        disabled={soldOut}
+                        onClick={() => setLogoCollection(name)}
+                        className={`rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide transition-colors disabled:opacity-50 ${logoCollection === name ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
+                        data-testid={`tab-logo-${name.toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
                   <ScrollArea
                     className="max-h-72 rounded-lg border border-primary/10 bg-muted/20 p-2 pr-3"
                     data-testid={`picker-logo-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <div className="space-y-4">
-                      {LOGO_SECTIONS.map((section) => (
+                      {LOGO_SECTIONS.filter((section) => logoCollection === "All" || section.name === logoCollection).map((section) => (
                         <div key={section.name} className="space-y-2">
                           <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
                             {section.name}

@@ -428,9 +428,9 @@ const BRANDED_APPAREL_PRODUCTS: {
     priceId: "price_kkpolotrident",
     name: "Personalized Polo Shirt",
     description:
-      "Personalized embroidered polo shirt featuring the Khomplete Khemistri trident \u201c3\u201d crest encircled by KHOMPLETE KHEMISTRI APPAREL EST 2020. Soft, breathable pique knit with a classic three-button collar. CHOOSE YOUR COLOR AND SIZE at checkout. Available in 15 colors and sizes XS through 5XL.",
+      "Personalized embroidered polo shirt on soft, breathable pique knit with a classic three-button collar. CHOOSE YOUR LOGO, COLOR, AND SIZE at checkout \u2014 pick any logo from our full Branded Logo Collection. Available in 15 colors and sizes XS through 6XL.",
     priceCents: 4500,
-    meta: { category: "Polos", productType: "apparel", sortOrder: "71", gender: "Unisex", imageUrl: "/assets/kk_polo_trident_three.jpg", sizes: "XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL", colors: "Black, Green, Bright Green, Grey, Lake Blue, Light Blue, Navy Blue, Orange, Pink, Purple, Red, Rose Red, Royal Blue, Wine Red, Yellow" },
+    meta: { category: "Polos", productType: "apparel", sortOrder: "71", gender: "Unisex", imageUrl: "/assets/kk_polo_trident_three.jpg", colors: "Black, Green, Bright Green, Grey, Lake Blue, Light Blue, Navy Blue, Orange, Pink, Purple, Red, Rose Red, Royal Blue, Wine Red, Yellow" },
   },
 ];
 
@@ -1341,7 +1341,7 @@ export async function ensureCatalogData() {
         SET _raw_data = jsonb_set(
               jsonb_set(_raw_data, '{description}', ${JSON.stringify(a.description)}::jsonb, true),
               '{metadata}',
-              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(a.meta)}::jsonb,
+              (COALESCE(_raw_data->'metadata', '{}'::jsonb) - 'sizes') || ${JSON.stringify(a.meta)}::jsonb,
               true
             ),
             _updated_at = now()

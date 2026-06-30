@@ -259,6 +259,11 @@ function ProductDetailContent({
   const [errorMessage, setErrorMessage] = useState("");
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [logoCollection, setLogoCollection] = useState("All");
+  const logoCollectionTabs = useMemo(
+    () => ["All", ...LOGO_SECTIONS.map((s) => s.name)],
+    [],
+  );
 
   const clampQty = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.round(n)));
 
@@ -559,9 +564,23 @@ function ProductDetailContent({
                       </p>
                     </div>
                   )}
+                  <div className="flex flex-wrap gap-2" data-testid="tabs-detail-logo-collection">
+                    {logoCollectionTabs.map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        disabled={soldOut}
+                        onClick={() => setLogoCollection(name)}
+                        className={`rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-wide transition-colors disabled:opacity-50 ${logoCollection === name ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
+                        data-testid={`tab-detail-logo-${name.toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
                   <ScrollArea className="max-h-[360px] rounded-lg border border-primary/10 bg-muted/20 p-3 pr-4" data-testid="picker-detail-logo">
                     <div className="space-y-5">
-                      {LOGO_SECTIONS.map((section) => (
+                      {LOGO_SECTIONS.filter((section) => logoCollection === "All" || section.name === logoCollection).map((section) => (
                         <div key={section.name} className="space-y-2">
                           <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
                             {section.name}
