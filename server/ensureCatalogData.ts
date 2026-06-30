@@ -717,6 +717,7 @@ const HAT_DESCRIPTION =
 const HAT_META = {
   category: "Headwear",
   productType: "apparel",
+  hidden: "true",
   sortOrder: "13",
   imageUrl: HAT_IMAGE,
   gender: "Unisex",
@@ -753,6 +754,7 @@ const WINTER_HIDDEN = true;
 const DISCONTINUED_NAMES = [
   "Personalized Custom Logo Clogs",
   "Logo Keychain",
+  "Branded Logo Fitted Hat",
 ];
 
 export async function ensureCatalogData() {
