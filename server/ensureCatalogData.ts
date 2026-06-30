@@ -709,23 +709,21 @@ const SAMSUNG_CASE_META = {
 // it. Color + logo are selected at checkout (see colors/logoOptions metadata).
 const HAT_PRODUCT_ID = "prod_kkfittedhat";
 const HAT_PRICE_ID = "price_kkfittedhat";
-const HAT_NAME = "Branded Logo Fitted Hat";
+const HAT_OLD_NAME = "Branded Logo Fitted Hat";
+const HAT_NAME = "Branded Logo Adjustable Hat";
 const HAT_PRICE_CENTS = 4000;
 const HAT_IMAGE = "/assets/generated_images/fitted_hat_branded.png";
 const HAT_DESCRIPTION =
-  "Premium structured fitted baseball cap with embroidered Khomplete Khemistri branding on the front. 100% acrylic, hand-wash only. SELECT YOUR COLOR AND LOGO at checkout — choose the Apparel Logo, Accessories Eagle Badge, or 5 Swords Crest.";
+  "Structured six-panel baseball cap with an adjustable back strap for a comfortable, one-size-fits-most fit, finished with embroidered Khomplete Khemistri branding on the front. SELECT YOUR COLOR AND LOGO at checkout — pick any logo from our full Branded Logo Collection.";
 const HAT_META = {
   category: "Headwear",
   productType: "apparel",
-  hidden: "true",
   sortOrder: "13",
   imageUrl: HAT_IMAGE,
   gender: "Unisex",
   fulfillment: "Amazon",
-  amazonLink: "https://a.co/d/0iMR1uMI",
-  cost: "24.99",
+  amazonLink: "https://www.amazon.com/dp/B0GSJHB163",
   colors: "Black, Navy, Gray, Khaki, Red",
-  logoOptions: STANDARD_LOGO_OPTIONS,
 };
 
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
@@ -754,7 +752,6 @@ const WINTER_HIDDEN = true;
 const DISCONTINUED_NAMES = [
   "Personalized Custom Logo Clogs",
   "Logo Keychain",
-  "Branded Logo Fitted Hat",
 ];
 
 export async function ensureCatalogData() {
@@ -1144,6 +1141,26 @@ export async function ensureCatalogData() {
       created,
       livemode: false,
     });
+
+    // One-time fixup: the hat used to be a "Fitted Hat" that was hidden and
+    // restricted to 3 logos. Convert the existing row in place — rename it to the
+    // adjustable name and drop the stale `hidden` + `logoOptions` keys (the
+    // additive `||` merge below can't remove keys). Keyed by the OLD name so it
+    // applies to the surviving prod-snapshot row and no-ops once renamed.
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(
+              _raw_data,
+              '{metadata}',
+              (COALESCE(_raw_data->'metadata', '{}'::jsonb) - 'hidden' - 'logoOptions'),
+              true
+            ),
+            '{name}', to_jsonb(${HAT_NAME}::text), true
+          ),
+          _updated_at = now()
+      WHERE name = ${HAT_OLD_NAME}
+    `);
 
     await db.execute(sql`
       INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)

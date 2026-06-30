@@ -165,10 +165,10 @@ const ALL_PRODUCTS = [
     metadata: { category: 'Footwear', productType: 'apparel', sortOrder: '12', imageUrl: '/attached_assets/custom_clogs_accessories_logo.jpg', gender: 'Unisex', fulfillment: 'Amazon', amazonLink: 'https://a.co/d/2Ih6Mhh', cost: '28.99', colors: 'Brown, Black, White, Navy, Gray, Pink, Red', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest' }
   },
   {
-    name: 'Branded Logo Fitted Hat',
-    description: 'Premium structured fitted baseball cap with embroidered Khomplete Khemistri branding on the front. 100% acrylic, hand-wash only. SELECT YOUR COLOR AND LOGO at checkout — choose the Apparel Logo, Accessories Eagle Badge, or 5 Swords Crest.',
+    name: 'Branded Logo Adjustable Hat',
+    description: 'Structured six-panel baseball cap with an adjustable back strap for a comfortable, one-size-fits-most fit, finished with embroidered Khomplete Khemistri branding on the front. SELECT YOUR COLOR AND LOGO at checkout — pick any logo from our full Branded Logo Collection.',
     price: 4000,
-    metadata: { category: 'Headwear', productType: 'apparel', hidden: 'true', sortOrder: '13', imageUrl: '/assets/generated_images/fitted_hat_branded.png', gender: 'Unisex', fulfillment: 'Amazon', amazonLink: 'https://a.co/d/0iMR1uMI', cost: '24.99', colors: 'Black, Navy, Gray, Khaki, Red', logoOptions: 'Apparel Logo, Accessories Eagle Badge, 5 Swords Crest' }
+    metadata: { category: 'Headwear', productType: 'apparel', sortOrder: '13', imageUrl: '/assets/generated_images/fitted_hat_branded.png', gender: 'Unisex', fulfillment: 'Amazon', amazonLink: 'https://www.amazon.com/dp/B0GSJHB163', colors: 'Black, Navy, Gray, Khaki, Red' }
   },
   // FEMININE COLLECTION
   {
