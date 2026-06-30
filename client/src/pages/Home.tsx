@@ -108,9 +108,15 @@ export default function Home() {
                   growth and expansion, a reminder that your creativity, expression, and inner strength are naturally
                   manifesting into reality.
                 </p>
-                <p className="text-lg text-secondary-foreground/80 leading-relaxed mb-10">
+                <p className="text-lg text-secondary-foreground/80 leading-relaxed mb-6">
                   Wear the three and carry that intention with you. You are fully supported in building exactly what you envision.
                 </p>
+
+                <Link href="/number-three">
+                  <Button variant="link" className="px-0 mb-8 text-primary uppercase tracking-widest hover:no-underline hover:text-foreground transition-colors" data-testid="link-read-number-three-story">
+                    Read the Full Story →
+                  </Button>
+                </Link>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {numberThreePillars.map((pillar) => (

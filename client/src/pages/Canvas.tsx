@@ -75,6 +75,7 @@ import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png"
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
 import logoNumberThree from "@assets/logo_number_three_gold.jpg";
+import logoFoundersTrident from "@assets/logo_founders_trident_three.jpg";
 
 // Compass Collection — 400-403
 import bannerCompass from "@assets/1781364317455_1781369690056.png";
@@ -109,6 +110,7 @@ export default function Canvas() {
     { id: "121", src: logoNumberThree, alt: "Gold Number Three Crest", color: "Gold Number Three" },
     { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
     { id: "123", src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold" },
+    { id: "124", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
   ];
 
   const badges = [

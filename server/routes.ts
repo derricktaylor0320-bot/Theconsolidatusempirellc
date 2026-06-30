@@ -311,6 +311,18 @@ const ALL_PRODUCTS = [
     price: 3000,
     metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '68', imageUrl: '/assets/kk_founders_tee_three_infinity.jpg', gender: 'Unisex', customize: 'none' }
   },
+  {
+    name: 'Forging the Future Tee — Charcoal',
+    description: "Charcoal heather unisex tee with an all-over front print of the Khomplete Khemistri alchemy lab — glowing flasks, gears, and the master chemist forging garments — beneath KHOMPLETE KHEMISTRI APPAREL AND ACCESSORIES. EST 2020, LAUNCHED IN 2023, FORGING THE FUTURE OF FABRIC. Select your size at checkout.",
+    price: 3000,
+    metadata: { category: 'T-Shirts', productType: 'apparel', sortOrder: '69', imageUrl: '/assets/kk_forging_future_tee_charcoal.jpg', gender: 'Unisex', customize: 'none' }
+  },
+  {
+    name: 'Forging the Future Hoodie — Green',
+    description: "Forest-green unisex pullover hoodie with an all-over print of the Khomplete Khemistri steampunk alchemy lab wrapping the hood, body, and sleeves — glowing copper pipes, flasks, and the master chemist forging garments — with KHOMPLETE KHEMISTRI APPAREL & ACCESSORIES. EST 2020, LAUNCHED IN 2023, FORGING THE FUTURE OF FABRIC. Select your size at checkout.",
+    price: 6000,
+    metadata: { category: 'Hoodies', productType: 'apparel', sortOrder: '70', imageUrl: '/assets/kk_forging_future_hoodie_green.jpg', gender: 'Unisex', customize: 'none' }
+  },
   // SLEEPWEAR & LOUNGEWEAR
   {
     name: "Personalized Custom Logo Slippers",

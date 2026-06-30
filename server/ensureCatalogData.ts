@@ -393,6 +393,38 @@ const WOMENS_TEE_PRODUCTS: {
   },
 ];
 
+// Branded all-over-print apparel ("Forging the Future of Fabric"). Same
+// self-applying create/keep-current pattern as the women's tees, but each item
+// carries its own priceCents (tee $30, hoodie $60). Sizes are derived adult
+// XS–6XL via apparelSizesFor (no `sizes` metadata).
+const BRANDED_APPAREL_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkforgingtee",
+    priceId: "price_kkforgingtee",
+    name: "Forging the Future Tee \u2014 Charcoal",
+    description:
+      "Charcoal heather unisex tee with an all-over front print of the Khomplete Khemistri alchemy lab \u2014 glowing flasks, gears, and the master chemist forging garments \u2014 beneath KHOMPLETE KHEMISTRI APPAREL AND ACCESSORIES. EST 2020, LAUNCHED IN 2023, FORGING THE FUTURE OF FABRIC. Select your size at checkout.",
+    priceCents: 3000,
+    meta: { category: "T-Shirts", productType: "apparel", sortOrder: "69", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_forging_future_tee_charcoal.jpg" },
+  },
+  {
+    productId: "prod_kkforginghoodie",
+    priceId: "price_kkforginghoodie",
+    name: "Forging the Future Hoodie \u2014 Green",
+    description:
+      "Forest-green unisex pullover hoodie with an all-over print of the Khomplete Khemistri steampunk alchemy lab wrapping the hood, body, and sleeves \u2014 glowing copper pipes, flasks, and the master chemist forging garments \u2014 with KHOMPLETE KHEMISTRI APPAREL & ACCESSORIES. EST 2020, LAUNCHED IN 2023, FORGING THE FUTURE OF FABRIC. Select your size at checkout.",
+    priceCents: 6000,
+    meta: { category: "Hoodies", productType: "apparel", sortOrder: "70", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_forging_future_hoodie_green.jpg" },
+  },
+];
+
 // Kids graphic tees ($20, fixed design, kids size selector). Same self-applying
 // pattern as the women's/founders tees: created only when absent (no-op in dev
 // where Stripe sync makes them; the real creator on the Railway prod frozen
@@ -1250,6 +1282,70 @@ export async function ensureCatalogData() {
         WHERE active = true
           AND product IN (SELECT id FROM stripe.products WHERE name = ${w.name} AND active = true)
           AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(WOMENS_TEE_PRICE_CENTS)}
+      `);
+    }
+
+    // 6c-iii) Branded all-over-print apparel ("Forging the Future of Fabric").
+    //     Same self-applying create/keep-current pattern, but each item carries
+    //     its own price (tee $30, hoodie $60).
+    for (const a of BRANDED_APPAREL_PRODUCTS) {
+      const aProductRaw = JSON.stringify({
+        id: a.productId,
+        object: "product",
+        active: true,
+        name: a.name,
+        description: a.description,
+        metadata: a.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const aPriceRaw = JSON.stringify({
+        id: a.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: a.priceCents,
+        product: a.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${aProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${a.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${aPriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${a.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${a.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(a.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(a.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${a.name} AND active = true
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(a.priceCents)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${a.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(a.priceCents)}
       `);
     }
 

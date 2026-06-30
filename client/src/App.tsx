@@ -7,6 +7,7 @@ import { CartProvider } from "@/hooks/useCart";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
+import NumberThree from "@/pages/NumberThree";
 import Canvas from "@/pages/Canvas";
 import FR2P from "@/pages/FR2P";
 import Apparel from "@/pages/Apparel";
@@ -35,6 +36,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
+      <Route path="/number-three" component={NumberThree} />
       <Route path="/canvas" component={Canvas} />
       <Route path="/customize/:logoId" component={LogoCustomizer} />
       <Route path="/hub" component={Hub} />

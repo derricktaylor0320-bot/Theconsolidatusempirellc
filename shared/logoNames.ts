@@ -69,6 +69,8 @@ export const LOGO_ALTS: string[] = [
   "Khomplete Khemistri Apparel Pride Rainbow Crest",
   // Canvas Collection (gold brand crests)
   "Khomplete Khemistri Apparel & Accessories Gold Crest",
+  // Canvas Collection (founders' trident crest)
+  "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.",
 ];
 
 export const LOGO_ALT_SET: Set<string> = new Set(LOGO_ALTS);

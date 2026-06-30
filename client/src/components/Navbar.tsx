@@ -40,6 +40,7 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/hub", label: "Centralized Hub" },
     { href: "/about", label: "About Us" },
+    { href: "/number-three", label: "The Number Three" },
     { href: "/canvas", label: "Branded Logo Collection" },
     { href: "/apparel", label: "Apparel" },
     { href: "/accessories", label: "Accessories" },
