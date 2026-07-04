@@ -1,5 +1,4 @@
 import { stripeStorage } from "./stripeStorage";
-import { getUncachableStripeClient } from "./stripeClient";
 import {
   isDefaultLogoCustomizable,
   apparelSizesFor,
@@ -33,8 +32,8 @@ export interface StorefrontProduct {
 
 // Collapses products that share a (case-insensitive) name down to a single
 // entry, preferring the one with a real price, then lowest sortOrder/price.
-// Stripe can hold duplicate products from past reseeds; the storefront only ever
-// shows one per name, and the Square mirror must do the same.
+// The catalog can hold duplicate rows from past imports; the storefront only
+// ever shows one per name, and the Square mirror must do the same.
 export function dedupeByName<T extends {
   title: string;
   priceId?: string | null;
@@ -64,11 +63,11 @@ export function dedupeByName<T extends {
   return Array.from(byName.values());
 }
 
-// Where the product list came from. `db` is the authoritative Stripe-synced
-// tables; `stripe-fallback` is the emergency live-Stripe path used only when the
-// DB read fails or is empty. Destructive reconciliation (e.g. the Square mirror
-// pruning removed items) must ONLY trust `db`.
-export type StorefrontSource = "db" | "stripe-fallback";
+// Where the product list came from. `db` is the authoritative catalog tables;
+// `unavailable` means the DB read failed or returned nothing. Destructive
+// reconciliation (e.g. the Square mirror pruning removed items) must ONLY trust
+// `db` so a transient DB hiccup can never wipe the Square catalog.
+export type StorefrontSource = "db" | "unavailable";
 
 export interface StorefrontProductsResult {
   products: StorefrontProduct[];
@@ -76,64 +75,19 @@ export interface StorefrontProductsResult {
 }
 
 // Builds the full, deduped list of products the storefront sells, and reports
-// which source produced it. DB-first (Stripe-synced tables), falling back to the
-// live Stripe API, hiding products flagged `hidden`.
+// which source produced it. Reads from the catalog tables in the app's own
+// database, hiding products flagged `hidden`. There is no Stripe account
+// involved; payments run through Square.
 export async function getStorefrontProductsDetailed(): Promise<StorefrontProductsResult> {
   let rows: any[] = [];
   try {
     rows = await stripeStorage.listProductsWithPrices();
-  } catch {
-    // Fall through to the Stripe API below.
+  } catch (err) {
+    console.error('Failed to read products from the catalog database:', err);
   }
 
   if (!rows || rows.length === 0) {
-    const stripe = await getUncachableStripeClient();
-
-    // Paginate fully so the fallback returns the whole catalog, not just the
-    // first 100. (Still treated as non-authoritative for pruning.)
-    const stripeProducts: any[] = [];
-    let startingAfter: string | undefined;
-    do {
-      const page = await stripe.products.list({
-        active: true,
-        limit: 100,
-        ...(startingAfter ? { starting_after: startingAfter } : {}),
-      });
-      stripeProducts.push(...page.data);
-      startingAfter = page.has_more ? page.data[page.data.length - 1]?.id : undefined;
-    } while (startingAfter);
-
-    const products: StorefrontProduct[] = [];
-    for (const product of stripeProducts) {
-      const prices = await stripe.prices.list({ product: product.id, active: true, limit: 1 });
-      const price = prices.data[0];
-      const metadata = (product.metadata || {}) as any;
-      if (metadata.hidden === 'true') continue;
-
-      products.push({
-        id: product.id,
-        title: product.name,
-        description: product.description || '',
-        category: metadata.category || 'General',
-        imageUrl: metadata.imageUrl || (product.images?.[0] || ''),
-        productType: metadata.productType || 'general',
-        sortOrder: parseInt(metadata.sortOrder || '99'),
-        soldOut: metadata.soldOut === 'true',
-        gender: metadata.gender || null,
-        logoOptions: metadata.logoOptions || (isDefaultLogoCustomizable(metadata) ? FULL_LOGO_CATALOG_OPTION : null),
-        colors: metadata.colors || null,
-        soldOutColors: metadata.soldOutColors || null,
-        handleColors: metadata.handleColors || null,
-        caseType: metadata.caseType || null,
-        sizes: metadata.sizes || null,
-        apparelSizes: apparelSizesFor(metadata, product.name).join(', ') || null,
-        scents: scentsFor(metadata).join(', ') || null,
-        price: price ? (price.unit_amount! / 100).toFixed(2) : '0.00',
-        priceId: price?.id || null,
-      });
-    }
-
-    return { products: dedupeByName(products), source: "stripe-fallback" };
+    return { products: [], source: "unavailable" };
   }
 
   const productsMap = new Map<string, StorefrontProduct>();
@@ -172,7 +126,7 @@ export async function getStorefrontProductsDetailed(): Promise<StorefrontProduct
     }
   }
 
-  return { products: dedupeByName(Array.from(productsMap.values())), source: "db" };
+  return { products: dedupeByName(Array.from(productsMap.values())), source: "db" as StorefrontSource };
 }
 
 // Builds the full, deduped list of products the storefront sells. Single source
