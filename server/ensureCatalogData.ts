@@ -691,6 +691,24 @@ const ELEMENTS_PRODUCTS: {
     priceCents: ELEMENTS_PRICE_CENTS,
     meta: { category: "Elements", productType: "elements", sortOrder: "109", imageUrl: "/assets/kk_elements_ashwagandha.png", customize: "none" },
   },
+  {
+    productId: "prod_kkelemsacai",
+    priceId: "price_kkelemsacai",
+    name: "Acai Berry Complex",
+    description:
+      "Khomplete Khemistri Elements Acai Berry Complex — antioxidant-rich acai berry to support natural energy, immunity, and overall wellness. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "110", imageUrl: "/assets/kk_elements_acai.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemsbrain",
+    priceId: "price_kkelemsbrain",
+    name: "Brain Support Complex",
+    description:
+      "Khomplete Khemistri Elements Brain Support Complex — a nootropic blend crafted to support focus, memory, and mental clarity. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "111", imageUrl: "/assets/kk_elements_brain.png", customize: "none" },
+  },
 ];
 
 // Extra accessories that are self-created in prod the same way as bedding
@@ -816,7 +834,7 @@ const HAT_PRICE_ID = "price_kkfittedhat";
 const HAT_OLD_NAME = "Branded Logo Fitted Hat";
 const HAT_NAME = "Branded Logo Adjustable Hat";
 const HAT_PRICE_CENTS = 4000;
-const HAT_IMAGE = "/assets/generated_images/fitted_hat_branded.png";
+const HAT_IMAGE = "/assets/kk_hat_trident_three.png";
 const HAT_DESCRIPTION =
   "Structured six-panel baseball cap with an adjustable back strap for a comfortable, one-size-fits-most fit, finished with embroidered Khomplete Khemistri branding on the front. SELECT YOUR COLOR AND LOGO at checkout — pick any logo from our full Branded Logo Collection.";
 const HAT_META = {
