@@ -589,6 +589,110 @@ const BEDDING_PRODUCTS: {
   },
 ];
 
+// Khomplete Khemistri Elements — Vitamin Supplements. Self-created in prod the
+// same way as bedding (synthetic prod_kk*/price_kk* ids). No logo customization
+// (customize: "none"); flat price; each bottle is 60 count.
+const ELEMENTS_PRICE_CENTS = 2500;
+const ELEMENTS_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkelemsbcaa",
+    priceId: "price_kkelemsbcaa",
+    name: "BCAA Complex",
+    description:
+      "Khomplete Khemistri Elements BCAA Complex — branched-chain amino acids to support muscle recovery, endurance, and lean-muscle maintenance. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "100", imageUrl: "/assets/kk_elements_bcaa.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemscreatine",
+    priceId: "price_kkelemscreatine",
+    name: "Creatine Monohydrate",
+    description:
+      "Khomplete Khemistri Elements Creatine Monohydrate — pure creatine to support strength, power output, and workout performance. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "101", imageUrl: "/assets/kk_elements_creatine.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemsbeetroot",
+    priceId: "price_kkelemsbeetroot",
+    name: "Organic Beetroot",
+    description:
+      "Khomplete Khemistri Elements Organic Beetroot — supports healthy circulation, stamina, and natural energy. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "102", imageUrl: "/assets/kk_elements_beetroot.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemslarginine",
+    priceId: "price_kkelemslarginine",
+    name: "L-Arginine",
+    description:
+      "Khomplete Khemistri Elements L-Arginine — supports healthy blood flow, circulation, and workout pump. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "103", imageUrl: "/assets/kk_elements_larginine.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemsseamoss",
+    priceId: "price_kkelemsseamoss",
+    name: "Sea Moss",
+    description:
+      "Khomplete Khemistri Elements Sea Moss — nutrient-rich sea moss to support immunity, thyroid health, and overall wellness. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "104", imageUrl: "/assets/kk_elements_seamoss.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemscoq10",
+    priceId: "price_kkelemscoq10",
+    name: "COQ10",
+    description:
+      "Khomplete Khemistri Elements COQ10 — Coenzyme Q10 to support heart health, cellular energy, and antioxidant protection. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "105", imageUrl: "/assets/kk_elements_coq10.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemsturmeric",
+    priceId: "price_kkelemsturmeric",
+    name: "Turmeric w/ BioPerine",
+    description:
+      "Khomplete Khemistri Elements Turmeric with BioPerine — black pepper extract for enhanced absorption; supports joint comfort and a healthy inflammatory response. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "106", imageUrl: "/assets/kk_elements_turmeric.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemsk2d3",
+    priceId: "price_kkelemsk2d3",
+    name: "Vitamin K2 + D3",
+    description:
+      "Khomplete Khemistri Elements Vitamin K2 + D3 — supports bone strength, immune health, and healthy calcium absorption. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "107", imageUrl: "/assets/kk_elements_k2d3.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemsmagnesium",
+    priceId: "price_kkelemsmagnesium",
+    name: "Magnesium Glycinate",
+    description:
+      "Khomplete Khemistri Elements Magnesium Glycinate — highly absorbable magnesium to support relaxation, restful sleep, and muscle function. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "108", imageUrl: "/assets/kk_elements_magnesium.png", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemsashwagandha",
+    priceId: "price_kkelemsashwagandha",
+    name: "Ashwagandha & Black Pepper",
+    description:
+      "Khomplete Khemistri Elements Ashwagandha & Black Pepper — black pepper for enhanced absorption; supports stress relief, balance, and vitality. 60 count.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "109", imageUrl: "/assets/kk_elements_ashwagandha.png", customize: "none" },
+  },
+];
+
 // Extra accessories that are self-created in prod the same way as bedding
 // (synthetic prod_kk*/price_kk* ids, no Stripe on the Railway frozen snapshot).
 // These carry a `colors` list (multi-color picker) and offer the full logo
@@ -1507,6 +1611,69 @@ export async function ensureCatalogData() {
         WHERE active = true
           AND product IN (SELECT id FROM stripe.products WHERE name = ${b.name} AND active = true)
           AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(b.priceCents)}
+      `);
+    }
+
+    // 6a2) Elements — Vitamin Supplements. Same self-applying create/keep-current
+    //      pattern as bedding above. Flat price, no logo customization.
+    for (const s of ELEMENTS_PRODUCTS) {
+      const sProductRaw = JSON.stringify({
+        id: s.productId,
+        object: "product",
+        active: true,
+        name: s.name,
+        description: s.description,
+        metadata: s.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const sPriceRaw = JSON.stringify({
+        id: s.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: s.priceCents,
+        product: s.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${sProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${s.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${sPriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${s.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${s.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(s.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(s.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${s.name} AND active = true
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(s.priceCents)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${s.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(s.priceCents)}
       `);
     }
 

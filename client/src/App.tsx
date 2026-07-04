@@ -13,6 +13,7 @@ import FR2P from "@/pages/FR2P";
 import Apparel from "@/pages/Apparel";
 import Accessories from "@/pages/Accessories";
 import Bedding from "@/pages/Bedding";
+import Elements from "@/pages/Elements";
 import PocketBooster from "@/pages/PocketBooster";
 import Hub from "@/pages/Hub";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
@@ -49,6 +50,7 @@ function Router() {
       <Route path="/apparel" component={Apparel} />
       <Route path="/accessories" component={Accessories} />
       <Route path="/bedding" component={Bedding} />
+      <Route path="/elements" component={Elements} />
       <Route path="/cart" component={Cart} />
       <Route path="/product/:priceId" component={ProductDetail} />
       <Route path="/vintage" component={Vintage} />
