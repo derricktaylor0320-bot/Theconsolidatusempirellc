@@ -5,11 +5,18 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
 export default function Elements() {
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading: loadingElements } = useQuery({
     queryKey: ["/api/products/type/elements"],
   });
+  const { data: accessory, isLoading: loadingAccessory } = useQuery({
+    queryKey: ["/api/products/type/accessory"],
+  });
 
-  const allProducts = (products as any[]) || [];
+  const isLoading = loadingElements || loadingAccessory;
+  const bodyCare = ((accessory as any[]) || []).filter(
+    (p) => p.category === "Body Care",
+  );
+  const allProducts = [...((products as any[]) || []), ...bodyCare];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
