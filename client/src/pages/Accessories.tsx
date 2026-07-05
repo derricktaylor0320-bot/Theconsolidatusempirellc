@@ -15,7 +15,8 @@ export default function Accessories() {
     (p) =>
       p.category !== "Bedding" &&
       p.category !== "Sleepwear" &&
-      p.category !== "Intimates",
+      p.category !== "Intimates" &&
+      p.category !== "Body Care",
   );
 
   return (
