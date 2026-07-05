@@ -170,7 +170,18 @@ export function isScented(metadata: any): boolean {
 // otherwise none. Mirrors apparelSizesFor: derived from a metadata flag so there
 // is no per-product list duplication between dev and the frozen prod snapshot.
 export function scentsFor(metadata: any): string[] {
-  return isScented(metadata) ? [...SCENTS] : [];
+  if (!isScented(metadata)) return [];
+  // A scented product may override the global list with its own comma-separated
+  // `scentOptions` (e.g. Body Oil's fragrance lineup) so its choices don't leak
+  // into the candle / body-butter pickers.
+  const custom = String((metadata || {}).scentOptions || "").trim();
+  if (custom) {
+    return custom
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [...SCENTS];
 }
 
 function splitList(value: unknown): string[] {

@@ -709,6 +709,27 @@ const ELEMENTS_PRODUCTS: {
     priceCents: ELEMENTS_PRICE_CENTS,
     meta: { category: "Elements", productType: "elements", sortOrder: "111", imageUrl: "/assets/kk_elements_brain.png", customize: "none" },
   },
+  {
+    // Body Oil is a scented good, not a $25 supplement: $10/bottle, unisex, and
+    // the customer picks a fragrance at checkout (scentOptions override the
+    // global SCENTS list) instead of a logo.
+    productId: "prod_kkelemsbodyoil",
+    priceId: "price_kkelemsbodyoil",
+    name: "Body Oil",
+    description:
+      "Khomplete Khemistri Elements Body Oil — a long-lasting fragrance body oil, unisex for men & women. SELECT YOUR SCENT at checkout. $10 per bottle.",
+    priceCents: 1000,
+    meta: {
+      category: "Elements",
+      productType: "elements",
+      sortOrder: "112",
+      imageUrl: "/assets/kk_elements_body_oil.png",
+      gender: "Unisex",
+      scented: "true",
+      scentOptions:
+        "Lady Million, Pink Passion, Prada, Dior Sauvage, Armani Code, Polo Black, Polo Red, Gucci Guilty, Frankincense, Tom Ford Oud, Dolce & Gabbana, Baccarat Rouge 540, YSL, Creed Aventus, Trini Girl, Riri, Michele Obama, Love Pink, Fenty",
+    },
+  },
 ];
 
 // Extra accessories that are self-created in prod the same way as bedding
