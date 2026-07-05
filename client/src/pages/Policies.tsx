@@ -96,7 +96,7 @@ export default function Policies() {
 
             <div className="mt-12 text-center">
               <p className="text-muted-foreground text-sm">
-                Questions? Contact us at <a href="mailto:support@khompletekhemistri.com" className="text-primary hover:underline">support@khompletekhemistri.com</a>
+                Questions? Contact us at <a href="mailto:supporttheconsolidatusempire@gmail.com" className="text-primary hover:underline">supporttheconsolidatusempire@gmail.com</a>
               </p>
             </div>
           </div>

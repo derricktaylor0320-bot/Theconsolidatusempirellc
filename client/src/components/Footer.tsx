@@ -34,7 +34,7 @@ export default function Footer() {
           <div>
             <h4 className="font-display font-semibold mb-4 uppercase tracking-wider">Support</h4>
             <ul className="space-y-2 text-sm text-secondary-foreground/70">
-              <li><a href="mailto:support@khompletekhemistri.com" className="hover:text-primary transition-colors">Contact Us</a></li>
+              <li><a href="mailto:supporttheconsolidatusempire@gmail.com" className="hover:text-primary transition-colors">Contact Us</a></li>
               <li><Link href="/policies" className="hover:text-primary transition-colors">Shipping & Policies</Link></li>
             </ul>
           </div>
