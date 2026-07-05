@@ -24,21 +24,21 @@ export default function Elements() {
             Khomplete Khemistri Elements
           </h1>
           <p className="text-2xl font-display uppercase tracking-widest text-foreground mb-4">
-            Vitamin Supplements
+            Health &amp; Skin Care
           </p>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Premium supplements to support your wellness and performance. Each
-            bottle is 60 count.
+            Premium supplements and body care to support your wellness inside and
+            out. Supplement bottles are 60 count.
           </p>
         </motion.div>
 
         {isLoading ? (
           <div className="text-center py-12" data-testid="text-elements-loading">
-            Loading supplements...
+            Loading products...
           </div>
         ) : allProducts.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground" data-testid="text-elements-empty">
-            Supplements coming soon.
+            Products coming soon.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">

@@ -45,7 +45,7 @@ export default function Navbar() {
     { href: "/apparel", label: "Apparel" },
     { href: "/accessories", label: "Accessories" },
     { href: "/bedding", label: "Bedding & Intimates" },
-    { href: "/elements", label: "Elements Supplements" },
+    { href: "/elements", label: "Elements Health & Skincare" },
     { href: "/vintage", label: "Vintage Baltimore" },
     { href: "/poetry", label: "Poetry on a Plaque" },
     { href: "/hot-dogs", label: "Premium Choice Hot Dogs" },
