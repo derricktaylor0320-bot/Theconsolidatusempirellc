@@ -730,6 +730,42 @@ const ELEMENTS_PRODUCTS: {
         "Lady Million, Pink Passion, Prada, Dior Sauvage, Armani Code, Polo Black, Polo Red, Gucci Guilty, Frankincense, Tom Ford Oud, Dolce & Gabbana, Baccarat Rouge 540, YSL, Creed Aventus, Trini Girl, Riri, Michele Obama, Love Pink, Fenty",
     },
   },
+  {
+    productId: "prod_kkelemscoffeelemongaze",
+    priceId: "price_kkelemscoffeelemongaze",
+    name: "Lemon Gaze Coffee",
+    description:
+      "Khomplete Khemistri Elements Lemon Gaze — a bright, citrus-forward light roast coffee, privately labeled for Khomplete Khemistri.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "113", imageUrl: "/assets/kk_elements_coffee_lemon_gaze.jpg", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemscoffeevitalitymushroom",
+    priceId: "price_kkelemscoffeevitalitymushroom",
+    name: "Vitality Mushroom Coffee",
+    description:
+      "Khomplete Khemistri Elements Vitality Mushroom — a smooth medium roast coffee infused with functional mushrooms, privately labeled for Khomplete Khemistri.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "114", imageUrl: "/assets/kk_elements_coffee_vitality_mushroom.jpg", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemscoffeevelvetcoco",
+    priceId: "price_kkelemscoffeevelvetcoco",
+    name: "Velvet Coco Coffee",
+    description:
+      "Khomplete Khemistri Elements Velvet Coco — a rich, chocolate-forward medium roast coffee, privately labeled for Khomplete Khemistri.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "115", imageUrl: "/assets/kk_elements_coffee_velvet_coco.jpg", customize: "none" },
+  },
+  {
+    productId: "prod_kkelemscoffeeforrestdecaf",
+    priceId: "price_kkelemscoffeeforrestdecaf",
+    name: "Forrest Decaf Coffee",
+    description:
+      "Khomplete Khemistri Elements Forrest Decaf — a full-flavored medium roast decaf coffee, privately labeled for Khomplete Khemistri.",
+    priceCents: ELEMENTS_PRICE_CENTS,
+    meta: { category: "Elements", productType: "elements", sortOrder: "116", imageUrl: "/assets/kk_elements_coffee_forrest_decaf.jpg", customize: "none" },
+  },
 ];
 
 // Extra accessories that are self-created in prod the same way as bedding
