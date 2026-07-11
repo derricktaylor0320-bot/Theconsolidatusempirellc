@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import heroImage from "@assets/generated_images/luxury_empire_headquarters_background.png";
-import consolidatusLogo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
+import heroImage from "@assets/1783773416912_1783774780616.png";
+import consolidatusLogo from "@assets/consolidatus_empire_logo_nobg.png";
 
 export default function Hero() {
   return (
@@ -11,9 +11,11 @@ export default function Hero() {
         <img 
           src={heroImage} 
           alt="The Consolidatus Empire Headquarters" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover blur-[3px] scale-110"
         />
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_55%_at_50%_42%,rgba(0,0,0,0.7),transparent_72%)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </div>
       
       <div className="relative z-10 container mx-auto px-4 text-center text-white">
@@ -26,7 +28,7 @@ export default function Hero() {
           <img 
             src={consolidatusLogo} 
             alt="The Consolidatus Empire Logo" 
-            className="w-64 h-auto md:w-80 lg:w-96 object-contain"
+            className="w-72 h-auto md:w-96 lg:w-[26rem] object-contain drop-shadow-[0_8px_30px_rgba(0,0,0,0.6)]"
           />
         </motion.div>
         
