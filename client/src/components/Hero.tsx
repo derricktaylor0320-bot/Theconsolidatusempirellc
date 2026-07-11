@@ -11,11 +11,11 @@ export default function Hero() {
         <img 
           src={heroImage} 
           alt="The Consolidatus Empire Headquarters" 
-          className="w-full h-full object-cover blur-[3px] scale-110"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_55%_at_50%_42%,rgba(0,0,0,0.7),transparent_72%)]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_45%_at_50%_40%,rgba(0,0,0,0.35),transparent_75%)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
       </div>
       
       <div className="relative z-10 container mx-auto px-4 text-center text-white">
