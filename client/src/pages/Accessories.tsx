@@ -38,7 +38,7 @@ export default function Accessories() {
             data-testid="img-accessories-banner"
           />
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Branded essentials for your lifestyle. Tumblers, umbrellas, candles, and more.
+            Branded essentials for your lifestyle. Duffle bags, tumblers, umbrellas, candles, and more.
           </p>
         </motion.div>
 
