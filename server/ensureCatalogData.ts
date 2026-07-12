@@ -833,8 +833,8 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     name: "Personalized Duffle Bag",
     description:
       "Custom logo duffle bag (about 18.5\" L \u00d7 10.5\" W \u00d7 9\" H) in durable water-resistant polyester \u2014 dual carry handles, adjustable shoulder strap, main zip compartment, and a side zip pocket for shoes or gear. SELECT YOUR COLOR AND LOGO at checkout. Etsy-fulfilled. Available in 9 colors: Green, Light Blue, Light Purple, Pink, Black, Grey, Dark Blue, Dark Purple, and Red.",
-    // Etsy blank $36.80 + $10 margin. Shipping is handled by the Etsy fulfiller.
-    priceCents: 4680,
+    // Etsy custom-logo checkout $22.40 (sale) → retail $35. Shipping calculated by Etsy at fulfill time.
+    priceCents: 3500,
     meta: {
       category: "Bags",
       productType: "accessory",
@@ -844,8 +844,8 @@ const EXTRA_ACCESSORY_PRODUCTS: {
       etsyLink: "https://www.etsy.com/listing/1898634919/custom-logo-duffle-bag-personalized",
       colors: "Green, Light Blue, Light Purple, Pink, Black, Grey, Dark Blue, Dark Purple, Red",
       imageUrl: "/assets/kk_duffle_bag_black.png",
-      cost: "36.80",
-      profitMargin: "10.00",
+      cost: "22.40",
+      profitMargin: "12.60",
     },
   },
   {
@@ -2016,7 +2016,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($46.80, Etsy-fulfilled, 9 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($35, Etsy-fulfilled, 9 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
