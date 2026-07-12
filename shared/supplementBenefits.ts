@@ -226,6 +226,114 @@ const SUPPLEMENTS: { match: RegExp; info: SupplementInfo }[] = [
         "For optimal results, supplements typically contain 1000 mg of curcumin extract alongside 5–10 mg of BioPerine. Taking the supplement with a meal containing fat further aids digestion and absorption.",
     },
   },
+  {
+    match: /k2/i,
+    info: {
+      intro:
+        "Vitamin D3 (cholecalciferol) helps your body absorb calcium, while vitamin K2 makes sure that calcium goes to your bones and teeth instead of building up in your arteries. Taken together, they work as a team for stronger bones and a healthier heart.",
+      benefits: [
+        {
+          label: "Better Calcium Absorption",
+          text: "Vitamin D3 helps your body absorb more calcium from the food you eat.",
+        },
+        {
+          label: "Directs Calcium Where It Belongs",
+          text: "Vitamin K2 helps transport that calcium to your bones and teeth rather than letting it sit in your arteries and other soft tissues.",
+        },
+        {
+          label: "Stronger Bones",
+          text: "Supports bone growth and remodeling, helping lower the risk of osteoporosis.",
+        },
+        {
+          label: "Heart Health",
+          text: "By keeping calcium out of your arteries, the pair helps keep your heart healthy and lower the risk of heart disease.",
+        },
+        {
+          label: "Everyday Body Functions",
+          text: "Vitamin D3 also supports muscle contractions and converting food into energy, while K2 supports healthy blood clotting.",
+        },
+      ],
+      note:
+        "Deficiencies in both vitamins are widespread and hard to correct through diet alone — especially K2, which isn't found in many commonly eaten foods — which is why they're often taken together as a supplement.",
+    },
+  },
+  {
+    match: /creatine/i,
+    info: {
+      intro:
+        "Creatine monohydrate is the most researched and effective dietary supplement for increasing phosphocreatine stores in skeletal muscles, which enhances energy production (ATP) during short-duration, high-intensity exercises like weightlifting and sprinting.",
+      benefits: [
+        {
+          label: "Strength & Power",
+          text: "Widely used to improve muscle strength, power, and lean body mass when combined with resistance training.",
+        },
+        {
+          label: "Energy for High-Intensity Exercise",
+          text: "Boosts phosphocreatine stores to fuel short bursts of intense effort like weightlifting and sprinting.",
+        },
+        {
+          label: "Cognitive Benefits",
+          text: "May also offer cognitive benefits such as improved memory and reduced mental fatigue, particularly in older adults or those under stress.",
+        },
+      ],
+      note:
+        "The standard protocol is a maintenance dose of 3–5 grams daily; some users do a loading phase of 20 grams per day (split into four doses) for 5–7 days to saturate muscles faster. Generally safe for healthy individuals, though it can cause temporary water retention and weight gain. Not recommended for those with pre-existing kidney disease, or those pregnant or breastfeeding, without medical supervision.",
+    },
+  },
+  {
+    match: /ashwagandha/i,
+    info: {
+      intro:
+        "Pairing ashwagandha with black pepper (piperine) improves how much of the ashwagandha your body actually absorbs, making each dose more effective.",
+      benefits: [
+        {
+          label: "Increased Absorption",
+          text: "Piperine can significantly boost the amount of ashwagandha that reaches circulation, making each dose more effective.",
+        },
+        {
+          label: "Enhanced Stress Relief",
+          text: "Higher bioavailability leads to more potent regulation of cortisol and improved management of stress and anxiety.",
+        },
+        {
+          label: "Improved Efficacy",
+          text: "Users may experience faster and more noticeable benefits for sleep, mood, and energy levels compared to ashwagandha alone.",
+        },
+        {
+          label: "Optimized Dosage",
+          text: "Because absorption is improved, lower doses may be as effective as higher doses of non-enhanced ashwagandha.",
+        },
+      ],
+      note:
+        "Research suggests 5–20 mg of piperine per serving is the effective range for enhancing bioavailability. However, piperine can interact with medications metabolized by the CYP3A4 enzyme system, so individuals on prescription drugs should consult a healthcare provider before use.",
+    },
+  },
+  {
+    match: /acai/i,
+    info: {
+      intro:
+        "Acai Berry Complex is a dietary blend designed to support healthy bowel movements, antioxidant protection, and daily wellness. These blends typically combine acai berry fruit extract with digestive aids like psyllium powder, inulin, and slippery elm bark.",
+      benefits: [
+        {
+          label: "Digestive Support",
+          text: "Digestive aids like psyllium powder, inulin, and slippery elm bark help support healthy, regular bowel movements.",
+        },
+        {
+          label: "Antioxidant Protection",
+          text: "Acai is a nutrient-dense superfruit rich in anthocyanins, supporting antioxidant intake and daily wellness.",
+        },
+        {
+          label: "Nutrient-Rich Blend",
+          text: "Often contains acai berry, psyllium powder, inulin, slippery elm bark, aloe ferox powder, chlorella, black walnut hulls, ginger root, and lycopene.",
+        },
+        {
+          label: "Detox & Energy Support",
+          text: "Commonly used to support detoxification, energy levels, and immune health.",
+        },
+      ],
+      note:
+        "Many versions are produced in USA-based, FDA-registered and GMP-certified facilities with third-party lab testing, and are typically Non-GMO, vegan-friendly, vegetarian, and lactose-free.",
+    },
+  },
 ];
 
 export function getSupplementInfo(title?: string | null): SupplementInfo | undefined {
