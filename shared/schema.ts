@@ -100,6 +100,10 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   displayName: text("display_name"),
+  // Optional profile photo (site-hosted upload under /media-files/avatars/)
+  // and free-form location ("Atlanta, GA" / "USA") shown next to reviews.
+  avatarUrl: text("avatar_url"),
+  location: text("location"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -112,7 +116,18 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 // Public-facing user shape (never expose the password hash to clients)
-export type PublicUser = Pick<User, "id" | "email" | "displayName">;
+export type PublicUser = Pick<
+  User,
+  "id" | "email" | "displayName" | "avatarUrl" | "location"
+>;
+
+// Profile fields a signed-in user may edit about themselves. Empty strings
+// clear the value. The avatar is handled separately via file upload.
+export const updateProfileSchema = z.object({
+  displayName: z.string().trim().max(80, "Name is too long").optional(),
+  location: z.string().trim().max(80, "Location is too long").optional(),
+});
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
 // Single-use, expiring tokens for the "forgot password" flow.
 // We store only a hash of the token so a database leak can't be used to
@@ -250,3 +265,10 @@ export type Review = typeof reviews.$inferSelect;
 
 // Public review shape returned by the API (never exposes reviewer user ids).
 export type PublicReview = Omit<Review, "userId">;
+
+// Review as served by the list endpoints: joined with the reviewer's current
+// profile photo and location so reviews always show up-to-date profile info.
+export type PublicReviewWithReviewer = PublicReview & {
+  reviewerAvatarUrl: string | null;
+  reviewerLocation: string | null;
+};

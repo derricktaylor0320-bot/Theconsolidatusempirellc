@@ -156,6 +156,10 @@ export async function ensureTablesExist() {
       )
     `);
 
+    // Profile photo + location shown next to a user's reviews.
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS location TEXT`);
+
     // Customer product reviews. Keyed by product name (the storefront dedupes
     // catalog rows by name, so the name is the stable product identity). One
     // review per user per product, enforced by the unique index.

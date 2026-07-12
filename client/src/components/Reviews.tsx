@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { PublicReview } from "@shared/schema";
+import type { PublicReview, PublicReviewWithReviewer } from "@shared/schema";
 
 function Stars({
   rating,
@@ -40,20 +40,60 @@ function reviewDate(value: PublicReview["createdAt"]) {
   });
 }
 
-function ReviewCard({ review }: { review: PublicReview }) {
+// Small circular reviewer photo; falls back to the reviewer's initial.
+function ReviewerAvatar({
+  review,
+  size = "w-9 h-9",
+  textSize = "text-sm",
+}: {
+  review: PublicReviewWithReviewer;
+  size?: string;
+  textSize?: string;
+}) {
+  if (review.reviewerAvatarUrl) {
+    return (
+      <img
+        src={review.reviewerAvatarUrl}
+        alt=""
+        className={`${size} rounded-full object-cover border border-primary/40 shrink-0`}
+        data-testid={`img-reviewer-avatar-${review.id}`}
+      />
+    );
+  }
+  return (
+    <span
+      className={`${size} rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center text-primary font-display font-bold ${textSize} shrink-0`}
+    >
+      {(review.reviewerName || "?").charAt(0).toUpperCase()}
+    </span>
+  );
+}
+
+function ReviewCard({ review }: { review: PublicReviewWithReviewer }) {
   return (
     <div
       className="rounded-lg border border-primary/20 bg-background/40 p-5"
       data-testid={`card-review-${review.id}`}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
+        <ReviewerAvatar review={review} />
+        <div className="flex flex-col">
+          <span
+            className="font-display font-semibold uppercase tracking-wide text-sm"
+            data-testid={`text-reviewer-${review.id}`}
+          >
+            {review.reviewerName}
+          </span>
+          {review.reviewerLocation && (
+            <span
+              className="text-xs text-muted-foreground"
+              data-testid={`text-reviewer-location-${review.id}`}
+            >
+              {review.reviewerLocation}
+            </span>
+          )}
+        </div>
         <Stars rating={review.rating} testId={`stars-review-${review.id}`} />
-        <span
-          className="font-display font-semibold uppercase tracking-wide text-sm"
-          data-testid={`text-reviewer-${review.id}`}
-        >
-          {review.reviewerName}
-        </span>
         {review.verified && (
           <span
             className="inline-flex items-center gap-1 text-xs font-medium text-primary border border-primary/40 rounded-full px-2 py-0.5"
@@ -87,7 +127,7 @@ export function ReviewsSection({ productName }: { productName: string }) {
   const [submitted, setSubmitted] = useState(false);
 
   const queryKey = ["/api/reviews", productName] as const;
-  const { data: reviews, isLoading } = useQuery<PublicReview[]>({
+  const { data: reviews, isLoading } = useQuery<PublicReviewWithReviewer[]>({
     queryKey,
     queryFn: async () => {
       const res = await fetch(
@@ -272,7 +312,7 @@ export function ReviewsSection({ productName }: { productName: string }) {
 // Homepage panel: latest reviews across every product. Renders nothing until
 // the store has at least one review.
 export function RecentReviewsPanel() {
-  const { data: reviews } = useQuery<PublicReview[]>({
+  const { data: reviews } = useQuery<PublicReviewWithReviewer[]>({
     queryKey: ["/api/reviews/recent"],
   });
 
@@ -303,20 +343,26 @@ export function RecentReviewsPanel() {
                   : review.comment}
               </p>
               <div className="mt-4 pt-4 border-t border-primary/15">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-display font-semibold uppercase tracking-wide text-sm">
-                    {review.reviewerName}
-                  </span>
-                  {review.verified && (
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                      <BadgeCheck className="w-3.5 h-3.5" />
-                      Verified Purchase
-                    </span>
-                  )}
+                <div className="flex items-center gap-3">
+                  <ReviewerAvatar review={review} size="w-10 h-10" textSize="text-base" />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-display font-semibold uppercase tracking-wide text-sm">
+                        {review.reviewerName}
+                      </span>
+                      {review.verified && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                          <BadgeCheck className="w-3.5 h-3.5" />
+                          Verified Purchase
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {review.reviewerLocation ? `${review.reviewerLocation} · ` : ""}
+                      on {review.productName}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  on {review.productName}
-                </p>
               </div>
             </div>
           ))}

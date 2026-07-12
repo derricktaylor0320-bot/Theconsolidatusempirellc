@@ -1,4 +1,10 @@
 import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems, type Review, reviews } from "@shared/schema";
+
+// Review row joined with the reviewer's current profile photo + location.
+export type ReviewWithReviewer = Review & {
+  reviewerAvatarUrl: string | null;
+  reviewerLocation: string | null;
+};
 import { db } from "./db";
 import { and, eq, ne, isNull, desc, sql } from "drizzle-orm";
 
@@ -64,9 +70,16 @@ export interface IStorage {
   }): Promise<MediaItem>;
   deleteMediaItem(id: string): Promise<MediaItem | undefined>;
 
+  // Profile operations
+  updateUserProfile(
+    userId: string,
+    fields: { displayName?: string | null; location?: string | null },
+  ): Promise<User | undefined>;
+  updateUserAvatar(userId: string, avatarUrl: string | null): Promise<User | undefined>;
+
   // Product review operations
-  getReviewsForProduct(productName: string): Promise<Review[]>;
-  getRecentReviews(limit: number): Promise<Review[]>;
+  getReviewsForProduct(productName: string): Promise<ReviewWithReviewer[]>;
+  getRecentReviews(limit: number): Promise<ReviewWithReviewer[]>;
   getReviewById(id: string): Promise<Review | undefined>;
   upsertReview(review: {
     productName: string;
@@ -370,21 +383,76 @@ export class DatabaseStorage implements IStorage {
     return deleted;
   }
 
-  // --- Product reviews -------------------------------------------------------
-  async getReviewsForProduct(productName: string): Promise<Review[]> {
-    return await db
-      .select()
-      .from(reviews)
-      .where(eq(reviews.productName, productName))
-      .orderBy(desc(reviews.createdAt));
+  // --- Profile ---------------------------------------------------------------
+  async updateUserProfile(
+    userId: string,
+    fields: { displayName?: string | null; location?: string | null },
+  ): Promise<User | undefined> {
+    const set: Partial<typeof users.$inferInsert> = {};
+    if (fields.displayName !== undefined) set.displayName = fields.displayName;
+    if (fields.location !== undefined) set.location = fields.location;
+    if (Object.keys(set).length === 0) {
+      return await this.getUser(userId);
+    }
+    const [updated] = await db
+      .update(users)
+      .set(set)
+      .where(eq(users.id, userId))
+      .returning();
+    return updated;
   }
 
-  async getRecentReviews(limit: number): Promise<Review[]> {
-    return await db
-      .select()
+  async updateUserAvatar(
+    userId: string,
+    avatarUrl: string | null,
+  ): Promise<User | undefined> {
+    const [updated] = await db
+      .update(users)
+      .set({ avatarUrl })
+      .where(eq(users.id, userId))
+      .returning();
+    return updated;
+  }
+
+  // --- Product reviews -------------------------------------------------------
+  // Reviews are joined with the reviewer's CURRENT profile (photo + location)
+  // at read time, so profile updates automatically flow into old reviews.
+  private reviewWithReviewerSelect = {
+    review: reviews,
+    reviewerAvatarUrl: users.avatarUrl,
+    reviewerLocation: users.location,
+  };
+
+  private static joinReviewRow(row: {
+    review: Review;
+    reviewerAvatarUrl: string | null;
+    reviewerLocation: string | null;
+  }): ReviewWithReviewer {
+    return {
+      ...row.review,
+      reviewerAvatarUrl: row.reviewerAvatarUrl,
+      reviewerLocation: row.reviewerLocation,
+    };
+  }
+
+  async getReviewsForProduct(productName: string): Promise<ReviewWithReviewer[]> {
+    const rows = await db
+      .select(this.reviewWithReviewerSelect)
       .from(reviews)
+      .leftJoin(users, eq(users.id, reviews.userId))
+      .where(eq(reviews.productName, productName))
+      .orderBy(desc(reviews.createdAt));
+    return rows.map(DatabaseStorage.joinReviewRow);
+  }
+
+  async getRecentReviews(limit: number): Promise<ReviewWithReviewer[]> {
+    const rows = await db
+      .select(this.reviewWithReviewerSelect)
+      .from(reviews)
+      .leftJoin(users, eq(users.id, reviews.userId))
       .orderBy(desc(reviews.createdAt))
       .limit(limit);
+    return rows.map(DatabaseStorage.joinReviewRow);
   }
 
   async getReviewById(id: string): Promise<Review | undefined> {

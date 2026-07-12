@@ -39,8 +39,14 @@ async function verifyPassword(
   return timingSafeEqual(hashedBuf, derived);
 }
 
-function toPublicUser(user: User): PublicUser {
-  return { id: user.id, email: user.email, displayName: user.displayName };
+export function toPublicUser(user: User): PublicUser {
+  return {
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+    avatarUrl: user.avatarUrl,
+    location: user.location,
+  };
 }
 
 // Throttle password-reset requests to stop inbox spam and runaway email costs.

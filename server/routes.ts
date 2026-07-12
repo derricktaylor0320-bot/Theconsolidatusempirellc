@@ -8,9 +8,9 @@ import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } fro
 import { trackingUrlFor } from "@shared/shipping";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
-import { setupAuth, requireAuth, requireOwner } from "./auth";
+import { setupAuth, requireAuth, requireOwner, toPublicUser } from "./auth";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
-import { updateOrderFulfillmentSchema, insertMediaLinkSchema, mediaUploadFieldsSchema, insertReviewSchema, type Review, type User } from "@shared/schema";
+import { updateOrderFulfillmentSchema, insertMediaLinkSchema, mediaUploadFieldsSchema, insertReviewSchema, updateProfileSchema, type Review, type User } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -64,6 +64,48 @@ const ALLOWED_MEDIA_TYPES = new Map<string, string>([
   ["audio/flac", ".flac"],
   ["audio/x-flac", ".flac"],
 ]);
+
+// Profile pictures live under MEDIA_DIR/avatars (same persistent volume as
+// media uploads on Railway) and are served at /media-files/avatars/<file>.
+// Same stored-extension policy as media: the extension comes from a server
+// MIME allowlist, never from the uploader's filename.
+const AVATAR_DIR = path.join(MEDIA_DIR, "avatars");
+try {
+  fs.mkdirSync(AVATAR_DIR, { recursive: true });
+} catch (err) {
+  console.error("Failed to create AVATAR_DIR:", err);
+}
+const ALLOWED_AVATAR_TYPES = new Map<string, string>([
+  ["image/jpeg", ".jpg"],
+  ["image/png", ".png"],
+  ["image/webp", ".webp"],
+  ["image/gif", ".gif"],
+]);
+const avatarUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, AVATAR_DIR),
+    filename: (_req, file, cb) => {
+      const ext = ALLOWED_AVATAR_TYPES.get(file.mimetype) || ".bin";
+      cb(null, `${randomUUID()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_AVATAR_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Please upload a JPG, PNG, WebP, or GIF image."));
+    }
+  },
+});
+
+// Delete a previously stored avatar file, but only if it actually points into
+// our avatars folder (never let a crafted URL delete arbitrary files).
+function removeAvatarFile(avatarUrl: string | null | undefined) {
+  if (!avatarUrl || !avatarUrl.startsWith("/media-files/avatars/")) return;
+  const fileName = path.basename(avatarUrl);
+  fs.unlink(path.join(AVATAR_DIR, fileName), () => {});
+}
 
 const mediaUpload = multer({
   storage: multer.diskStorage({
@@ -246,9 +288,98 @@ export async function registerRoutes(
     }
   });
 
+  // --- Profile API -----------------------------------------------------------
+  // Signed-in users can set the name + location shown next to their reviews.
+  app.patch("/api/auth/profile", requireAuth, async (req, res) => {
+    const parsed = updateProfileSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res
+        .status(400)
+        .json({ error: parsed.error.errors[0]?.message || "Invalid input" });
+    }
+    try {
+      const user = req.user as User;
+      const updated = await storage.updateUserProfile(user.id, {
+        // Empty string clears the field; undefined leaves it untouched.
+        displayName:
+          parsed.data.displayName === undefined
+            ? undefined
+            : parsed.data.displayName || null,
+        location:
+          parsed.data.location === undefined
+            ? undefined
+            : parsed.data.location || null,
+      });
+      if (!updated) return res.status(404).json({ error: "User not found" });
+      res.json(toPublicUser(updated));
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
+  // Signed-in users: upload a profile picture (shown on their reviews).
+  app.post(
+    "/api/auth/profile/avatar",
+    requireAuth,
+    (req, res, next) => {
+      avatarUpload.single("avatar")(req, res, (err: any) => {
+        if (err) {
+          const message =
+            err.code === "LIMIT_FILE_SIZE"
+              ? "Image is too large (max 5 MB)."
+              : err.message || "Upload failed";
+          return res.status(400).json({ error: message });
+        }
+        next();
+      });
+    },
+    async (req, res) => {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ error: "No image was uploaded" });
+      }
+      try {
+        const user = req.user as User;
+        const previousAvatar = user.avatarUrl;
+        const updated = await storage.updateUserAvatar(
+          user.id,
+          `/media-files/avatars/${file.filename}`,
+        );
+        if (!updated) {
+          fs.unlink(path.join(AVATAR_DIR, file.filename), () => {});
+          return res.status(404).json({ error: "User not found" });
+        }
+        // Clean up the replaced photo so the volume doesn't fill with orphans.
+        removeAvatarFile(previousAvatar);
+        res.json(toPublicUser(updated));
+      } catch (error) {
+        fs.unlink(path.join(AVATAR_DIR, file.filename), () => {});
+        console.error("Error saving avatar:", error);
+        res.status(500).json({ error: "Failed to save profile picture" });
+      }
+    },
+  );
+
+  // Signed-in users: remove their profile picture.
+  app.delete("/api/auth/profile/avatar", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const previousAvatar = user.avatarUrl;
+      const updated = await storage.updateUserAvatar(user.id, null);
+      if (!updated) return res.status(404).json({ error: "User not found" });
+      removeAvatarFile(previousAvatar);
+      res.json(toPublicUser(updated));
+    } catch (error) {
+      console.error("Error removing avatar:", error);
+      res.status(500).json({ error: "Failed to remove profile picture" });
+    }
+  });
+
   // --- Product reviews API ---------------------------------------------------
   // Public API responses never include reviewer user ids.
-  const toPublicReview = ({ userId: _userId, ...rest }: Review) => rest;
+  const toPublicReview = <T extends Review>({ userId: _userId, ...rest }: T) =>
+    rest;
 
   // Public: reviews for one product (by product name, the stable identity).
   app.get("/api/reviews", async (req, res) => {
@@ -813,6 +944,33 @@ export async function registerRoutes(
       }
       const { order, transitionedToFulfilled } = result;
 
+      // Build a direct "leave a review" link for the shipping email: point at
+      // the product page of the first item in the order (falls back to the
+      // site root when the product can't be resolved anymore).
+      const publicBaseUrl = (
+        process.env.APP_URL ||
+        process.env.PUBLIC_URL ||
+        (process.env.REPLIT_DOMAINS
+          ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}`
+          : "")
+      ).replace(/\/$/, "");
+      let reviewUrl: string | undefined;
+      if (publicBaseUrl) {
+        reviewUrl = publicBaseUrl;
+        try {
+          const catalog = await getStorefrontProducts();
+          const firstItem = order.items[0];
+          const match =
+            firstItem &&
+            (catalog as any[]).find((p) => p.title === firstItem.name);
+          if (match?.priceId) {
+            reviewUrl = `${publicBaseUrl}/product/${match.priceId}`;
+          }
+        } catch {
+          // keep the site-root fallback
+        }
+      }
+
       // Notify the customer their order shipped. Best-effort: never fail the
       // request if the email can't be sent. The storage layer guarantees
       // transitionedToFulfilled is true for only one request per
@@ -830,6 +988,7 @@ export async function registerRoutes(
             carrier: order.carrier,
             trackingNumber: order.trackingNumber,
             trackingUrl,
+            reviewUrl,
           });
           shippingEmailSent = await sendEmail({
             to: order.customerEmail,

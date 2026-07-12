@@ -178,6 +178,9 @@ export function buildShippingNotificationEmail(input: {
   carrier?: string | null;
   trackingNumber?: string | null;
   trackingUrl?: string | null;
+  // Link to the product page where the customer can leave a review once the
+  // order arrives (post-purchase review invitation).
+  reviewUrl?: string | null;
 }): { subject: string; html: string; text: string } {
   const subject = "Your Consolidatus Empire order has shipped";
 
@@ -191,14 +194,19 @@ export function buildShippingNotificationEmail(input: {
     ? `Track your package: ${input.trackingUrl}\n`
     : "";
 
+  const reviewTextBlock = input.reviewUrl
+    ? `\nOnce it arrives, we'd love to hear what you think! Sign in and leave a quick star rating and review:\n${input.reviewUrl}\n`
+    : "";
+
   const text =
     `Good news — your order is on its way!\n\n` +
     refLine +
     carrierLine +
     trackingLine +
     trackingUrlLine +
-    `\nItems:\n${itemLines.join("\n")}\n\n` +
-    `If you have any questions about your order, just reply to this email.`;
+    `\nItems:\n${itemLines.join("\n")}\n` +
+    reviewTextBlock +
+    `\nIf you have any questions about your order, just reply to this email.`;
 
   const itemsHtml = input.items
     .map(
@@ -247,6 +255,19 @@ export function buildShippingNotificationEmail(input: {
       ${trackButtonHtml}
       <p style="font-size:14px; line-height:1.6; margin:16px 0 8px; color:#e6b94d; font-weight:bold;">What's shipping</p>
       <ul style="margin:0 0 16px; padding-left:18px;">${itemsHtml}</ul>
+      ${
+        input.reviewUrl
+          ? `<div style="margin:20px 0 4px; padding:16px; border:1px solid #4a2b1a; border-radius:8px; background:#1a0d12;">
+        <p style="font-size:14px; line-height:1.6; margin:0 0 12px; color:#d9d2cc;">
+          Once it arrives, we'd love to hear what you think! Sign in and leave a quick star rating and review — it helps other customers shop with confidence.
+        </p>
+        <a href="${escapeHtml(input.reviewUrl)}"
+          style="display:inline-block; background:#e6b94d; color:#1a0d12; text-decoration:none; font-weight:bold; padding:10px 20px; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">
+          Leave a Review
+        </a>
+      </div>`
+          : ""
+      }
       <p style="font-size:13px; line-height:1.6; margin:24px 0 0; color:#9c9089;">
         If you have any questions about your order, just reply to this email.
       </p>

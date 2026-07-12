@@ -89,9 +89,18 @@ export default function Navbar() {
                     className="gap-2 max-w-[180px]"
                     data-testid="button-account-menu"
                   >
-                    <span className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/20 text-primary shrink-0">
-                      <UserIcon className="h-4 w-4" />
-                    </span>
+                    {user?.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt=""
+                        className="h-7 w-7 rounded-full object-cover shrink-0 border border-primary/40"
+                        data-testid="img-navbar-avatar"
+                      />
+                    ) : (
+                      <span className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/20 text-primary shrink-0">
+                        <UserIcon className="h-4 w-4" />
+                      </span>
+                    )}
                     <span className="truncate text-sm">{accountName}</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -100,6 +109,11 @@ export default function Navbar() {
                     {user?.email}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" data-testid="link-menu-profile">
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/hub" data-testid="link-menu-hub">
                       Centralized Hub

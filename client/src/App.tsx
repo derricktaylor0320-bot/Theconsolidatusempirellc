@@ -31,6 +31,7 @@ import AuthPage from "@/pages/AuthPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import SsoDemo from "@/pages/SsoDemo";
 import Orders from "@/pages/Orders";
+import Profile from "@/pages/Profile";
 
 function Router() {
   return (
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/sso-demo" component={SsoDemo} />
       <Route path="/orders" component={Orders} />
+      <Route path="/profile" component={Profile} />
       <Route path="/fr2p" component={FR2P} />
       <Route path="/pocket-booster" component={PocketBooster} />
       <Route path="/apparel" component={Apparel} />
