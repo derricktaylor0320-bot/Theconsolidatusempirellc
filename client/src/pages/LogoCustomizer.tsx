@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ShoppingCart, Check, AlertCircle } from "lucide-react";
 import { allLogos } from "@/lib/logoCatalog";
+import ShipStateTaxSummary, { useShipToState } from "@/components/ShipStateTaxSummary";
 
 const garmentTypes = [
   { id: "short-sleeve", name: "Short Sleeve T-Shirt", basePrice: 30, category: "tops" },
@@ -20,7 +21,9 @@ const garmentTypes = [
   { id: "jacket", name: "Jacket/Coat", basePrice: 75, category: "tops" },
   { id: "jeans", name: "Jeans", basePrice: 65, category: "bottoms" },
   { id: "sweatpants", name: "Sweatpants", basePrice: 55, category: "bottoms" },
-  { id: "tumbler-40oz", name: "40oz Insulated Travel Tumbler", basePrice: 30, category: "accessories" },
+  { id: "tumbler-20oz", name: "20oz Insulated Travel Tumbler", basePrice: 34.99, category: "accessories" },
+  { id: "tumbler-30oz", name: "30oz Insulated Travel Tumbler", basePrice: 39.99, category: "accessories" },
+  { id: "tumbler-40oz", name: "40oz Insulated Travel Tumbler", basePrice: 45, category: "accessories" },
 ];
 
 const topPlacementOptions = [
@@ -43,13 +46,18 @@ const accessoryPlacementOptions = [
   { id: "tumbler-wrap", name: "Laser-Etched Logo", price: 0, dimensions: 'up to 3" wide' },
 ];
 
+const TUMBLER_FEATURES = [
+  "Double-wall vacuum insulation — keeps drinks cold 24+ hrs or hot 12 hrs",
+  "Premium stainless steel with a scuff-resistant powder-coated finish",
+  "Ergonomic handle and matching straw",
+  "Permanent, high-end laser-etched custom logo",
+  "FREE shipping included",
+];
+
 const accessoryFeatures: Record<string, string[]> = {
-  "tumbler-40oz": [
-    "Double-wall vacuum insulation — keeps drinks cold 24+ hrs or hot 12 hrs",
-    "Premium stainless steel with a scuff-resistant powder-coated finish",
-    "Ergonomic handle and matching straw",
-    "Permanent, high-end laser-etched custom logo",
-  ],
+  "tumbler-20oz": TUMBLER_FEATURES,
+  "tumbler-30oz": TUMBLER_FEATURES,
+  "tumbler-40oz": TUMBLER_FEATURES,
 };
 
 export default function LogoCustomizer() {
@@ -59,6 +67,7 @@ export default function LogoCustomizer() {
   const [selectedPlacements, setSelectedPlacements] = useState<string[]>(["front-left-chest"]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [shipToState, setShipToState] = useShipToState();
   const { toast } = useToast();
 
   const logo = logoId ? allLogos[logoId] : null;
@@ -137,7 +146,17 @@ export default function LogoCustomizer() {
       });
       return;
     }
-    
+
+    if (!shipToState) {
+      setError("Please select the state your order ships to so we can calculate sales tax.");
+      toast({
+        title: "Shipping State Required",
+        description: "Choose the state your order ships to so we can calculate sales tax.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -158,6 +177,7 @@ export default function LogoCustomizer() {
           placements: selectedPlacements,
           placementDescription: placements,
           totalPrice: calculatePrice() * 100,
+          shipToState,
         }),
       });
       
@@ -402,6 +422,16 @@ export default function LogoCustomizer() {
                         </p>
                       ) : null;
                     })}
+                  </div>
+                  <div className="mb-6">
+                    <ShipStateTaxSummary
+                      subtotal={calculatePrice()}
+                      state={shipToState}
+                      onStateChange={(code) => {
+                        setShipToState(code);
+                        setError(null);
+                      }}
+                    />
                   </div>
                   {!selectedGarment && (
                     <div className="flex items-center gap-2 text-amber-500 text-sm mb-4" data-testid="warning-select-garment">

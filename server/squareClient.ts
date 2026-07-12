@@ -50,14 +50,6 @@ export async function squareFetch(path: string, options: SquareFetchOptions = {}
   return data;
 }
 
-export interface PaymentLinkInput {
-  name: string;
-  amountCents: number;
-  description?: string;
-  redirectUrl?: string;
-  note?: string;
-}
-
 // The result of creating a Square-hosted checkout: the URL to redirect the
 // buyer to, plus the id of the Square order backing that checkout. We keep the
 // order id so that, when the buyer returns, we can verify payment with Square
@@ -65,49 +57,6 @@ export interface PaymentLinkInput {
 export interface PaymentLinkResult {
   url: string;
   orderId: string | null;
-}
-
-// Creates a Square-hosted checkout page and returns the URL + Square order id.
-export async function createSquarePaymentLink(
-  input: PaymentLinkInput,
-): Promise<PaymentLinkResult> {
-  const amount = Math.round(input.amountCents);
-  if (!input.name || !amount || amount <= 0) {
-    throw new Error('A product name and a valid amount are required');
-  }
-
-  const body: any = {
-    idempotency_key: randomUUID(),
-    quick_pay: {
-      name: input.name.slice(0, 255),
-      price_money: { amount, currency: 'USD' },
-      location_id: getSquareLocationId(),
-    },
-    checkout_options: {
-      ask_for_shipping_address: true,
-    },
-  };
-
-  if (input.description) {
-    body.description = input.description.slice(0, 255);
-  }
-  if (input.redirectUrl) {
-    body.checkout_options.redirect_url = input.redirectUrl;
-  }
-  if (input.note) {
-    body.payment_note = input.note.slice(0, 500);
-  }
-
-  const data = await squareFetch('/v2/online-checkout/payment-links', {
-    method: 'POST',
-    body,
-  });
-
-  const url = data?.payment_link?.url || data?.payment_link?.long_url;
-  if (!url) {
-    throw new Error('Square did not return a checkout URL');
-  }
-  return { url, orderId: data?.payment_link?.order_id ?? null };
 }
 
 export interface OrderLineItem {
@@ -121,6 +70,12 @@ export interface OrderPaymentLinkInput {
   lineItems: OrderLineItem[];
   redirectUrl?: string;
   note?: string;
+  /**
+   * Optional order-level sales tax. Square applies the percentage to the whole
+   * order and charges subtotal + tax. The percentage is server-authoritative —
+   * derived from the buyer's ship-to state, never from a client-sent amount.
+   */
+  tax?: { name: string; percentage: string };
 }
 
 // Creates a Square-hosted checkout page for a multi-item order (one payment for
@@ -159,6 +114,18 @@ export async function createSquareOrderPaymentLink(
       ask_for_shipping_address: true,
     },
   };
+
+  if (input.tax && Number(input.tax.percentage) > 0) {
+    body.order.taxes = [
+      {
+        uid: 'state-sales-tax',
+        name: input.tax.name.slice(0, 255),
+        percentage: input.tax.percentage,
+        scope: 'ORDER',
+        type: 'ADDITIVE',
+      },
+    ];
+  }
 
   if (input.redirectUrl) {
     body.checkout_options.redirect_url = input.redirectUrl;

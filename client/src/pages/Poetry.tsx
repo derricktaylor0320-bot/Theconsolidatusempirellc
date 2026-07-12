@@ -6,8 +6,16 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ShipStateTaxSummary, { useShipToState } from "@/components/ShipStateTaxSummary";
 
 import plaqueShowcase from "@assets/poetry_plaques_showcase.jpg";
 import glassFrameShowcase from "@assets/glass_frame_showcase.jpg";
@@ -36,6 +44,8 @@ interface PoetryProduct {
 export default function Poetry() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
+  const [pendingProduct, setPendingProduct] = useState<PoetryProduct | null>(null);
+  const [shipToState, setShipToState] = useShipToState();
   const { toast } = useToast();
 
   const { data: products = [], isLoading } = useQuery<PoetryProduct[]>({
@@ -62,8 +72,8 @@ export default function Poetry() {
     : products.filter(p => p.category === selectedCategory);
 
   const handleBuyNow = async (product: PoetryProduct) => {
-    if (!product.priceId) return;
-    
+    if (!product.priceId || !shipToState) return;
+
     setLoadingProductId(product.id);
     try {
       const response = await fetch('/api/create-checkout-session', {
@@ -73,7 +83,8 @@ export default function Poetry() {
           priceId: product.priceId,
           productName: product.title,
           productImage: product.format === 'plaque' ? plaqueShowcase : glassFrameShowcase,
-          productDescription: product.description
+          productDescription: product.description,
+          shipToState,
         }),
       });
 
@@ -91,6 +102,7 @@ export default function Poetry() {
         variant: "destructive",
       });
       setLoadingProductId(null);
+      setPendingProduct(null);
     }
   };
 
@@ -225,7 +237,7 @@ export default function Poetry() {
                         <Button 
                           className="w-full" 
                           data-testid={`button-buy-poetry-${product.id}`}
-                          onClick={() => handleBuyNow(product)}
+                          onClick={() => setPendingProduct(product)}
                           disabled={loadingProductId === product.id}
                         >
                           {loadingProductId === product.id ? (
@@ -258,6 +270,49 @@ export default function Poetry() {
           </div>
         </section>
       </main>
+
+      <Dialog
+        open={!!pendingProduct}
+        onOpenChange={(open) => {
+          if (!open && !loadingProductId) setPendingProduct(null);
+        }}
+      >
+        <DialogContent data-testid="dialog-poetry-checkout">
+          <DialogHeader>
+            <DialogTitle className="font-display uppercase">
+              {pendingProduct?.title}
+            </DialogTitle>
+            <DialogDescription>
+              Select the state your order ships to so we can calculate sales tax, then continue to secure checkout.
+            </DialogDescription>
+          </DialogHeader>
+          {pendingProduct && (
+            <>
+              <ShipStateTaxSummary
+                subtotal={Number(pendingProduct.price)}
+                state={shipToState}
+                onStateChange={setShipToState}
+              />
+              <Button
+                className="w-full"
+                disabled={!shipToState || loadingProductId === pendingProduct.id}
+                onClick={() => handleBuyNow(pendingProduct)}
+                data-testid="button-confirm-poetry-checkout"
+              >
+                {loadingProductId === pendingProduct.id ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  "Continue to Checkout"
+                )}
+              </Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );

@@ -5,14 +5,20 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { ShoppingBag, Trash2, Minus, Plus, ArrowLeft } from "lucide-react";
+import ShipStateTaxSummary, { useShipToState } from "@/components/ShipStateTaxSummary";
 
 export default function Cart() {
   const { items, total, updateQuantity, removeItem } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [shipToState, setShipToState] = useShipToState();
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
+    if (!shipToState) {
+      setErrorMessage("Please select the state your order ships to so we can calculate sales tax.");
+      return;
+    }
     setIsLoading(true);
     setErrorMessage("");
     try {
@@ -20,6 +26,7 @@ export default function Cart() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          shipToState,
           items: items.map((i) => ({
             priceId: i.priceId,
             quantity: i.quantity,
@@ -223,15 +230,16 @@ export default function Cart() {
                 <h2 className="font-display font-bold uppercase text-xl mb-4">
                   Order Summary
                 </h2>
-                <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span data-testid="text-cart-subtotal">
-                    ${total.toFixed(2)}
-                  </span>
+                <div className="mb-4">
+                  <ShipStateTaxSummary
+                    subtotal={total}
+                    state={shipToState}
+                    onStateChange={(code) => {
+                      setShipToState(code);
+                      setErrorMessage("");
+                    }}
+                  />
                 </div>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Shipping calculated at checkout.
-                </p>
                 <Button
                   onClick={handleCheckout}
                   disabled={isLoading}

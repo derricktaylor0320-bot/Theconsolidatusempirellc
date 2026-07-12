@@ -19,19 +19,46 @@ import { db } from "./db";
 
 const STANDARD_LOGO_OPTIONS = "Apparel Logo, Accessories Eagle Badge, 5 Swords Crest";
 
+// Branded Tumblers — Amazon-fulfilled, three sizes. Retail includes the Amazon
+// delivery fee, so the customer sees FREE SHIPPING; sales tax is added at
+// checkout from the buyer's ship-to state. All three share the same image,
+// colors note, and logo options; sortOrder 98 groups them together.
 const TUMBLER_NAME = "40 Oz Branded Tumbler";
-const TUMBLER_PRICE_CENTS = 3000;
-const TUMBLER_DESCRIPTION =
-  "Premium 40 oz insulated stainless steel tumbler with handle and your choice of Khomplete Khemistri logo. Keeps drinks cold or hot for hours. Available in a wide range of colors — tell us your preferred color at checkout.";
+const TUMBLER_PRICE_CENTS = 4500;
 const TUMBLER_IMAGE = "/assets/tumbler_customer_photo.jpg";
+const TUMBLER_COLORS =
+  "Multiple colors available — specify your color choice at checkout";
+
+function tumblerDescription(sizeOz: number): string {
+  return `Premium ${sizeOz} oz vacuum-insulated stainless steel tumbler with handle and your choice of Khomplete Khemistri logo. Double-wall insulation keeps drinks ice-cold or piping hot for hours. FREE shipping included. Available in a wide range of colors — tell us your preferred color at checkout.`;
+}
+
+const TUMBLER_DESCRIPTION = tumblerDescription(40);
 const TUMBLER_META = {
   logoOptions: STANDARD_LOGO_OPTIONS,
   amazonLink: "https://a.co/d/03kljFGN",
-  cost: "20",
+  cost: "31.76",
   fulfillment: "Amazon",
-  colors: "Multiple colors available — specify your color choice at checkout",
+  colors: TUMBLER_COLORS,
   imageUrl: TUMBLER_IMAGE,
+  category: "Drinkware",
+  productType: "accessory",
+  sortOrder: "98",
 };
+
+const TUMBLER_20_PRODUCT_ID = "prod_kktumbler20oz";
+const TUMBLER_20_PRICE_ID = "price_kktumbler20oz";
+const TUMBLER_20_NAME = "20 Oz Branded Tumbler";
+const TUMBLER_20_PRICE_CENTS = 3499;
+const TUMBLER_20_DESCRIPTION = tumblerDescription(20);
+const TUMBLER_20_META = { ...TUMBLER_META, cost: "22.76" };
+
+const TUMBLER_30_PRODUCT_ID = "prod_kktumbler30oz";
+const TUMBLER_30_PRICE_ID = "price_kktumbler30oz";
+const TUMBLER_30_NAME = "30 Oz Branded Tumbler";
+const TUMBLER_30_PRICE_CENTS = 3999;
+const TUMBLER_30_DESCRIPTION = tumblerDescription(30);
+const TUMBLER_30_META = { ...TUMBLER_META, cost: "25.76" };
 
 const MUG_PRODUCT_ID = "prod_kkcoffeemug";
 const MUG_PRICE_ID = "price_kkcoffeemug";
@@ -1152,6 +1179,93 @@ export async function ensureCatalogData() {
       WHERE name = ${MUG_NAME}
     `);
 
+    // 5a) 20 oz + 30 oz Branded Tumblers ($34.99 / $39.99, Amazon-fulfilled,
+    //     free shipping baked into retail). Same synthetic-product pattern as
+    //     the mug: guarded insert creates them where absent (the real creator on
+    //     the Railway prod snapshot), then converge description/metadata/price
+    //     on every boot so both envs self-heal. The 40 oz is the pre-existing
+    //     Stripe product handled in steps 2/3.
+    const tumblerVariants = [
+      {
+        productId: TUMBLER_20_PRODUCT_ID,
+        priceId: TUMBLER_20_PRICE_ID,
+        name: TUMBLER_20_NAME,
+        priceCents: TUMBLER_20_PRICE_CENTS,
+        description: TUMBLER_20_DESCRIPTION,
+        meta: TUMBLER_20_META,
+      },
+      {
+        productId: TUMBLER_30_PRODUCT_ID,
+        priceId: TUMBLER_30_PRICE_ID,
+        name: TUMBLER_30_NAME,
+        priceCents: TUMBLER_30_PRICE_CENTS,
+        description: TUMBLER_30_DESCRIPTION,
+        meta: TUMBLER_30_META,
+      },
+    ];
+
+    for (const t of tumblerVariants) {
+      const productRaw = JSON.stringify({
+        id: t.productId,
+        object: "product",
+        active: true,
+        name: t.name,
+        description: t.description,
+        metadata: t.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+      const priceRaw = JSON.stringify({
+        id: t.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: t.priceCents,
+        product: t.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${productRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${t.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${priceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${t.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${t.productId})
+      `);
+
+      // Keep description + metadata current in both envs (additive merge).
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(t.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(t.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${t.name} AND active = true
+      `);
+
+      // Force the active price (self-heals any drift).
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(t.priceCents)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${t.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(t.priceCents)}
+      `);
+    }
+
     // 5b) Whipped Body Butters ($12, 4 oz). Create only when absent (no-op in dev
     //     where Stripe sync made it; the real creator on the Railway prod
     //     snapshot), then ensure the metadata/description/price stay current.
@@ -1861,7 +1975,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured tumbler ($30 + logo + image), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

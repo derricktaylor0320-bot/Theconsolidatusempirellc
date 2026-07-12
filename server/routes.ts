@@ -1,7 +1,8 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { stripeStorage } from "./stripeStorage";
-import { createSquarePaymentLink, createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
+import { createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
+import { stateTaxInfo } from "@shared/salesTax";
 import { getStorefrontProducts, dedupeByName } from "./storefrontProducts";
 import { syncStorefrontToSquare, squareConfigured } from "./squareCatalogSync";
 import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
@@ -552,10 +553,39 @@ export async function registerRoutes(
     }
   });
 
+  // Resolves the buyer's ship-to state (collected on OUR site before checkout,
+  // since Square only asks for the address on its own hosted page — too late to
+  // add tax) into a Square order-level percentage tax. The rate comes from the
+  // shared state table — server-authoritative, never a client-sent amount.
+  // Returns { error } when the state is missing/unknown; tax is undefined for
+  // the five no-sales-tax states.
+  function orderTaxForState(
+    shipToState: unknown,
+  ):
+    | { error: string; tax?: undefined }
+    | { error?: undefined; tax?: { name: string; percentage: string } } {
+    const info = stateTaxInfo(shipToState);
+    if (!info) {
+      return { error: "Please select the state your order ships to so we can calculate sales tax." };
+    }
+    if (info.ratePercent <= 0) return {};
+    return {
+      tax: {
+        name: `${info.name} Sales Tax`,
+        percentage: String(info.ratePercent),
+      },
+    };
+  }
+
   // Create checkout session (Square-hosted checkout)
   app.post("/api/create-checkout-session", async (req, res) => {
     try {
-      const { priceId, productName, productDescription, selectedLogo } = req.body;
+      const { priceId, productName, selectedLogo } = req.body;
+
+      const taxResult = orderTaxForState(req.body?.shipToState);
+      if (taxResult.error) {
+        return res.status(400).json({ error: taxResult.error });
+      }
 
       if (!priceId) {
         return res.status(400).json({ error: "Price ID is required" });
@@ -601,10 +631,16 @@ export async function registerRoutes(
       // checkout, redirects the buyer back to redirectUrl with the Square
       // `orderId` appended as a query param. The success page uses that id to
       // verify payment and record the order — so we never persist anything here.
-      const { url } = await createSquarePaymentLink({
-        name: (priceRow.product_name as string) || productName || "Order",
-        amountCents,
-        description: productDescription || (priceRow.product_description as string) || undefined,
+      const { url } = await createSquareOrderPaymentLink({
+        lineItems: [
+          {
+            name: (priceRow.product_name as string) || productName || "Order",
+            quantity: 1,
+            amountCents,
+            note: check.note,
+          },
+        ],
+        tax: taxResult.tax,
         redirectUrl: `${baseUrl}/checkout/success`,
       });
 
@@ -624,6 +660,11 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Missing required fields" });
       }
 
+      const taxResult = orderTaxForState(req.body?.shipToState);
+      if (taxResult.error) {
+        return res.status(400).json({ error: taxResult.error });
+      }
+
       // Server-authoritative pricing: compute the total here, never trust the client.
       // Base garment prices (USD) must mirror the LogoCustomizer options.
       const GARMENT_BASE_PRICES: Record<string, number> = {
@@ -634,7 +675,11 @@ export async function registerRoutes(
         "jacket": 75,
         "jeans": 65,
         "sweatpants": 55,
-        "tumbler-40oz": 30,
+        // Amazon-fulfilled tumblers: retail includes the delivery fee (free
+        // shipping for the customer). Must mirror the LogoCustomizer options.
+        "tumbler-20oz": 34.99,
+        "tumbler-30oz": 39.99,
+        "tumbler-40oz": 45,
       };
 
       const basePrice = GARMENT_BASE_PRICES[garmentId];
@@ -642,23 +687,29 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid garment selection" });
       }
 
-      // Some items (e.g. the tumbler) carry a single laser-etched logo only —
+      // Some items (e.g. the tumblers) carry a single laser-etched logo only —
       // the dual-placement surcharge must never apply to them.
-      const SINGLE_PLACEMENT_GARMENTS = new Set(["tumbler-40oz"]);
+      const SINGLE_PLACEMENT_GARMENTS = new Set(["tumbler-20oz", "tumbler-30oz", "tumbler-40oz"]);
       const placementCount = SINGLE_PLACEMENT_GARMENTS.has(garmentId)
         ? 1
         : (Array.isArray(placements) ? placements.length : 1);
       const totalDollars = basePrice + (placementCount > 1 ? 10 : 0);
-      const amountCents = totalDollars * 100;
+      const amountCents = Math.round(totalDollars * 100);
 
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 
       // See note in /api/create-checkout: Square appends the order id on the
       // redirect, and the success page verifies + records it. Nothing persisted here.
-      const { url } = await createSquarePaymentLink({
-        name: `Custom ${garmentType || "Garment"} - Logo #${logoId}`,
-        amountCents,
-        description: `Logo: ${logoName} | Placement: ${placementDescription}`,
+      const { url } = await createSquareOrderPaymentLink({
+        lineItems: [
+          {
+            name: `Custom ${garmentType || "Garment"} - Logo #${logoId}`,
+            quantity: 1,
+            amountCents,
+            note: `Logo: ${logoName} | Placement: ${placementDescription}`.slice(0, 500),
+          },
+        ],
+        tax: taxResult.tax,
         redirectUrl: `${baseUrl}/checkout/success`,
       });
 
@@ -676,6 +727,11 @@ export async function registerRoutes(
 
       if (!Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "Your cart is empty." });
+      }
+
+      const taxResult = orderTaxForState(req.body?.shipToState);
+      if (taxResult.error) {
+        return res.status(400).json({ error: taxResult.error });
       }
 
       if (items.length > 100) {
@@ -741,6 +797,7 @@ export async function registerRoutes(
       // checkouts never create a phantom order.
       const { url } = await createSquareOrderPaymentLink({
         lineItems,
+        tax: taxResult.tax,
         redirectUrl: `${baseUrl}/checkout/success`,
       });
 
