@@ -16,8 +16,8 @@ import ShipStateTaxSummary, { useShipToState } from "@/components/ShipStateTaxSu
 const garmentTypes = [
   { id: "short-sleeve", name: "Short Sleeve T-Shirt", basePrice: 30, category: "tops" },
   { id: "long-sleeve", name: "Long Sleeve T-Shirt", basePrice: 35, category: "tops" },
-  { id: "pullover-hoodie", name: "Pullover Hoodie", basePrice: 50, category: "tops" },
-  { id: "full-zip-hoodie", name: "Full-Zip Hoodie", basePrice: 60, category: "tops" },
+  { id: "pullover-hoodie", name: "Pullover Hoodie", basePrice: 37.98, category: "tops" },
+  { id: "full-zip-hoodie", name: "Full-Zip Hoodie", basePrice: 37.98, category: "tops" },
   { id: "jacket", name: "Jacket/Coat", basePrice: 75, category: "tops" },
   { id: "jeans", name: "Jeans", basePrice: 65, category: "bottoms" },
   { id: "sweatpants", name: "Sweatpants", basePrice: 55, category: "bottoms" },

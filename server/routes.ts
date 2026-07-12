@@ -672,8 +672,11 @@ export async function registerRoutes(
       const GARMENT_BASE_PRICES: Record<string, number> = {
         "short-sleeve": 30,
         "long-sleeve": 35,
-        "pullover-hoodie": 50,
-        "full-zip-hoodie": 60,
+        // Amazon-fulfilled hoodies: XS blank $17.99 + $9.99 ship + $10 margin.
+        // Larger sizes add $1/step on the Apparel product cards; the logo
+        // customizer starts at the XS retail.
+        "pullover-hoodie": 37.98,
+        "full-zip-hoodie": 37.98,
         "jacket": 75,
         "jeans": 65,
         "sweatpants": 55,

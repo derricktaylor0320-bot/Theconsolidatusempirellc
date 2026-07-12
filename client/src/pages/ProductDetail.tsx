@@ -253,7 +253,7 @@ function ProductDetailContent({
   const [selectedApparelSize, setSelectedApparelSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedScent, setSelectedScent] = useState("");
-  const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize) : 0;
+  const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize, product.category) : 0;
   const effectiveUnitPrice = price + sizeUpcharge;
   const recommendedIds = useMemo(
     () => (selectedColor ? recommendedLogoIdsForColor(selectedColor).slice(0, 12) : []),
@@ -701,12 +701,15 @@ function ProductDetailContent({
                     className="text-sm text-muted-foreground leading-relaxed"
                     data-testid="text-detail-apparel-size-note"
                   >
-                    Select your size. Extended sizes (2XL and up) cost a little more.
+                    Select your size.
+                    {product.category === "Hoodies"
+                      ? " Price includes Amazon blank + delivery — FREE shipping. Each size is $1 more than the last."
+                      : " Extended sizes (2XL and up) cost a little more."}
                   </p>
                   <div className="flex flex-wrap gap-2" data-testid="picker-detail-apparel-size">
                     {apparelSizeChoices.map((choice) => {
                       const isSelected = selectedApparelSize === choice;
-                      const up = sizeUpchargeDollars(choice);
+                      const up = sizeUpchargeDollars(choice, product.category);
                       return (
                         <button
                           key={choice}

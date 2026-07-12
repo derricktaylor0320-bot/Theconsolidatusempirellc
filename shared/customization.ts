@@ -91,6 +91,7 @@ export const APPAREL_SIZES = [
 ] as const;
 
 // Extended-size surcharge in cents. Standard sizes (XS–XL) carry no surcharge.
+// Used for non-hoodie apparel (tees, polos, etc.).
 const SIZE_UPCHARGE_CENTS: Record<string, number> = {
   "2XL": 300,
   "3XL": 500,
@@ -99,15 +100,70 @@ const SIZE_UPCHARGE_CENTS: Record<string, number> = {
   "6XL": 500,
 };
 
-/** Surcharge (in cents) for an apparel size. 0 for standard sizes. */
-export function sizeUpchargeCents(size: unknown): number {
+// Amazon-fulfilled hoodies: blank cost rises $1 per size from XS, Amazon
+// delivery is $9.99, and we keep a $10 profit margin. Retail = blank + ship +
+// margin, baked into the listed price so the customer sees FREE shipping.
+export const HOODIE_AMAZON_SHIPPING_CENTS = 999;
+export const HOODIE_PROFIT_MARGIN_CENTS = 1000;
+export const HOODIE_XS_BLANK_COST_CENTS = 1799;
+
+/** Blank (Amazon) cost in cents for a hoodie size. XS = $17.99, +$1 per size. */
+export function hoodieBlankCostCents(size: unknown): number {
+  const idx = APPAREL_SIZES.indexOf(
+    (typeof size === "string" ? size.trim() : "") as (typeof APPAREL_SIZES)[number],
+  );
+  if (idx < 0) return 0;
+  return HOODIE_XS_BLANK_COST_CENTS + idx * 100;
+}
+
+/** Customer-facing retail (cents) for a hoodie size: blank + Amazon ship + $10. */
+export function hoodieRetailCents(size: unknown): number {
+  const blank = hoodieBlankCostCents(size);
+  if (!blank) return 0;
+  return blank + HOODIE_AMAZON_SHIPPING_CENTS + HOODIE_PROFIT_MARGIN_CENTS;
+}
+
+/** XS retail — the catalog unit_amount for hoodie products. */
+export const HOODIE_BASE_PRICE_CENTS = hoodieRetailCents("XS"); // 3798 ($37.98)
+
+/** Hoodie size surcharge relative to the XS catalog base price. */
+export function hoodieSizeUpchargeCents(size: unknown): number {
+  const retail = hoodieRetailCents(size);
+  if (!retail) return 0;
+  return retail - HOODIE_BASE_PRICE_CENTS;
+}
+
+export function isHoodieCategory(metadataOrCategory: unknown): boolean {
+  if (typeof metadataOrCategory === "string") {
+    return metadataOrCategory.trim().toLowerCase() === "hoodies";
+  }
+  const category = String((metadataOrCategory as any)?.category || "").toLowerCase();
+  return category === "hoodies";
+}
+
+/**
+ * Surcharge (in cents) for an apparel size. Hoodies use the Amazon blank +
+ * shipping + $10 margin schedule; other apparel keeps the legacy extended-size
+ * surcharge (2XL+).
+ */
+export function sizeUpchargeCents(
+  size: unknown,
+  metadataOrCategory?: unknown,
+): number {
   const s = typeof size === "string" ? size.trim() : "";
+  if (!s) return 0;
+  if (isHoodieCategory(metadataOrCategory)) {
+    return hoodieSizeUpchargeCents(s);
+  }
   return SIZE_UPCHARGE_CENTS[s] || 0;
 }
 
 /** Surcharge (in dollars) for an apparel size — for client-side display. */
-export function sizeUpchargeDollars(size: unknown): number {
-  return sizeUpchargeCents(size) / 100;
+export function sizeUpchargeDollars(
+  size: unknown,
+  metadataOrCategory?: unknown,
+): number {
+  return sizeUpchargeCents(size, metadataOrCategory) / 100;
 }
 
 // Apparel that should NOT get a wearable-size selector even though it is
@@ -309,7 +365,7 @@ export function checkCustomization(
       return { required: true, kind: "size", ok: false };
     }
     notes.push(`Size: ${size}`);
-    upchargeCents += sizeUpchargeCents(size);
+    upchargeCents += sizeUpchargeCents(size, meta);
   }
 
   // A color choice only matters when there are 2+ real options. A single value

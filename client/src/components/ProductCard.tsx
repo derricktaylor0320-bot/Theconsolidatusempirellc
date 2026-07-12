@@ -94,7 +94,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
     [selectedColor],
   );
 
-  const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize) : 0;
+  const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize, category) : 0;
   const effectiveUnitPrice = price + sizeUpcharge;
 
   const clampQty = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.round(n)));
@@ -485,7 +485,10 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-apparel-size-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    Choose your size. Extended sizes (2XL+) cost a little more.
+                    Choose your size.
+                    {category === "Hoodies"
+                      ? " Price includes Amazon blank + delivery — FREE shipping. Each size is $1 more than the last."
+                      : " Extended sizes (2XL+) cost a little more."}
                   </p>
                   <Select value={selectedApparelSize} onValueChange={(v) => { setSelectedApparelSize(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
@@ -496,7 +499,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     </SelectTrigger>
                     <SelectContent>
                       {apparelSizeChoices.map((choice) => {
-                        const up = sizeUpchargeDollars(choice);
+                        const up = sizeUpchargeDollars(choice, category);
                         return (
                           <SelectItem
                             key={choice}

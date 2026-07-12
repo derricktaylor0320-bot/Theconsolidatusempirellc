@@ -143,16 +143,16 @@ export default function Apparel() {
           </h3>
           <div className="space-y-4 text-secondary-foreground/80 leading-relaxed">
             <p>
-              <span className="font-bold text-primary">Please Note:</span> The prices listed above are retail starting prices for our standard garment materials and sizes (Small–X-Large).
+              <span className="font-bold text-primary">Please Note:</span> The prices listed above are retail starting prices for our standard garment materials and sizes (Extra Small and up). Hoodie prices start at Extra Small and rise $1 per size through 6XL.
             </p>
             <p>
-              <span className="font-bold text-primary">Extended Sizing:</span> Garments in sizes XXL and larger may incur an additional charge due to material costs.
+              <span className="font-bold text-primary">Extended Sizing:</span> Non-hoodie garments in sizes XXL and larger may incur an additional charge due to material costs.
             </p>
             <p>
               <span className="font-bold text-primary">Premium Finishes:</span> Prices may vary slightly for items utilizing premium materials (e.g., specialized blends, heavyweight fabric) or for complex customization requests.
             </p>
             <p>
-              <span className="font-bold text-primary">Shipping & Tax:</span> All prices are exclusive of applicable state and local sales tax and final shipping/handling fees.
+              <span className="font-bold text-primary">Shipping & Tax:</span> Amazon-fulfilled hoodies include FREE shipping (Amazon blank + delivery are already in the listed price). Other items may be exclusive of final shipping/handling fees. All prices are exclusive of applicable state and local sales tax.
             </p>
           </div>
         </div>

@@ -1,5 +1,11 @@
 import { sql } from "drizzle-orm";
 import { db } from "./db";
+import {
+  HOODIE_BASE_PRICE_CENTS,
+  HOODIE_AMAZON_SHIPPING_CENTS,
+  HOODIE_PROFIT_MARGIN_CENTS,
+  HOODIE_XS_BLANK_COST_CENTS,
+} from "@shared/customization";
 
 // Catalog facts that must be true in whatever database this server is connected
 // to. The synced `stripe.products` / `stripe.prices` tables are the durable
@@ -438,10 +444,69 @@ const WOMENS_TEE_PRODUCTS: {
   },
 ];
 
+// Amazon-fulfilled customizable hoodies. Retail = Amazon blank cost (XS $17.99,
+// +$1 per size through 6XL) + $9.99 Amazon delivery + $10 profit margin. The
+// catalog unit_amount is the XS retail ($37.98); larger sizes add a $1/step
+// upcharge via shared/customization.ts hoodieSizeUpchargeCents. Customer sees
+// FREE shipping because delivery is baked into the price.
+const HOODIE_COLORS =
+  "Black, White, Navy, Sport Gray, Charcoal, Red, Maroon, Forest Green, Royal Blue, Purple, Sand, Military Green";
+
+const STANDARD_HOODIE_PRODUCTS: {
+  productId: string;
+  priceId: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  meta: Record<string, string>;
+}[] = [
+  {
+    productId: "prod_kkpulloverhoodie",
+    priceId: "price_kkpulloverhoodie",
+    name: "Pullover Hoodie",
+    description:
+      "Mid to heavyweight cotton/fleece pullover hoodie with your choice of any Khomplete Khemistri logo from our full catalog. Left-chest and large-back branding available. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Amazon-fulfilled — FREE shipping included. Available in sizes XS–6XL (each size is $1 more than the last).",
+    priceCents: HOODIE_BASE_PRICE_CENTS,
+    meta: {
+      category: "Hoodies",
+      productType: "apparel",
+      sortOrder: "30",
+      gender: "Unisex",
+      fulfillment: "Amazon",
+      colors: HOODIE_COLORS,
+      imageUrl: "/assets/generated_images/hoodie_khomplete_khemistri_text.png",
+      cost: (HOODIE_XS_BLANK_COST_CENTS / 100).toFixed(2),
+      shippingCost: (HOODIE_AMAZON_SHIPPING_CENTS / 100).toFixed(2),
+      profitMargin: (HOODIE_PROFIT_MARGIN_CENTS / 100).toFixed(2),
+    },
+  },
+  {
+    productId: "prod_kkfullziphoodie",
+    priceId: "price_kkfullziphoodie",
+    name: "Full-Zip Hoodie",
+    description:
+      "Mid to heavyweight cotton/fleece full-zip hoodie with your choice of any Khomplete Khemistri logo from our full catalog. Left-chest and large-back branding available. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Amazon-fulfilled — FREE shipping included. Available in sizes XS–6XL (each size is $1 more than the last).",
+    priceCents: HOODIE_BASE_PRICE_CENTS,
+    meta: {
+      category: "Hoodies",
+      productType: "apparel",
+      sortOrder: "31",
+      gender: "Unisex",
+      fulfillment: "Amazon",
+      colors: HOODIE_COLORS,
+      imageUrl: "/assets/generated_images/full-zip_hoodie_branded.png",
+      cost: (HOODIE_XS_BLANK_COST_CENTS / 100).toFixed(2),
+      shippingCost: (HOODIE_AMAZON_SHIPPING_CENTS / 100).toFixed(2),
+      profitMargin: (HOODIE_PROFIT_MARGIN_CENTS / 100).toFixed(2),
+    },
+  },
+];
+
 // Branded all-over-print apparel ("Forging the Future of Fabric"). Same
 // self-applying create/keep-current pattern as the women's tees, but each item
-// carries its own priceCents (tee $30, hoodie $60). Sizes are derived adult
-// XS–6XL via apparelSizesFor (no `sizes` metadata).
+// carries its own priceCents (tee $30, hoodie specialty print $60). Sizes are
+// derived adult XS–6XL via apparelSizesFor (no `sizes` metadata). Hoodie sizes
+// still use the Amazon $1/step upcharge from shared/customization.ts.
 const BRANDED_APPAREL_PRODUCTS: {
   productId: string;
   priceId: string;
@@ -464,9 +529,9 @@ const BRANDED_APPAREL_PRODUCTS: {
     priceId: "price_kkforginghoodie",
     name: "Forging the Future Hoodie \u2014 Green",
     description:
-      "Forest-green unisex pullover hoodie with an all-over print of the Khomplete Khemistri steampunk alchemy lab wrapping the hood, body, and sleeves \u2014 glowing copper pipes, flasks, and the master chemist forging garments \u2014 with KHOMPLETE KHEMISTRI APPAREL & ACCESSORIES. EST 2020, LAUNCHED IN 2023, FORGING THE FUTURE OF FABRIC. Select your size at checkout.",
+      "Forest-green unisex pullover hoodie with an all-over print of the Khomplete Khemistri steampunk alchemy lab wrapping the hood, body, and sleeves \u2014 glowing copper pipes, flasks, and the master chemist forging garments \u2014 with KHOMPLETE KHEMISTRI APPAREL & ACCESSORIES. EST 2020, LAUNCHED IN 2023, FORGING THE FUTURE OF FABRIC. FREE shipping included. Select your size at checkout (XS–6XL; each size is $1 more than the last).",
     priceCents: 6000,
-    meta: { category: "Hoodies", productType: "apparel", sortOrder: "70", gender: "Unisex", customize: "none", imageUrl: "/assets/kk_forging_future_hoodie_green.jpg" },
+    meta: { category: "Hoodies", productType: "apparel", sortOrder: "70", gender: "Unisex", customize: "none", fulfillment: "Amazon", imageUrl: "/assets/kk_forging_future_hoodie_green.jpg" },
   },
   {
     productId: "prod_kkpolotrident",
@@ -1624,9 +1689,73 @@ export async function ensureCatalogData() {
       `);
     }
 
-    // 6c-iii) Branded all-over-print apparel ("Forging the Future of Fabric").
+    // 6c-iii) Amazon-fulfilled Pullover + Full-Zip hoodies ($37.98 XS base =
+    //     blank $17.99 + ship $9.99 + $10 margin; +$1/size). Colors + logo
+    //     selectable at checkout. Same self-applying create/keep-current pattern.
+    for (const h of STANDARD_HOODIE_PRODUCTS) {
+      const hProductRaw = JSON.stringify({
+        id: h.productId,
+        object: "product",
+        active: true,
+        name: h.name,
+        description: h.description,
+        metadata: h.meta,
+        images: [],
+        created,
+        livemode: false,
+      });
+
+      const hPriceRaw = JSON.stringify({
+        id: h.priceId,
+        object: "price",
+        active: true,
+        currency: "usd",
+        unit_amount: h.priceCents,
+        product: h.productId,
+        type: "one_time",
+        billing_scheme: "per_unit",
+        created,
+        livemode: false,
+      });
+
+      await db.execute(sql`
+        INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${hProductRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${h.name})
+      `);
+
+      await db.execute(sql`
+        INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+        SELECT ${hPriceRaw}::jsonb, ${accountId}, now(), now()
+        WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${h.priceId})
+          AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${h.productId})
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(h.description)}::jsonb, true),
+              '{metadata}',
+              COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(h.meta)}::jsonb,
+              true
+            ),
+            _updated_at = now()
+        WHERE name = ${h.name} AND active = true
+      `);
+
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(h.priceCents)}::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND product IN (SELECT id FROM stripe.products WHERE name = ${h.name} AND active = true)
+          AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(h.priceCents)}
+      `);
+    }
+
+    // 6c-iv) Branded all-over-print apparel ("Forging the Future of Fabric").
     //     Same self-applying create/keep-current pattern, but each item carries
-    //     its own price (tee $30, hoodie $60).
+    //     its own price (tee $30, hoodie specialty print $60).
     for (const a of BRANDED_APPAREL_PRODUCTS) {
       const aProductRaw = JSON.stringify({
         id: a.productId,
@@ -1993,7 +2122,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Pullover/Full-Zip Hoodies ($37.98 XS = blank $17.99 + ship $9.99 + $10 margin, +$1/size, colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
