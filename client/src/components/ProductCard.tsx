@@ -10,6 +10,7 @@ import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
 import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
 import { sizeUpchargeDollars } from "@shared/customization";
+import type { ProductVariant } from "@/lib/productVariants";
 import { Check, Minus, Plus } from "lucide-react";
 
 const MAX_QTY = 99;
@@ -31,9 +32,18 @@ interface ProductCardProps {
   soldOutColors?: string;
   scents?: string;
   imageFit?: "cover" | "contain";
+  variants?: ProductVariant[];
 }
 
-export default function ProductCard({ image, title, price, category, priceId, soldOut, description, logoOptions, handleColors, caseType, sizes, apparelSizes, colors, soldOutColors, scents, imageFit = "cover" }: ProductCardProps) {
+export default function ProductCard({ image: baseImage, title: baseTitle, price: basePrice, category, priceId: basePriceId, soldOut: baseSoldOut, description, logoOptions, handleColors, caseType, sizes, apparelSizes, colors, soldOutColors, scents, imageFit = "cover", variants }: ProductCardProps) {
+  const hasVariants = !!variants && variants.length > 1;
+  const [variantIdx, setVariantIdx] = useState(0);
+  const activeVariant = hasVariants ? variants![Math.min(variantIdx, variants!.length - 1)] : undefined;
+  const image = activeVariant?.image || baseImage;
+  const title = activeVariant?.title ?? baseTitle;
+  const price = activeVariant ? activeVariant.price : basePrice;
+  const priceId = activeVariant ? (activeVariant.priceId ?? undefined) : basePriceId;
+  const soldOut = activeVariant ? activeVariant.soldOut : baseSoldOut;
   const fitClass = imageFit === "contain" ? "object-contain p-2" : "object-cover";
   const { addItem } = useCart();
   const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
@@ -202,6 +212,37 @@ export default function ProductCard({ image, title, price, category, priceId, so
               ${effectiveUnitPrice.toFixed(2)}
             </span>
           </div>
+          {hasVariants && (
+            <div className="w-full mt-1 space-y-1.5">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Pick your size — the photo and price update to match.
+              </p>
+              <div
+                className="flex flex-wrap gap-2"
+                data-testid={`picker-variant-${category.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                {variants!.map((v, i) => {
+                  const isSelected = i === Math.min(variantIdx, variants!.length - 1);
+                  return (
+                    <button
+                      key={v.label}
+                      type="button"
+                      onClick={() => setVariantIdx(i)}
+                      className={`rounded-md border px-3 py-1.5 text-xs font-medium uppercase tracking-wide transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:border-primary/40"
+                      } ${v.soldOut ? "opacity-50" : ""}`}
+                      data-testid={`button-variant-${v.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {v.label} — ${v.price.toFixed(2)}
+                      {v.soldOut ? " (Sold out)" : ""}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {usesHandleColors ? (
             <>
               <p

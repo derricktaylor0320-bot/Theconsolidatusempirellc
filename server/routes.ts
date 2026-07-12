@@ -533,6 +533,8 @@ export async function registerRoutes(
             sizes: metadata.sizes || null,
             apparelSizes: apparelSizesFor(metadata, row.product_name).join(', ') || null,
             scents: scentsFor(metadata).join(', ') || null,
+            variantGroup: metadata.variantGroup || null,
+            variantLabel: metadata.variantLabel || null,
             price: null,
             priceId: null,
           });

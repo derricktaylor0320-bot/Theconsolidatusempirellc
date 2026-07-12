@@ -21,16 +21,22 @@ const STANDARD_LOGO_OPTIONS = "Apparel Logo, Accessories Eagle Badge, 5 Swords C
 
 // Branded Tumblers — Amazon-fulfilled, three sizes. Retail includes the Amazon
 // delivery fee, so the customer sees FREE SHIPPING; sales tax is added at
-// checkout from the buyer's ship-to state. All three share the same image,
-// colors note, and logo options; sortOrder 98 groups them together.
+// checkout from the buyer's ship-to state. All three share the colors note
+// and logo options; sortOrder 98 groups them together.
 const TUMBLER_NAME = "40 Oz Branded Tumbler";
 const TUMBLER_PRICE_CENTS = 4500;
-const TUMBLER_IMAGE = "/assets/tumbler_customer_photo.jpg";
 const TUMBLER_COLORS =
   "Multiple colors available — specify your color choice at checkout";
 
+// The storefront shows ONE tumbler card (Amazon-style): the three sizes are
+// grouped by `variantGroup` and the shopper flips between them with size
+// buttons. Each size has its own photo: 20 oz purple, 30 oz black, 40 oz pink
+// (the 40 oz is the only one with a handle).
+const TUMBLER_VARIANT_GROUP = "Branded Tumbler";
+
 function tumblerDescription(sizeOz: number): string {
-  return `Premium ${sizeOz} oz vacuum-insulated stainless steel tumbler with handle and your choice of Khomplete Khemistri logo. Double-wall insulation keeps drinks ice-cold or piping hot for hours. FREE shipping included. Available in a wide range of colors — tell us your preferred color at checkout.`;
+  const handle = sizeOz === 40 ? " with handle" : "";
+  return `Premium ${sizeOz} oz vacuum-insulated stainless steel tumbler${handle} and your choice of Khomplete Khemistri logo. Double-wall insulation keeps drinks ice-cold or piping hot for hours. FREE shipping included. Available in a wide range of colors — tell us your preferred color at checkout.`;
 }
 
 const TUMBLER_DESCRIPTION = tumblerDescription(40);
@@ -40,10 +46,12 @@ const TUMBLER_META = {
   cost: "31.76",
   fulfillment: "Amazon",
   colors: TUMBLER_COLORS,
-  imageUrl: TUMBLER_IMAGE,
+  imageUrl: "/assets/tumbler_40oz_pink.png",
   category: "Drinkware",
   productType: "accessory",
   sortOrder: "98",
+  variantGroup: TUMBLER_VARIANT_GROUP,
+  variantLabel: "40 oz",
 };
 
 const TUMBLER_20_PRODUCT_ID = "prod_kktumbler20oz";
@@ -51,14 +59,24 @@ const TUMBLER_20_PRICE_ID = "price_kktumbler20oz";
 const TUMBLER_20_NAME = "20 Oz Branded Tumbler";
 const TUMBLER_20_PRICE_CENTS = 3499;
 const TUMBLER_20_DESCRIPTION = tumblerDescription(20);
-const TUMBLER_20_META = { ...TUMBLER_META, cost: "22.76" };
+const TUMBLER_20_META = {
+  ...TUMBLER_META,
+  cost: "22.76",
+  imageUrl: "/assets/tumbler_customer_photo.jpg",
+  variantLabel: "20 oz",
+};
 
 const TUMBLER_30_PRODUCT_ID = "prod_kktumbler30oz";
 const TUMBLER_30_PRICE_ID = "price_kktumbler30oz";
 const TUMBLER_30_NAME = "30 Oz Branded Tumbler";
 const TUMBLER_30_PRICE_CENTS = 3999;
 const TUMBLER_30_DESCRIPTION = tumblerDescription(30);
-const TUMBLER_30_META = { ...TUMBLER_META, cost: "25.76" };
+const TUMBLER_30_META = {
+  ...TUMBLER_META,
+  cost: "25.76",
+  imageUrl: "/assets/tumbler_30oz_black.png",
+  variantLabel: "30 oz",
+};
 
 const MUG_PRODUCT_ID = "prod_kkcoffeemug";
 const MUG_PRICE_ID = "price_kkcoffeemug";

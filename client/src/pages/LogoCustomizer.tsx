@@ -49,6 +49,14 @@ const accessoryPlacementOptions = [
 const TUMBLER_FEATURES = [
   "Double-wall vacuum insulation — keeps drinks cold 24+ hrs or hot 12 hrs",
   "Premium stainless steel with a scuff-resistant powder-coated finish",
+  "Matching straw included",
+  "Permanent, high-end laser-etched custom logo",
+  "FREE shipping included",
+];
+
+const TUMBLER_40_FEATURES = [
+  "Double-wall vacuum insulation — keeps drinks cold 24+ hrs or hot 12 hrs",
+  "Premium stainless steel with a scuff-resistant powder-coated finish",
   "Ergonomic handle and matching straw",
   "Permanent, high-end laser-etched custom logo",
   "FREE shipping included",
@@ -57,7 +65,7 @@ const TUMBLER_FEATURES = [
 const accessoryFeatures: Record<string, string[]> = {
   "tumbler-20oz": TUMBLER_FEATURES,
   "tumbler-30oz": TUMBLER_FEATURES,
-  "tumbler-40oz": TUMBLER_FEATURES,
+  "tumbler-40oz": TUMBLER_40_FEATURES,
 };
 
 export default function LogoCustomizer() {

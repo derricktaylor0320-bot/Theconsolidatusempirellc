@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { groupProductVariants } from "@/lib/productVariants";
 import accessoriesBanner from "@assets/generated_images/accessories_section_gold_banner.png";
 
 export default function Accessories() {
@@ -11,12 +12,14 @@ export default function Accessories() {
   });
 
   const allProducts = (products as any[]) || [];
-  const visibleProducts = allProducts.filter(
-    (p) =>
-      p.category !== "Bedding" &&
-      p.category !== "Sleepwear" &&
-      p.category !== "Intimates" &&
-      p.category !== "Body Care",
+  const visibleProducts = groupProductVariants(
+    allProducts.filter(
+      (p) =>
+        p.category !== "Bedding" &&
+        p.category !== "Sleepwear" &&
+        p.category !== "Intimates" &&
+        p.category !== "Body Care",
+    ),
   );
 
   return (
@@ -61,6 +64,7 @@ export default function Accessories() {
                 colors={product.colors}
                 soldOutColors={product.soldOutColors}
                 scents={product.scents}
+                variants={product.variants}
               />
             ))}
           </div>

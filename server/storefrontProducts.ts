@@ -26,6 +26,8 @@ export interface StorefrontProduct {
   sizes: string | null;
   apparelSizes: string | null;
   scents: string | null;
+  variantGroup: string | null;
+  variantLabel: string | null;
   price: string | null;
   priceId: string | null;
 }
@@ -114,6 +116,8 @@ export async function getStorefrontProductsDetailed(): Promise<StorefrontProduct
         sizes: metadata.sizes || null,
         apparelSizes: apparelSizesFor(metadata, row.product_name).join(', ') || null,
         scents: scentsFor(metadata).join(', ') || null,
+        variantGroup: metadata.variantGroup || null,
+        variantLabel: metadata.variantLabel || null,
         price: null,
         priceId: null,
       });
