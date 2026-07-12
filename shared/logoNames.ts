@@ -30,6 +30,7 @@ export const LOGO_ALTS: string[] = [
   "Crossed Swords with Khomplete Khemistri",
   "KKA Crossed Swords Logo",
   "Gold Number Three Crest",
+  "Golden Eagle Emblem",
   // Badge of Honor
   "Blue & Gold Values Crest - Friendship, Trust, Harmony",
   "Royal Blue & Gold Crest",

@@ -83,6 +83,7 @@ import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.
 import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
 import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";
 import compassSunburst from "@assets/1781351981898_1781369761839.png";
+import logoGoldenEagle from "@assets/generated_images/golden_eagle_standalone_logo.png";
 
 export default function Canvas() {
   const logos = [
@@ -111,6 +112,7 @@ export default function Canvas() {
     { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
     { id: "123", src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold" },
     { id: "124", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
+    { id: "125", src: logoGoldenEagle, alt: "Golden Eagle Emblem", color: "Golden Eagle" },
   ];
 
   const badges = [
