@@ -449,8 +449,12 @@ const WOMENS_TEE_PRODUCTS: {
 // catalog unit_amount is the XS retail ($37.98); larger sizes add a $1/step
 // upcharge via shared/customization.ts hoodieSizeUpchargeCents. Customer sees
 // FREE shipping because delivery is baked into the price.
+//
+// Full-Zip blanks come from Amazon ASIN B0FS87L9ZR (custom zip-up hoodie).
+// Color names match that listing so fulfillment picks the same swatch.
+const AMAZON_ZIP_HOODIE_LINK = "https://a.co/d/050KAMIP";
 const HOODIE_COLORS =
-  "Black, White, Navy, Sport Gray, Charcoal, Red, Maroon, Forest Green, Royal Blue, Purple, Sand, Military Green";
+  "Beige, Black, Blue, Blue-02, Dark Blue, Dark Orange, Deep Sky Blue, Gray, Green, Green-02, Green-03, Khaki, Maroon, Olive, Orange, Orange Red, Pink, Purple, Red, Silver, Sky Blue, Violet, Violet-02, White, Yellow";
 
 const STANDARD_HOODIE_PRODUCTS: {
   productId: string;
@@ -465,7 +469,7 @@ const STANDARD_HOODIE_PRODUCTS: {
     priceId: "price_kkpulloverhoodie",
     name: "Pullover Hoodie",
     description:
-      "Mid to heavyweight cotton/fleece pullover hoodie with your choice of any Khomplete Khemistri logo from our full catalog. Left-chest and large-back branding available. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Amazon-fulfilled — FREE shipping included. Available in sizes XS–6XL (each size is $1 more than the last).",
+      "Soft, breathable custom pullover hoodie with your choice of any Khomplete Khemistri logo from our full catalog. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Amazon-fulfilled — FREE shipping included. Available in sizes XS–6XL (each size is $1 more than the last).",
     priceCents: HOODIE_BASE_PRICE_CENTS,
     meta: {
       category: "Hoodies",
@@ -485,7 +489,7 @@ const STANDARD_HOODIE_PRODUCTS: {
     priceId: "price_kkfullziphoodie",
     name: "Full-Zip Hoodie",
     description:
-      "Mid to heavyweight cotton/fleece full-zip hoodie with your choice of any Khomplete Khemistri logo from our full catalog. Left-chest and large-back branding available. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Amazon-fulfilled — FREE shipping included. Available in sizes XS–6XL (each size is $1 more than the last).",
+      "Soft, breathable custom full-zip hoodie (polyester) with your choice of any Khomplete Khemistri logo from our full catalog — front, back, and sleeve branding available. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Amazon-fulfilled — FREE shipping included. Available in sizes XS–6XL (each size is $1 more than the last).",
     priceCents: HOODIE_BASE_PRICE_CENTS,
     meta: {
       category: "Hoodies",
@@ -493,6 +497,7 @@ const STANDARD_HOODIE_PRODUCTS: {
       sortOrder: "31",
       gender: "Unisex",
       fulfillment: "Amazon",
+      amazonLink: AMAZON_ZIP_HOODIE_LINK,
       colors: HOODIE_COLORS,
       imageUrl: "/assets/generated_images/full-zip_hoodie_branded.png",
       cost: (HOODIE_XS_BLANK_COST_CENTS / 100).toFixed(2),
