@@ -1,7 +1,6 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
@@ -11,7 +10,7 @@ import CaseCustomizer from "@/components/CaseCustomizer";
 import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
 import { sizeUpchargeDollars } from "@shared/customization";
 import type { ProductVariant } from "@/lib/productVariants";
-import { Check, Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus, PenLine } from "lucide-react";
 
 const MAX_QTY = 99;
 
@@ -312,7 +311,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                               data-testid={`button-recommended-logo-${id}`}
                               title={logo.alt}
                             >
-                              <img src={logo.src} alt={logo.alt} className="aspect-square object-cover w-full h-full" loading="lazy" />
+                              <img src={logo.src} alt={logo.alt} className="aspect-square object-contain w-full h-full p-0.5" loading="lazy" />
                               {isSelected && (
                                 <span className="absolute inset-0 flex items-center justify-center bg-black/40">
                                   <Check className="h-5 w-5 text-primary" />
@@ -341,8 +340,8 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                       </button>
                     ))}
                   </div>
-                  <ScrollArea
-                    className="max-h-72 rounded-lg border border-primary/10 bg-muted/20 p-2 pr-3"
+                  <div
+                    className="logo-picker-scroll max-h-[min(50vh,380px)] rounded-lg border border-primary/10 bg-muted/20 p-2 pr-1.5"
                     data-testid={`picker-logo-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <div className="space-y-4">
@@ -362,11 +361,11 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                                   type="button"
                                   disabled={soldOut}
                                   onClick={() => { setSelectedLogo(logo.alt); setErrorMessage(""); }}
-                                  className={`relative rounded-md border-2 overflow-hidden bg-muted transition-colors disabled:opacity-50 ${isSelected ? "border-primary" : "border-transparent hover:border-border"}`}
+                                  className={`relative rounded-md border-2 overflow-hidden bg-background/80 transition-colors disabled:opacity-50 ${isSelected ? "border-primary" : "border-transparent hover:border-border"}`}
                                   data-testid={`button-logo-${id}`}
                                   title={logo.alt}
                                 >
-                                  <img src={logo.src} alt={logo.alt} className="aspect-square object-cover w-full h-full" loading="lazy" />
+                                  <img src={logo.src} alt={logo.alt} className="aspect-square object-contain w-full h-full p-0.5" loading="lazy" />
                                   {isSelected && (
                                     <span className="absolute inset-0 flex items-center justify-center bg-black/40">
                                       <Check className="h-5 w-5 text-primary" />
@@ -379,7 +378,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                   {selectedLogo && (
                     <p className="text-xs" data-testid={`text-logo-selection-${title.toLowerCase().replace(/\s+/g, '-')}`}>
                       <span className="text-muted-foreground">Selected logo: </span>
@@ -571,6 +570,19 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                 </p>
               )}
             </>
+          )}
+          {priceId && (
+            <Link href={`/product/${priceId}#reviews`} className="w-full">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mt-1 uppercase tracking-wider font-display text-sm h-10"
+                data-testid={`button-add-review-${title.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                <PenLine className="w-4 h-4 mr-2" />
+                Add Review
+              </Button>
+            </Link>
           )}
         </CardFooter>
       </Card>

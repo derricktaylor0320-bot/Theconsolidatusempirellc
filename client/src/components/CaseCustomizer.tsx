@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Check } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { allLogos } from "@/lib/logoCatalog";
@@ -131,7 +130,7 @@ export default function CaseCustomizer({
           <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
             2. Choose Your Logo
           </p>
-          <ScrollArea className="flex-1 min-h-0 max-h-[42vh] pr-3">
+          <div className="logo-picker-scroll flex-1 min-h-0 max-h-[42vh] pr-1.5 rounded-lg border border-primary/10 bg-muted/20 p-2">
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {logoIds.map((id) => {
                 const logo = allLogos[id];
@@ -142,7 +141,7 @@ export default function CaseCustomizer({
                     key={id}
                     type="button"
                     onClick={() => setSelectedLogoId(id)}
-                    className={`relative rounded-lg border-2 overflow-hidden bg-muted transition-colors ${
+                    className={`relative rounded-lg border-2 overflow-hidden bg-background/80 transition-colors ${
                       isSelected ? "border-primary" : "border-transparent hover:border-border"
                     }`}
                     data-testid={`button-caselogo-${id}`}
@@ -151,7 +150,7 @@ export default function CaseCustomizer({
                     <img
                       src={logo.src}
                       alt={logo.alt}
-                      className="aspect-square object-cover w-full h-full"
+                      className="aspect-square object-contain w-full h-full p-1"
                       loading="lazy"
                     />
                     {isSelected && (
@@ -163,7 +162,7 @@ export default function CaseCustomizer({
                 );
               })}
             </div>
-          </ScrollArea>
+          </div>
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">

@@ -54,7 +54,11 @@ export default function CheckoutSuccess() {
         const res = await fetch(`/api/orders/confirm`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ref }),
+          credentials: "include",
+          body: JSON.stringify({
+            ref,
+            discountCode: params.get("discount") || undefined,
+          }),
         });
         if (res.ok) {
           const data = (await res.json()) as Order;

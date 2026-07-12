@@ -12,6 +12,11 @@ import { storage } from "./storage";
 import { setupAuth, requireAuth, requireOwner, toPublicUser } from "./auth";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
 import { updateOrderFulfillmentSchema, insertMediaLinkSchema, mediaUploadFieldsSchema, insertReviewSchema, updateProfileSchema, type Review, type User } from "@shared/schema";
+import {
+  DISCOUNT_CODES,
+  FREQUENT_SHOPPER_MIN_ORDERS,
+  parseDiscountCode,
+} from "@shared/discounts";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -106,6 +111,40 @@ function removeAvatarFile(avatarUrl: string | null | undefined) {
   if (!avatarUrl || !avatarUrl.startsWith("/media-files/avatars/")) return;
   const fileName = path.basename(avatarUrl);
   fs.unlink(path.join(AVATAR_DIR, fileName), () => {});
+}
+
+// Review product photos — same image allowlist as avatars, stored separately
+// so they aren't mixed with profile pictures.
+const REVIEW_PHOTO_DIR = path.join(MEDIA_DIR, "review-photos");
+try {
+  fs.mkdirSync(REVIEW_PHOTO_DIR, { recursive: true });
+} catch (err) {
+  console.error("Failed to create REVIEW_PHOTO_DIR:", err);
+}
+const reviewPhotoUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, REVIEW_PHOTO_DIR),
+    filename: (_req, file, cb) => {
+      const ext = ALLOWED_AVATAR_TYPES.get(file.mimetype) || ".bin";
+      cb(null, `${randomUUID()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_AVATAR_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Please upload a JPG, PNG, WebP, or GIF image."));
+    }
+  },
+});
+
+function isOwnedReviewPhotoUrl(url: unknown): url is string {
+  return (
+    typeof url === "string" &&
+    url.startsWith("/media-files/review-photos/") &&
+    !url.includes("..")
+  );
 }
 
 const mediaUpload = multer({
@@ -410,6 +449,32 @@ export async function registerRoutes(
     }
   });
 
+  // Signed-in customers: upload a product photo for a review (up to 3 per
+  // review, enforced on the review submit). Returns a site-hosted URL.
+  app.post(
+    "/api/reviews/photos",
+    requireAuth,
+    (req, res, next) => {
+      reviewPhotoUpload.single("photo")(req, res, (err: any) => {
+        if (err) {
+          const message =
+            err.code === "LIMIT_FILE_SIZE"
+              ? "Image is too large (max 5 MB)."
+              : err.message || "Upload failed";
+          return res.status(400).json({ error: message });
+        }
+        next();
+      });
+    },
+    async (req, res) => {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ error: "No image was uploaded" });
+      }
+      res.status(201).json({ url: `/media-files/review-photos/${file.filename}` });
+    },
+  );
+
   // Signed-in customers: post (or update) their review of a product. The
   // reviewer identity and the "Verified Purchase" flag are derived here from
   // the session and recorded paid orders — never trusted from the client.
@@ -439,6 +504,11 @@ export async function registerRoutes(
         parsed.data.productName,
       );
 
+      const photoUrls = (parsed.data.photoUrls || [])
+        .filter(isOwnedReviewPhotoUrl)
+        .slice(0, 3);
+      const location = parsed.data.location?.trim() || null;
+
       const review = await storage.upsertReview({
         productName: parsed.data.productName,
         userId: user.id,
@@ -446,8 +516,25 @@ export async function registerRoutes(
         rating: parsed.data.rating,
         comment: parsed.data.comment,
         verified,
+        location,
+        photoUrls,
       });
-      res.status(201).json(toPublicReview(review));
+
+      // Keep the profile location in sync when the shopper shares a US state
+      // on their review — it also shows next to older reviews.
+      if (location) {
+        try {
+          await storage.updateUserProfile(user.id, { location });
+        } catch {
+          // Non-fatal: the review itself already stored the location.
+        }
+      }
+
+      res.status(201).json({
+        ...toPublicReview(review),
+        photoDiscountEarned: photoUrls.length > 0,
+        photoDiscountCode: photoUrls.length > 0 ? DISCOUNT_CODES.PHOTO_REVIEW : null,
+      });
     } catch (error) {
       console.error("Error saving review:", error);
       res.status(500).json({ error: "Failed to save review" });
@@ -479,6 +566,37 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting review:", error);
       res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
+  // Signed-in shoppers: which discount codes they're currently eligible for.
+  app.get("/api/discounts/eligibility", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const paidOrders = await storage.countPaidOrdersByEmail(user.email);
+      const photoReviewAvailable = await storage.hasUnusedPhotoReviewDiscount(user.id);
+      const frequentShopper = paidOrders >= FREQUENT_SHOPPER_MIN_ORDERS;
+      res.json({
+        paidOrders,
+        frequentShopperMinOrders: FREQUENT_SHOPPER_MIN_ORDERS,
+        codes: {
+          [DISCOUNT_CODES.PHOTO_REVIEW]: {
+            eligible: photoReviewAvailable,
+            percent: 10,
+            description:
+              "Upload photos with a product review to unlock 10% off your next purchase.",
+          },
+          [DISCOUNT_CODES.FREQUENT_SHOPPER]: {
+            eligible: frequentShopper,
+            percent: 15,
+            description:
+              "Complete purchases on three separate visits to unlock 15% off.",
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error checking discount eligibility:", error);
+      res.status(500).json({ error: "Failed to check discount eligibility" });
     }
   });
 
@@ -740,6 +858,48 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Too many items in your cart." });
       }
 
+      // Optional discount code (Discount10% / Discount15%). Eligibility is
+      // always checked server-side against the signed-in account.
+      let appliedDiscount:
+        | { name: string; percentage: string; code: string; userId: string }
+        | undefined;
+      const requestedCode = parseDiscountCode(req.body?.discountCode);
+      if (req.body?.discountCode && !requestedCode) {
+        return res.status(400).json({
+          error: "That discount code isn't recognized. Try Discount10% or Discount15%.",
+        });
+      }
+      if (requestedCode) {
+        const user = req.user as User | undefined;
+        if (!user) {
+          return res.status(401).json({
+            error: "Please sign in to apply a discount code.",
+          });
+        }
+        if (requestedCode.code === DISCOUNT_CODES.PHOTO_REVIEW) {
+          const eligible = await storage.hasUnusedPhotoReviewDiscount(user.id);
+          if (!eligible) {
+            return res.status(400).json({
+              error:
+                "Discount10% is for customers who uploaded photos with a review and haven't used the code yet.",
+            });
+          }
+        } else if (requestedCode.code === DISCOUNT_CODES.FREQUENT_SHOPPER) {
+          const paidOrders = await storage.countPaidOrdersByEmail(user.email);
+          if (paidOrders < FREQUENT_SHOPPER_MIN_ORDERS) {
+            return res.status(400).json({
+              error: `Discount15% unlocks after ${FREQUENT_SHOPPER_MIN_ORDERS} completed purchase visits. You currently have ${paidOrders}.`,
+            });
+          }
+        }
+        appliedDiscount = {
+          name: requestedCode.code,
+          percentage: String(requestedCode.percent),
+          code: requestedCode.code,
+          userId: user.id,
+        };
+      }
+
       const lineItems: { name: string; quantity: number; amountCents: number; note?: string }[] = [];
 
       for (const item of items) {
@@ -800,7 +960,12 @@ export async function registerRoutes(
       const { url } = await createSquareOrderPaymentLink({
         lineItems,
         tax: taxResult.tax,
-        redirectUrl: `${baseUrl}/checkout/success`,
+        discount: appliedDiscount
+          ? { name: appliedDiscount.name, percentage: appliedDiscount.percentage }
+          : undefined,
+        redirectUrl: appliedDiscount
+          ? `${baseUrl}/checkout/success?discount=${encodeURIComponent(appliedDiscount.code)}`
+          : `${baseUrl}/checkout/success`,
       });
 
       res.json({ url });
@@ -852,6 +1017,25 @@ export async function registerRoutes(
         customerName: squareOrder.buyerName,
         shippingAddress: squareOrder.shippingAddress,
       });
+
+      // Redeem one-time photo-review discount after payment is confirmed.
+      const discountCode = parseDiscountCode(req.body?.discountCode);
+      const user = req.user as User | undefined;
+      if (
+        user &&
+        discountCode?.code === DISCOUNT_CODES.PHOTO_REVIEW &&
+        (await storage.hasUnusedPhotoReviewDiscount(user.id))
+      ) {
+        try {
+          await storage.recordDiscountRedemption({
+            userId: user.id,
+            code: discountCode.code,
+            squareOrderId: squareOrder.orderId,
+          });
+        } catch (redeemError) {
+          console.error("Failed to record discount redemption:", redeemError);
+        }
+      }
 
       // Send the buyer an itemized receipt. This runs only on the first
       // confirmation (a refresh hits the early "already paid" return above), so

@@ -5,7 +5,6 @@ import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "wouter";
 import { useEffect, useMemo, useState } from "react";
@@ -541,7 +540,7 @@ function ProductDetailContent({
                                 setSelectedLogo(logo.alt);
                                 setErrorMessage("");
                               }}
-                              className={`relative rounded-lg border-2 overflow-hidden bg-muted transition-colors disabled:opacity-50 ${
+                              className={`relative rounded-lg border-2 overflow-hidden bg-background/80 transition-colors disabled:opacity-50 ${
                                 isSelected ? "border-primary" : "border-transparent hover:border-border"
                               }`}
                               data-testid={`button-detail-recommended-${id}`}
@@ -550,7 +549,7 @@ function ProductDetailContent({
                               <img
                                 src={logo.src}
                                 alt={logo.alt}
-                                className="aspect-square object-cover w-full h-full"
+                                className="aspect-square object-contain w-full h-full p-1"
                                 loading="lazy"
                               />
                               {isSelected && (
@@ -581,7 +580,10 @@ function ProductDetailContent({
                       </button>
                     ))}
                   </div>
-                  <ScrollArea className="max-h-[360px] rounded-lg border border-primary/10 bg-muted/20 p-3 pr-4" data-testid="picker-detail-logo">
+                  <div
+                    className="logo-picker-scroll max-h-[min(55vh,420px)] rounded-lg border border-primary/10 bg-muted/20 p-3 pr-2"
+                    data-testid="picker-detail-logo"
+                  >
                     <div className="space-y-5">
                       {LOGO_SECTIONS.filter((section) => logoCollection === "All" || section.name === logoCollection).map((section) => (
                         <div key={section.name} className="space-y-2">
@@ -602,7 +604,7 @@ function ProductDetailContent({
                                     setSelectedLogo(logo.alt);
                                     setErrorMessage("");
                                   }}
-                                  className={`relative rounded-lg border-2 overflow-hidden bg-muted transition-colors disabled:opacity-50 ${
+                                  className={`relative rounded-lg border-2 overflow-hidden bg-background/80 transition-colors disabled:opacity-50 ${
                                     isSelected
                                       ? "border-primary"
                                       : "border-transparent hover:border-border"
@@ -613,7 +615,7 @@ function ProductDetailContent({
                                   <img
                                     src={logo.src}
                                     alt={logo.alt}
-                                    className="aspect-square object-cover w-full h-full"
+                                    className="aspect-square object-contain w-full h-full p-1"
                                     loading="lazy"
                                   />
                                   {isSelected && (
@@ -628,7 +630,7 @@ function ProductDetailContent({
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                   <p className="text-sm" data-testid="text-detail-logo-selection">
                     {selectedLogo ? (
                       <>

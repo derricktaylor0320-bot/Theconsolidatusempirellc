@@ -238,6 +238,13 @@ export const reviews = pgTable(
     rating: integer("rating").notNull(), // 1-5 stars
     comment: text("comment").notNull(),
     verified: boolean("verified").notNull().default(false),
+    // Optional US location for this review (e.g. "Atlanta, GA" or "Georgia").
+    // Prefer this over the profile location when present so each review can
+    // show where the customer was when they wrote it.
+    location: text("location"),
+    // Up to 3 site-hosted photo URLs of the product they received
+    // (/media-files/review-photos/...). Empty array when none were uploaded.
+    photoUrls: jsonb("photo_urls").$type<string[]>().notNull().default([]),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (t) => [uniqueIndex("IDX_reviews_user_product").on(t.userId, t.productName)],
@@ -245,7 +252,8 @@ export const reviews = pgTable(
 
 // Validates the client-submitted review form. Reviewer identity (userId,
 // reviewerName) and the `verified` flag are derived server-side from the
-// session + order history — never trusted from the client.
+// session + order history — never trusted from the client. Photo URLs are
+// accepted only after the upload endpoint stores them under our media dir.
 export const insertReviewSchema = z.object({
   productName: z.string().trim().min(1, "Product is required").max(200),
   rating: z
@@ -258,6 +266,16 @@ export const insertReviewSchema = z.object({
     .trim()
     .min(3, "Please tell us a little about the product")
     .max(1000, "Reviews can be at most 1000 characters"),
+  location: z
+    .string()
+    .trim()
+    .min(2, "Please share your location in the United States")
+    .max(80, "Location is too long")
+    .optional(),
+  photoUrls: z
+    .array(z.string().trim().min(1))
+    .max(3, "You can upload up to 3 photos")
+    .optional(),
 });
 
 export type InsertReview = z.infer<typeof insertReviewSchema>;
@@ -272,3 +290,16 @@ export type PublicReviewWithReviewer = PublicReview & {
   reviewerAvatarUrl: string | null;
   reviewerLocation: string | null;
 };
+
+// Tracks one-time discount redemptions (currently Discount10% from photo
+// reviews). Frequent-shopper Discount15% is re-checked from order count and
+// does not need a redemption row.
+export const discountRedemptions = pgTable("discount_redemptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  code: text("code").notNull(),
+  squareOrderId: text("square_order_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type DiscountRedemption = typeof discountRedemptions.$inferSelect;

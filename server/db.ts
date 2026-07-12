@@ -172,6 +172,8 @@ export async function ensureTablesExist() {
         rating INTEGER NOT NULL,
         comment TEXT NOT NULL,
         verified BOOLEAN NOT NULL DEFAULT FALSE,
+        location TEXT,
+        photo_urls JSONB NOT NULL DEFAULT '[]'::jsonb,
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
@@ -182,6 +184,27 @@ export async function ensureTablesExist() {
     await db.execute(sql`
       CREATE INDEX IF NOT EXISTS "IDX_reviews_product_name"
       ON reviews (product_name)
+    `);
+    // Backfill columns added after the original reviews table shipped.
+    await db.execute(sql`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS location TEXT`);
+    await db.execute(sql`
+      ALTER TABLE reviews
+      ADD COLUMN IF NOT EXISTS photo_urls JSONB NOT NULL DEFAULT '[]'::jsonb
+    `);
+
+    // One-time discount redemptions (Discount10% from photo reviews).
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS discount_redemptions (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        code TEXT NOT NULL,
+        square_order_id TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_discount_redemptions_user_code"
+      ON discount_redemptions (user_id, code)
     `);
 
     // Session store table used by connect-pg-simple for shared hub sessions.

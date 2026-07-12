@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Check } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import {
@@ -142,7 +141,7 @@ export default function MugCustomizer({
               </span>
             )}
           </p>
-          <ScrollArea className="flex-1 min-h-0 max-h-[42vh] pr-3">
+          <div className="logo-picker-scroll flex-1 min-h-0 max-h-[42vh] pr-1.5 rounded-lg border border-primary/10 bg-muted/20 p-2">
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {orderedIds.map((id) => {
                 const logo = allLogos[id];
@@ -154,7 +153,7 @@ export default function MugCustomizer({
                     key={id}
                     type="button"
                     onClick={() => setSelectedLogoId(id)}
-                    className={`relative rounded-lg border-2 overflow-hidden bg-muted transition-colors ${
+                    className={`relative rounded-lg border-2 overflow-hidden bg-background/80 transition-colors ${
                       isSelected ? "border-primary" : "border-transparent hover:border-border"
                     }`}
                     data-testid={`button-muglogo-${id}`}
@@ -163,7 +162,7 @@ export default function MugCustomizer({
                     <img
                       src={logo.src}
                       alt={logo.alt}
-                      className="aspect-square object-cover w-full h-full"
+                      className="aspect-square object-contain w-full h-full p-1"
                       loading="lazy"
                     />
                     {isRecommended && (
@@ -180,7 +179,7 @@ export default function MugCustomizer({
                 );
               })}
             </div>
-          </ScrollArea>
+          </div>
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
