@@ -14,6 +14,7 @@ import { useCart } from "@/hooks/useCart";
 import { useRecentlyViewed, readRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
 import { sizeUpchargeDollars } from "@shared/customization";
+import { getSupplementInfo } from "@shared/supplementBenefits";
 
 const MAX_QTY = 99;
 
@@ -109,6 +110,7 @@ function ProductDetailContent({
   const price = parseFloat(product.price);
   const listing = listingForType(product.productType);
   const soldOut = !!product.soldOut;
+  const supplementInfo = getSupplementInfo(product.title);
 
   const usesHandleColors = !!product.handleColors && product.handleColors.trim().length > 0;
   const usesCaseType = !!product.caseType && product.caseType.trim().length > 0;
@@ -814,6 +816,42 @@ function ProductDetailContent({
           )}
         </div>
       </div>
+
+      {supplementInfo && (
+        <section className="max-w-4xl mx-auto mt-16" data-testid="section-supplement-benefits">
+          <div className="rounded-xl border border-primary/25 bg-black/20 p-6 md:p-8">
+            <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wider text-primary mb-4">
+              Benefits
+            </h2>
+            {supplementInfo.intro && (
+              <p
+                className="text-secondary-foreground/80 leading-relaxed mb-6"
+                data-testid="text-supplement-intro"
+              >
+                {supplementInfo.intro}
+              </p>
+            )}
+            <ul className="space-y-4">
+              {supplementInfo.benefits.map((b) => (
+                <li key={b.label} className="flex gap-3" data-testid={`benefit-${b.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                  <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <p className="text-secondary-foreground/80 leading-relaxed">
+                    <span className="font-semibold text-foreground">{b.label}:</span> {b.text}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            {supplementInfo.note && (
+              <p
+                className="text-sm text-muted-foreground leading-relaxed mt-6 border-t border-primary/15 pt-4"
+                data-testid="text-supplement-note"
+              >
+                {supplementInfo.note}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {soldOut && alternatives.length > 0 && (
         <section className="max-w-6xl mx-auto mt-20" data-testid="section-alternatives">
