@@ -23,7 +23,7 @@ const TUMBLER_NAME = "40 Oz Branded Tumbler";
 const TUMBLER_PRICE_CENTS = 3000;
 const TUMBLER_DESCRIPTION =
   "Premium 40 oz insulated stainless steel tumbler with handle and your choice of Khomplete Khemistri logo. Keeps drinks cold or hot for hours. Available in a wide range of colors — tell us your preferred color at checkout.";
-const TUMBLER_IMAGE = "/assets/tumbler_40oz_personalized.jpg";
+const TUMBLER_IMAGE = "/assets/tumbler_customer_photo.jpg";
 const TUMBLER_META = {
   logoOptions: STANDARD_LOGO_OPTIONS,
   amazonLink: "https://a.co/d/03kljFGN",
