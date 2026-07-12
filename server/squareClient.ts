@@ -76,6 +76,11 @@ export interface OrderPaymentLinkInput {
    * derived from the buyer's ship-to state, never from a client-sent amount.
    */
   tax?: { name: string; percentage: string };
+  /**
+   * Optional order-level percentage discount (e.g. Discount10% / Discount15%).
+   * Applied before tax. Name is shown on the Square checkout receipt.
+   */
+  discount?: { name: string; percentage: string };
 }
 
 // Creates a Square-hosted checkout page for a multi-item order (one payment for
@@ -123,6 +128,18 @@ export async function createSquareOrderPaymentLink(
         percentage: input.tax.percentage,
         scope: 'ORDER',
         type: 'ADDITIVE',
+      },
+    ];
+  }
+
+  if (input.discount && Number(input.discount.percentage) > 0) {
+    body.order.discounts = [
+      {
+        uid: 'store-discount',
+        name: input.discount.name.slice(0, 255),
+        percentage: input.discount.percentage,
+        scope: 'ORDER',
+        type: 'FIXED_PERCENTAGE',
       },
     ];
   }

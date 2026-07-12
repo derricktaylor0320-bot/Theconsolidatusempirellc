@@ -140,4 +140,28 @@
   @media (prefers-reduced-motion: reduce) {
     .gold-shine { animation: none; }
   }
+
+  /* Logo / badge pickers: always-visible scrollbar so mobile shoppers can
+     scroll through the full catalog and see each crest without it being cut off. */
+  .logo-picker-scroll {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.7) hsl(var(--muted) / 0.6);
+  }
+  .logo-picker-scroll::-webkit-scrollbar {
+    width: 10px;
+  }
+  .logo-picker-scroll::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.55);
+    border-radius: 999px;
+  }
+  .logo-picker-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.75);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
 }

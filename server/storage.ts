@@ -1,4 +1,5 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems, type Review, reviews } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems, type Review, reviews, discountRedemptions } from "@shared/schema";
+import { DISCOUNT_CODES } from "@shared/discounts";
 
 // Review row joined with the reviewer's current profile photo + location.
 export type ReviewWithReviewer = Review & {
@@ -88,9 +89,18 @@ export interface IStorage {
     rating: number;
     comment: string;
     verified: boolean;
+    location?: string | null;
+    photoUrls?: string[];
   }): Promise<Review>;
   deleteReview(id: string): Promise<Review | undefined>;
   hasUserPurchasedProduct(email: string, productName: string): Promise<boolean>;
+  countPaidOrdersByEmail(email: string): Promise<number>;
+  hasUnusedPhotoReviewDiscount(userId: string): Promise<boolean>;
+  recordDiscountRedemption(input: {
+    userId: string;
+    code: string;
+    squareOrderId?: string | null;
+  }): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -467,12 +477,25 @@ export class DatabaseStorage implements IStorage {
     rating: number;
     comment: string;
     verified: boolean;
+    location?: string | null;
+    photoUrls?: string[];
   }): Promise<Review> {
     // One review per user per product: re-submitting replaces the earlier
     // review (and refreshes its timestamp so the update surfaces as recent).
+    const photoUrls = Array.isArray(input.photoUrls) ? input.photoUrls.slice(0, 3) : [];
+    const location = input.location ?? null;
     const [review] = await db
       .insert(reviews)
-      .values(input)
+      .values({
+        productName: input.productName,
+        userId: input.userId,
+        reviewerName: input.reviewerName,
+        rating: input.rating,
+        comment: input.comment,
+        verified: input.verified,
+        location,
+        photoUrls,
+      })
       .onConflictDoUpdate({
         target: [reviews.userId, reviews.productName],
         set: {
@@ -480,6 +503,8 @@ export class DatabaseStorage implements IStorage {
           rating: input.rating,
           comment: input.comment,
           verified: input.verified,
+          location,
+          photoUrls,
           createdAt: new Date(),
         },
       })
@@ -514,6 +539,55 @@ export class DatabaseStorage implements IStorage {
       LIMIT 1
     `);
     return (result?.rows?.length ?? 0) > 0;
+  }
+
+  // Each paid order row = one completed checkout visit, regardless of how many
+  // line items were in that cart.
+  async countPaidOrdersByEmail(email: string): Promise<number> {
+    const result: any = await db.execute(sql`
+      SELECT COUNT(*)::int AS count
+      FROM orders
+      WHERE status = 'paid'
+        AND lower(customer_email) = lower(${email})
+    `);
+    return Number(result?.rows?.[0]?.count ?? 0);
+  }
+
+  // Discount10% is earned by uploading at least one photo with a review, and
+  // can be redeemed once (tracked in discount_redemptions).
+  async hasUnusedPhotoReviewDiscount(userId: string): Promise<boolean> {
+    const photoReviews: any = await db.execute(sql`
+      SELECT 1
+      FROM reviews
+      WHERE user_id = ${userId}
+        AND jsonb_array_length(COALESCE(photo_urls, '[]'::jsonb)) > 0
+      LIMIT 1
+    `);
+    if ((photoReviews?.rows?.length ?? 0) === 0) return false;
+
+    const [redeemed] = await db
+      .select()
+      .from(discountRedemptions)
+      .where(
+        and(
+          eq(discountRedemptions.userId, userId),
+          eq(discountRedemptions.code, DISCOUNT_CODES.PHOTO_REVIEW),
+        ),
+      )
+      .limit(1);
+    return !redeemed;
+  }
+
+  async recordDiscountRedemption(input: {
+    userId: string;
+    code: string;
+    squareOrderId?: string | null;
+  }): Promise<void> {
+    await db.insert(discountRedemptions).values({
+      userId: input.userId,
+      code: input.code,
+      squareOrderId: input.squareOrderId ?? null,
+    });
   }
 }
 
