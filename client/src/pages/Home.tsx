@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
+import { RecentReviewsPanel } from "@/components/Reviews";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -205,6 +206,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <RecentReviewsPanel />
 
         <section className="py-24 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4 text-center max-w-3xl">

@@ -10,7 +10,7 @@ import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth, requireOwner } from "./auth";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
-import { updateOrderFulfillmentSchema, insertMediaLinkSchema, mediaUploadFieldsSchema } from "@shared/schema";
+import { updateOrderFulfillmentSchema, insertMediaLinkSchema, mediaUploadFieldsSchema, insertReviewSchema, type Review, type User } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -243,6 +243,110 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting media:", error);
       res.status(500).json({ error: "Failed to delete media" });
+    }
+  });
+
+  // --- Product reviews API ---------------------------------------------------
+  // Public API responses never include reviewer user ids.
+  const toPublicReview = ({ userId: _userId, ...rest }: Review) => rest;
+
+  // Public: reviews for one product (by product name, the stable identity).
+  app.get("/api/reviews", async (req, res) => {
+    const productName = String(req.query.product || "").trim();
+    if (!productName) {
+      return res.status(400).json({ error: "product query param is required" });
+    }
+    try {
+      const rows = await storage.getReviewsForProduct(productName);
+      res.json(rows.map(toPublicReview));
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ error: "Failed to load reviews" });
+    }
+  });
+
+  // Public: most recent reviews across all products (homepage panel).
+  app.get("/api/reviews/recent", async (req, res) => {
+    const requested = parseInt(String(req.query.limit || ""), 10);
+    const limit = Math.min(12, Math.max(1, Number.isFinite(requested) ? requested : 6));
+    try {
+      const rows = await storage.getRecentReviews(limit);
+      res.json(rows.map(toPublicReview));
+    } catch (error) {
+      console.error("Error fetching recent reviews:", error);
+      res.status(500).json({ error: "Failed to load reviews" });
+    }
+  });
+
+  // Signed-in customers: post (or update) their review of a product. The
+  // reviewer identity and the "Verified Purchase" flag are derived here from
+  // the session and recorded paid orders — never trusted from the client.
+  app.post("/api/reviews", requireAuth, async (req, res) => {
+    const parsed = insertReviewSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res
+        .status(400)
+        .json({ error: parsed.error.errors[0]?.message || "Invalid input" });
+    }
+
+    try {
+      // Only accept reviews for products that actually exist in the storefront.
+      const catalog = await getStorefrontProducts();
+      const product = (catalog as any[]).find(
+        (p) => p.title === parsed.data.productName,
+      );
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      const user = req.user as User;
+      const reviewerName =
+        (user.displayName || "").trim() || user.email.split("@")[0];
+      const verified = await storage.hasUserPurchasedProduct(
+        user.email,
+        parsed.data.productName,
+      );
+
+      const review = await storage.upsertReview({
+        productName: parsed.data.productName,
+        userId: user.id,
+        reviewerName,
+        rating: parsed.data.rating,
+        comment: parsed.data.comment,
+        verified,
+      });
+      res.status(201).json(toPublicReview(review));
+    } catch (error) {
+      console.error("Error saving review:", error);
+      res.status(500).json({ error: "Failed to save review" });
+    }
+  });
+
+  // Author can remove their own review; the store owner (OWNER_EMAILS) can
+  // moderate any review. Note the owner check here is strict — no "any
+  // signed-in user" fallback, so a missing allowlist never lets strangers
+  // delete other people's reviews.
+  app.delete("/api/reviews/:id", requireAuth, async (req, res) => {
+    try {
+      const review = await storage.getReviewById(req.params.id);
+      if (!review) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      const user = req.user as User;
+      const ownerAllowlist = (process.env.OWNER_EMAILS || "")
+        .split(",")
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean);
+      const isAuthor = review.userId === user.id;
+      const isOwner = ownerAllowlist.includes(user.email.toLowerCase());
+      if (!isAuthor && !isOwner) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+      await storage.deleteReview(review.id);
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      res.status(500).json({ error: "Failed to delete review" });
     }
   });
 

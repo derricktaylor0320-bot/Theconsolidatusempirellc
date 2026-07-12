@@ -156,6 +156,30 @@ export async function ensureTablesExist() {
       )
     `);
 
+    // Customer product reviews. Keyed by product name (the storefront dedupes
+    // catalog rows by name, so the name is the stable product identity). One
+    // review per user per product, enforced by the unique index.
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        product_name TEXT NOT NULL,
+        user_id VARCHAR(255) NOT NULL,
+        reviewer_name TEXT NOT NULL,
+        rating INTEGER NOT NULL,
+        comment TEXT NOT NULL,
+        verified BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS "IDX_reviews_user_product"
+      ON reviews (user_id, product_name)
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_reviews_product_name"
+      ON reviews (product_name)
+    `);
+
     // Session store table used by connect-pg-simple for shared hub sessions.
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS "session" (

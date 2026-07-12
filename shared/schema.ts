@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, integer, timestamp, jsonb, boolean, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -206,3 +206,47 @@ export const mediaUploadFieldsSchema = z.object({
 
 export type InsertMediaLink = z.infer<typeof insertMediaLinkSchema>;
 export type MediaItem = typeof mediaItems.$inferSelect;
+
+// Customer product reviews. Keyed by product NAME (not catalog id) because the
+// catalog holds duplicate product rows under different ids for the same item
+// (the storefront dedupes by name), so the name is the stable identity.
+// One review per signed-in user per product — submitting again updates it.
+// `verified` is set server-side when the reviewer's account email matches a
+// recorded paid order containing that product.
+export const reviews = pgTable(
+  "reviews",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    productName: text("product_name").notNull(),
+    userId: varchar("user_id").notNull(),
+    reviewerName: text("reviewer_name").notNull(),
+    rating: integer("rating").notNull(), // 1-5 stars
+    comment: text("comment").notNull(),
+    verified: boolean("verified").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => [uniqueIndex("IDX_reviews_user_product").on(t.userId, t.productName)],
+);
+
+// Validates the client-submitted review form. Reviewer identity (userId,
+// reviewerName) and the `verified` flag are derived server-side from the
+// session + order history — never trusted from the client.
+export const insertReviewSchema = z.object({
+  productName: z.string().trim().min(1, "Product is required").max(200),
+  rating: z
+    .number()
+    .int("Rating must be a whole number")
+    .min(1, "Please pick a star rating")
+    .max(5, "Rating can be at most 5 stars"),
+  comment: z
+    .string()
+    .trim()
+    .min(3, "Please tell us a little about the product")
+    .max(1000, "Reviews can be at most 1000 characters"),
+});
+
+export type InsertReview = z.infer<typeof insertReviewSchema>;
+export type Review = typeof reviews.$inferSelect;
+
+// Public review shape returned by the API (never exposes reviewer user ids).
+export type PublicReview = Omit<Review, "userId">;

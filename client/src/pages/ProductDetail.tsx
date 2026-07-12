@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ReviewsSection } from "@/components/Reviews";
 import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
 import ProductCard from "@/components/ProductCard";
@@ -885,6 +886,8 @@ function ProductDetailContent({
           </div>
         </section>
       )}
+
+      <ReviewsSection productName={product.title} />
 
       {relatedProducts.length > 0 && (
         <section className="max-w-6xl mx-auto mt-20" data-testid="section-related-products">

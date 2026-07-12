@@ -1,4 +1,4 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems, type Review, reviews } from "@shared/schema";
 import { db } from "./db";
 import { and, eq, ne, isNull, desc, sql } from "drizzle-orm";
 
@@ -63,6 +63,21 @@ export interface IStorage {
     description?: string | null;
   }): Promise<MediaItem>;
   deleteMediaItem(id: string): Promise<MediaItem | undefined>;
+
+  // Product review operations
+  getReviewsForProduct(productName: string): Promise<Review[]>;
+  getRecentReviews(limit: number): Promise<Review[]>;
+  getReviewById(id: string): Promise<Review | undefined>;
+  upsertReview(review: {
+    productName: string;
+    userId: string;
+    reviewerName: string;
+    rating: number;
+    comment: string;
+    verified: boolean;
+  }): Promise<Review>;
+  deleteReview(id: string): Promise<Review | undefined>;
+  hasUserPurchasedProduct(email: string, productName: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -353,6 +368,84 @@ export class DatabaseStorage implements IStorage {
       .where(eq(mediaItems.id, id))
       .returning();
     return deleted;
+  }
+
+  // --- Product reviews -------------------------------------------------------
+  async getReviewsForProduct(productName: string): Promise<Review[]> {
+    return await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.productName, productName))
+      .orderBy(desc(reviews.createdAt));
+  }
+
+  async getRecentReviews(limit: number): Promise<Review[]> {
+    return await db
+      .select()
+      .from(reviews)
+      .orderBy(desc(reviews.createdAt))
+      .limit(limit);
+  }
+
+  async getReviewById(id: string): Promise<Review | undefined> {
+    const [review] = await db.select().from(reviews).where(eq(reviews.id, id));
+    return review || undefined;
+  }
+
+  async upsertReview(input: {
+    productName: string;
+    userId: string;
+    reviewerName: string;
+    rating: number;
+    comment: string;
+    verified: boolean;
+  }): Promise<Review> {
+    // One review per user per product: re-submitting replaces the earlier
+    // review (and refreshes its timestamp so the update surfaces as recent).
+    const [review] = await db
+      .insert(reviews)
+      .values(input)
+      .onConflictDoUpdate({
+        target: [reviews.userId, reviews.productName],
+        set: {
+          reviewerName: input.reviewerName,
+          rating: input.rating,
+          comment: input.comment,
+          verified: input.verified,
+          createdAt: new Date(),
+        },
+      })
+      .returning();
+    return review;
+  }
+
+  async deleteReview(id: string): Promise<Review | undefined> {
+    const [deleted] = await db
+      .delete(reviews)
+      .where(eq(reviews.id, id))
+      .returning();
+    return deleted;
+  }
+
+  async hasUserPurchasedProduct(
+    email: string,
+    productName: string,
+  ): Promise<boolean> {
+    // "Verified Purchase" = a recorded paid order under this email contains a
+    // line item with this exact product name. Order items live in a jsonb
+    // array, so we unnest it to match names.
+    const result: any = await db.execute(sql`
+      SELECT 1
+      FROM orders
+      WHERE status = 'paid'
+        AND lower(customer_email) = lower(${email})
+        AND EXISTS (
+          SELECT 1 FROM jsonb_array_elements(items) AS item
+          WHERE item->>'name' = ${productName}
+        )
+      LIMIT 1
+    `);
+    return (result?.rows?.length ?? 0) > 0;
   }
 }
 
