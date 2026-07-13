@@ -950,6 +950,32 @@ const HAT_META = {
   colors: "Black, Navy, Gray, Khaki, Red",
 };
 
+// Women's Softshell Jacket — Amazon-fulfilled custom waterproof windbreaker.
+// Sizes S–3XL (listing max). Many women colorways; logo + size + color at
+// checkout. Replaces the old generic "Jacket/Coat" catalog entry.
+const WOMENS_JACKET_PRODUCT_ID = "prod_kkwomensjacket";
+const WOMENS_JACKET_PRICE_ID = "price_kkwomensjacket";
+const WOMENS_JACKET_OLD_NAME = "Jacket/Coat";
+const WOMENS_JACKET_NAME = "Women's Softshell Jacket";
+const WOMENS_JACKET_PRICE_CENTS = 7500;
+const WOMENS_JACKET_IMAGE = "/assets/kk_womens_softshell_jacket.jpg";
+const WOMENS_JACKET_COLORS =
+  "White, Black, Red, 3-White, 3-Black, 3-Red, Lake Blue, Light Green, Pink, Purple, Rose Red, 3-Green, 3-Pink, 3-Purple";
+const WOMENS_JACKET_SIZES = "S, M, L, XL, 2XL, 3XL";
+const WOMENS_JACKET_DESCRIPTION =
+  "Personalized women's waterproof softshell windbreaker / hiking raincoat with your choice of any Khomplete Khemistri logo from our full catalog. Durable water-resistant outer shell with a comfortable softshell feel — built for everyday wear, travel, and outdoor weather. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in a wide range of colors, sizes S through 3XL. FREE shipping included.";
+const WOMENS_JACKET_META = {
+  category: "Outerwear",
+  productType: "apparel",
+  sortOrder: "15",
+  gender: "Women",
+  imageUrl: WOMENS_JACKET_IMAGE,
+  fulfillment: "Amazon",
+  amazonLink: "https://a.co/d/0fGzQgs3",
+  colors: WOMENS_JACKET_COLORS,
+  apparelSizes: WOMENS_JACKET_SIZES,
+};
+
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
 // under Apparel, not Accessories. It is also seasonal: hidden from the storefront
 // in spring/summer and brought back for fall/winter. Both facts are applied here
@@ -1498,6 +1524,81 @@ export async function ensureCatalogData() {
       WHERE name = ${HAT_NAME} AND active = true
     `);
 
+    // 6b2) Women's Softshell Jacket ($75, Amazon-fulfilled, S–3XL, multi-color).
+    //     Same self-applying create/keep-current pattern as the hat. Renames the
+    //     legacy "Jacket/Coat" row in place when present so the Women's
+    //     Collection picks up the Amazon listing (sizes through 3XL + colors).
+    const womensJacketProductRaw = JSON.stringify({
+      id: WOMENS_JACKET_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: WOMENS_JACKET_NAME,
+      description: WOMENS_JACKET_DESCRIPTION,
+      metadata: WOMENS_JACKET_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const womensJacketPriceRaw = JSON.stringify({
+      id: WOMENS_JACKET_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: WOMENS_JACKET_PRICE_CENTS,
+      product: WOMENS_JACKET_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{name}', to_jsonb(${WOMENS_JACKET_NAME}::text), true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(WOMENS_JACKET_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${WOMENS_JACKET_OLD_NAME}
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${womensJacketProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${WOMENS_JACKET_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${womensJacketPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${WOMENS_JACKET_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${WOMENS_JACKET_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(WOMENS_JACKET_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(WOMENS_JACKET_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${WOMENS_JACKET_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(WOMENS_JACKET_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${WOMENS_JACKET_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(WOMENS_JACKET_PRICE_CENTS)}
+    `);
+
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
     //     pattern as the mug/cases/hat. For each of the 10 designs: create only
     //     when absent (no-op in dev where Stripe sync made them; the real creator
@@ -1993,7 +2094,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Women's Softshell Jacket ($75, Amazon S–3XL multi-color), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

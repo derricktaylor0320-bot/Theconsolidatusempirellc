@@ -139,6 +139,14 @@ export function apparelSizesFor(
   if (SIZE_EXCLUDED_CATEGORIES.has(category)) return [];
   const name = typeof productName === "string" ? productName : "";
   if (SIZE_EXCLUDED_NAME_RX.test(name)) return [];
+  // Optional per-product size run (e.g. Amazon women's jackets that only go
+  // through 3XL). Distinct from bedding's size-only `sizes` metadata — this
+  // still layers on top of logo + color customization.
+  const custom = String(m.apparelSizes || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (custom.length > 0) return custom;
   return APPAREL_SIZES;
 }
 
