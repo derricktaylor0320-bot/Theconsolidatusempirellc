@@ -49,6 +49,7 @@ export const LOGO_ALTS: string[] = [
   "Apparel Eagle Crest - Maroon & Gold",
   "Apparel Eagle Crest - Gold",
   "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest",
+  "The Consolidatus Empire LLC Royalty Crest",
   // Shield of Honor
   "The Golden Eagle Shield",
   "Navy & Gold Eagle Shield",
@@ -68,8 +69,6 @@ export const LOGO_ALTS: string[] = [
   "Khomplete Khemistri Apparel Sunburst Emblem",
   // Canvas Collection (Pride)
   "Khomplete Khemistri Apparel Pride Rainbow Crest",
-  // Canvas Collection (gold brand crests)
-  "Khomplete Khemistri Apparel & Accessories Gold Crest",
   // Canvas Collection (founders' trident crest)
   "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.",
 ];

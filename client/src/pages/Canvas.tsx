@@ -72,10 +72,10 @@ import logoAccessoriesEagle from "@assets/generated_images/logo_accessories_eagl
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
 import logoKKShieldSwords from "@assets/generated_images/kk_shield_with_swords.png";
 import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_logo.png";
-import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
 import logoFoundersTrident from "@assets/logo_founders_trident_three.jpg";
+import logoConsolidatusRoyaltyCrest from "@assets/logo_consolidatus_empire_royalty_crest.png";
 
 // Compass Collection — 400-403
 import bannerCompass from "@assets/1781364317455_1781369690056.png";
@@ -109,7 +109,6 @@ export default function Canvas() {
     { id: "119", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
     { id: "120", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
     { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
-    { id: "123", src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold" },
     { id: "124", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
     { id: "125", src: logoGoldenEagle, alt: "Golden Eagle Emblem", color: "Golden Eagle" },
   ];
@@ -133,6 +132,7 @@ export default function Canvas() {
     { id: "215", src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", featured: true },
     { id: "216", src: eagleCrestGold, alt: "Apparel Eagle Crest - Gold", color: "All-Gold Eagle Crest", featured: true },
     { id: "217", src: badgeApparelAccessoriesEst2020, alt: "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest", color: "Apparel & Accessories Est. 2020", featured: true },
+    { id: "218", src: logoConsolidatusRoyaltyCrest, alt: "The Consolidatus Empire LLC Royalty Crest", color: "Consolidatus Empire Royalty", featured: true },
   ];
 
   const honorShields = [
