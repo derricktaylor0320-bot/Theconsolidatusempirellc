@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Crown, Gift, Tag, Bell, Star, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import BrandSectionBanner from "@/components/BrandSectionBanner";
 
 export default function VIP() {
   const [email, setEmail] = useState("");
@@ -71,6 +72,7 @@ export default function VIP() {
         <div className="absolute inset-0 bg-gradient-to-b from-gold/10 to-transparent" />
         
         <div className="max-w-4xl mx-auto relative z-10">
+          <BrandSectionBanner compact />
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

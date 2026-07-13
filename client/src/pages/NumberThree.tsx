@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -113,6 +114,7 @@ export default function NumberThree() {
           </div>
 
           <div className="container mx-auto px-4 relative">
+            <BrandSectionBanner compact />
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

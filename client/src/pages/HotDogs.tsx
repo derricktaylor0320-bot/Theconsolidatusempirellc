@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Beef,
@@ -51,6 +52,7 @@ export default function HotDogs() {
           </div>
 
           <div className="container mx-auto px-4 text-center relative z-10">
+            <BrandSectionBanner compact />
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { motion } from "framer-motion";
 import founderImg from "@assets/1764214779988_1764214819082.jpg";
 
@@ -15,6 +16,7 @@ export default function About() {
           </div>
           
           <div className="container mx-auto px-4">
+            <BrandSectionBanner className="mb-10" />
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
