@@ -14,7 +14,7 @@ import logoOrange from "@assets/logo_orange.jpg";
 import logoBrownGold from "@assets/logo_brown_gold.jpg";
 import logoTeal from "@assets/logo_teal.jpg";
 import logoLimeGreen from "@assets/logo_lime_green.jpg";
-import logoCircleText from "@assets/logo_circle_text.jpg";
+import logoMasterpieceTrident from "@assets/logo_masterpiece_trident_three.png";
 import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
@@ -50,16 +50,15 @@ import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
 import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";
 import compassSunburst from "@assets/1781351981898_1781369761839.png";
 
-import logoAccessoriesEagle from "@assets/generated_images/kk_accessories_standalone_logo.png";
+import logoAccessoriesEagle from "@assets/generated_images/logo_accessories_eagle_burgundy_gold.png";
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
 import logoKKShieldSwords from "@assets/generated_images/kk_shield_with_swords.png";
 import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_logo.png";
 import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
-import logoNumberThree from "@assets/logo_number_three_gold_clean.png";
 import logoFoundersTrident from "@assets/logo_founders_trident_three.jpg";
-import logoGoldenEagle from "@assets/generated_images/golden_eagle_standalone_logo.png";
+import logoGoldenEagle from "@assets/generated_images/logo_golden_eagle_circular.png";
 
 export interface LogoEntry {
   src: string;
@@ -85,16 +84,15 @@ export const allLogos: Record<string, LogoEntry> = {
   "113": { src: logoBrownGold, alt: "Brown & Gold Emblem", color: "Brown & Gold", section: "Canvas Collection" },
   "114": { src: logoTeal, alt: "Teal Emblem", color: "Teal", section: "Canvas Collection" },
   "115": { src: logoLimeGreen, alt: "Lime Green Emblem", color: "Lime Green", section: "Canvas Collection" },
-  "116": { src: logoCircleText, alt: "Circular Text Logo", color: "Circle Text", section: "Canvas Collection" },
+  "116": { src: logoMasterpieceTrident, alt: "Masterpiece Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Masterpiece Trident", section: "Canvas Collection" },
   "117": { src: medallionCorePrinciples, alt: "10 Core Principles Medallion", color: "Core Principles Medallion", section: "Canvas Collection" },
-  "118": { src: logoAccessoriesEagle, alt: "Khomplete Khemistri Accessories Eagle", color: "Accessories Eagle", section: "Canvas Collection" },
+  "118": { src: logoAccessoriesEagle, alt: "Khomplete Khemistri Apparel & Accessories Eagle", color: "Maroon & Gold Eagle", section: "Canvas Collection" },
   "119": { src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords", section: "Canvas Collection" },
   "120": { src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords", section: "Canvas Collection" },
-  "121": { src: logoNumberThree, alt: "Gold Number Three Crest", color: "Gold Number Three", section: "Canvas Collection" },
   "122": { src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow", section: "Canvas Collection" },
   "123": { src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold", section: "Canvas Collection" },
   "124": { src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident", section: "Canvas Collection" },
-  "125": { src: logoGoldenEagle, alt: "Golden Eagle Emblem", color: "Golden Eagle", section: "Canvas Collection" },
+  "125": { src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular", section: "Canvas Collection" },
   "200": { src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", section: "Badge of Honor" },
   "201": { src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold", section: "Badge of Honor" },
   "202": { src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", section: "Badge of Honor" },
