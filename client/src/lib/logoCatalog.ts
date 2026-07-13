@@ -44,7 +44,6 @@ import honorWhiteGold from "@assets/shield_white_gold.jpg";
 import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png";
 import badgeApparelAccessoriesEst2020 from "@assets/badge_apparel_accessories_est2020_polished.png";
-import badgeApparelAccessoriesRoyalty from "@assets/1781697764383_1781711765541.png";
 import logoKkElementsBadge from "@assets/logo_kk_elements_badge.png";
 import logoKkApparelLeatherCrest from "@assets/logo_kk_apparel_leather_swords_crest.png";
 import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.jpeg";
@@ -90,10 +89,10 @@ export const allLogos: Record<string, LogoEntry> = {
   "118": { src: logoAccessoriesEagle, alt: "Khomplete Khemistri Apparel & Accessories Eagle", color: "Maroon & Gold Eagle", section: "Canvas Collection" },
   "119": { src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords", section: "Canvas Collection" },
   "120": { src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords", section: "Canvas Collection" },
-  "122": { src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow", section: "Canvas Collection" },
-  "124": { src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident", section: "Canvas Collection" },
-  "125": { src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular", section: "Canvas Collection" },
-  "126": { src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal", section: "Canvas Collection" },
+  "121": { src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow", section: "Canvas Collection" },
+  "122": { src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident", section: "Canvas Collection" },
+  "123": { src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular", section: "Canvas Collection" },
+  "124": { src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal", section: "Canvas Collection" },
   "200": { src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", section: "Badge of Honor" },
   "201": { src: logoKkApparelLeatherCrest, alt: "Khomplete Khemistri Apparel Leather Swords Crest", color: "Apparel Leather Swords Crest", section: "Badge of Honor" },
   "202": { src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold", section: "Badge of Honor" },
@@ -112,7 +111,6 @@ export const allLogos: Record<string, LogoEntry> = {
   "215": { src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", section: "Badge of Honor" },
   "216": { src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", section: "Badge of Honor" },
   "217": { src: badgeApparelAccessoriesEst2020, alt: "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest", color: "Apparel & Accessories Est. 2020", section: "Badge of Honor" },
-  "218": { src: badgeApparelAccessoriesRoyalty, alt: "Khomplete Khemistri Apparel & Accessories Royalty Crest", color: "Apparel & Accessories Royalty", section: "Badge of Honor" },
   "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "Shield of Honor" },
   "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "Shield of Honor" },
   "302": { src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold", section: "Shield of Honor" },
@@ -159,7 +157,7 @@ export const handleColorRecommendations: Record<string, string[]> = {
   Blue: ["105", "202", "200", "203", "106", "301", "210", "206"],
   Red: ["104", "213", "304"],
   Green: ["212", "109", "115"],
-  "Yellow/Gold": ["300", "100", "204", "214", "217", "201", "126", "101", "308", "302"],
+  "Yellow/Gold": ["300", "100", "204", "214", "217", "201", "124", "101", "308", "302"],
 };
 
 // Returns logo IDs ordered so the recommended-for-this-color logos come first,
