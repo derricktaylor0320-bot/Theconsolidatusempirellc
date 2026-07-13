@@ -2,10 +2,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { CheckCircle, ShoppingBag, Mail, Loader2 } from "lucide-react";
+import { CheckCircle, ShoppingBag, Mail, Loader2, PenLine, Package } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/hooks/useCart";
+import { useQuery } from "@tanstack/react-query";
 
 interface OrderItem {
   name: string;
@@ -21,6 +22,12 @@ interface Order {
   totalCents: number;
 }
 
+interface CatalogProduct {
+  title: string;
+  imageUrl: string;
+  priceId: string | null;
+}
+
 function formatCents(cents: number) {
   return (cents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -32,6 +39,24 @@ export default function CheckoutSuccess() {
   const { clearCart } = useCart();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { data: products } = useQuery<CatalogProduct[]>({
+    queryKey: ["/api/products"],
+    queryFn: async () => {
+      const res = await fetch("/api/products");
+      if (!res.ok) return [];
+      return (await res.json()) as CatalogProduct[];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const catalogByName = useMemo(() => {
+    const map = new Map<string, CatalogProduct>();
+    for (const p of products || []) {
+      map.set(p.title.trim().toLowerCase(), p);
+    }
+    return map;
+  }, [products]);
 
   useEffect(() => {
     clearCart();
@@ -125,35 +150,70 @@ export default function CheckoutSuccess() {
                 Order Summary
               </h2>
               <ul className="divide-y divide-primary/10">
-                {order.items.map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="flex justify-between gap-4 py-3"
-                    data-testid={`row-order-item-${idx}`}
-                  >
-                    <div>
-                      <p
-                        className="font-medium"
-                        data-testid={`text-item-name-${idx}`}
-                      >
-                        {item.name}
-                      </p>
-                      <p
-                        className="text-sm text-muted-foreground"
-                        data-testid={`text-item-quantity-${idx}`}
-                      >
-                        Qty {item.quantity}
-                        {item.note ? ` · ${item.note}` : ""}
-                      </p>
-                    </div>
-                    <p
-                      className="font-medium whitespace-nowrap"
-                      data-testid={`text-item-total-${idx}`}
+                {order.items.map((item, idx) => {
+                  const match = catalogByName.get(item.name.trim().toLowerCase());
+                  return (
+                    <li
+                      key={idx}
+                      className="flex gap-4 py-4"
+                      data-testid={`row-order-item-${idx}`}
                     >
-                      {formatCents(item.amountCents * item.quantity)}
-                    </p>
-                  </li>
-                ))}
+                      <div className="w-16 h-16 shrink-0 rounded-md overflow-hidden bg-muted border border-primary/15">
+                        {match?.imageUrl ? (
+                          <img
+                            src={match.imageUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                            data-testid={`img-success-item-${idx}`}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Package className="w-5 h-5 text-muted-foreground/50" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex justify-between gap-3">
+                          <div>
+                            <p
+                              className="font-medium"
+                              data-testid={`text-item-name-${idx}`}
+                            >
+                              {item.name}
+                            </p>
+                            <p
+                              className="text-sm text-muted-foreground"
+                              data-testid={`text-item-quantity-${idx}`}
+                            >
+                              Qty {item.quantity}
+                              {item.note ? ` · ${item.note}` : ""}
+                            </p>
+                          </div>
+                          <p
+                            className="font-medium whitespace-nowrap"
+                            data-testid={`text-item-total-${idx}`}
+                          >
+                            {formatCents(item.amountCents * item.quantity)}
+                          </p>
+                        </div>
+                        {match?.priceId ? (
+                          <Link href={`/product/${match.priceId}#reviews`}>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="mt-3 uppercase tracking-wider font-display text-xs"
+                              data-testid={`button-success-add-review-${idx}`}
+                            >
+                              <PenLine className="w-3.5 h-3.5 mr-1.5" />
+                              Add Review
+                            </Button>
+                          </Link>
+                        ) : null}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
               <div className="flex justify-between items-center pt-4 mt-2 border-t border-primary/20">
                 <span className="font-display uppercase tracking-wider text-sm">
@@ -174,7 +234,8 @@ export default function CheckoutSuccess() {
               <Mail className="w-5 h-5 text-primary flex-shrink-0" />
               <p className="text-sm text-muted-foreground">
                 A confirmation email with your order details will be sent to you
-                shortly.
+                shortly. Sign in with the same email to see this order under My
+                Orders and leave reviews anytime.
               </p>
             </div>
           </div>
@@ -187,6 +248,15 @@ export default function CheckoutSuccess() {
               >
                 <ShoppingBag className="w-4 h-4 mr-2" />
                 Continue Shopping
+              </Button>
+            </Link>
+            <Link href="/my-orders">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto uppercase tracking-wider font-display border-primary/20"
+                data-testid="button-view-my-orders"
+              >
+                My Orders
               </Button>
             </Link>
             <Link href="/">

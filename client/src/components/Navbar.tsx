@@ -115,13 +115,18 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link href="/my-orders" data-testid="link-menu-my-orders">
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/hub" data-testid="link-menu-hub">
                       Centralized Hub
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/orders" data-testid="link-menu-orders">
-                      Orders
+                      Manage Orders
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -194,6 +199,22 @@ export default function Navbar() {
                           <UserIcon className="h-4 w-4 text-primary" />
                           <span className="truncate">{accountName}</span>
                         </div>
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsOpen(false)}
+                          className="text-lg font-medium uppercase tracking-widest text-muted-foreground hover:text-primary"
+                          data-testid="link-menu-profile-mobile"
+                        >
+                          My Profile
+                        </Link>
+                        <Link
+                          href="/my-orders"
+                          onClick={() => setIsOpen(false)}
+                          className="text-lg font-medium uppercase tracking-widest text-muted-foreground hover:text-primary"
+                          data-testid="link-menu-my-orders-mobile"
+                        >
+                          My Orders
+                        </Link>
                         <Button
                           variant="outline"
                           onClick={() => {

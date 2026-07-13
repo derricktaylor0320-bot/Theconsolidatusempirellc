@@ -1144,6 +1144,71 @@ export async function registerRoutes(
     }
   });
 
+  // Signed-in customers: their own paid orders (matched by account email),
+  // with each line item enriched with the current catalog image + priceId so
+  // the My Orders page can show what they bought and deep-link to Add Review.
+  app.get("/api/orders/mine", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const parseIntParam = (value: unknown, fallback: number, max: number) => {
+        const parsed = Number.parseInt(String(value), 10);
+        if (Number.isNaN(parsed) || parsed < 0) return fallback;
+        return Math.min(parsed, max);
+      };
+
+      const limit = parseIntParam(req.query.limit, 25, 100);
+      const offset = parseIntParam(req.query.offset, 0, Number.MAX_SAFE_INTEGER);
+
+      const { orders: mine, total } = await storage.getPaidOrdersByEmail(
+        user.email,
+        { limit, offset },
+      );
+
+      let catalogByName = new Map<
+        string,
+        { imageUrl: string; priceId: string | null }
+      >();
+      try {
+        const catalog = await getStorefrontProducts();
+        catalogByName = new Map(
+          catalog.map((p) => [
+            p.title.trim().toLowerCase(),
+            { imageUrl: p.imageUrl, priceId: p.priceId },
+          ]),
+        );
+      } catch (catalogError) {
+        console.error("Failed to load catalog for my-orders enrichment:", catalogError);
+      }
+
+      const enriched = mine.map((order) => ({
+        id: order.id,
+        status: order.status,
+        fulfillmentStatus: order.fulfillmentStatus,
+        totalCents: order.totalCents,
+        carrier: order.carrier,
+        trackingNumber: order.trackingNumber,
+        shippedAt: order.shippedAt,
+        createdAt: order.createdAt,
+        items: order.items.map((item) => {
+          const match = catalogByName.get(item.name.trim().toLowerCase());
+          return {
+            name: item.name,
+            quantity: item.quantity,
+            amountCents: item.amountCents,
+            note: item.note,
+            imageUrl: match?.imageUrl || null,
+            priceId: match?.priceId || null,
+          };
+        }),
+      }));
+
+      res.json({ orders: enriched, total, limit, offset });
+    } catch (error: any) {
+      console.error("Error fetching customer orders:", error);
+      res.status(500).json({ error: "Failed to fetch your orders" });
+    }
+  });
+
   // Protected: mirror every storefront product into the owner's Square Item
   // Library (one-way: website -> Square). Idempotent and safe to re-run; only
   // touches items this sync created (SKU prefix KKWEB-), never the owner's

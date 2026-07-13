@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "wouter";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Minus, Plus } from "lucide-react";
+import { ArrowLeft, Check, Minus, Plus, PenLine } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useRecentlyViewed, readRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
@@ -385,7 +385,7 @@ function ProductDetailContent({
           )}
 
           {usesHandleColors ? (
-            <div className="mt-auto">
+            <div className="mt-auto space-y-3">
               <p
                 className="text-sm text-muted-foreground leading-relaxed mb-3"
                 data-testid="text-detail-custom-note"
@@ -401,9 +401,20 @@ function ProductDetailContent({
                 soldOut={soldOut}
                 handleColors={product.handleColors as string}
               />
+              <a href="#reviews" className="block w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full uppercase tracking-wider font-display text-sm h-12"
+                  data-testid="button-detail-add-review"
+                >
+                  <PenLine className="w-4 h-4 mr-2" />
+                  Add Review
+                </Button>
+              </a>
             </div>
           ) : usesCaseType ? (
-            <div className="mt-auto">
+            <div className="mt-auto space-y-3">
               <p
                 className="text-sm text-muted-foreground leading-relaxed mb-3"
                 data-testid="text-detail-custom-note"
@@ -419,6 +430,17 @@ function ProductDetailContent({
                 soldOut={soldOut}
                 caseType={product.caseType as string}
               />
+              <a href="#reviews" className="block w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full uppercase tracking-wider font-display text-sm h-12"
+                  data-testid="button-detail-add-review"
+                >
+                  <PenLine className="w-4 h-4 mr-2" />
+                  Add Review
+                </Button>
+              </a>
             </div>
           ) : (
             <div className="mt-auto space-y-4">
@@ -799,6 +821,18 @@ function ProductDetailContent({
               >
                 {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : needsScent && !selectedScent ? "Select a Scent" : "Add to Cart"}
               </Button>
+
+              <a href="#reviews" className="w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full uppercase tracking-wider font-display text-sm h-12"
+                  data-testid="button-detail-add-review"
+                >
+                  <PenLine className="w-4 h-4 mr-2" />
+                  Add Review
+                </Button>
+              </a>
 
               {errorMessage && (
                 <p className="text-sm text-red-500" data-testid="text-detail-error">

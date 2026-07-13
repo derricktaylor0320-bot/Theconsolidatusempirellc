@@ -25,6 +25,10 @@ export interface IStorage {
 
   // Order operations
   getAllOrders(options?: { limit?: number; offset?: number }): Promise<{ orders: Order[]; total: number }>;
+  getPaidOrdersByEmail(
+    email: string,
+    options?: { limit?: number; offset?: number },
+  ): Promise<{ orders: Order[]; total: number }>;
   updateOrderFulfillment(
     id: string,
     fulfillmentStatus: FulfillmentStatus,
@@ -168,6 +172,37 @@ export class DatabaseStorage implements IStorage {
     const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(orders);
 
     let query = db.select().from(orders).orderBy(desc(orders.createdAt)).$dynamic();
+    if (limit !== undefined) {
+      query = query.limit(limit).offset(offset);
+    }
+    const rows = await query;
+
+    return { orders: rows, total: count };
+  }
+
+  // Customer's own paid orders, matched by the email on the Square receipt
+  // (same identity used for Verified Purchase badges). Guests who later
+  // register with that email can review everything they previously bought.
+  async getPaidOrdersByEmail(
+    email: string,
+    options?: { limit?: number; offset?: number },
+  ): Promise<{ orders: Order[]; total: number }> {
+    const normalized = email.toLowerCase().trim();
+    const limit = options?.limit;
+    const offset = options?.offset ?? 0;
+    const emailMatch = sql`lower(${orders.customerEmail}) = ${normalized}`;
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(orders)
+      .where(and(eq(orders.status, "paid"), emailMatch));
+
+    let query = db
+      .select()
+      .from(orders)
+      .where(and(eq(orders.status, "paid"), emailMatch))
+      .orderBy(desc(orders.createdAt))
+      .$dynamic();
     if (limit !== undefined) {
       query = query.limit(limit).offset(offset);
     }

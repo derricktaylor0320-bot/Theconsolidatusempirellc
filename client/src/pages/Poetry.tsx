@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BrandSectionBanner from "@/components/BrandSectionBanner";
@@ -14,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, PenLine } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ShipStateTaxSummary, { useShipToState } from "@/components/ShipStateTaxSummary";
 
@@ -235,7 +236,7 @@ export default function Poetry() {
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
                         <p className="text-xl font-bold text-primary" data-testid={`text-price-poetry-${product.id}`}>${Number(product.price).toFixed(2)}</p>
                       </CardContent>
-                      <CardFooter className="p-4 pt-0">
+                      <CardFooter className="p-4 pt-0 flex flex-col gap-2">
                         <Button 
                           className="w-full" 
                           data-testid={`button-buy-poetry-${product.id}`}
@@ -251,6 +252,19 @@ export default function Poetry() {
                             "Buy Now"
                           )}
                         </Button>
+                        {product.priceId && (
+                          <Link href={`/product/${product.priceId}#reviews`} className="w-full">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full uppercase tracking-wider font-display text-sm"
+                              data-testid={`button-add-review-poetry-${product.id}`}
+                            >
+                              <PenLine className="w-4 h-4 mr-2" />
+                              Add Review
+                            </Button>
+                          </Link>
+                        )}
                       </CardFooter>
                     </Card>
                   </motion.div>

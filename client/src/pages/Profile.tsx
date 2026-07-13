@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "wouter";
-import { useQueryClient } from "@tanstack/react-query";
+import { Link, useLocation } from "wouter";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, Camera, Trash2, MapPin, UserRound } from "lucide-react";
+import { Loader2, Camera, Trash2, MapPin, UserRound, Package, PenLine } from "lucide-react";
 
 function errorText(err: any): string {
   const message = String(err?.message || "Something went wrong").replace(/^\d+:\s*/, "");
@@ -20,6 +20,26 @@ function errorText(err: any): string {
     return message;
   }
 }
+
+type ProfileOrderItem = {
+  name: string;
+  quantity: number;
+  amountCents: number;
+  note?: string;
+  imageUrl: string | null;
+  priceId: string | null;
+};
+
+type ProfileOrder = {
+  id: string;
+  createdAt: string | Date | null;
+  items: ProfileOrderItem[];
+};
+
+type ProfileOrdersResponse = {
+  orders: ProfileOrder[];
+  total: number;
+};
 
 export default function Profile() {
   const [, setLocation] = useLocation();
@@ -32,6 +52,20 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<ProfileOrdersResponse>({
+    queryKey: ["/api/orders/mine", "profile-preview"],
+    queryFn: async () => {
+      const res = await fetch("/api/orders/mine?limit=5&offset=0", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to load orders");
+      return (await res.json()) as ProfileOrdersResponse;
+    },
+    enabled: isAuthenticated,
+    retry: false,
+    placeholderData: keepPreviousData,
+  });
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -131,13 +165,14 @@ export default function Profile() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-16 max-w-2xl">
+      <main className="flex-grow container mx-auto px-4 py-16 max-w-3xl">
         <h1 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wider text-primary mb-2">
           My Profile
         </h1>
         <p className="text-muted-foreground mb-10">
           Personalize how you appear across the site. Your photo and location
-          show up next to any product reviews you write.
+          show up next to any product reviews you write. Past purchases appear
+          below with photos so you can leave a review anytime.
         </p>
 
         <Card className="mb-8">
@@ -254,6 +289,89 @@ export default function Profile() {
                 Save Profile
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8" data-testid="card-profile-orders">
+          <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
+            <CardTitle className="font-display uppercase tracking-wider text-lg flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
+              Past Purchases
+            </CardTitle>
+            <Link href="/my-orders">
+              <Button
+                variant="outline"
+                size="sm"
+                className="uppercase tracking-wider font-display text-xs"
+                data-testid="button-view-all-my-orders"
+              >
+                View All
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {ordersLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground py-6">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading your orders…
+              </div>
+            ) : !ordersData?.orders?.length ? (
+              <p
+                className="text-sm text-muted-foreground py-2"
+                data-testid="text-profile-orders-empty"
+              >
+                No completed orders under this email yet. After you shop, each
+                item will show here with a photo and an Add Review button.
+              </p>
+            ) : (
+              <ul className="space-y-4">
+                {ordersData.orders.flatMap((order) =>
+                  order.items.map((item, idx) => (
+                    <li
+                      key={`${order.id}-${idx}`}
+                      className="flex gap-4 items-center"
+                      data-testid={`row-profile-order-item-${order.id}-${idx}`}
+                    >
+                      <div className="w-16 h-16 shrink-0 rounded-md overflow-hidden bg-muted border border-primary/15">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Package className="w-5 h-5 text-muted-foreground/50" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Qty {item.quantity}
+                          {item.note ? ` · ${item.note}` : ""}
+                        </p>
+                      </div>
+                      {item.priceId ? (
+                        <Link href={`/product/${item.priceId}#reviews`}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="uppercase tracking-wider font-display text-xs shrink-0"
+                            data-testid={`button-profile-add-review-${order.id}-${idx}`}
+                          >
+                            <PenLine className="w-3.5 h-3.5 mr-1.5" />
+                            Add Review
+                          </Button>
+                        </Link>
+                      ) : null}
+                    </li>
+                  )),
+                )}
+              </ul>
+            )}
           </CardContent>
         </Card>
 
