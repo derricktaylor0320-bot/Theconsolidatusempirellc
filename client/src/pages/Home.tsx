@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
+import BrandSectionBanner from "@/components/BrandSectionBanner";
 import ProductCard from "@/components/ProductCard";
 import { RecentReviewsPanel } from "@/components/Reviews";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,10 @@ export default function Home() {
       <Navbar />
       <main className="flex-grow">
         <Hero />
+
+        <section className="pt-16 pb-8 container mx-auto px-4">
+          <BrandSectionBanner compact />
+        </section>
         
         <section className="py-24 container mx-auto px-4">
           <div className="flex justify-between items-end mb-12">

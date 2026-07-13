@@ -23,7 +23,7 @@ import logoLimeGreen from "@assets/logo_lime_green.jpg";
 import logoMasterpieceTrident from "@assets/logo_masterpiece_trident_three.png";
 import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
-// Badge of Honor Collection — crests 200-217
+// Badge of Honor Collection — crests 200-218
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
 import crestBlueValuesSwords from "@assets/image000009_1781214860404.jpg";
@@ -59,6 +59,7 @@ import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 // Import Apparel Eagle Crest (#216) + Est. 2020 crest (#217)
 import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png";
 import badgeApparelAccessoriesEst2020 from "@assets/badge_apparel_accessories_est2020_polished.png";
+import badgeApparelAccessoriesRoyalty from "@assets/1781697764383_1781711765541.png";
 import logoKkElementsBadge from "@assets/logo_kk_elements_badge.png";
 import logoKkApparelLeatherCrest from "@assets/logo_kk_apparel_leather_swords_crest.png";
 
@@ -66,7 +67,7 @@ import logoKkApparelLeatherCrest from "@assets/logo_kk_apparel_leather_swords_cr
 import luxuryBanner from "@assets/1764816894577_1764816974804.jpg";
 import bannerMoodVibe from "@assets/generated_images/color_mood_vibe_banner.png";
 import banner1stGen from "@assets/generated_images/1st_generation_logos_banner.png";
-import bannerBadgeHonor from "@assets/generated_images/badge_of_honor_banner.png";
+
 
 // Accessory logos — Canvas Collection (118-120) + Shield of Honor (309-310)
 import logoAccessoriesEagle from "@assets/generated_images/logo_accessories_eagle_burgundy_gold.png";
@@ -133,6 +134,7 @@ export default function Canvas() {
     { id: "215", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
     { id: "216", src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", featured: true },
     { id: "217", src: badgeApparelAccessoriesEst2020, alt: "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest", color: "Apparel & Accessories Est. 2020", featured: true },
+    { id: "218", src: badgeApparelAccessoriesRoyalty, alt: "Khomplete Khemistri Apparel & Accessories Royalty Crest", color: "Apparel & Accessories Royalty", featured: true },
   ];
 
   const honorShields = [
@@ -261,10 +263,14 @@ export default function Canvas() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <img 
-                src={bannerBadgeHonor} 
-                alt="Our Royalty Badge of Honor" 
-                className="w-full max-w-4xl mx-auto h-auto object-contain rounded-lg shadow-xl mb-4"
+                src={badgeApparelAccessoriesRoyalty} 
+                alt="Our Royalty Badge of Honor — Khomplete Khemistri Apparel & Accessories" 
+                className="w-full max-w-4xl mx-auto h-auto object-contain drop-shadow-2xl mb-4"
+                data-testid="img-royalty-badge-honor-intro"
               />
+              <h2 className="text-3xl md:text-4xl font-display uppercase tracking-wide text-primary mt-6 mb-2">
+                Our Royalty Badge of Honor
+              </h2>
               <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
                 The crests that symbolize our bond. Brotherhood, Unity, and Strength.
               </p>

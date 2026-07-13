@@ -1,9 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import beddingEmblem from "@assets/1781696898016_1781711718659.png";
 
 function renderProduct(product: any) {
   return (
@@ -55,24 +55,15 @@ export default function Bedding() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
+        <BrandSectionBanner caption="Sleep and dream in luxury. Premium bedding sets, pajamas, and intimates — all carrying the Khomplete Khemistri mark." />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-14 text-center"
         >
-          <img
-            src={beddingEmblem}
-            alt="Sleep and Dream in Luxury — Khomplete Khemistri Accessories"
-            className="w-full max-w-2xl mx-auto h-auto object-contain rounded-lg shadow-2xl mb-8"
-            data-testid="img-bedding-emblem"
-          />
           <h1 className="font-display text-4xl md:text-5xl uppercase tracking-wider text-primary mb-4">
             Bedding &amp; Intimates
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Sleep and dream in luxury. Premium bedding sets, pajamas, and intimates —
-            all carrying the Khomplete Khemistri mark.
-          </p>
         </motion.div>
 
         {isLoading ? (

@@ -1,9 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import apparelBanner from "@assets/generated_images/apparel_section_gold_banner.png";
 
 export default function Apparel() {
   const { data: products, isLoading } = useQuery({
@@ -49,17 +49,12 @@ export default function Apparel() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
+        <BrandSectionBanner />
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
-          <img 
-            src={apparelBanner} 
-            alt="Khomplete Khemistri Apparel" 
-            className="w-full max-w-4xl mx-auto h-auto object-contain rounded-lg shadow-2xl mb-8"
-            data-testid="img-apparel-banner"
-          />
           <p className="text-xl text-primary font-display font-bold uppercase tracking-wide mb-6">
             If it's ours, it's branded — wear the recognition.
           </p>
