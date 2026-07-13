@@ -20,7 +20,7 @@ import logoOrange from "@assets/logo_orange.jpg";
 import logoBrownGold from "@assets/logo_brown_gold.jpg";
 import logoTeal from "@assets/logo_teal.jpg";
 import logoLimeGreen from "@assets/logo_lime_green.jpg";
-import logoCircleText from "@assets/logo_circle_text.jpg";
+import logoMasterpieceTrident from "@assets/logo_masterpiece_trident_three.png";
 import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
 // Badge of Honor Collection — crests 200-214
@@ -68,14 +68,13 @@ import banner1stGen from "@assets/generated_images/1st_generation_logos_banner.p
 import bannerBadgeHonor from "@assets/generated_images/badge_of_honor_banner.png";
 
 // Accessory logos — Canvas Collection (118-120) + Shield of Honor (309-310)
-import logoAccessoriesEagle from "@assets/generated_images/kk_accessories_standalone_logo.png";
+import logoAccessoriesEagle from "@assets/generated_images/logo_accessories_eagle_burgundy_gold.png";
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
 import logoKKShieldSwords from "@assets/generated_images/kk_shield_with_swords.png";
 import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_logo.png";
 import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
-import logoNumberThree from "@assets/logo_number_three_gold_clean.png";
 import logoFoundersTrident from "@assets/logo_founders_trident_three.jpg";
 
 // Compass Collection — 400-403
@@ -84,7 +83,7 @@ import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.
 import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
 import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";
 import compassSunburst from "@assets/1781351981898_1781369761839.png";
-import logoGoldenEagle from "@assets/generated_images/golden_eagle_standalone_logo.png";
+import logoGoldenEagle from "@assets/generated_images/logo_golden_eagle_circular.png";
 
 export default function Canvas() {
   const logos = [
@@ -104,16 +103,15 @@ export default function Canvas() {
     { id: "113", src: logoBrownGold, alt: "Brown & Gold Emblem", color: "Brown & Gold" },
     { id: "114", src: logoTeal, alt: "Teal Emblem", color: "Teal" },
     { id: "115", src: logoLimeGreen, alt: "Lime Green Emblem", color: "Lime Green" },
-    { id: "116", src: logoCircleText, alt: "Circular Text Logo", color: "Circle Text" },
+    { id: "116", src: logoMasterpieceTrident, alt: "Masterpiece Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Masterpiece Trident" },
     { id: "117", src: medallionCorePrinciples, alt: "10 Core Principles Medallion", color: "Core Principles Medallion" },
-    { id: "118", src: logoAccessoriesEagle, alt: "Khomplete Khemistri Accessories Eagle", color: "Accessories Eagle" },
+    { id: "118", src: logoAccessoriesEagle, alt: "Khomplete Khemistri Apparel & Accessories Eagle", color: "Maroon & Gold Eagle" },
     { id: "119", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
     { id: "120", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
-    { id: "121", src: logoNumberThree, alt: "Gold Number Three Crest", color: "Gold Number Three" },
     { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
     { id: "123", src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold" },
     { id: "124", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
-    { id: "125", src: logoGoldenEagle, alt: "Golden Eagle Emblem", color: "Golden Eagle" },
+    { id: "125", src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular" },
   ];
 
   const badges = [

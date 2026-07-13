@@ -15,8 +15,16 @@ export default function Home() {
     queryKey: ["/api/products"],
   });
 
-  // Pick 3 featured products for homepage
-  const featuredProducts = (allProducts as any[])?.slice(0, 3) || [];
+  // Pick Latest Drops: Number Three meaning tees first, then the Infinity tee
+  const latestDropTitles = [
+    "The Number Three Tee \u2014 Black",
+    "The Number Three Tee \u2014 White",
+    "The Number Three Tee \u2014 Silver",
+    "The Number Three Infinity Tee \u2014 Cream",
+  ];
+  const featuredProducts = latestDropTitles
+    .map((title) => (allProducts as any[])?.find((p) => p.title === title))
+    .filter(Boolean);
 
   // The three "Number Three" tees for the story section
   const numberThreeTees = (allProducts as any[])?.filter((p) =>
@@ -57,7 +65,7 @@ export default function Home() {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product: any) => (
               <ProductCard 
                 key={product.id} 
