@@ -42,11 +42,12 @@ async function seed() {
       productType: "apparel",
     },
     {
-      title: "Jacket/Coat",
-      price: "85.00",
+      title: "Women's Softshell Jacket",
+      price: "75.00",
       category: "Outerwear",
-      description: "Lightweight jacket (e.g., Windbreaker, Coach Jacket) or Fleece Jacket. All garments feature the Left Chest Logo and the large Khomplete Khemistri Back Logo.",
-      imageUrl: "/assets/generated_images/white_hoodie_design.png",
+      description:
+        "Personalized women's waterproof softshell windbreaker / hiking raincoat with your choice of any Khomplete Khemistri logo. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in a wide range of colors, sizes S through 3XL. FREE shipping included.",
+      imageUrl: "/assets/kk_womens_softshell_jacket.jpg",
       productType: "apparel",
     },
   ];
