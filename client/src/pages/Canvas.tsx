@@ -23,7 +23,7 @@ import logoLimeGreen from "@assets/logo_lime_green.jpg";
 import logoMasterpieceTrident from "@assets/logo_masterpiece_trident_three.png";
 import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
-// Badge of Honor Collection — crests 200-218
+// Badge of Honor Collection — crests 200-217
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
 import crestBlueValuesSwords from "@assets/image000009_1781214860404.jpg";
@@ -109,10 +109,10 @@ export default function Canvas() {
     { id: "118", src: logoAccessoriesEagle, alt: "Khomplete Khemistri Apparel & Accessories Eagle", color: "Maroon & Gold Eagle" },
     { id: "119", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
     { id: "120", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
-    { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
-    { id: "124", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
-    { id: "125", src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular" },
-    { id: "126", src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal" },
+    { id: "121", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
+    { id: "122", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
+    { id: "123", src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular" },
+    { id: "124", src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal" },
   ];
 
   const badges = [
@@ -134,7 +134,6 @@ export default function Canvas() {
     { id: "215", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
     { id: "216", src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", featured: true },
     { id: "217", src: badgeApparelAccessoriesEst2020, alt: "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest", color: "Apparel & Accessories Est. 2020", featured: true },
-    { id: "218", src: badgeApparelAccessoriesRoyalty, alt: "Khomplete Khemistri Apparel & Accessories Royalty Crest", color: "Apparel & Accessories Royalty", featured: true },
   ];
 
   const honorShields = [
