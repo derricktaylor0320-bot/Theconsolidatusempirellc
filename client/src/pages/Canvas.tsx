@@ -23,7 +23,7 @@ import logoLimeGreen from "@assets/logo_lime_green.jpg";
 import logoMasterpieceTrident from "@assets/logo_masterpiece_trident_three.png";
 import medallionCorePrinciples from "@assets/copilot_image_1781210586301_1781211927468.jpeg";
 
-// Badge of Honor Collection — crests 200-214
+// Badge of Honor Collection — crests 200-217
 import shieldBlackWhite from "@assets/Screenshot_20251126_205145_Photos_1764208360832.jpg";
 import shieldBlueGold from "@assets/Screenshot_20251126_205125_Photos_1764208373884.jpg";
 import crestBlueValuesSwords from "@assets/image000009_1781214860404.jpg";
@@ -56,10 +56,10 @@ import legacyCollage from "@assets/Screenshot_20251126_202634_Photos_17642144542
 // Import KKMG LLC Eagle Shield (#214)
 import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 
-// Import Apparel Eagle Crests (#215, #216)
+// Import Apparel Eagle Crest (#216) + Est. 2020 crest (#217)
 import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png";
-import eagleCrestGold from "@assets/IMG_20260628_234902_1782729067467.png";
 import badgeApparelAccessoriesEst2020 from "@assets/badge_apparel_accessories_est2020_polished.png";
+import logoKkElementsBadge from "@assets/logo_kk_elements_badge.png";
 
 // Import Luxury Banners
 import luxuryBanner from "@assets/1764816894577_1764816974804.jpg";
@@ -72,7 +72,6 @@ import logoAccessoriesEagle from "@assets/generated_images/logo_accessories_eagl
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
 import logoKKShieldSwords from "@assets/generated_images/kk_shield_with_swords.png";
 import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_logo.png";
-import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
 import logoFoundersTrident from "@assets/logo_founders_trident_three.jpg";
@@ -109,29 +108,28 @@ export default function Canvas() {
     { id: "119", src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords" },
     { id: "120", src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords" },
     { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
-    { id: "123", src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold" },
     { id: "124", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
     { id: "125", src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular" },
   ];
 
   const badges = [
     { id: "200", src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", featured: true },
-    { id: "201", src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold" },
-    { id: "202", src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", featured: true },
-    { id: "203", src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold" },
-    { id: "204", src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite" },
-    { id: "205", src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold" },
-    { id: "206", src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome" },
-    { id: "207", src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate" },
-    { id: "208", src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate" },
-    { id: "209", src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver" },
-    { id: "210", src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords" },
-    { id: "211", src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords" },
-    { id: "212", src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords" },
-    { id: "213", src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", featured: true },
-    { id: "214", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
-    { id: "215", src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", featured: true },
-    { id: "216", src: eagleCrestGold, alt: "Apparel Eagle Crest - Gold", color: "All-Gold Eagle Crest", featured: true },
+    { id: "201", src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal", featured: true },
+    { id: "202", src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold" },
+    { id: "203", src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", featured: true },
+    { id: "204", src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold" },
+    { id: "205", src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite" },
+    { id: "206", src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold" },
+    { id: "207", src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome" },
+    { id: "208", src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate" },
+    { id: "209", src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate" },
+    { id: "210", src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver" },
+    { id: "211", src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords" },
+    { id: "212", src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords" },
+    { id: "213", src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords" },
+    { id: "214", src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", featured: true },
+    { id: "215", src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", featured: true },
+    { id: "216", src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", featured: true },
     { id: "217", src: badgeApparelAccessoriesEst2020, alt: "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest", color: "Apparel & Accessories Est. 2020", featured: true },
   ];
 
