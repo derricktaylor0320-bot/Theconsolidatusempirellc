@@ -60,6 +60,7 @@ import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png";
 import badgeApparelAccessoriesEst2020 from "@assets/badge_apparel_accessories_est2020_polished.png";
 import logoKkElementsBadge from "@assets/logo_kk_elements_badge.png";
+import logoKkApparelLeatherCrest from "@assets/logo_kk_apparel_leather_swords_crest.png";
 
 // Import Luxury Banners
 import luxuryBanner from "@assets/1764816894577_1764816974804.jpg";
@@ -110,11 +111,12 @@ export default function Canvas() {
     { id: "122", src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow" },
     { id: "124", src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident" },
     { id: "125", src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular" },
+    { id: "126", src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal" },
   ];
 
   const badges = [
     { id: "200", src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", featured: true },
-    { id: "201", src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal", featured: true },
+    { id: "201", src: logoKkApparelLeatherCrest, alt: "Khomplete Khemistri Apparel Leather Swords Crest", color: "Apparel Leather Swords Crest", featured: true },
     { id: "202", src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold" },
     { id: "203", src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", featured: true },
     { id: "204", src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold" },
