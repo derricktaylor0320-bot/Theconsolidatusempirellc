@@ -43,8 +43,8 @@ import honorPurpleGold from "@assets/shield_purple_gold.jpg";
 import honorWhiteGold from "@assets/shield_white_gold.jpg";
 import kkmgEagleShield from "@assets/1781665131814_1781665574938.png";
 import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png";
-import eagleCrestGold from "@assets/IMG_20260628_234902_1782729067467.png";
 import badgeApparelAccessoriesEst2020 from "@assets/badge_apparel_accessories_est2020_polished.png";
+import logoKkElementsBadge from "@assets/logo_kk_elements_badge.png";
 import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.jpeg";
 import compassKMG1 from "@assets/image_1781365445486_1781369761822.jpeg";
 import compassKMG2 from "@assets/image_1781365494182_1781369761833.jpeg";
@@ -54,7 +54,6 @@ import logoAccessoriesEagle from "@assets/generated_images/logo_accessories_eagl
 import logoCrossedSwords from "@assets/generated_images/crossed_swords_kk_logo.png";
 import logoKKShieldSwords from "@assets/generated_images/kk_shield_with_swords.png";
 import logoKKACrossedSwords from "@assets/generated_images/kka_crossed_swords_logo.png";
-import logoApparelAccessoriesGold from "@assets/1781697764383_1781711765541.png";
 import logoPrideRainbow from "@assets/1781582068026_1781668463902.png";
 import logoKKAShield from "@assets/kka_shield_apparel_logo.jpg";
 import logoFoundersTrident from "@assets/logo_founders_trident_three.jpg";
@@ -90,26 +89,25 @@ export const allLogos: Record<string, LogoEntry> = {
   "119": { src: logoCrossedSwords, alt: "Crossed Swords with Khomplete Khemistri", color: "Crossed Swords", section: "Canvas Collection" },
   "120": { src: logoKKACrossedSwords, alt: "KKA Crossed Swords Logo", color: "KKA Swords", section: "Canvas Collection" },
   "122": { src: logoPrideRainbow, alt: "Khomplete Khemistri Apparel Pride Rainbow Crest", color: "Pride Rainbow", section: "Canvas Collection" },
-  "123": { src: logoApparelAccessoriesGold, alt: "Khomplete Khemistri Apparel & Accessories Gold Crest", color: "Apparel & Accessories Gold", section: "Canvas Collection" },
   "124": { src: logoFoundersTrident, alt: "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.", color: "Founders' Trident", section: "Canvas Collection" },
   "125": { src: logoGoldenEagle, alt: "Golden Eagle Circular Emblem", color: "Golden Eagle Circular", section: "Canvas Collection" },
   "200": { src: badgeBlueValues, alt: "Blue & Gold Values Crest - Friendship, Trust, Harmony", color: "Blue Values Crest", section: "Badge of Honor" },
-  "201": { src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold", section: "Badge of Honor" },
-  "202": { src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", section: "Badge of Honor" },
-  "203": { src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold", section: "Badge of Honor" },
-  "204": { src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite", section: "Badge of Honor" },
-  "205": { src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold", section: "Badge of Honor" },
-  "206": { src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome", section: "Badge of Honor" },
-  "207": { src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate", section: "Badge of Honor" },
-  "208": { src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate", section: "Badge of Honor" },
-  "209": { src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver", section: "Badge of Honor" },
-  "210": { src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords", section: "Badge of Honor" },
-  "211": { src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords", section: "Badge of Honor" },
-  "212": { src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords", section: "Badge of Honor" },
-  "213": { src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", section: "Badge of Honor" },
-  "214": { src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", section: "Badge of Honor" },
-  "215": { src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", section: "Badge of Honor" },
-  "216": { src: eagleCrestGold, alt: "Apparel Eagle Crest - Gold", color: "All-Gold Eagle Crest", section: "Badge of Honor" },
+  "201": { src: logoKkElementsBadge, alt: "Khomplete Khemistri Elements Gold Seal", color: "Elements Gold Seal", section: "Badge of Honor" },
+  "202": { src: shieldBlueGold, alt: "Royal Blue & Gold Crest", color: "Royal Blue & Gold", section: "Badge of Honor" },
+  "203": { src: crestBlueValuesSwords, alt: "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony", color: "Blue Apparel Crest", section: "Badge of Honor" },
+  "204": { src: shieldGoldBrown, alt: "Classic Gold Crest", color: "Classic Gold", section: "Badge of Honor" },
+  "205": { src: shieldSilver, alt: "Silver Elite Crest", color: "Silver Elite", section: "Badge of Honor" },
+  "206": { src: shieldCyanGold, alt: "Cyan & Gold Crest", color: "Cyan & Gold", section: "Badge of Honor" },
+  "207": { src: shieldBlackWhite, alt: "Monochrome Crest", color: "Monochrome", section: "Badge of Honor" },
+  "208": { src: badgeBrownGoldOrnate, alt: "Brown & Gold Ornate Crest", color: "Brown & Gold Ornate", section: "Badge of Honor" },
+  "209": { src: badgePurpleOrnate, alt: "Purple Ornate Crest", color: "Purple Ornate", section: "Badge of Honor" },
+  "210": { src: badgeNavySilver, alt: "Navy & Silver Crest", color: "Navy & Silver", section: "Badge of Honor" },
+  "211": { src: badgePurpleSwords, alt: "Purple with Swords", color: "Purple Swords", section: "Badge of Honor" },
+  "212": { src: badgeGreenSwords, alt: "Green with Swords", color: "Emerald Swords", section: "Badge of Honor" },
+  "213": { src: badgeRedGoldSwords, alt: "Red & Gold with Swords", color: "Red & Gold Swords", section: "Badge of Honor" },
+  "214": { src: crestGoldApparel, alt: "Khomplete Khemistri Apparel Gold Crest", color: "Gold Apparel Crest", section: "Badge of Honor" },
+  "215": { src: kkmgEagleShield, alt: "KKMG LLC Eagle Shield of Honor", color: "KKMG LLC Shield", section: "Badge of Honor" },
+  "216": { src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", section: "Badge of Honor" },
   "217": { src: badgeApparelAccessoriesEst2020, alt: "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest", color: "Apparel & Accessories Est. 2020", section: "Badge of Honor" },
   "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "Shield of Honor" },
   "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "Shield of Honor" },
@@ -153,11 +151,11 @@ export const MUG_HANDLE_COLORS = ["Black", "Blue", "Red", "Green", "Yellow/Gold"
 // For each handle color, the logo IDs (from allLogos) that best match it — these
 // are surfaced first, with a "Recommended" badge, when that color is selected.
 export const handleColorRecommendations: Record<string, string[]> = {
-  Black: ["111", "303", "102", "206", "104"],
-  Blue: ["105", "201", "200", "202", "106", "301", "209", "205"],
-  Red: ["104", "212", "304"],
-  Green: ["211", "109", "115"],
-  "Yellow/Gold": ["300", "100", "203", "213", "217", "101", "308", "302"],
+  Black: ["111", "303", "102", "207", "104"],
+  Blue: ["105", "202", "200", "203", "106", "301", "210", "206"],
+  Red: ["104", "213", "304"],
+  Green: ["212", "109", "115"],
+  "Yellow/Gold": ["300", "100", "204", "214", "217", "201", "101", "308", "302"],
 };
 
 // Returns logo IDs ordered so the recommended-for-this-color logos come first,

@@ -32,6 +32,7 @@ export const LOGO_ALTS: string[] = [
   "Golden Eagle Circular Emblem",
   // Badge of Honor
   "Blue & Gold Values Crest - Friendship, Trust, Harmony",
+  "Khomplete Khemistri Elements Gold Seal",
   "Royal Blue & Gold Crest",
   "Khomplete Khemistri Apparel Crest - Unity, Strength, Brotherhood, Entrepreneurship, Harmony",
   "Classic Gold Crest",
@@ -47,7 +48,6 @@ export const LOGO_ALTS: string[] = [
   "Khomplete Khemistri Apparel Gold Crest",
   "KKMG LLC Eagle Shield of Honor",
   "Apparel Eagle Crest - Maroon & Gold",
-  "Apparel Eagle Crest - Gold",
   "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest",
   // Shield of Honor
   "The Golden Eagle Shield",
@@ -68,8 +68,6 @@ export const LOGO_ALTS: string[] = [
   "Khomplete Khemistri Apparel Sunburst Emblem",
   // Canvas Collection (Pride)
   "Khomplete Khemistri Apparel Pride Rainbow Crest",
-  // Canvas Collection (gold brand crests)
-  "Khomplete Khemistri Apparel & Accessories Gold Crest",
   // Canvas Collection (founders' trident crest)
   "Founders' Trident Three Crest - D. Taylor, C. Oliver, J. Young Jr.",
 ];
