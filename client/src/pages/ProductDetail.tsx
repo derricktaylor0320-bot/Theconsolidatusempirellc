@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ReviewsSection } from "@/components/Reviews";
-import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -112,7 +111,6 @@ function ProductDetailContent({
   const soldOut = !!product.soldOut;
   const supplementInfo = getSupplementInfo(product.title);
 
-  const usesHandleColors = !!product.handleColors && product.handleColors.trim().length > 0;
   const usesCaseType = !!product.caseType && product.caseType.trim().length > 0;
 
   useEffect(() => {
@@ -384,25 +382,7 @@ function ProductDetailContent({
             </p>
           )}
 
-          {usesHandleColors ? (
-            <div className="mt-auto">
-              <p
-                className="text-sm text-muted-foreground leading-relaxed mb-3"
-                data-testid="text-detail-custom-note"
-              >
-                Note: Custom branded. Pick your handle color and matching logo to complete your order.
-              </p>
-              <MugCustomizer
-                title={product.title}
-                image={product.imageUrl}
-                category={product.category}
-                unitPrice={price}
-                priceId={product.priceId || undefined}
-                soldOut={soldOut}
-                handleColors={product.handleColors as string}
-              />
-            </div>
-          ) : usesCaseType ? (
+          {usesCaseType ? (
             <div className="mt-auto">
               <p
                 className="text-sm text-muted-foreground leading-relaxed mb-3"

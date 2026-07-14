@@ -97,14 +97,6 @@ async function seed() {
       productType: "accessory",
     },
     {
-      title: "Matte Black Mug",
-      price: "25.00",
-      category: "Drinkware",
-      description: "Premium ceramic mug with Khomplete Khemistri logo",
-      imageUrl: "/assets/generated_images/black_branded_mug.png",
-      productType: "accessory",
-    },
-    {
       title: "Chemistry Socks",
       price: "18.00",
       category: "Socks",

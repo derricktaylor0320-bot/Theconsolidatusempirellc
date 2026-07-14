@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useCart } from "@/hooks/useCart";
-import MugCustomizer from "@/components/MugCustomizer";
 import CaseCustomizer from "@/components/CaseCustomizer";
 import { allLogos, LOGO_SECTIONS, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
 import { sizeUpchargeDollars } from "@shared/customization";
@@ -34,7 +33,7 @@ interface ProductCardProps {
   variants?: ProductVariant[];
 }
 
-export default function ProductCard({ image: baseImage, title: baseTitle, price: basePrice, category, priceId: basePriceId, soldOut: baseSoldOut, description, logoOptions, handleColors, caseType, sizes, apparelSizes, colors, soldOutColors, scents, imageFit = "cover", variants }: ProductCardProps) {
+export default function ProductCard({ image: baseImage, title: baseTitle, price: basePrice, category, priceId: basePriceId, soldOut: baseSoldOut, description, logoOptions, handleColors: _handleColors, caseType, sizes, apparelSizes, colors, soldOutColors, scents, imageFit = "cover", variants }: ProductCardProps) {
   const hasVariants = !!variants && variants.length > 1;
   const [variantIdx, setVariantIdx] = useState(0);
   const activeVariant = hasVariants ? variants![Math.min(variantIdx, variants!.length - 1)] : undefined;
@@ -45,7 +44,6 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
   const soldOut = activeVariant ? activeVariant.soldOut : baseSoldOut;
   const fitClass = imageFit === "contain" ? "object-contain p-2" : "object-cover";
   const { addItem } = useCart();
-  const usesHandleColors = !!handleColors && handleColors.trim().length > 0;
   const usesCaseType = !!caseType && caseType.trim().length > 0;
   const logoChoices = logoOptions
     ? logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
@@ -242,25 +240,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
               </div>
             </div>
           )}
-          {usesHandleColors ? (
-            <>
-              <p
-                className="text-xs text-muted-foreground leading-relaxed w-full mt-1"
-                data-testid={`text-custom-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
-              >
-                Note: Custom branded. Pick your handle color and matching logo to complete your order.
-              </p>
-              <MugCustomizer
-                title={title}
-                image={image}
-                category={category}
-                unitPrice={price}
-                priceId={priceId}
-                soldOut={soldOut}
-                handleColors={handleColors as string}
-              />
-            </>
-          ) : usesCaseType ? (
+          {usesCaseType ? (
             <>
               <p
                 className="text-xs text-muted-foreground leading-relaxed w-full mt-1"
