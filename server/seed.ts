@@ -42,6 +42,15 @@ async function seed() {
       productType: "apparel",
     },
     {
+      title: "Men's Softshell Jacket",
+      price: "75.00",
+      category: "Outerwear",
+      description:
+        "Personalized men's waterproof softshell windbreaker / hiking raincoat with your choice of any Khomplete Khemistri logo. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in a wide range of colors, sizes S through 3XL. FREE shipping included.",
+      imageUrl: "/assets/jacket_front.jpg",
+      productType: "apparel",
+    },
+    {
       title: "Women's Softshell Jacket",
       price: "75.00",
       category: "Outerwear",

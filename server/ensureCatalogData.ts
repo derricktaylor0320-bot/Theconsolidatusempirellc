@@ -973,18 +973,44 @@ const HAT_META = {
   colors: "Black, Navy, Gray, Khaki, Red",
 };
 
-// Women's Softshell Jacket — Amazon-fulfilled custom waterproof windbreaker.
-// Sizes S–3XL (listing max). Many women colorways; logo + size + color at
-// checkout. Replaces the old generic "Jacket/Coat" catalog entry.
+// Softshell jackets — Amazon-fulfilled custom waterproof windbreaker listing
+// (https://a.co/d/0fGzQgs3). Same parent ASIN carries both Men-* and Women-*
+// colorways; we expose them as two gendered Outerwear products so Apparel
+// shows Men's Softshell Jacket under Men's Collection and Women's Softshell
+// Jacket under Women's Collection. Sizes S–3XL (listing max). Logo + size +
+// color at checkout. The legacy generic "Jacket/Coat" row (when still present)
+// is renamed into the men's product — never into the women's one.
+const JACKET_AMAZON_LINK = "https://a.co/d/0fGzQgs3";
+const JACKET_SIZES = "S, M, L, XL, 2XL, 3XL";
+const JACKET_PRICE_CENTS = 7500;
+const JACKET_OLD_NAME = "Jacket/Coat";
+
+const MENS_JACKET_PRODUCT_ID = "prod_kkmensjacket";
+const MENS_JACKET_PRICE_ID = "price_kkmensjacket";
+const MENS_JACKET_NAME = "Men's Softshell Jacket";
+const MENS_JACKET_IMAGE = "/assets/jacket_front.jpg";
+const MENS_JACKET_COLORS =
+  "Black, Navy, Red, White, 3-Black, 3-Navy, 3-Red, 3-White, Army Green, Dark Gray, Jewel Blue, Orange, Khaki";
+const MENS_JACKET_DESCRIPTION =
+  "Personalized men's waterproof softshell windbreaker / hiking raincoat with your choice of any Khomplete Khemistri logo from our full catalog. Durable water-resistant outer shell with a comfortable softshell feel — built for everyday wear, travel, and outdoor weather. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in a wide range of colors, sizes S through 3XL. FREE shipping included.";
+const MENS_JACKET_META = {
+  category: "Outerwear",
+  productType: "apparel",
+  sortOrder: "14",
+  gender: "Men",
+  imageUrl: MENS_JACKET_IMAGE,
+  fulfillment: "Amazon",
+  amazonLink: JACKET_AMAZON_LINK,
+  colors: MENS_JACKET_COLORS,
+  apparelSizes: JACKET_SIZES,
+};
+
 const WOMENS_JACKET_PRODUCT_ID = "prod_kkwomensjacket";
 const WOMENS_JACKET_PRICE_ID = "price_kkwomensjacket";
-const WOMENS_JACKET_OLD_NAME = "Jacket/Coat";
 const WOMENS_JACKET_NAME = "Women's Softshell Jacket";
-const WOMENS_JACKET_PRICE_CENTS = 7500;
 const WOMENS_JACKET_IMAGE = "/assets/kk_womens_softshell_jacket.jpg";
 const WOMENS_JACKET_COLORS =
   "White, Black, Red, 3-White, 3-Black, 3-Red, Lake Blue, Light Green, Pink, Purple, Rose Red, 3-Green, 3-Pink, 3-Purple";
-const WOMENS_JACKET_SIZES = "S, M, L, XL, 2XL, 3XL";
 const WOMENS_JACKET_DESCRIPTION =
   "Personalized women's waterproof softshell windbreaker / hiking raincoat with your choice of any Khomplete Khemistri logo from our full catalog. Durable water-resistant outer shell with a comfortable softshell feel — built for everyday wear, travel, and outdoor weather. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in a wide range of colors, sizes S through 3XL. FREE shipping included.";
 const WOMENS_JACKET_META = {
@@ -994,9 +1020,9 @@ const WOMENS_JACKET_META = {
   gender: "Women",
   imageUrl: WOMENS_JACKET_IMAGE,
   fulfillment: "Amazon",
-  amazonLink: "https://a.co/d/0fGzQgs3",
+  amazonLink: JACKET_AMAZON_LINK,
   colors: WOMENS_JACKET_COLORS,
-  apparelSizes: WOMENS_JACKET_SIZES,
+  apparelSizes: JACKET_SIZES,
 };
 
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
@@ -1547,10 +1573,35 @@ export async function ensureCatalogData() {
       WHERE name = ${HAT_NAME} AND active = true
     `);
 
-    // 6b2) Women's Softshell Jacket ($75, Amazon-fulfilled, S–3XL, multi-color).
-    //     Same self-applying create/keep-current pattern as the hat. Renames the
-    //     legacy "Jacket/Coat" row in place when present so the Women's
-    //     Collection picks up the Amazon listing (sizes through 3XL + colors).
+    // 6b2) Softshell jackets ($75, Amazon-fulfilled, S–3XL, multi-color).
+    //     Men's + Women's are separate products on the same Amazon listing.
+    //     Legacy "Jacket/Coat" (if still present) becomes the men's product —
+    //     never the women's — so both genders stay in catalog.
+    const mensJacketProductRaw = JSON.stringify({
+      id: MENS_JACKET_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: MENS_JACKET_NAME,
+      description: MENS_JACKET_DESCRIPTION,
+      metadata: MENS_JACKET_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const mensJacketPriceRaw = JSON.stringify({
+      id: MENS_JACKET_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: JACKET_PRICE_CENTS,
+      product: MENS_JACKET_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
     const womensJacketProductRaw = JSON.stringify({
       id: WOMENS_JACKET_PRODUCT_ID,
       object: "product",
@@ -1568,7 +1619,7 @@ export async function ensureCatalogData() {
       object: "price",
       active: true,
       currency: "usd",
-      unit_amount: WOMENS_JACKET_PRICE_CENTS,
+      unit_amount: JACKET_PRICE_CENTS,
       product: WOMENS_JACKET_PRODUCT_ID,
       type: "one_time",
       billing_scheme: "per_unit",
@@ -1576,16 +1627,56 @@ export async function ensureCatalogData() {
       livemode: false,
     });
 
+    // Restore men's jacket from legacy Jacket/Coat when that row still exists.
     await db.execute(sql`
       UPDATE stripe.products
       SET _raw_data = jsonb_set(
-            jsonb_set(_raw_data, '{name}', to_jsonb(${WOMENS_JACKET_NAME}::text), true),
+            jsonb_set(
+              jsonb_set(_raw_data, '{name}', to_jsonb(${MENS_JACKET_NAME}::text), true),
+              '{description}',
+              ${JSON.stringify(MENS_JACKET_DESCRIPTION)}::jsonb,
+              true
+            ),
             '{metadata}',
-            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(WOMENS_JACKET_META)}::jsonb,
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(MENS_JACKET_META)}::jsonb,
             true
           ),
           _updated_at = now()
-      WHERE name = ${WOMENS_JACKET_OLD_NAME}
+      WHERE name = ${JACKET_OLD_NAME}
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${mensJacketProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${MENS_JACKET_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${mensJacketPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${MENS_JACKET_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${MENS_JACKET_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(MENS_JACKET_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(MENS_JACKET_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${MENS_JACKET_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(JACKET_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${MENS_JACKET_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(JACKET_PRICE_CENTS)}
     `);
 
     await db.execute(sql`
@@ -1615,11 +1706,11 @@ export async function ensureCatalogData() {
 
     await db.execute(sql`
       UPDATE stripe.prices
-      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(WOMENS_JACKET_PRICE_CENTS)}::jsonb, true),
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(JACKET_PRICE_CENTS)}::jsonb, true),
           _updated_at = now()
       WHERE active = true
         AND product IN (SELECT id FROM stripe.products WHERE name = ${WOMENS_JACKET_NAME} AND active = true)
-        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(WOMENS_JACKET_PRICE_CENTS)}
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(JACKET_PRICE_CENTS)}
     `);
 
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
@@ -2118,7 +2209,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Women's Softshell Jacket ($75, Amazon S–3XL multi-color), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
