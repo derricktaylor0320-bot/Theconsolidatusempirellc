@@ -1089,6 +1089,14 @@ const DISCONTINUED_NAMES = [
   "Logo Keychain",
 ];
 
+// Cut-off fabric crest mockup formerly used as a Bottoms product photo — not a
+// real garment shot (edge of the print is cropped; shoppers can't tell what
+// item it is). Any catalog row still pointing at this file gets hidden.
+const CUTOFF_BOTTOMS_IMAGE_MARKERS = [
+  "copilot_image_1765114167490_1765212687857",
+  "1765114167490_1765212687857",
+];
+
 export async function ensureCatalogData() {
   try {
     // 1) Deduplicate ALL products that exist twice. Past reseeds created ~45
@@ -1825,6 +1833,48 @@ export async function ensureCatalogData() {
           _updated_at = now()
       WHERE active = true
         AND lower(COALESCE(_raw_data->'metadata'->>'category', '')) = 'bottoms'
+        AND name = ${JEANS_NAME}
+    `);
+
+    // Hide leftover placeholder "Bottoms" rows that are NOT the real jeans
+    // product (vague category + often a cut-off fabric crest mockup that does
+    // not show an actual garment).
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({ hidden: "true" })}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE active = true
+        AND name IS DISTINCT FROM ${JEANS_NAME}
+        AND (
+          lower(COALESCE(_raw_data->'metadata'->>'category', '')) = 'bottoms'
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[0] + "%"}
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[1] + "%"}
+        )
+    `);
+
+    // If the jeans row somehow still points at the cut-off fabric crest, force
+    // the real embroidered jeans studio photo.
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata,imageUrl}',
+            to_jsonb(${JEANS_IMAGE}::text),
+            true
+          ),
+          _updated_at = now()
+      WHERE active = true
+        AND name = ${JEANS_NAME}
+        AND (
+          COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[0] + "%"}
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[1] + "%"}
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') = ''
+        )
     `);
 
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
@@ -2323,7 +2373,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products; rewrote vague Bottoms category to Jeans.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
