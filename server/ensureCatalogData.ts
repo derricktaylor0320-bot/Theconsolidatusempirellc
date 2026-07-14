@@ -1045,6 +1045,34 @@ const JEANS_META = {
   profitMargin: (JEANS_PROFIT_MARGIN_CENTS / 100).toFixed(2),
 };
 
+// Personalized Custom Logo Shorts — Amazon-fulfilled customizable men's board /
+// beach shorts (https://a.co/d/0d5NuqfT, ASIN B0GYD84N6D). Storefront retail
+// is $25 flat. Sizes S–3XL and 31 colorways match the Amazon twister.
+const SHORTS_AMAZON_LINK = "https://a.co/d/0d5NuqfT";
+const SHORTS_PRODUCT_ID = "prod_kkcustomshorts";
+const SHORTS_PRICE_ID = "price_kkcustomshorts";
+const SHORTS_NAME = "Personalized Custom Logo Shorts";
+const SHORTS_PRICE_CENTS = 2500;
+const SHORTS_BLANK_COST_CENTS = 1699;
+const SHORTS_IMAGE = "/assets/kk_custom_logo_shorts.jpg";
+const SHORTS_SIZES = "S, M, L, XL, 2XL, 3XL";
+const SHORTS_COLORS =
+  "Black, Black and White, Black1, Blue, Blue and Orange, Blue and White, Blue and Yellow, Blue+pink and Yellow, Cyan, Gray, Green, Green and Yellow, Maroon, Military Green, Natural, Navy, Orange, Orange and Pink, Pink, Powder and Blue, Purple, Purple and White, Purple and Yellow, Rainbow, Red, Rose Red, Royal Blue, Sky Blue, White, Yellow, Yellow and Blue";
+const SHORTS_DESCRIPTION =
+  "Personalized custom logo men's quick-dry beach / board shorts you can brand with any Khomplete Khemistri logo from our full catalog. Lightweight polyester with a mesh liner, elastic waistband, and drawcord \u2014 built for beach, workout, and everyday wear. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 31 colorways, sizes S through 3XL.";
+const SHORTS_META = {
+  category: "Shorts",
+  productType: "apparel",
+  sortOrder: "21",
+  gender: "Men",
+  imageUrl: SHORTS_IMAGE,
+  fulfillment: "Amazon",
+  amazonLink: SHORTS_AMAZON_LINK,
+  colors: SHORTS_COLORS,
+  apparelSizes: SHORTS_SIZES,
+  cost: (SHORTS_BLANK_COST_CENTS / 100).toFixed(2),
+};
+
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
 // under Apparel, not Accessories. It is also seasonal: hidden from the storefront
 // in spring/summer and brought back for fall/winter. Both facts are applied here
@@ -1807,6 +1835,67 @@ export async function ensureCatalogData() {
         )
     `);
 
+    // 6b4) Personalized Custom Logo Shorts ($25, Amazon-fulfilled men's board /
+    //     beach shorts). Sizes S–3XL and 31 Amazon colorways + logo at checkout.
+    const shortsProductRaw = JSON.stringify({
+      id: SHORTS_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: SHORTS_NAME,
+      description: SHORTS_DESCRIPTION,
+      metadata: SHORTS_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const shortsPriceRaw = JSON.stringify({
+      id: SHORTS_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: SHORTS_PRICE_CENTS,
+      product: SHORTS_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${shortsProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${SHORTS_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${shortsPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${SHORTS_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${SHORTS_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(SHORTS_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(SHORTS_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${SHORTS_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(SHORTS_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${SHORTS_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(SHORTS_PRICE_CENTS)}
+    `);
+
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
     //     pattern as the cases/hat. For each of the 10 designs: create only
     //     when absent (no-op in dev where Stripe sync made them; the real creator
@@ -2303,7 +2392,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), Personalized Custom Logo Shorts ($25, Amazon-fulfilled, 31 colors, S–3XL), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

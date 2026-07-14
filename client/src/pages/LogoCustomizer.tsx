@@ -21,6 +21,7 @@ const garmentTypes = [
   { id: "mens-jacket", name: "Men's Softshell Jacket", basePrice: 75, category: "tops" },
   { id: "jacket", name: "Women's Softshell Jacket", basePrice: 75, category: "tops" },
   { id: "jeans", name: "Personalized Custom Logo Jeans", basePrice: 57.48, category: "bottoms" },
+  { id: "shorts", name: "Personalized Custom Logo Shorts", basePrice: 25, category: "bottoms" },
   { id: "tumbler-20oz", name: "20oz Insulated Travel Tumbler", basePrice: 34.99, category: "accessories" },
   { id: "tumbler-30oz", name: "30oz Insulated Travel Tumbler", basePrice: 39.99, category: "accessories" },
   { id: "tumbler-40oz", name: "40oz Insulated Travel Tumbler", basePrice: 45, category: "accessories" },
