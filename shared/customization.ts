@@ -3,16 +3,16 @@
 // rules (the UI is never the only gate).
 //
 // A product is "customized" when its metadata carries one of:
-//  - handleColors: comma list of handle colors (e.g. the Coffee Mug). The client
-//    sends selectedLogo as "<color> handle \u2014 <logo name>".
 //  - caseType: "iphone" | "samsung" (phone cases). The client sends selectedLogo
 //    as "<phone model> \u2014 <logo name>".
 //  - logoOptions: comma list of plain text logo choices. selectedLogo is the
 //    exact chosen option.
+//  - handleColors: legacy comma list of handle colors (retired Coffee Mug).
+//    Kept so old orders/carts with that shape still validate.
 //
-// For handleColors and caseType, the trailing "<logo name>" must be a real logo
-// from the shared catalog allowlist — this prevents model/color-only or
-// arbitrary-text submissions that bypass the "pick a model AND a logo" rule.
+// For caseType (and legacy handleColors), the trailing "<logo name>" must be a
+// real logo from the shared catalog allowlist — this prevents model/color-only
+// or arbitrary-text submissions that bypass the "pick a model AND a logo" rule.
 
 import { PHONE_MODELS_BY_TYPE } from "./phoneModels";
 import { LOGO_ALT_SET } from "./logoNames";

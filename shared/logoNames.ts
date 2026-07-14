@@ -1,5 +1,5 @@
 // Canonical list of selectable brand-logo names ("alt" text) offered across the
-// store's customizers (mug handle color + logo, phone case model + logo, etc.).
+// store's customizers (phone case model + logo, apparel color + logo, etc.).
 //
 // This is the SERVER-side allowlist used to validate a customer's logo choice at
 // checkout. It must stay in sync with the logo `alt` strings in

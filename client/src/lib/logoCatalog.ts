@@ -133,9 +133,9 @@ export const allLogos: Record<string, LogoEntry> = {
 };
 
 // The full logo catalog grouped into its named collections, preserving the
-// insertion order of `allLogos`. Used by the image-first logo pickers (mug,
-// phone case, and the dropdown custom products) to render a browsable grid
-// organized by collection.
+// insertion order of `allLogos`. Used by the image-first logo pickers (phone
+// case and the dropdown custom products) to render a browsable grid organized
+// by collection.
 export const LOGO_SECTIONS: { name: string; ids: string[] }[] = (() => {
   const order: string[] = [];
   const bySection: Record<string, string[]> = {};
@@ -149,29 +149,6 @@ export const LOGO_SECTIONS: { name: string; ids: string[] }[] = (() => {
   }
   return order.map((name) => ({ name, ids: bySection[name] }));
 })();
-
-// Handle colors offered for the Coffee Mug (and any product whose metadata
-// carries `handleColors`). Keep this list in sync with the server metadata.
-export const MUG_HANDLE_COLORS = ["Black", "Blue", "Red", "Green", "Yellow/Gold"];
-
-// For each handle color, the logo IDs (from allLogos) that best match it — these
-// are surfaced first, with a "Recommended" badge, when that color is selected.
-export const handleColorRecommendations: Record<string, string[]> = {
-  Black: ["111", "303", "102", "207", "104"],
-  Blue: ["105", "202", "200", "203", "106", "301", "210", "206"],
-  Red: ["104", "213", "304"],
-  Green: ["212", "109", "115"],
-  "Yellow/Gold": ["300", "100", "204", "214", "217", "218", "219", "201", "124", "101", "308", "302"],
-};
-
-// Returns logo IDs ordered so the recommended-for-this-color logos come first,
-// followed by the rest of the collection.
-export function orderedLogosForColor(color: string): string[] {
-  const recommended = handleColorRecommendations[color] || [];
-  const recommendedSet = new Set(recommended);
-  const rest = Object.keys(allLogos).filter((id) => !recommendedSet.has(id));
-  return [...recommended.filter((id) => allLogos[id]), ...rest];
-}
 
 // For general products, the customer's chosen product color maps to color
 // keywords; any logo whose color/name mentions one of those keywords is
