@@ -73,7 +73,7 @@ async function seed() {
       price: "25.00",
       category: "Shorts",
       description:
-        "Personalized custom logo men's quick-dry beach / board shorts. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 31 colorways, sizes S through 3XL.",
+        "Branded men's mesh athletic shorts with Khomplete Khemistri logo on the left thigh. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 31 colorways, sizes S through 3XL.",
       imageUrl: "/assets/kk_custom_logo_shorts.jpg",
       productType: "apparel",
     },
