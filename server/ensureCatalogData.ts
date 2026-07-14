@@ -1075,6 +1075,34 @@ const SHORTS_META = {
   cost: (SHORTS_BLANK_COST_CENTS / 100).toFixed(2),
 };
 
+// Personalized Custom Logo Bikini — Amazon-fulfilled customizable women's
+// two-piece string bikini set (https://a.co/d/0gq8y2e3, ASIN B0D6YP5Q6W).
+// Storefront retail is $25 flat. Sizes M–5XL and 4 Amazon colorways
+// (Bikini01/02/03/05) match the listing twister; logo at checkout.
+const BIKINI_AMAZON_LINK = "https://a.co/d/0gq8y2e3";
+const BIKINI_PRODUCT_ID = "prod_kkcustombikini";
+const BIKINI_PRICE_ID = "price_kkcustombikini";
+const BIKINI_NAME = "Personalized Custom Logo Bikini";
+const BIKINI_PRICE_CENTS = 2500;
+const BIKINI_BLANK_COST_CENTS = 1699;
+const BIKINI_IMAGE = "/assets/kk_custom_logo_bikini.jpg";
+const BIKINI_SIZES = "M, L, XL, 2XL, 3XL, 4XL, 5XL";
+const BIKINI_COLORS = "Bikini01, Bikini02, Bikini03, Bikini05";
+const BIKINI_DESCRIPTION =
+  "Personalized women's custom logo two-piece string bikini set \u2014 brand with any Khomplete Khemistri logo from our full catalog. Soft 100% polyester swim fabric with triangle halter top and tie-side bottoms. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 4 Amazon colorways, sizes M through 5XL.";
+const BIKINI_META = {
+  category: "Swimwear",
+  productType: "apparel",
+  sortOrder: "22",
+  gender: "Women",
+  imageUrl: BIKINI_IMAGE,
+  fulfillment: "Amazon",
+  amazonLink: BIKINI_AMAZON_LINK,
+  colors: BIKINI_COLORS,
+  apparelSizes: BIKINI_SIZES,
+  cost: (BIKINI_BLANK_COST_CENTS / 100).toFixed(2),
+};
+
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
 // under Apparel, not Accessories. It is also seasonal: hidden from the storefront
 // in spring/summer and brought back for fall/winter. Both facts are applied here
@@ -1898,6 +1926,67 @@ export async function ensureCatalogData() {
         AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(SHORTS_PRICE_CENTS)}
     `);
 
+    // 6b5) Personalized Custom Logo Bikini ($25, Amazon-fulfilled women's
+    //     two-piece string bikini). Sizes M–5XL and 4 Amazon colorways + logo.
+    const bikiniProductRaw = JSON.stringify({
+      id: BIKINI_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: BIKINI_NAME,
+      description: BIKINI_DESCRIPTION,
+      metadata: BIKINI_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const bikiniPriceRaw = JSON.stringify({
+      id: BIKINI_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: BIKINI_PRICE_CENTS,
+      product: BIKINI_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${bikiniProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${BIKINI_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${bikiniPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${BIKINI_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${BIKINI_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(BIKINI_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(BIKINI_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${BIKINI_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(BIKINI_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${BIKINI_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(BIKINI_PRICE_CENTS)}
+    `);
+
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
     //     pattern as the cases/hat. For each of the 10 designs: create only
     //     when absent (no-op in dev where Stripe sync made them; the real creator
@@ -2394,7 +2483,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), Personalized Custom Logo Shorts ($25, Amazon-fulfilled, 31 colors, S–3XL), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), Personalized Custom Logo Shorts ($25, Amazon-fulfilled, 31 colors, S–3XL), Personalized Custom Logo Bikini ($25, Amazon-fulfilled women's Swimwear, 4 colors, M–5XL), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }

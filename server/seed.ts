@@ -77,6 +77,15 @@ async function seed() {
       imageUrl: "/assets/kk_custom_logo_shorts.jpg",
       productType: "apparel",
     },
+    {
+      title: "Personalized Custom Logo Bikini",
+      price: "25.00",
+      category: "Swimwear",
+      description:
+        "Personalized women's custom logo two-piece string bikini set. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 4 colorways, sizes M through 5XL.",
+      imageUrl: "/assets/kk_custom_logo_bikini.jpg",
+      productType: "apparel",
+    },
   ];
 
   // Seed Accessories
