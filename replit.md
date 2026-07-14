@@ -9,7 +9,7 @@ The Consolidatus Empire is a premium e-commerce platform for Khomplete Khemistri
 - **Host:** Railway — project "The Consolidatus Empire", environment `production`
 - **Live URL:** https://khomplete-khemistri-apparel.up.railway.app
 - **Services:**
-  - `poetic-balance` — the web app, deployed from GitHub repo `derricktaylor0320-bot/kkmgllc-operations` (branch `main`)
+  - `poetic-balance` — the web app, deployed from GitHub repo `derricktaylor0320-bot/Theconsolidatusempirellc` (branch `main`)
   - `Postgres` — database holding all migrated store data (Stripe-synced catalog + app tables)
 - **Deploys:** trigger from the latest `main` commit in Railway (the GitHub auto-deploy webhook is not wired, so use Railway's "Deploy" / redeploy).
 - See `.agents/memory/railway-portability.md` for full setup steps and gotchas.
