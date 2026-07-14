@@ -792,8 +792,8 @@ export async function registerRoutes(
         "long-sleeve": 35,
         "pullover-hoodie": 50,
         "full-zip-hoodie": 60,
-        "mens-jacket": 75,
-        "jacket": 75,
+        "mens-jacket": 60,
+        "jacket": 60,
         "jeans": 57.48,
         // Amazon-fulfilled tumblers: retail includes the delivery fee (free
         // shipping for the customer). Must mirror the LogoCustomizer options.
