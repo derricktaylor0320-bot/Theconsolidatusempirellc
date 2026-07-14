@@ -25,7 +25,7 @@ export default function Accessories() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
-        <BrandSectionBanner caption="Branded essentials for your lifestyle. Tumblers, umbrellas, candles, and more." />
+        <BrandSectionBanner caption="Branded essentials for your lifestyle. Duffle bags, tumblers, umbrellas, candles, and more." />
 
         {isLoading ? (
           <div className="text-center py-12">Loading products...</div>
