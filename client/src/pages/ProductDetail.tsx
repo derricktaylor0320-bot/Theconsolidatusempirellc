@@ -341,7 +341,7 @@ function ProductDetailContent({
           <img
             src={product.imageUrl}
             alt={product.title}
-            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") ? "object-contain p-3" : "object-cover"} w-full h-full`}
+            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_custom_logo_jeans") ? "object-contain p-3" : "object-cover"} w-full h-full`}
             data-testid="img-product-detail"
           />
           {soldOut && (
