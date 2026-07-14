@@ -20,8 +20,7 @@ const garmentTypes = [
   { id: "full-zip-hoodie", name: "Full-Zip Hoodie", basePrice: 60, category: "tops" },
   { id: "mens-jacket", name: "Men's Softshell Jacket", basePrice: 75, category: "tops" },
   { id: "jacket", name: "Women's Softshell Jacket", basePrice: 75, category: "tops" },
-  { id: "jeans", name: "Jeans", basePrice: 65, category: "bottoms" },
-  { id: "sweatpants", name: "Sweatpants", basePrice: 55, category: "bottoms" },
+  { id: "jeans", name: "Personalized Custom Logo Jeans", basePrice: 57.48, category: "bottoms" },
   { id: "tumbler-20oz", name: "20oz Insulated Travel Tumbler", basePrice: 34.99, category: "accessories" },
   { id: "tumbler-30oz", name: "30oz Insulated Travel Tumbler", basePrice: 39.99, category: "accessories" },
   { id: "tumbler-40oz", name: "40oz Insulated Travel Tumbler", basePrice: 45, category: "accessories" },
@@ -299,7 +298,7 @@ export default function LogoCustomizer() {
                   </RadioGroup>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-3 font-semibold uppercase tracking-wide">Bottoms</p>
+                  <p className="text-sm text-muted-foreground mb-3 font-semibold uppercase tracking-wide">Jeans</p>
                   <RadioGroup 
                     value={selectedGarment} 
                     onValueChange={handleGarmentChange}

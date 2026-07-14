@@ -59,6 +59,15 @@ async function seed() {
       imageUrl: "/assets/kk_womens_softshell_jacket.jpg",
       productType: "apparel",
     },
+    {
+      title: "Personalized Custom Logo Jeans",
+      price: "57.48",
+      category: "Jeans",
+      description:
+        "Personalized custom logo men's jeans with reflective stripes. SELECT YOUR COLOR, SIZE (waist × inseam), AND LOGO at checkout. Available in 10 colorways and waist sizes 27–48. FREE shipping included.",
+      imageUrl: "/assets/kk_custom_logo_jeans.jpg",
+      productType: "apparel",
+    },
   ];
 
   // Seed Accessories

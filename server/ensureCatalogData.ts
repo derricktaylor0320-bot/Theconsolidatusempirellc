@@ -1025,6 +1025,42 @@ const WOMENS_JACKET_META = {
   apparelSizes: JACKET_SIZES,
 };
 
+// Personalized Custom Logo Jeans — Amazon-fulfilled customizable men's denim
+// (https://a.co/d/0e4NsuKn, ASIN B0FQJ65MBB). Retail = Amazon blank ($39.99) +
+// Amazon delivery ($7.49) + $10 profit so the customer sees FREE shipping.
+// Waist × inseam sizes and colorways match the Amazon twister exactly.
+// Category is "Jeans" (never the vague "Bottoms" label).
+const JEANS_AMAZON_LINK = "https://a.co/d/0e4NsuKn";
+const JEANS_PRODUCT_ID = "prod_kkcustomjeans";
+const JEANS_PRICE_ID = "price_kkcustomjeans";
+const JEANS_NAME = "Personalized Custom Logo Jeans";
+const JEANS_BLANK_COST_CENTS = 3999;
+const JEANS_AMAZON_SHIPPING_CENTS = 749;
+const JEANS_PROFIT_MARGIN_CENTS = 1000;
+const JEANS_PRICE_CENTS =
+  JEANS_BLANK_COST_CENTS + JEANS_AMAZON_SHIPPING_CENTS + JEANS_PROFIT_MARGIN_CENTS;
+const JEANS_IMAGE = "/assets/kk_custom_logo_jeans.jpg";
+const JEANS_COLORS =
+  "Black, Black Green Webbing, Black Orange Webbing, Black Pink Webbing, Black Silver, Blue, Blue Green Webbing, Blue Orange Webbing, Blue Pink Webbing, Blue Silver";
+const JEANS_SIZES =
+  "27W x 30L, 27W x 31L, 27W x 32L, 27W x 33L, 30W x 30L, 30W x 31L, 30W x 32L, 30W x 33L, 33W x 30L, 33W x 31L, 33W x 32L, 33W x 33L, 36W x 30L, 36W x 31L, 36W x 32L, 36W x 33L, 40W x 30L, 40W x 31L, 40W x 32L, 40W x 33L, 44W x 30L, 44W x 31L, 44W x 32L, 44W x 33L, 48W x 30L, 48W x 31L, 48W x 32L, 48W x 33L";
+const JEANS_DESCRIPTION =
+  "Personalized custom logo men's jeans — reflective-stripe denim work pants you can brand with any Khomplete Khemistri logo from our full catalog. Classic fit, durable construction for work and everyday wear. SELECT YOUR COLOR, SIZE (waist \u00d7 inseam), AND LOGO at checkout. Available in 10 colorways and waist sizes 27–48 with inseams 30–33. FREE shipping included.";
+const JEANS_META = {
+  category: "Jeans",
+  productType: "apparel",
+  sortOrder: "20",
+  gender: "Men",
+  imageUrl: JEANS_IMAGE,
+  fulfillment: "Amazon",
+  amazonLink: JEANS_AMAZON_LINK,
+  colors: JEANS_COLORS,
+  apparelSizes: JEANS_SIZES,
+  cost: (JEANS_BLANK_COST_CENTS / 100).toFixed(2),
+  shippingCost: (JEANS_AMAZON_SHIPPING_CENTS / 100).toFixed(2),
+  profitMargin: (JEANS_PROFIT_MARGIN_CENTS / 100).toFixed(2),
+};
+
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
 // under Apparel, not Accessories. It is also seasonal: hidden from the storefront
 // in spring/summer and brought back for fall/winter. Both facts are applied here
@@ -1051,6 +1087,14 @@ const WINTER_HIDDEN = true;
 const DISCONTINUED_NAMES = [
   "Personalized Custom Logo Clogs",
   "Logo Keychain",
+];
+
+// Cut-off fabric crest mockup formerly used as a Bottoms product photo — not a
+// real garment shot (edge of the print is cropped; shoppers can't tell what
+// item it is). Any catalog row still pointing at this file gets hidden.
+const CUTOFF_BOTTOMS_IMAGE_MARKERS = [
+  "copilot_image_1765114167490_1765212687857",
+  "1765114167490_1765212687857",
 ];
 
 export async function ensureCatalogData() {
@@ -1713,6 +1757,126 @@ export async function ensureCatalogData() {
         AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(JACKET_PRICE_CENTS)}
     `);
 
+    // 6b3) Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship +
+    //     $10 margin; FREE shipping to customer). Amazon waist×inseam sizes and
+    //     10 colorways. Category is "Jeans" — never the vague "Bottoms" label.
+    //     Also rewrites any leftover product still tagged category Bottoms.
+    const jeansProductRaw = JSON.stringify({
+      id: JEANS_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: JEANS_NAME,
+      description: JEANS_DESCRIPTION,
+      metadata: JEANS_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const jeansPriceRaw = JSON.stringify({
+      id: JEANS_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: JEANS_PRICE_CENTS,
+      product: JEANS_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${jeansProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${JEANS_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${jeansPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${JEANS_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${JEANS_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(JEANS_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(JEANS_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${JEANS_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(JEANS_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${JEANS_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(JEANS_PRICE_CENTS)}
+    `);
+
+    // Drop the vague storefront "Bottoms" category anywhere it still appears —
+    // shoppers can't tell "bottom of what." Jeans use category "Jeans" above.
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata,category}',
+            to_jsonb(${"Jeans"}::text),
+            true
+          ),
+          _updated_at = now()
+      WHERE active = true
+        AND lower(COALESCE(_raw_data->'metadata'->>'category', '')) = 'bottoms'
+        AND name = ${JEANS_NAME}
+    `);
+
+    // Hide leftover placeholder "Bottoms" rows that are NOT the real jeans
+    // product (vague category + often a cut-off fabric crest mockup that does
+    // not show an actual garment).
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({ hidden: "true" })}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE active = true
+        AND name IS DISTINCT FROM ${JEANS_NAME}
+        AND (
+          lower(COALESCE(_raw_data->'metadata'->>'category', '')) = 'bottoms'
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[0] + "%"}
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[1] + "%"}
+        )
+    `);
+
+    // If the jeans row somehow still points at the cut-off fabric crest, force
+    // the real embroidered jeans studio photo.
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            _raw_data,
+            '{metadata,imageUrl}',
+            to_jsonb(${JEANS_IMAGE}::text),
+            true
+          ),
+          _updated_at = now()
+      WHERE active = true
+        AND name = ${JEANS_NAME}
+        AND (
+          COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[0] + "%"}
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') LIKE ${"%" + CUTOFF_BOTTOMS_IMAGE_MARKERS[1] + "%"}
+          OR COALESCE(_raw_data->'metadata'->>'imageUrl', '') = ''
+        )
+    `);
+
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
     //     pattern as the mug/cases/hat. For each of the 10 designs: create only
     //     when absent (no-op in dev where Stripe sync made them; the real creator
@@ -2209,7 +2373,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
