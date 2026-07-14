@@ -68,6 +68,15 @@ async function seed() {
       imageUrl: "/assets/kk_custom_logo_jeans.jpg",
       productType: "apparel",
     },
+    {
+      title: "Personalized Custom Logo Shorts",
+      price: "25.00",
+      category: "Shorts",
+      description:
+        "Personalized custom logo men's quick-dry beach / board shorts. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 31 colorways, sizes S through 3XL.",
+      imageUrl: "/assets/kk_custom_logo_shorts.jpg",
+      productType: "apparel",
+    },
   ];
 
   // Seed Accessories

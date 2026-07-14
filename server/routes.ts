@@ -795,6 +795,7 @@ export async function registerRoutes(
         "mens-jacket": 75,
         "jacket": 75,
         "jeans": 57.48,
+        "shorts": 25,
         // Amazon-fulfilled tumblers: retail includes the delivery fee (free
         // shipping for the customer). Must mirror the LogoCustomizer options.
         "tumbler-20oz": 34.99,
