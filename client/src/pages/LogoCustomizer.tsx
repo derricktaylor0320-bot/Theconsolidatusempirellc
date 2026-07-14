@@ -22,6 +22,7 @@ const garmentTypes = [
   { id: "jacket", name: "Women's Softshell Jacket", basePrice: 75, category: "tops" },
   { id: "jeans", name: "Personalized Custom Logo Jeans", basePrice: 57.48, category: "bottoms" },
   { id: "shorts", name: "Personalized Custom Logo Shorts", basePrice: 25, category: "bottoms" },
+  { id: "bikini", name: "Personalized Custom Logo Bikini", basePrice: 25, category: "swimwear" },
   { id: "tumbler-20oz", name: "20oz Insulated Travel Tumbler", basePrice: 34.99, category: "accessories" },
   { id: "tumbler-30oz", name: "30oz Insulated Travel Tumbler", basePrice: 39.99, category: "accessories" },
   { id: "tumbler-40oz", name: "40oz Insulated Travel Tumbler", basePrice: 45, category: "accessories" },
@@ -45,6 +46,11 @@ const bottomPlacementOptions = [
 
 const accessoryPlacementOptions = [
   { id: "tumbler-wrap", name: "Laser-Etched Logo", price: 0, dimensions: 'up to 3" wide' },
+];
+
+const swimwearPlacementOptions = [
+  { id: "front-print", name: "Front Print", price: 0, dimensions: "full front panel" },
+  { id: "all-over", name: "All-Over Print", price: 0, dimensions: "full set print" },
 ];
 
 const TUMBLER_FEATURES = [
@@ -87,7 +93,9 @@ export default function LogoCustomizer() {
       ? bottomPlacementOptions
       : selectedGarmentData?.category === "accessories"
         ? accessoryPlacementOptions
-        : topPlacementOptions;
+        : selectedGarmentData?.category === "swimwear"
+          ? swimwearPlacementOptions
+          : topPlacementOptions;
 
   if (!logo) {
     return (
@@ -130,6 +138,7 @@ export default function LogoCustomizer() {
   const defaultPlacementFor = (category?: string) => {
     if (category === "bottoms") return "front-right-leg";
     if (category === "accessories") return "tumbler-wrap";
+    if (category === "swimwear") return "front-print";
     return "front-left-chest";
   };
 
@@ -325,6 +334,32 @@ export default function LogoCustomizer() {
                   </RadioGroup>
                 </div>
                 <div>
+                  <p className="text-sm text-muted-foreground mb-3 font-semibold uppercase tracking-wide">Swimwear</p>
+                  <RadioGroup
+                    value={selectedGarment}
+                    onValueChange={handleGarmentChange}
+                    className="grid gap-3"
+                  >
+                    {garmentTypes.filter(g => g.category === "swimwear").map((garment) => (
+                      <div key={garment.id} className="flex items-center">
+                        <RadioGroupItem
+                          value={garment.id}
+                          id={garment.id}
+                          className="peer sr-only"
+                          data-testid={`radio-garment-${garment.id}`}
+                        />
+                        <Label
+                          htmlFor={garment.id}
+                          className="flex items-center justify-between w-full p-4 bg-secondary rounded-lg border-2 border-transparent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10 cursor-pointer transition-all hover:bg-secondary/80"
+                        >
+                          <span className="font-medium">{garment.name}</span>
+                          <span className="text-primary font-bold">${garment.basePrice}</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+                <div>
                   <p className="text-sm text-muted-foreground mb-3 font-semibold uppercase tracking-wide">Accessories</p>
                   <RadioGroup
                     value={selectedGarment}
@@ -370,7 +405,9 @@ export default function LogoCustomizer() {
                 <p className="text-sm text-muted-foreground">
                   {selectedGarmentData?.category === "accessories"
                     ? "Your logo will be laser-etched in the position shown below."
-                    : "Select one or both placements. Additional placement adds $10."}
+                    : selectedGarmentData?.category === "swimwear"
+                      ? "Select one or both print styles. Additional print style adds $10."
+                      : "Select one or both placements. Additional placement adds $10."}
                 </p>
                 <div className="space-y-3">
                   {placementOptions.map((placement) => (
