@@ -18,6 +18,7 @@ const garmentTypes = [
   { id: "long-sleeve", name: "Long Sleeve T-Shirt", basePrice: 35, category: "tops" },
   { id: "pullover-hoodie", name: "Pullover Hoodie", basePrice: 50, category: "tops" },
   { id: "full-zip-hoodie", name: "Full-Zip Hoodie", basePrice: 60, category: "tops" },
+  { id: "mens-jacket", name: "Men's Softshell Jacket", basePrice: 75, category: "tops" },
   { id: "jacket", name: "Women's Softshell Jacket", basePrice: 75, category: "tops" },
   { id: "jeans", name: "Jeans", basePrice: 65, category: "bottoms" },
   { id: "sweatpants", name: "Sweatpants", basePrice: 55, category: "bottoms" },
