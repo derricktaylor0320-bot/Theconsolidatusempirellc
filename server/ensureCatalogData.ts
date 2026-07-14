@@ -1045,9 +1045,11 @@ const JEANS_META = {
   profitMargin: (JEANS_PROFIT_MARGIN_CENTS / 100).toFixed(2),
 };
 
-// Personalized Custom Logo Shorts — Amazon-fulfilled customizable men's board /
-// beach shorts (https://a.co/d/0d5NuqfT, ASIN B0GYD84N6D). Storefront retail
-// is $25 flat. Sizes S–3XL and 31 colorways match the Amazon twister.
+// Personalized Custom Logo Shorts — Amazon-fulfilled customizable men's mesh
+// athletic shorts (https://a.co/d/0d5NuqfT, ASIN B0GYD84N6D). Storefront
+// retail is $25 flat. Sizes S–3XL and 31 colorways match the Amazon twister.
+// Product photo advertises the branded mesh stack (black + crest, royal blue,
+// purple-to-orange gradient).
 const SHORTS_AMAZON_LINK = "https://a.co/d/0d5NuqfT";
 const SHORTS_PRODUCT_ID = "prod_kkcustomshorts";
 const SHORTS_PRICE_ID = "price_kkcustomshorts";
@@ -1059,7 +1061,7 @@ const SHORTS_SIZES = "S, M, L, XL, 2XL, 3XL";
 const SHORTS_COLORS =
   "Black, Black and White, Black1, Blue, Blue and Orange, Blue and White, Blue and Yellow, Blue+pink and Yellow, Cyan, Gray, Green, Green and Yellow, Maroon, Military Green, Natural, Navy, Orange, Orange and Pink, Pink, Powder and Blue, Purple, Purple and White, Purple and Yellow, Rainbow, Red, Rose Red, Royal Blue, Sky Blue, White, Yellow, Yellow and Blue";
 const SHORTS_DESCRIPTION =
-  "Personalized custom logo men's quick-dry beach / board shorts you can brand with any Khomplete Khemistri logo from our full catalog. Lightweight polyester with a mesh liner, elastic waistband, and drawcord \u2014 built for beach, workout, and everyday wear. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 31 colorways, sizes S through 3XL.";
+  "Branded men's mesh athletic shorts with your choice of any Khomplete Khemistri logo from our full catalog \u2014 breathable perforated mesh, elastic waistband with drawcord, and side pockets. Shown in black with the Apparel crest on the left thigh, plus royal blue and purple-to-orange gradient colorways. SELECT YOUR COLOR, SIZE, AND LOGO at checkout. Available in 31 colorways, sizes S through 3XL.";
 const SHORTS_META = {
   category: "Shorts",
   productType: "apparel",
