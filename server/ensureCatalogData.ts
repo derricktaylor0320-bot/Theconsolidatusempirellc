@@ -949,27 +949,28 @@ const SAMSUNG_CASE_META = {
   fulfillment: "eBay",
 };
 
-// Branded Logo Fitted Hat ($40, apparel). A new product that must exist in
-// whatever DB this server is connected to. In dev seedProducts creates it in
-// Stripe (synced to the DB) so the guarded insert below is a no-op; on the
-// Railway prod frozen snapshot (no Stripe) the insert is what actually creates
-// it. Color + logo are selected at checkout (see colors/logoOptions metadata).
+// Branded Logo Fitted Hat ($50, apparel). Flex Fit fitted cap fulfilled via
+// Etsy (uploaded-logo option): supplier cost $30 + $20 profit = $50 retail.
+// Color + logo are selected at checkout. The product was briefly sold as an
+// Amazon adjustable hat when fitted margin was too thin; with the Etsy Flex Fit
+// supplier it is profitable again, so we convert the surviving row back.
 const HAT_PRODUCT_ID = "prod_kkfittedhat";
 const HAT_PRICE_ID = "price_kkfittedhat";
-const HAT_OLD_NAME = "Branded Logo Fitted Hat";
-const HAT_NAME = "Branded Logo Adjustable Hat";
-const HAT_PRICE_CENTS = 4000;
+const HAT_OLD_NAME = "Branded Logo Adjustable Hat";
+const HAT_NAME = "Branded Logo Fitted Hat";
+const HAT_PRICE_CENTS = 5000;
 const HAT_IMAGE = "/assets/kk_hat_trident_three.png";
 const HAT_DESCRIPTION =
-  "Structured six-panel baseball cap with an adjustable back strap for a comfortable, one-size-fits-most fit, finished with embroidered Khomplete Khemistri branding on the front. SELECT YOUR COLOR AND LOGO at checkout — pick any logo from our full Branded Logo Collection.";
+  "Premium Flex Fit fitted baseball cap with embroidered Khomplete Khemistri branding on the front. Structured six-panel crown for a clean, true-to-size fit. SELECT YOUR COLOR AND LOGO at checkout — pick any logo from our full Branded Logo Collection.";
 const HAT_META = {
   category: "Headwear",
   productType: "apparel",
   sortOrder: "13",
   imageUrl: HAT_IMAGE,
   gender: "Unisex",
-  fulfillment: "Amazon",
-  amazonLink: "https://www.amazon.com/dp/B0GSJHB163",
+  fulfillment: "Etsy",
+  cost: "30.00",
+  profitMargin: "20.00",
   colors: "Black, Navy, Gray, Khaki, Red",
 };
 
@@ -1499,10 +1500,11 @@ export async function ensureCatalogData() {
       `);
     }
 
-    // 6b) Branded Logo Fitted Hat ($40, color + logo). Same self-applying
-    //     pattern as the mug/cases: create only when absent (no-op in dev where
-    //     Stripe sync made it; the real creator on the Railway prod snapshot),
-    //     then keep the description/metadata current on the surviving product.
+    // 6b) Branded Logo Fitted Hat ($50 = Etsy Flex Fit uploaded-logo $30 + $20
+    //     profit; color + logo). Same self-applying pattern as the mug/cases:
+    //     create only when absent (no-op in dev where Stripe sync made it; the
+    //     real creator on the Railway prod snapshot), then keep the
+    //     description/metadata/price current on the surviving product.
     const hatProductRaw = JSON.stringify({
       id: HAT_PRODUCT_ID,
       object: "product",
@@ -1528,18 +1530,17 @@ export async function ensureCatalogData() {
       livemode: false,
     });
 
-    // One-time fixup: the hat used to be a "Fitted Hat" that was hidden and
-    // restricted to 3 logos. Convert the existing row in place — rename it to the
-    // adjustable name and drop the stale `hidden` + `logoOptions` keys (the
-    // additive `||` merge below can't remove keys). Keyed by the OLD name so it
-    // applies to the surviving prod-snapshot row and no-ops once renamed.
+    // One-time fixup: the hat was briefly an Amazon "Adjustable Hat" when fitted
+    // margin was too thin. Convert the surviving row back to Fitted Hat and drop
+    // stale Amazon keys (the additive `||` merge below can't remove keys). Keyed
+    // by the adjustable name so it applies once and no-ops after rename.
     await db.execute(sql`
       UPDATE stripe.products
       SET _raw_data = jsonb_set(
             jsonb_set(
               _raw_data,
               '{metadata}',
-              (COALESCE(_raw_data->'metadata', '{}'::jsonb) - 'hidden' - 'logoOptions'),
+              (COALESCE(_raw_data->'metadata', '{}'::jsonb) - 'hidden' - 'logoOptions' - 'amazonLink'),
               true
             ),
             '{name}', to_jsonb(${HAT_NAME}::text), true
@@ -1566,11 +1567,21 @@ export async function ensureCatalogData() {
       SET _raw_data = jsonb_set(
             jsonb_set(_raw_data, '{description}', ${JSON.stringify(HAT_DESCRIPTION)}::jsonb, true),
             '{metadata}',
-            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(HAT_META)}::jsonb,
+            (COALESCE(_raw_data->'metadata', '{}'::jsonb) - 'amazonLink' - 'hidden' - 'logoOptions')
+              || ${JSON.stringify(HAT_META)}::jsonb,
             true
           ),
           _updated_at = now()
       WHERE name = ${HAT_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(HAT_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${HAT_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(HAT_PRICE_CENTS)}
     `);
 
     // 6b2) Softshell jackets ($75, Amazon-fulfilled, S–3XL, multi-color).
@@ -2209,7 +2220,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Coffee Mug ($15, handle colors), phone cases ($30, model + logo), Branded Logo Fitted Hat ($50 = Etsy Flex Fit $30 + $20 profit, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($75 each, Amazon S–3XL multi-color), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag); archived leftover prices on inactive products.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
