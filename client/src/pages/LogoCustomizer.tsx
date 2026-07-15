@@ -19,7 +19,7 @@ const garmentTypes = [
   { id: "pullover-hoodie", name: "Pullover Hoodie", basePrice: 50, category: "tops" },
   { id: "full-zip-hoodie", name: "Full-Zip Hoodie", basePrice: 60, category: "tops" },
   { id: "mens-jacket", name: "Men's Softshell Jacket", basePrice: 60, category: "tops" },
-  { id: "jacket", name: "Women's Softshell Jacket", basePrice: 75, category: "tops" },
+  { id: "jacket", name: "Women's Softshell Jacket", basePrice: 60, category: "tops" },
   { id: "jeans", name: "Personalized Custom Logo Jeans", basePrice: 57.48, category: "bottoms" },
   { id: "shorts", name: "Personalized Custom Logo Shorts", basePrice: 25, category: "bottoms" },
   { id: "bikini", name: "Personalized Custom Logo Bikini", basePrice: 25, category: "swimwear" },

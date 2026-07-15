@@ -967,7 +967,7 @@ const HAT_META = {
 const JACKET_AMAZON_LINK = "https://a.co/d/0fGzQgs3";
 const JACKET_SIZES = "S, M, L, XL, 2XL, 3XL";
 const MENS_JACKET_PRICE_CENTS = 6000;
-const WOMENS_JACKET_PRICE_CENTS = 7500;
+const WOMENS_JACKET_PRICE_CENTS = 6000;
 const JACKET_OLD_NAME = "Jacket/Coat";
 
 const MENS_JACKET_PRODUCT_ID = "prod_kkmensjacket";
@@ -1606,7 +1606,7 @@ export async function ensureCatalogData() {
       WHERE name = ${HAT_NAME} AND active = true
     `);
 
-    // 6b2) Softshell jackets (Men's $60 / Women's $75, Amazon-fulfilled, S–3XL, multi-color).
+    // 6b2) Softshell jackets ($60 each, Amazon-fulfilled, S–3XL, multi-color).
     //     Men's + Women's are separate products on the same Amazon listing.
     //     Legacy "Jacket/Coat" (if still present) becomes the men's product —
     //     never the women's — so both genders stay in catalog.
@@ -2484,7 +2484,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket ($60) + Women's Softshell Jacket ($75, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), Personalized Custom Logo Shorts ($25, Amazon-fulfilled, 31 colors, S–3XL), Personalized Custom Logo Bikini ($25, Amazon-fulfilled women's Swimwear, 4 colors, M–5XL), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($60 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), Personalized Custom Logo Shorts ($25, Amazon-fulfilled, 31 colors, S–3XL), Personalized Custom Logo Bikini ($25, Amazon-fulfilled women's Swimwear, 4 colors, M–5XL), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
