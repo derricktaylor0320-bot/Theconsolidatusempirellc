@@ -11,7 +11,7 @@ The Consolidatus Empire is a premium e-commerce platform for Khomplete Khemistri
 - **Services:**
   - `poetic-balance` — the web app, deployed from GitHub repo `derricktaylor0320-bot/Theconsolidatusempirellc` (branch `main`)
   - `Postgres` — database holding all migrated store data (Stripe-synced catalog + app tables)
-- **Deploys:** trigger from the latest `main` commit in Railway (the GitHub auto-deploy webhook is not wired, so use Railway's "Deploy" / redeploy).
+- **Deploys:** Railway auto-deploys from GitHub when `main` updates. A push to `main` triggers a new production deploy (no manual Railway "Deploy" click and no pull-request merge required for those direct `main` updates).
 - See `.agents/memory/railway-portability.md` for full setup steps and gotchas.
 
 ## User Preferences
