@@ -12,7 +12,6 @@ import {
   Landmark,
   Feather,
   Palette,
-  TrendingUp,
   Rocket,
   Beef,
   Music,
@@ -31,7 +30,6 @@ const APPS: AppNode[] = [
   { href: "/hot-dogs", label: "Hot Dogs", Icon: Beef },
   { href: "/media", label: "Media & Music", Icon: Music },
   { href: "/canvas", label: "Logo Collection", Icon: Palette },
-  { href: "/fr2p", label: "FR2P Club", Icon: TrendingUp },
   { href: "/pocket-booster", label: "Pocket Booster", Icon: Rocket },
 ];
 

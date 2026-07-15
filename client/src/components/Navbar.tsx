@@ -50,7 +50,6 @@ export default function Navbar() {
     { href: "/poetry", label: "Poetry on a Plaque" },
     { href: "/hot-dogs", label: "Premium Choice Hot Dogs" },
     { href: "/media", label: "Media & Music" },
-    { href: "/fr2p", label: "The FR2P Club" },
     { href: "/pocket-booster", label: "Pocket Booster" },
   ];
 

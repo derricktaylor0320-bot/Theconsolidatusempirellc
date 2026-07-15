@@ -9,7 +9,6 @@ import Home from "@/pages/Home";
 import About from "@/pages/About";
 import NumberThree from "@/pages/NumberThree";
 import Canvas from "@/pages/Canvas";
-import FR2P from "@/pages/FR2P";
 import Apparel from "@/pages/Apparel";
 import Accessories from "@/pages/Accessories";
 import Bedding from "@/pages/Bedding";
@@ -47,7 +46,6 @@ function Router() {
       <Route path="/sso-demo" component={SsoDemo} />
       <Route path="/orders" component={Orders} />
       <Route path="/profile" component={Profile} />
-      <Route path="/fr2p" component={FR2P} />
       <Route path="/pocket-booster" component={PocketBooster} />
       <Route path="/apparel" component={Apparel} />
       <Route path="/accessories" component={Accessories} />
