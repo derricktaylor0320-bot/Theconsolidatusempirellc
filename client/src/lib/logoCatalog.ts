@@ -46,6 +46,12 @@ import eagleCrestMaroonGold from "@assets/IMG_20260628_234856_1782729067418.png"
 import badgeApparelAccessoriesEst2020 from "@assets/badge_apparel_accessories_est2020_polished.png";
 import badgeKhompleteLionsEst2020 from "@assets/badge_khomplete_lions_est2020_218.png";
 import badgeConsolidatusEmpireStandalone from "@assets/badge_consolidatus_empire_standalone_218.png";
+import badgeLionsPurpleGold from "@assets/1784055944141.png";
+import badgeLionsBrownGold from "@assets/1784057077795.png";
+import badgeLionsRedGold from "@assets/1784057184105.png";
+import badgeLionsBurgundyGold from "@assets/copilot_image_1784057746825.jpeg";
+import badgeLionsSilverGold from "@assets/copilot_image_1784057980009.jpeg";
+import badgeLionsAllGold from "@assets/image_1784058373332.jpeg";
 import logoKkElementsBadge from "@assets/logo_kk_elements_badge.png";
 import logoKkApparelLeatherCrest from "@assets/logo_kk_apparel_leather_swords_crest.png";
 import compassKKApparel from "@assets/copilot_image_1781366430242_1781369724345.jpeg";
@@ -114,7 +120,13 @@ export const allLogos: Record<string, LogoEntry> = {
   "216": { src: eagleCrestMaroonGold, alt: "Apparel Eagle Crest - Maroon & Gold", color: "Maroon & Gold Eagle Crest", section: "Badge of Honor" },
   "217": { src: badgeApparelAccessoriesEst2020, alt: "Khomplete Khemistri Apparel & Accessories Est. 2020 Crest", color: "Est. 2020 Checkered Swords", section: "Badge of Honor" },
   "218": { src: badgeKhompleteLionsEst2020, alt: "Khomplete Khemistri Apparel & Accessories Lions Crest - Est. 2020", color: "Lions Crest Est. 2020", section: "Badge of Honor" },
-  "219": { src: badgeConsolidatusEmpireStandalone, alt: "The Consolidatus Empire LLC Standalone Crest - Est. 2020", color: "Consolidatus Empire LLC", section: "Badge of Honor" },
+  "219": { src: badgeLionsPurpleGold, alt: "Khomplete Khemistri Apparel & Accessories Lions Crest - Purple & Gold", color: "Purple & Gold Lions", section: "Badge of Honor" },
+  "220": { src: badgeLionsBrownGold, alt: "Khomplete Khemistri Apparel & Accessories Lions Crest - Brown & Gold", color: "Brown & Gold Lions", section: "Badge of Honor" },
+  "221": { src: badgeLionsRedGold, alt: "Khomplete Khemistri Apparel & Accessories Lions Crest - Red & Gold", color: "Red & Gold Lions", section: "Badge of Honor" },
+  "222": { src: badgeLionsBurgundyGold, alt: "Khomplete Khemistri Apparel & Accessories Lions Crest - Burgundy & Gold", color: "Burgundy & Gold Lions", section: "Badge of Honor" },
+  "223": { src: badgeLionsSilverGold, alt: "Khomplete Khemistri Apparel & Accessories Lions Crest - Silver & Gold", color: "Silver & Gold Lions", section: "Badge of Honor" },
+  "224": { src: badgeLionsAllGold, alt: "Khomplete Khemistri Apparel & Accessories Lions Crest - All Gold", color: "All Gold Lions", section: "Badge of Honor" },
+  "225": { src: badgeConsolidatusEmpireStandalone, alt: "The Consolidatus Empire LLC Standalone Crest - Est. 2020", color: "Consolidatus Empire LLC", section: "Badge of Honor" },
   "300": { src: honorAllGold, alt: "The Golden Eagle Shield", color: "All Gold", section: "Shield of Honor" },
   "301": { src: honorNavyGold, alt: "Navy & Gold Eagle Shield", color: "Navy & Gold", section: "Shield of Honor" },
   "302": { src: honorSilverGold, alt: "Silver & Gold Eagle Shield", color: "Silver & Gold", section: "Shield of Honor" },

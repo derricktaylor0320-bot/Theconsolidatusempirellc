@@ -792,7 +792,7 @@ export async function registerRoutes(
         "long-sleeve": 35,
         "pullover-hoodie": 50,
         "full-zip-hoodie": 60,
-        "mens-jacket": 75,
+        "mens-jacket": 60,
         "jacket": 75,
         "jeans": 57.48,
         "shorts": 25,
