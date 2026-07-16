@@ -17,6 +17,13 @@ import {
   FREQUENT_SHOPPER_MIN_ORDERS,
   parseDiscountCode,
 } from "@shared/discounts";
+import {
+  BUNDLE_CONFIG,
+  bundleOrderNote,
+  bundleUpchargeCents,
+  isPremiumLighterProduct,
+  isValidBundleId,
+} from "@shared/bundlePricing";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -610,6 +617,12 @@ export async function registerRoutes(
     }
   });
 
+  // Lighter accessory bundle config + pricing rules (client can also import
+  // @shared/bundlePricing directly; this endpoint exists for non-TS clients).
+  app.get("/api/bundles", (_req, res) => {
+    res.json(BUNDLE_CONFIG);
+  });
+
   // Get products by type (e.g. apparel, accessory, elements)
   app.get("/api/products/type/:type", async (req, res) => {
     try {
@@ -939,16 +952,45 @@ export async function registerRoutes(
         }
         const logoNote: string | undefined = check.note;
 
-        const amountCents = Number(priceRow.unit_amount) + (check.upchargeCents || 0);
+        // Optional lighter accessory bundle upcharge (server-authoritative).
+        // Only Premium Lighter lines may carry a bundleId from bundle_config.
+        let bundleCents = 0;
+        let bundleNote: string | undefined;
+        const requestedBundleId = item?.bundleId;
+        if (requestedBundleId) {
+          if (!isValidBundleId(requestedBundleId)) {
+            return res.status(400).json({
+              error: "That accessory bundle is not available.",
+            });
+          }
+          if (
+            !isPremiumLighterProduct(
+              priceId,
+              (priceRow.product_name as string) || "",
+            )
+          ) {
+            return res.status(400).json({
+              error: "Accessory bundles can only be added to a Premium Lighter.",
+            });
+          }
+          bundleCents = bundleUpchargeCents(requestedBundleId);
+          bundleNote = bundleOrderNote(requestedBundleId);
+        }
+
+        const amountCents =
+          Number(priceRow.unit_amount) +
+          (check.upchargeCents || 0) +
+          bundleCents;
         if (!amountCents || amountCents <= 0) {
           return res.status(400).json({ error: "Invalid product price." });
         }
 
+        const noteParts = [logoNote, bundleNote].filter(Boolean);
         lineItems.push({
           name: (priceRow.product_name as string) || "Item",
           quantity,
           amountCents,
-          note: logoNote,
+          note: noteParts.length ? noteParts.join(" | ") : undefined,
         });
       }
 

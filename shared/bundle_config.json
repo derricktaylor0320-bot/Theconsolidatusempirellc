@@ -1,0 +1,106 @@
+{
+  "store_branding": {
+    "parent_company": "The Consolidatus Empire LLC",
+    "brands": [
+      "Khomplete Khemistri Apparel",
+      "Khomplete Accessories"
+    ]
+  },
+  "base_products": {
+    "premium_lighter": {
+      "name": "Custom Embossed Metallic Lighter",
+      "variations": [
+        "Brushed Silver Crest",
+        "Empire Gold Crest",
+        "Matte Black & Blue Shield",
+        "Polished Black Khemistri Shield"
+      ],
+      "base_cost_usd": 19.95,
+      "retail_price_usd": 30.0,
+      "unit_profit_usd": 10.05,
+      "margin_percent": 33.5
+    }
+  },
+  "bundle_definitions": [
+    {
+      "bundle_id": "luxury_gift_set",
+      "display_name": "Empire Collector's Gift Set",
+      "description": "Premium lighter paired with a custom presentation tin, velvet pouch, and branded certificate.",
+      "components": [
+        {
+          "item": "Premium Metallic Lighter",
+          "base_cost": 19.95
+        },
+        {
+          "item": "Matte Black Metal Tin & Foam Insert",
+          "base_cost": 1.5
+        },
+        {
+          "item": "Velvet Drawstring Pouch",
+          "base_cost": 0.5
+        },
+        {
+          "item": "Branded Certificate of Authenticity",
+          "base_cost": 0.25
+        }
+      ],
+      "total_base_cost": 22.2,
+      "suggested_retail": 45.0,
+      "suggested_upcharge_add_on": 15.0,
+      "calculated_profit": 22.8,
+      "margin_percent": 50.7,
+      "upsell_prompt": "Upgrade to the Empire Collector's Gift Set (Includes luxury tin case, velvet pouch, & certificate) for just +$15.00!"
+    },
+    {
+      "bundle_id": "kicks_and_spark_pack",
+      "display_name": "Khomplete Kicks & Spark Pack",
+      "description": "Combine the custom lighter with matching metal shoe lace charms (dubraes) and a stamped leather hangtag.",
+      "components": [
+        {
+          "item": "Premium Metallic Lighter",
+          "base_cost": 19.95
+        },
+        {
+          "item": "Custom Metal Lace Charms (Pair)",
+          "base_cost": 3.0
+        },
+        {
+          "item": "Custom Stamped Leather Hangtag",
+          "base_cost": 1.2
+        }
+      ],
+      "total_base_cost": 24.15,
+      "suggested_retail": 49.99,
+      "suggested_upcharge_add_on": 19.99,
+      "calculated_profit": 25.84,
+      "margin_percent": 51.7,
+      "upsell_prompt": "Complete your look! Add custom matching metal lace charms and a branded leather hangtag to your lighter for +$19.99!"
+    },
+    {
+      "bundle_id": "executive_carry_pack",
+      "display_name": "Executive Everyday Carry (EDC) Pack",
+      "description": "The ultimate pocket matching set featuring the metallic lighter and an engraved credit-card metal bottle opener.",
+      "components": [
+        {
+          "item": "Premium Metallic Lighter",
+          "base_cost": 19.95
+        },
+        {
+          "item": "Engraved Metal Card Wallet Multi-tool",
+          "base_cost": 2.5
+        }
+      ],
+      "total_base_cost": 22.45,
+      "suggested_retail": 39.99,
+      "suggested_upcharge_add_on": 9.99,
+      "calculated_profit": 17.54,
+      "margin_percent": 43.9,
+      "upsell_prompt": "Add a matching engraved metal wallet multi-tool to your lighter for only +$9.99!"
+    }
+  ],
+  "pricing_engine_rules": {
+    "target_bundle_margin_min": 45.0,
+    "auto_upcharge_multiplier": 2.5,
+    "rounding_strategy": "ends_in_ninety_nine"
+  }
+}
