@@ -1130,6 +1130,36 @@ const BIKINI_META = {
   cost: (BIKINI_BLANK_COST_CENTS / 100).toFixed(2),
 };
 
+// Logo Bottle Opener Keychain — Amazon-fulfilled personalized aluminum bottle
+// opener keychain bulk blanks (https://a.co/d/09CgKHzx, ASIN B0CBXFLD3J).
+// Restores the earlier Logo Keychain accessory with a real supplier path.
+// Blanks run about $12 for 30 (~$0.40 each); storefront retail is $10 flat.
+const KEYCHAIN_AMAZON_LINK = "https://a.co/d/09CgKHzx";
+const KEYCHAIN_PRODUCT_ID = "prod_kklogokeychain";
+const KEYCHAIN_PRICE_ID = "price_kklogokeychain";
+const KEYCHAIN_NAME = "Logo Bottle Opener Keychain";
+const KEYCHAIN_PRICE_CENTS = 1000;
+const KEYCHAIN_BLANK_COST_CENTS = 40;
+const KEYCHAIN_IMAGE = "/assets/kk_bottle_opener_keychain.png";
+const KEYCHAIN_COLORS =
+  "Black, Blue, Green, Mixing, Pink, Red, Silver, Violet, Yellow, Lake Blue";
+const KEYCHAIN_DESCRIPTION =
+  "Branded aluminum bottle opener keychain with the Khomplete Khemistri Apparel crest laser-engraved on both sides of the thank-you message. Compact key-ring bottle opener \u2014 practical everyday carry and a perfect gift. SELECT YOUR COLOR at checkout. Amazon-fulfilled. Available in 10 colors: Black, Blue, Green, Mixing, Pink, Red, Silver, Violet, Yellow, and Lake Blue.";
+const KEYCHAIN_META = {
+  category: "Accessories",
+  productType: "accessory",
+  sortOrder: "29",
+  gender: "Unisex",
+  imageUrl: KEYCHAIN_IMAGE,
+  fulfillment: "Amazon",
+  amazonLink: KEYCHAIN_AMAZON_LINK,
+  colors: KEYCHAIN_COLORS,
+  cost: (KEYCHAIN_BLANK_COST_CENTS / 100).toFixed(2),
+  profitMargin: ((KEYCHAIN_PRICE_CENTS - KEYCHAIN_BLANK_COST_CENTS) / 100).toFixed(2),
+  // Explicitly unhide if an older Logo Keychain row was soft-hidden.
+  hidden: "false",
+};
+
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
 // under Apparel, not Accessories. It is also seasonal: hidden from the storefront
 // in spring/summer and brought back for fall/winter. Both facts are applied here
@@ -1153,6 +1183,8 @@ const WINTER_HIDDEN = true;
 // Products that can't currently be produced/fulfilled and so are pulled from the
 // storefront entirely (metadata.hidden='true'). Removed because no supplier will
 // make them. Reversible: delete a name here and redeploy to bring it back.
+// "Logo Keychain" (gold crest charm) stays hidden — replaced by the Amazon
+// Logo Bottle Opener Keychain below.
 const DISCONTINUED_NAMES = [
   "Personalized Custom Logo Clogs",
   "Logo Keychain",
@@ -2012,6 +2044,68 @@ export async function ensureCatalogData() {
       WHERE active = true
         AND product IN (SELECT id FROM stripe.products WHERE name = ${BIKINI_NAME} AND active = true)
         AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(BIKINI_PRICE_CENTS)}
+    `);
+
+    // 6b6) Logo Bottle Opener Keychain ($10, Amazon-fulfilled aluminum bottle
+    //     opener keychain with branded laser engraving). Restores the keychain
+    //     accessory with a real supplier (ASIN B0CBXFLD3J / a.co/d/09CgKHzx).
+    const keychainProductRaw = JSON.stringify({
+      id: KEYCHAIN_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: KEYCHAIN_NAME,
+      description: KEYCHAIN_DESCRIPTION,
+      metadata: KEYCHAIN_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const keychainPriceRaw = JSON.stringify({
+      id: KEYCHAIN_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: KEYCHAIN_PRICE_CENTS,
+      product: KEYCHAIN_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${keychainProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${KEYCHAIN_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${keychainPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${KEYCHAIN_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${KEYCHAIN_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(KEYCHAIN_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(KEYCHAIN_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${KEYCHAIN_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(KEYCHAIN_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${KEYCHAIN_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(KEYCHAIN_PRICE_CENTS)}
     `);
 
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
