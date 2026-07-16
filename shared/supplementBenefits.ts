@@ -11,6 +11,39 @@ export interface SupplementInfo {
 
 const SUPPLEMENTS: { match: RegExp; info: SupplementInfo }[] = [
   {
+    // Match gel before the generic sea-moss capsule entry so the 16 oz jar
+    // gets gel-specific copy on the product detail page.
+    match: /sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Wildcrafted Irish sea moss gel is a ready-to-use 16 oz jar rich in vitamins and minerals (including iodine, iron, and calcium). Stir into smoothies, tea, or recipes to support thyroid health, digestion, immunity, and radiant skin.",
+      benefits: [
+        {
+          label: "Thyroid Support",
+          text: "Natural iodine from sea moss helps the thyroid produce hormones that regulate metabolism, energy, and body temperature.",
+        },
+        {
+          label: "Gut Health",
+          text: "The gel’s mucilage and prebiotic fiber help feed beneficial gut bacteria and support regularity and nutrient absorption.",
+        },
+        {
+          label: "Immune Wellness",
+          text: "Vitamins, minerals, and plant compounds in sea moss support everyday immune defenses and overall vitality.",
+        },
+        {
+          label: "Skin, Hair & Nails",
+          text: "Regular use can nourish skin from within — supporting elasticity, a healthy glow, and stronger hair and nails.",
+        },
+        {
+          label: "Everyday Convenience",
+          text: "Shelf-stable until opened; freeze for longer storage. Easy to add to smoothies, teas, desserts, soups, and sauces.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
     match: /sea\s*moss/i,
     info: {
       intro:

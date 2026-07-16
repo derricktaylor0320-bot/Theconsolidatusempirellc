@@ -799,6 +799,32 @@ const ELEMENTS_PRODUCTS: {
     priceCents: ELEMENTS_PRICE_CENTS,
     meta: { category: "Elements", productType: "elements", sortOrder: "116", imageUrl: "/assets/kk_elements_coffee_forrest_decaf.jpg", customize: "none" },
   },
+  {
+    // Amazon-fulfilled EverSmith Organics wildcrafted Irish sea moss gel
+    // (https://a.co/d/08Z8ALjC, ASIN B08CG43RGC). Not logo-branded —
+    // third-party jar with 9 flavor varieties. Retail = Amazon one-time
+    // price ($29.99) + $10 profit → $39.99 for the 16 oz jar.
+    productId: "prod_kkelemsseamossgel",
+    priceId: "price_kkelemsseamossgel",
+    name: "Sea Moss Gel",
+    description:
+      "Wildcrafted Irish Sea Moss Gel — Made in the USA from St. Lucia sea moss. Shelf-stable 16 oz jar packed with vitamins and minerals to support immunity, gut health, skin, and overall wellness. Add to smoothies, tea, or recipes. SELECT YOUR FLAVOR at checkout. Amazon-fulfilled. Available in 9 flavors: Apple Cinnamon, Elderberry, Lemon Ginger, Mango Pineapple, Mixed Berry, Pineapple, Raspberry, Strawberry, and Unflavored.",
+    priceCents: 3999,
+    meta: {
+      category: "Elements",
+      productType: "elements",
+      sortOrder: "117",
+      imageUrl: "/assets/kk_elements_sea_moss_gel.jpg",
+      customize: "none",
+      fulfillment: "Amazon",
+      amazonLink: "https://a.co/d/08Z8ALjC",
+      scented: "true",
+      scentOptions:
+        "Apple Cinnamon, Elderberry, Lemon Ginger, Mango Pineapple, Mixed Berry, Pineapple, Raspberry, Strawberry, Unflavored",
+      cost: "29.99",
+      profitMargin: "10.00",
+    },
+  },
 ];
 
 // Extra accessories that are self-created in prod the same way as bedding

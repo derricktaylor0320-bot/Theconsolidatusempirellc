@@ -244,6 +244,9 @@ function ProductDetailContent({
     ? product.scents.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsScent = scentChoices.length > 0;
+  // Sea moss gel reuses the scent picker for Amazon flavor varieties.
+  const scentNoun = /\bgel\b/i.test(product.title) ? "flavor" : "scent";
+  const scentNounTitle = scentNoun === "flavor" ? "Flavor" : "Scent";
 
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -290,7 +293,7 @@ function ProductDetailContent({
       return;
     }
     if (needsScent && !selectedScent) {
-      setErrorMessage("Please select a scent.");
+      setErrorMessage(`Please select a ${scentNoun}.`);
       return;
     }
 
@@ -452,7 +455,7 @@ function ProductDetailContent({
               {needsScent && (
                 <div className="space-y-2" data-testid="picker-detail-scent">
                   <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                    Choose your scent
+                    Choose your {scentNoun}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {scentChoices.map((scent) => {
@@ -481,14 +484,14 @@ function ProductDetailContent({
                   </div>
                   {selectedScent ? (
                     <p className="text-sm" data-testid="text-detail-scent-selection">
-                      <span className="text-muted-foreground">Selected scent: </span>
+                      <span className="text-muted-foreground">Selected {scentNoun}: </span>
                       <span className="font-medium" data-testid="text-detail-scent-name">
                         {selectedScent}
                       </span>
                     </p>
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      Choose a scent to continue.
+                      Choose a {scentNoun} to continue.
                     </p>
                   )}
                 </div>
@@ -777,7 +780,7 @@ function ProductDetailContent({
                 }`}
                 data-testid="button-detail-add"
               >
-                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : needsScent && !selectedScent ? "Select a Scent" : "Add to Cart"}
+                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : needsScent && !selectedScent ? `Select a ${scentNounTitle}` : "Add to Cart"}
               </Button>
 
               {errorMessage && (
