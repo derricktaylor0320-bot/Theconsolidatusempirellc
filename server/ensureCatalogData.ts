@@ -1160,6 +1160,34 @@ const KEYCHAIN_META = {
   hidden: "false",
 };
 
+// Custom Branded Luxury Logo Lighter — Amazon-fulfilled custom windproof
+// metal pocket lighter (https://a.co/d/04SfwPUm, ASIN B0F4PWQJTL).
+// Supplier retail is $19.95 with free shipping; storefront sells at $30.
+// Shoppers pick color + a Khomplete Khemistri / Consolidatus luxury logo.
+const LIGHTER_AMAZON_LINK = "https://a.co/d/04SfwPUm";
+const LIGHTER_PRODUCT_ID = "prod_kkbrandedlighter";
+const LIGHTER_PRICE_ID = "price_kkbrandedlighter";
+const LIGHTER_NAME = "Custom Branded Luxury Logo Lighter";
+const LIGHTER_PRICE_CENTS = 3000;
+const LIGHTER_BLANK_COST_CENTS = 1995;
+const LIGHTER_IMAGE = "/assets/kk_branded_logo_lighter.png";
+const LIGHTER_COLORS =
+  "Black, Blue, Dark Blue, Golden Yellow, Green, Metallic Silver, Pink, Red, White";
+const LIGHTER_DESCRIPTION =
+  "Custom branded luxury windproof pocket lighter with your choice of Khomplete Khemistri / Consolidatus Empire logo. Classic refillable metal flip-top design (works with Zippo or Ronsonol lighter fluid; ships unfueled). SELECT YOUR COLOR AND LOGO at checkout. Amazon-fulfilled with free shipping on blanks. Available in 9 colors: Black, Blue, Dark Blue, Golden Yellow, Green, Metallic Silver, Pink, Red, and White.";
+const LIGHTER_META = {
+  category: "Accessories",
+  productType: "accessory",
+  sortOrder: "30",
+  gender: "Unisex",
+  imageUrl: LIGHTER_IMAGE,
+  fulfillment: "Amazon",
+  amazonLink: LIGHTER_AMAZON_LINK,
+  colors: LIGHTER_COLORS,
+  cost: (LIGHTER_BLANK_COST_CENTS / 100).toFixed(2),
+  profitMargin: ((LIGHTER_PRICE_CENTS - LIGHTER_BLANK_COST_CENTS) / 100).toFixed(2),
+};
+
 // Winter clothing (beanies, scarves, gloves, earmuffs, winter bundles) belongs
 // under Apparel, not Accessories. It is also seasonal: hidden from the storefront
 // in spring/summer and brought back for fall/winter. Both facts are applied here
@@ -2106,6 +2134,69 @@ export async function ensureCatalogData() {
       WHERE active = true
         AND product IN (SELECT id FROM stripe.products WHERE name = ${KEYCHAIN_NAME} AND active = true)
         AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(KEYCHAIN_PRICE_CENTS)}
+    `);
+
+    // 6b7) Custom Branded Luxury Logo Lighter ($30, Amazon-fulfilled custom
+    //     windproof pocket lighter). Supplier blanks are $19.95 with free
+    //     shipping (ASIN B0F4PWQJTL / a.co/d/04SfwPUm). Shoppers pick color
+    //     + a luxury brand logo at checkout.
+    const lighterProductRaw = JSON.stringify({
+      id: LIGHTER_PRODUCT_ID,
+      object: "product",
+      active: true,
+      name: LIGHTER_NAME,
+      description: LIGHTER_DESCRIPTION,
+      metadata: LIGHTER_META,
+      images: [],
+      created,
+      livemode: false,
+    });
+
+    const lighterPriceRaw = JSON.stringify({
+      id: LIGHTER_PRICE_ID,
+      object: "price",
+      active: true,
+      currency: "usd",
+      unit_amount: LIGHTER_PRICE_CENTS,
+      product: LIGHTER_PRODUCT_ID,
+      type: "one_time",
+      billing_scheme: "per_unit",
+      created,
+      livemode: false,
+    });
+
+    await db.execute(sql`
+      INSERT INTO stripe.products (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${lighterProductRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.products WHERE name = ${LIGHTER_NAME})
+    `);
+
+    await db.execute(sql`
+      INSERT INTO stripe.prices (_raw_data, _account_id, _updated_at, _last_synced_at)
+      SELECT ${lighterPriceRaw}::jsonb, ${accountId}, now(), now()
+      WHERE NOT EXISTS (SELECT 1 FROM stripe.prices WHERE id = ${LIGHTER_PRICE_ID})
+        AND EXISTS (SELECT 1 FROM stripe.products WHERE id = ${LIGHTER_PRODUCT_ID})
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(LIGHTER_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify(LIGHTER_META)}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE name = ${LIGHTER_NAME} AND active = true
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{unit_amount}', ${String(LIGHTER_PRICE_CENTS)}::jsonb, true),
+          _updated_at = now()
+      WHERE active = true
+        AND product IN (SELECT id FROM stripe.products WHERE name = ${LIGHTER_NAME} AND active = true)
+        AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(LIGHTER_PRICE_CENTS)}
     `);
 
     // 6c) Vintage Baltimore collection ($30 graphic tees). Same self-applying
