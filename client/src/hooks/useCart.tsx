@@ -6,18 +6,26 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import {
+  bundleUpchargeUsd,
+  isPremiumLighterProduct,
+  lighterUnitPriceWithBundle,
+} from "@shared/bundlePricing";
 
 export interface CartItem {
   priceId: string;
   title: string;
   image: string;
   category: string;
+  /** Base unit price before any bundle upcharge (lighter retail, etc.). */
   unitPrice: number;
   quantity: number;
   selectedLogo?: string;
   selectedColor?: string;
   selectedSize?: string;
   selectedScent?: string;
+  /** Optional lighter accessory bundle id from bundle_config.json */
+  bundleId?: string;
 }
 
 interface CartContextValue {
@@ -40,6 +48,13 @@ interface CartContextValue {
     selectedSize?: string,
     selectedScent?: string,
   ) => void;
+  /**
+   * Apply (or clear) a lighter accessory bundle on every Premium Lighter
+   * line in the cart. Non-lighter lines are left unchanged.
+   */
+  setLighterBundle: (bundleId: string | null) => void;
+  /** Currently selected lighter bundle id across lighter lines (if uniform). */
+  lighterBundleId: string | null;
   clearCart: () => void;
 }
 
@@ -56,6 +71,26 @@ function lineKey(
   selectedScent?: string,
 ) {
   return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}__${selectedSize || ""}__${selectedScent || ""}`;
+}
+
+/** Strip a previously baked-in bundle upcharge so we can re-apply cleanly. */
+function baseUnitPrice(item: CartItem): number {
+  if (!item.bundleId) return item.unitPrice;
+  const upcharge = bundleUpchargeUsd(item.bundleId);
+  return Math.max(0, Math.round((item.unitPrice - upcharge) * 100) / 100);
+}
+
+function withBundle(item: CartItem, bundleId: string | null): CartItem {
+  const base = baseUnitPrice(item);
+  if (!bundleId) {
+    const { bundleId: _drop, ...rest } = item;
+    return { ...rest, unitPrice: base };
+  }
+  return {
+    ...item,
+    bundleId,
+    unitPrice: lighterUnitPriceWithBundle(base, bundleId),
+  };
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -131,10 +166,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const setLighterBundle = useCallback((bundleId: string | null) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        isPremiumLighterProduct(item.priceId, item.title)
+          ? withBundle(item, bundleId)
+          : item,
+      ),
+    );
+  }, []);
+
   const clearCart = useCallback(() => setItems([]), []);
 
   const itemCount = items.reduce((n, i) => n + i.quantity, 0);
   const total = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+
+  const lighterLines = items.filter((i) =>
+    isPremiumLighterProduct(i.priceId, i.title),
+  );
+  const lighterBundleIds = new Set(
+    lighterLines.map((i) => i.bundleId || "").filter(Boolean),
+  );
+  const lighterBundleId =
+    lighterBundleIds.size === 1
+      ? (Array.from(lighterBundleIds)[0] as string)
+      : lighterLines.some((i) => i.bundleId)
+        ? (lighterLines.find((i) => i.bundleId)?.bundleId ?? null)
+        : null;
 
   return (
     <CartContext.Provider
@@ -145,6 +203,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addItem,
         removeItem,
         updateQuantity,
+        setLighterBundle,
+        lighterBundleId,
         clearCart,
       }}
     >

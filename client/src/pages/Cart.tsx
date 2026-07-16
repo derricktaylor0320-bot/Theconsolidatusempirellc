@@ -10,6 +10,8 @@ import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { ShoppingBag, Trash2, Minus, Plus, ArrowLeft } from "lucide-react";
 import ShipStateTaxSummary, { useShipToState } from "@/components/ShipStateTaxSummary";
+import BundleUpsell from "@/components/BundleUpsell";
+import { getBundleById } from "@shared/bundlePricing";
 import { DISCOUNT_CODES, parseDiscountCode } from "@shared/discounts";
 
 type DiscountEligibility = {
@@ -22,7 +24,14 @@ type DiscountEligibility = {
 };
 
 export default function Cart() {
-  const { items, total, updateQuantity, removeItem } = useCart();
+  const {
+    items,
+    total,
+    updateQuantity,
+    removeItem,
+    setLighterBundle,
+    lighterBundleId,
+  } = useCart();
   const { isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -88,6 +97,7 @@ export default function Cart() {
             selectedColor: i.selectedColor,
             selectedSize: i.selectedSize,
             selectedScent: i.selectedScent,
+            bundleId: i.bundleId,
           })),
         }),
       });
@@ -205,6 +215,14 @@ export default function Cart() {
                           {/\bgel\b/i.test(item.title) ? "Flavor" : "Scent"}: {item.selectedScent}
                         </p>
                       )}
+                      {item.bundleId && getBundleById(item.bundleId) && (
+                        <p
+                          className="text-xs text-primary mt-1"
+                          data-testid={`text-cart-bundle-${slug}`}
+                        >
+                          Bundle: {getBundleById(item.bundleId)!.display_name}
+                        </p>
+                      )}
                       <p className="text-sm text-primary mt-1">
                         ${item.unitPrice.toFixed(2)}
                       </p>
@@ -267,6 +285,13 @@ export default function Cart() {
                   </div>
                 );
               })}
+
+              <BundleUpsell
+                items={items}
+                selectedBundleId={lighterBundleId}
+                onSelectBundle={setLighterBundle}
+              />
+
               <Link href="/accessories">
                 <Button
                   variant="ghost"
