@@ -65,6 +65,9 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
     ? scents.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
   const needsScent = scentChoices.length > 0;
+  // Sea moss gel (and similar jar products) reuse the scent picker for flavor
+  // varieties — label the UI as "flavor" so checkout copy stays accurate.
+  const scentNoun = /\bgel\b/i.test(baseTitle) ? "flavor" : "scent";
   const soldOutColorSet = new Set(
     (soldOutColors
       ? soldOutColors.split(",").map((s) => s.trim()).filter(Boolean)
@@ -119,7 +122,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
       return;
     }
     if (needsScent && !selectedScent) {
-      setErrorMessage("Please select a scent.");
+      setErrorMessage(`Please select a ${scentNoun}.`);
       return;
     }
 
@@ -406,14 +409,14 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-scent-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    Choose your scent to complete your order.
+                    Choose your {scentNoun} to complete your order.
                   </p>
                   <Select value={selectedScent} onValueChange={(v) => { setSelectedScent(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
                       className="w-full"
                       data-testid={`select-scent-${title.toLowerCase().replace(/\s+/g, '-')}`}
                     >
-                      <SelectValue placeholder="Choose your scent *" />
+                      <SelectValue placeholder={`Choose your ${scentNoun} *`} />
                     </SelectTrigger>
                     <SelectContent>
                       {scentChoices.map((choice) => (
@@ -539,7 +542,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                 }`}
                 data-testid={`button-add-${title.toLowerCase().replace(/\s+/g, '-')}`}
               >
-                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? 'Select a Size' : needsColor && !selectedColor ? 'Select a Color' : needsScent && !selectedScent ? 'Select a Scent' : 'Add to Cart'}
+                {soldOut ? 'Sold Out' : added ? 'Added \u2713' : needsLogo && !selectedLogo ? 'Select a Logo' : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? 'Select a Size' : needsColor && !selectedColor ? 'Select a Color' : needsScent && !selectedScent ? `Select a ${scentNoun === "flavor" ? "Flavor" : "Scent"}` : 'Add to Cart'}
               </Button>
               {errorMessage && (
                 <p

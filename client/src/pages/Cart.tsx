@@ -202,7 +202,7 @@ export default function Cart() {
                           className="text-xs text-muted-foreground mt-1"
                           data-testid={`text-cart-scent-${slug}`}
                         >
-                          Scent: {item.selectedScent}
+                          {/\bgel\b/i.test(item.title) ? "Flavor" : "Scent"}: {item.selectedScent}
                         </p>
                       )}
                       <p className="text-sm text-primary mt-1">
