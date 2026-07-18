@@ -301,6 +301,68 @@ export async function ensureTablesExist() {
       ON educational_milestones (user_id, module_name)
     `);
 
+    // P2P Liquidity Loop — investor capital → Pocket Booster reserve vault
+    // → cushions; subscription fees → 8.5% daily-compound yield to investors.
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS user_investments (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        amount_allocated DECIMAL(12, 2) NOT NULL,
+        project_tag TEXT NOT NULL DEFAULT 'POCKET_BOOSTER_RESERVE',
+        yield_rate DECIMAL(6, 4) NOT NULL DEFAULT 0.0850,
+        accrued_yield DECIMAL(12, 4) NOT NULL DEFAULT 0,
+        paid_yield DECIMAL(12, 4) NOT NULL DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'ACTIVE',
+        last_yield_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_user_investments_user_status"
+      ON user_investments (user_id, status)
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS pocket_booster_vault (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        investment_id VARCHAR(255) NOT NULL UNIQUE,
+        total_vault_contribution DECIMAL(12, 2) NOT NULL,
+        available_lending_capital DECIMAL(12, 2) NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS project_ledger (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        investment_id VARCHAR(255) NOT NULL,
+        operations_spend DECIMAL(12, 2) NOT NULL,
+        description TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_project_ledger_investment"
+      ON project_ledger (investment_id)
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS yield_payouts (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        investment_id VARCHAR(255) NOT NULL,
+        user_id VARCHAR(255) NOT NULL,
+        amount DECIMAL(12, 4) NOT NULL,
+        source TEXT NOT NULL DEFAULT 'SUBSCRIPTION_REVENUE',
+        description TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_yield_payouts_user"
+      ON yield_payouts (user_id, created_at)
+    `);
+
     console.log("Database tables verified/created");
   } catch (error) {
     console.error("Error ensuring tables exist:", error);

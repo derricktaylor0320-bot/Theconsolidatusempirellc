@@ -30,6 +30,10 @@ import {
   findOrCreateSquareCustomer,
   isSquareConfigured,
 } from "./squareClient";
+import {
+  debitVaultForCushion,
+  getVaultAvailableCapital,
+} from "./liquidityRouter";
 
 function currentUser(req: Request): User {
   return req.user as User;
@@ -401,6 +405,22 @@ export function registerPocketBoosterRoutes(app: Express): void {
           return res
             .status(400)
             .json({ error: "Invalid next payday date." });
+        }
+
+        // 1b. Cushion Disbursal — when P2P capital is in the reserve vault,
+        // draw from it for instant liquidity. If the vault has never been
+        // funded (available = 0), fall back to subscription-powered access.
+        // If the vault is partially funded but too small for this request,
+        // reject so cushions stay fully reserved.
+        const vaultAvailable = await getVaultAvailableCapital();
+        if (vaultAvailable > 0) {
+          const vaultDebit = await debitVaultForCushion(amountRequested);
+          if (!vaultDebit.ok) {
+            return res.status(400).json({
+              error: `Pocket Booster Reserve Vault has insufficient lending capital. Available: $${vaultAvailable.toFixed(2)}. Peer-to-peer investors fund this pool.`,
+              availableLendingCapital: vaultAvailable,
+            });
+          }
         }
 
         // 2. Insert the active advance record
