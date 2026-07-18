@@ -220,6 +220,87 @@ export async function ensureTablesExist() {
       CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")
     `);
 
+    // Pocket Booster — subscription tiers, cushions, repayment schedules,
+    // and Pay-to-Learn educational milestones.
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS user_subscriptions (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL UNIQUE,
+        tier_level INTEGER NOT NULL,
+        monthly_subscription DECIMAL(10, 2) NOT NULL,
+        max_cushion_limit DECIMAL(10, 2) NOT NULL,
+        next_billing_amount DECIMAL(10, 2) NOT NULL,
+        subscription_status TEXT NOT NULL DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_user_subscriptions_status"
+      ON user_subscriptions (user_id, subscription_status)
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS cash_advances (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        amount_borrowed DECIMAL(10, 2) NOT NULL,
+        repayment_type TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_cash_advances_user"
+      ON cash_advances (user_id)
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS repayment_schedules (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        advance_id VARCHAR(255) NOT NULL,
+        user_id VARCHAR(255) NOT NULL,
+        deduction_amount DECIMAL(10, 2) NOT NULL,
+        scheduled_date TIMESTAMP NOT NULL,
+        status TEXT NOT NULL DEFAULT 'scheduled',
+        square_order_id TEXT,
+        square_invoice_id TEXT,
+        square_invoice_url TEXT,
+        square_invoice_status TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    // Backfill Square columns on databases created before Square autopilot.
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_order_id TEXT`);
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_id TEXT`);
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_url TEXT`);
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_status TEXT`);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_repayment_schedules_advance"
+      ON repayment_schedules (advance_id)
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_repayment_schedules_user_date"
+      ON repayment_schedules (user_id, scheduled_date)
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS educational_milestones (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        module_name TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_educational_milestones_user"
+      ON educational_milestones (user_id)
+    `);
+    await db.execute(sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS "IDX_educational_milestones_user_module"
+      ON educational_milestones (user_id, module_name)
+    `);
+
     console.log("Database tables verified/created");
   } catch (error) {
     console.error("Error ensuring tables exist:", error);

@@ -24,6 +24,10 @@ export function getSquareLocationId(): string {
   return locationId;
 }
 
+export function isSquareConfigured(): boolean {
+  return Boolean(process.env.SQUARE_ACCESS_TOKEN && process.env.SQUARE_LOCATION_ID);
+}
+
 interface SquareFetchOptions {
   method?: string;
   body?: any;
@@ -321,5 +325,228 @@ export async function retrieveSquareOrder(
     buyerEmail,
     buyerName,
     shippingAddress,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Pocket Booster — scheduled repayment invoices (Orders + Invoices API)
+// ---------------------------------------------------------------------------
+
+export interface SquareCustomerRef {
+  customerId: string;
+  email: string;
+}
+
+export interface ScheduledRepaymentInvoiceInput {
+  amountCents: number;
+  /** Calendar payday used as invoice due_date (YYYY-MM-DD derived in UTC). */
+  dueDate: Date;
+  customerId: string;
+  title: string;
+  description?: string;
+  /** When true, charge a card on file if Square has one for this customer. */
+  preferCardOnFile?: boolean;
+}
+
+export interface ScheduledRepaymentInvoiceResult {
+  orderId: string;
+  invoiceId: string;
+  invoiceNumber: string | null;
+  publicUrl: string | null;
+  status: string;
+  automaticPayment: boolean;
+}
+
+function toSquareDate(date: Date): string {
+  // Invoice due_date is a calendar date (YYYY-MM-DD) in the location timezone.
+  return date.toISOString().slice(0, 10);
+}
+
+function toSquareScheduledAt(date: Date): string {
+  // Process the invoice on the payday morning so Square queues email / charge
+  // for that calendar day rather than immediately after publish.
+  const scheduled = new Date(date);
+  if (Number.isNaN(scheduled.getTime())) {
+    throw new Error('Invalid repayment schedule date');
+  }
+  // Keep a stable 9:00 UTC send window on the due date.
+  const yyyy = scheduled.getUTCFullYear();
+  const mm = String(scheduled.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(scheduled.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}T09:00:00Z`;
+}
+
+/** Find an existing Square customer by email, or create one. */
+export async function findOrCreateSquareCustomer(input: {
+  email: string;
+  givenName?: string | null;
+  familyName?: string | null;
+}): Promise<SquareCustomerRef> {
+  const email = input.email.trim().toLowerCase();
+  if (!looksLikeEmail(email)) {
+    throw new Error('A valid email is required to schedule Square repayments');
+  }
+
+  const search = await squareFetch('/v2/customers/search', {
+    method: 'POST',
+    body: {
+      query: {
+        filter: {
+          email_address: { exact: email },
+        },
+      },
+      limit: 1,
+    },
+  });
+
+  const existing = Array.isArray(search?.customers) ? search.customers[0] : null;
+  if (existing?.id) {
+    return { customerId: existing.id, email };
+  }
+
+  const created = await squareFetch('/v2/customers', {
+    method: 'POST',
+    body: {
+      idempotency_key: randomUUID(),
+      given_name: input.givenName?.trim() || undefined,
+      family_name: input.familyName?.trim() || undefined,
+      email_address: email,
+      reference_id: 'pocket-booster',
+    },
+  });
+
+  const customerId = created?.customer?.id;
+  if (!customerId) {
+    throw new Error('Square did not return a customer id');
+  }
+  return { customerId, email };
+}
+
+async function findCardOnFile(customerId: string): Promise<string | null> {
+  try {
+    const data = await squareFetch(
+      `/v2/cards?customer_id=${encodeURIComponent(customerId)}`,
+    );
+    const cards: any[] = Array.isArray(data?.cards) ? data.cards : [];
+    const active = cards.find(
+      (c) => c?.id && String(c?.card?.enabled ?? true) !== 'false',
+    );
+    return active?.id || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Creates a Square order + published invoice for one Pocket Booster deduction.
+ * When the customer has a card on file, Square charges it on due_date; otherwise
+ * Square emails a payable invoice scheduled for that payday.
+ */
+export async function createScheduledRepaymentInvoice(
+  input: ScheduledRepaymentInvoiceInput,
+): Promise<ScheduledRepaymentInvoiceResult> {
+  const amount = Math.round(input.amountCents);
+  if (!amount || amount <= 0) {
+    throw new Error('Repayment amount must be greater than zero');
+  }
+
+  const locationId = getSquareLocationId();
+  const dueDate = toSquareDate(input.dueDate);
+  const scheduledAt = toSquareScheduledAt(input.dueDate);
+
+  const orderData = await squareFetch('/v2/orders', {
+    method: 'POST',
+    body: {
+      idempotency_key: randomUUID(),
+      order: {
+        location_id: locationId,
+        reference_id: `pb-repay-${randomUUID().slice(0, 8)}`,
+        line_items: [
+          {
+            name: input.title.slice(0, 500),
+            quantity: '1',
+            base_price_money: { amount, currency: 'USD' },
+            note: input.description?.slice(0, 500),
+          },
+        ],
+      },
+    },
+  });
+
+  const orderId = orderData?.order?.id;
+  if (!orderId) {
+    throw new Error('Square did not return an order id for the repayment');
+  }
+
+  let cardId: string | null = null;
+  if (input.preferCardOnFile !== false) {
+    cardId = await findCardOnFile(input.customerId);
+  }
+
+  const paymentRequest: Record<string, unknown> = {
+    request_type: 'BALANCE',
+    due_date: dueDate,
+    tipping_enabled: false,
+    automatic_payment_source: cardId ? 'CARD_ON_FILE' : 'NONE',
+    reminders: [
+      {
+        relative_scheduled_days: -1,
+        message: 'Your Pocket Booster cushion repayment is due tomorrow.',
+      },
+    ],
+  };
+  if (cardId) {
+    paymentRequest.card_id = cardId;
+  }
+
+  const invoiceData = await squareFetch('/v2/invoices', {
+    method: 'POST',
+    body: {
+      idempotency_key: randomUUID(),
+      invoice: {
+        location_id: locationId,
+        order_id: orderId,
+        primary_recipient: { customer_id: input.customerId },
+        payment_requests: [paymentRequest],
+        delivery_method: 'EMAIL',
+        title: input.title.slice(0, 150),
+        description: input.description?.slice(0, 2000),
+        scheduled_at: scheduledAt,
+        accepted_payment_methods: {
+          card: true,
+          square_gift_card: false,
+          bank_account: true,
+          buy_now_pay_later: false,
+          cash_app_pay: true,
+        },
+        store_payment_method_enabled: true,
+      },
+    },
+  });
+
+  const draft = invoiceData?.invoice;
+  if (!draft?.id || draft.version == null) {
+    throw new Error('Square did not return a draft invoice');
+  }
+
+  const published = await squareFetch(
+    `/v2/invoices/${encodeURIComponent(draft.id)}/publish`,
+    {
+      method: 'POST',
+      body: {
+        version: draft.version,
+        idempotency_key: randomUUID(),
+      },
+    },
+  );
+
+  const invoice = published?.invoice || draft;
+  return {
+    orderId,
+    invoiceId: invoice.id,
+    invoiceNumber: invoice.invoice_number ?? null,
+    publicUrl: invoice.public_url ?? null,
+    status: String(invoice.status || 'SCHEDULED'),
+    automaticPayment: Boolean(cardId),
   };
 }

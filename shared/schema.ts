@@ -303,3 +303,82 @@ export const discountRedemptions = pgTable("discount_redemptions", {
 });
 
 export type DiscountRedemption = typeof discountRedemptions.$inferSelect;
+
+// ---------------------------------------------------------------------------
+// Pocket Booster — subscription-powered cash cushions + Pay-to-Learn rewards
+// ---------------------------------------------------------------------------
+
+export const userSubscriptions = pgTable("user_subscriptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().unique(),
+  tierLevel: integer("tier_level").notNull(), // 1–4
+  monthlySubscription: decimal("monthly_subscription", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
+  maxCushionLimit: decimal("max_cushion_limit", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
+  nextBillingAmount: decimal("next_billing_amount", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
+  subscriptionStatus: text("subscription_status").notNull().default("active"), // active | paused | cancelled
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type UserSubscription = typeof userSubscriptions.$inferSelect;
+
+export const cashAdvances = pgTable("cash_advances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  amountBorrowed: decimal("amount_borrowed", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
+  repaymentType: text("repayment_type").notNull(),
+  status: text("status").notNull().default("active"), // active | repaid | cancelled
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type CashAdvance = typeof cashAdvances.$inferSelect;
+
+export const repaymentSchedules = pgTable("repayment_schedules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  advanceId: varchar("advance_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  deductionAmount: decimal("deduction_amount", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
+  scheduledDate: timestamp("scheduled_date").notNull(),
+  status: text("status").notNull().default("scheduled"), // scheduled | collected | failed | cancelled
+  // Square Invoices API refs for the payday autopilot charge / emailed invoice.
+  squareOrderId: text("square_order_id"),
+  squareInvoiceId: text("square_invoice_id"),
+  squareInvoiceUrl: text("square_invoice_url"),
+  squareInvoiceStatus: text("square_invoice_status"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type RepaymentSchedule = typeof repaymentSchedules.$inferSelect;
+
+export const educationalMilestones = pgTable(
+  "educational_milestones",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    userId: varchar("user_id").notNull(),
+    moduleName: text("module_name").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("IDX_educational_milestones_user_module").on(
+      t.userId,
+      t.moduleName,
+    ),
+  ],
+);
+
+export type EducationalMilestone = typeof educationalMilestones.$inferSelect;
