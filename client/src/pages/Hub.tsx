@@ -18,6 +18,7 @@ import {
   Music,
   LogIn,
   CheckCircle2,
+  CircleDollarSign,
 } from "lucide-react";
 import logo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
 
@@ -33,6 +34,7 @@ const APPS: AppNode[] = [
   { href: "/canvas", label: "Logo Collection", Icon: Palette },
   { href: "/fr2p", label: "FR2P Club", Icon: TrendingUp },
   { href: "/pocket-booster", label: "Pocket Booster", Icon: Rocket },
+  { href: "/invest", label: "Empire Invest", Icon: CircleDollarSign },
 ];
 
 function fibonacciSphere(n: number) {

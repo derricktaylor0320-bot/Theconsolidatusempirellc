@@ -462,7 +462,16 @@ export default function PocketBooster() {
             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
               Invest $100, $500, or $1,000 — 100% bridges into the Pocket Booster
               Instant-Disbursal Vault. Member subscription fees fund your{" "}
-              {(yieldRate * 100).toFixed(1)}% compounding daily yield.
+              {(yieldRate * 100).toFixed(1)}% compounding daily yield. Prefer
+              apparel, FR2P, or other Empire programs? Use{" "}
+              <Link
+                href="/invest"
+                className="text-primary underline underline-offset-2"
+                data-testid="link-empire-invest-from-pb"
+              >
+                Empire Invest
+              </Link>
+              .
             </p>
 
             <div
@@ -548,7 +557,13 @@ export default function PocketBooster() {
                     </h3>
                     <p className="text-center text-sm text-muted-foreground">
                       Allocated {formatMoney(liquidityMe.totals.allocated)} ·
-                      Yield paid {formatMoney(liquidityMe.totals.paidYield)}
+                      Yield paid {formatMoney(liquidityMe.totals.paidYield)} ·{" "}
+                      <Link
+                        href="/invest"
+                        className="text-primary underline underline-offset-2"
+                      >
+                        Full portfolio
+                      </Link>
                     </p>
                     {liquidityMe.investments.slice(0, 5).map((inv) => (
                       <div

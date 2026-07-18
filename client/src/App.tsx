@@ -15,6 +15,7 @@ import Accessories from "@/pages/Accessories";
 import Bedding from "@/pages/Bedding";
 import Elements from "@/pages/Elements";
 import PocketBooster from "@/pages/PocketBooster";
+import Invest from "@/pages/Invest";
 import Hub from "@/pages/Hub";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import CheckoutCancel from "@/pages/CheckoutCancel";
@@ -49,6 +50,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/fr2p" component={FR2P} />
       <Route path="/pocket-booster" component={PocketBooster} />
+      <Route path="/invest" component={Invest} />
       <Route path="/apparel" component={Apparel} />
       <Route path="/accessories" component={Accessories} />
       <Route path="/bedding" component={Bedding} />

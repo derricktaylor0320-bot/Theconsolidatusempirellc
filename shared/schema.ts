@@ -456,3 +456,17 @@ export const yieldPayouts = pgTable("yield_payouts", {
 });
 
 export type YieldPayout = typeof yieldPayouts.$inferSelect;
+
+/** In-app investor notifications — where money went & how it was used */
+export const investmentNotifications = pgTable("investment_notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  investmentId: varchar("investment_id"),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  projectTag: text("project_tag"),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type InvestmentNotification = typeof investmentNotifications.$inferSelect;

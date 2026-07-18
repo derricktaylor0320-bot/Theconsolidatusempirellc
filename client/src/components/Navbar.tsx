@@ -52,6 +52,7 @@ export default function Navbar() {
     { href: "/media", label: "Media & Music" },
     { href: "/fr2p", label: "The FR2P Club" },
     { href: "/pocket-booster", label: "Pocket Booster" },
+    { href: "/invest", label: "Empire Invest" },
   ];
 
   return (
@@ -117,6 +118,11 @@ export default function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link href="/hub" data-testid="link-menu-hub">
                       Centralized Hub
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/invest" data-testid="link-menu-invest">
+                      Investor Back Office
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

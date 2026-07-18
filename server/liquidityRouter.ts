@@ -1,9 +1,10 @@
 import type { Express, Request, Response } from "express";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "./db";
 import { requireAuth, requireOwner } from "./auth";
 import type { User } from "@shared/schema";
 import {
+  investmentNotifications,
   pocketBoosterVault,
   projectLedger,
   userInvestments,
@@ -12,11 +13,14 @@ import {
   type UserInvestment,
 } from "@shared/schema";
 import {
+  HUB_INVESTMENT_PROGRAMS,
   P2P_ANNUAL_YIELD_RATE,
   P2P_INVESTMENT_AMOUNTS,
   P2P_PROJECT_TAG,
   bridgeP2pSchema,
   compoundDailyInterest,
+  getProgramByTag,
+  openInvestmentPrograms,
 } from "@shared/liquidityLoop";
 
 function currentUser(req: Request): User {
@@ -39,8 +43,7 @@ export async function getVaultAvailableCapital(): Promise<number> {
 
 /**
  * Debit available vault capital for an approved cushion.
- * Draws proportionally from vault rows with remaining capital (FIFO by createdAt).
- * Returns false if the vault cannot cover the amount.
+ * Draws from vault rows with remaining capital (FIFO by createdAt).
  */
 export async function debitVaultForCushion(
   amount: number,
@@ -79,8 +82,6 @@ export async function debitVaultForCushion(
 /** Restore vault capital when a cushion is repaid (future repayment hooks). */
 export async function creditVaultCapital(amount: number): Promise<void> {
   if (amount <= 0) return;
-  // Credit the oldest vault row that still has room under its contribution,
-  // otherwise the most recent contribution.
   const rows = await db
     .select()
     .from(pocketBoosterVault)
@@ -104,7 +105,6 @@ export async function creditVaultCapital(amount: number): Promise<void> {
     remaining -= add;
   }
 
-  // Overflow (repayments exceeding drawn capital) goes to the newest vault row.
   if (remaining > 0 && rows.length > 0) {
     const newest = rows[rows.length - 1];
     const avail = parseFloat(newest.availableLendingCapital);
@@ -118,9 +118,25 @@ export async function creditVaultCapital(amount: number): Promise<void> {
   }
 }
 
+async function notifyInvestor(params: {
+  userId: string;
+  investmentId: string;
+  projectTag: string;
+  title: string;
+  body: string;
+}): Promise<void> {
+  await db.insert(investmentNotifications).values({
+    userId: params.userId,
+    investmentId: params.investmentId,
+    projectTag: params.projectTag,
+    title: params.title,
+    body: params.body,
+  });
+}
+
 /**
- * Accrue daily-compounding 8.5% yield on active investments and pay it from
- * the subscription revenue pool (sum of active monthly subscription fees).
+ * Accrue daily-compounding yield on active investments and pay it from
+ * the Pocket Booster subscription revenue pool (Empire internal banking loop).
  */
 export async function distributeSubscriptionYield(): Promise<{
   accruedTotal: number;
@@ -153,7 +169,9 @@ export async function distributeSubscriptionYield(): Promise<{
     const rate = parseFloat(inv.yieldRate || String(P2P_ANNUAL_YIELD_RATE));
     const last = inv.lastYieldAt ?? inv.createdAt ?? now;
     const msPerDay = 24 * 60 * 60 * 1000;
-    const days = Math.floor((now.getTime() - new Date(last).getTime()) / msPerDay);
+    const days = Math.floor(
+      (now.getTime() - new Date(last).getTime()) / msPerDay,
+    );
     if (days < 1) continue;
 
     const interest = compoundDailyInterest(principal, days, rate);
@@ -164,8 +182,6 @@ export async function distributeSubscriptionYield(): Promise<{
 
     const prevAccrued = parseFloat(inv.accruedYield || "0");
     const prevPaid = parseFloat(inv.paidYield || "0");
-
-    // Pay what the subscription pool can cover; leave the rest accrued.
     const payable = Math.min(interest, subscriptionPool);
     const unpaid = interest - payable;
 
@@ -181,12 +197,20 @@ export async function distributeSubscriptionYield(): Promise<{
     if (payable > 0) {
       subscriptionPool -= payable;
       paidTotal += payable;
+      const program = getProgramByTag(inv.projectTag);
       await db.insert(yieldPayouts).values({
         investmentId: inv.id,
         userId: inv.userId,
         amount: money(payable, 4),
         source: "SUBSCRIPTION_REVENUE",
-        description: `Daily-compound yield (${(rate * 100).toFixed(1)}% APR) for ${days} day(s) funded by Pocket Booster subscription fees.`,
+        description: `Daily-compound yield (${(rate * 100).toFixed(1)}% APR) for ${days} day(s) on ${program?.shortName ?? inv.projectTag}, funded by hub program revenue.`,
+      });
+      await notifyInvestor({
+        userId: inv.userId,
+        investmentId: inv.id,
+        projectTag: inv.projectTag,
+        title: "Yield paid to your account",
+        body: `$${payable.toFixed(4)} yield credited from ${program?.name ?? inv.projectTag}. Your money is working — no stock market required.`,
       });
     }
   }
@@ -208,12 +232,102 @@ async function listInvestmentsForUser(userId: string): Promise<UserInvestment[]>
 }
 
 /**
- * Liquidity Routing Engine — bridges P2P investor capital into the
- * Pocket Booster Instant-Disbursal Reserve Vault, and routes subscription
- * revenue back as 8.5% compounding daily yield.
+ * Bridge capital into a hub investment program.
+ * Pocket Booster also expands the lending vault; all programs write ledger + notify.
+ */
+async function bridgeInvestment(params: {
+  investorId: string;
+  investmentAmount: number;
+  projectTag: string;
+}): Promise<{
+  investment: UserInvestment;
+  programName: string;
+  backOfficeVerification: string;
+  message: string;
+}> {
+  const program = getProgramByTag(params.projectTag);
+  if (!program) {
+    throw Object.assign(new Error("Unknown investment program."), {
+      status: 400,
+    });
+  }
+  if (program.status !== "open") {
+    throw Object.assign(
+      new Error(
+        `${program.name} is launching soon. Watch the hub for the real estate & property open.`,
+      ),
+      { status: 400 },
+    );
+  }
+
+  const amountStr = money(params.investmentAmount);
+  const yieldRate = money(program.annualYieldRate, 4);
+
+  const [p2pRecord] = await db
+    .insert(userInvestments)
+    .values({
+      userId: params.investorId,
+      amountAllocated: amountStr,
+      projectTag: program.tag,
+      yieldRate,
+      status: "ACTIVE",
+      lastYieldAt: new Date(),
+    })
+    .returning();
+
+  const investmentId = p2pRecord.id;
+
+  if (program.fundsPocketBoosterVault) {
+    await db.insert(pocketBoosterVault).values({
+      investmentId,
+      totalVaultContribution: amountStr,
+      availableLendingCapital: amountStr,
+    });
+  }
+
+  await db.insert(projectLedger).values({
+    investmentId,
+    operationsSpend: amountStr,
+    description: program.ledgerDescription,
+  });
+
+  const notificationBody = `Your $${params.investmentAmount.toFixed(0)} investment is now active in ${program.name}. ${program.allocationSummary}. Target yield: ${(program.annualYieldRate * 100).toFixed(1)}% APR compounding daily.`;
+
+  await notifyInvestor({
+    userId: params.investorId,
+    investmentId,
+    projectTag: program.tag,
+    title: `Capital allocated — ${program.shortName}`,
+    body: notificationBody,
+  });
+
+  console.log(
+    `[SYSTEM AUTOMATION]: Investor ${params.investorId} capital bridged to ${program.tag} ($${params.investmentAmount}).`,
+  );
+
+  return {
+    investment: p2pRecord,
+    programName: program.name,
+    backOfficeVerification: program.allocationSummary,
+    message: `Investment successfully tied to ${program.name}. Your back office shows exactly where the capital went.`,
+  };
+}
+
+/**
+ * Liquidity Routing Engine — multi-program hub investing under
+ * The Consolidatus Empire umbrella (Pocket Booster, FR2P, Apparel, Real Estate…).
  */
 export function registerLiquidityRoutes(app: Express): void {
-  // Public vault snapshot (how much cushion liquidity is on hand)
+  // Catalog of investable hub programs (public)
+  app.get("/api/liquidity/programs", (_req, res) => {
+    res.json({
+      programs: HUB_INVESTMENT_PROGRAMS,
+      allowedInvestmentAmounts: P2P_INVESTMENT_AMOUNTS,
+      openPrograms: openInvestmentPrograms().map((p) => p.tag),
+    });
+  });
+
+  // Public vault snapshot (Pocket Booster lending liquidity)
   app.get("/api/liquidity/vault", async (_req, res) => {
     try {
       const [totals] = await db
@@ -224,6 +338,16 @@ export function registerLiquidityRoutes(app: Express): void {
         })
         .from(pocketBoosterVault);
 
+      const byProgram = await db
+        .select({
+          projectTag: userInvestments.projectTag,
+          allocated: sql<string>`COALESCE(SUM(${userInvestments.amountAllocated}), 0)`,
+          positions: sql<string>`COUNT(*)::text`,
+        })
+        .from(userInvestments)
+        .where(eq(userInvestments.status, "ACTIVE"))
+        .groupBy(userInvestments.projectTag);
+
       res.json({
         projectTag: P2P_PROJECT_TAG,
         annualYieldRate: P2P_ANNUAL_YIELD_RATE,
@@ -231,6 +355,13 @@ export function registerLiquidityRoutes(app: Express): void {
         totalVaultContribution: parseFloat(totals?.contributed ?? "0"),
         availableLendingCapital: parseFloat(totals?.available ?? "0"),
         activePositions: parseInt(totals?.positions ?? "0", 10),
+        byProgram: byProgram.map((row) => ({
+          projectTag: row.projectTag,
+          allocated: parseFloat(row.allocated ?? "0"),
+          positions: parseInt(row.positions ?? "0", 10),
+          program: getProgramByTag(row.projectTag) ?? null,
+        })),
+        programs: HUB_INVESTMENT_PROGRAMS,
       });
     } catch (error) {
       console.error("Vault snapshot error:", error);
@@ -238,7 +369,7 @@ export function registerLiquidityRoutes(app: Express): void {
     }
   });
 
-  // Investor back-office: positions, ledger, yield history
+  // Investor back-office: positions, ledger, yield, notifications
   app.get(
     "/api/liquidity/me",
     requireAuth,
@@ -265,9 +396,22 @@ export function registerLiquidityRoutes(app: Express): void {
               .where(eq(yieldPayouts.investmentId, inv.id))
               .orderBy(desc(yieldPayouts.createdAt))
               .limit(20);
-            return { ...inv, vault: vault ?? null, ledger, payouts };
+            return {
+              ...inv,
+              program: getProgramByTag(inv.projectTag) ?? null,
+              vault: vault ?? null,
+              ledger,
+              payouts,
+            };
           }),
         );
+
+        const notifications = await db
+          .select()
+          .from(investmentNotifications)
+          .where(eq(investmentNotifications.userId, userId))
+          .orderBy(desc(investmentNotifications.createdAt))
+          .limit(30);
 
         const totalAllocated = withDetails.reduce(
           (s, i) => s + parseFloat(i.amountAllocated),
@@ -277,15 +421,20 @@ export function registerLiquidityRoutes(app: Express): void {
           (s, i) => s + parseFloat(i.paidYield || "0"),
           0,
         );
+        const unreadNotifications = notifications.filter((n) => !n.readAt)
+          .length;
 
         res.json({
           investments: withDetails,
+          notifications,
+          unreadNotifications,
           totals: {
             allocated: totalAllocated,
             paidYield: totalPaidYield,
           },
           annualYieldRate: P2P_ANNUAL_YIELD_RATE,
           allowedInvestmentAmounts: P2P_INVESTMENT_AMOUNTS,
+          programs: HUB_INVESTMENT_PROGRAMS,
         });
       } catch (error) {
         console.error("Liquidity me error:", error);
@@ -294,9 +443,127 @@ export function registerLiquidityRoutes(app: Express): void {
     },
   );
 
+  // Notification inbox
+  app.get(
+    "/api/liquidity/notifications",
+    requireAuth,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = currentUser(req).id;
+        const rows = await db
+          .select()
+          .from(investmentNotifications)
+          .where(eq(investmentNotifications.userId, userId))
+          .orderBy(desc(investmentNotifications.createdAt))
+          .limit(50);
+        res.json({
+          notifications: rows,
+          unread: rows.filter((n) => !n.readAt).length,
+        });
+      } catch (error) {
+        console.error("Notifications error:", error);
+        res.status(500).json({ error: "Failed to load notifications." });
+      }
+    },
+  );
+
+  app.post(
+    "/api/liquidity/notifications/read",
+    requireAuth,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = currentUser(req).id;
+        const id =
+          typeof req.body?.id === "string" ? req.body.id : undefined;
+        const now = new Date();
+
+        if (id) {
+          await db
+            .update(investmentNotifications)
+            .set({ readAt: now })
+            .where(
+              and(
+                eq(investmentNotifications.id, id),
+                eq(investmentNotifications.userId, userId),
+              ),
+            );
+        } else {
+          await db
+            .update(investmentNotifications)
+            .set({ readAt: now })
+            .where(
+              and(
+                eq(investmentNotifications.userId, userId),
+                isNull(investmentNotifications.readAt),
+              ),
+            );
+        }
+
+        res.json({ success: true });
+      } catch (error) {
+        console.error("Mark notifications read error:", error);
+        res.status(500).json({ error: "Failed to update notifications." });
+      }
+    },
+  );
+
   /**
-   * ROUTE: Tie P2P Investment Directly to Pocket Booster Reserve
-   * Automatically allocates incoming peer-to-peer funds to strengthen the microloan pool
+   * Multi-program invest — bridge capital into any open hub venture.
+   */
+  app.post(
+    "/api/liquidity/invest",
+    requireAuth,
+    async (req: Request, res: Response) => {
+      try {
+        const parsed = bridgeP2pSchema.safeParse(req.body);
+        if (!parsed.success) {
+          return res.status(400).json({
+            error:
+              parsed.error.errors[0]?.message ||
+              "Investment amount must be $100, $500, or $1,000.",
+          });
+        }
+
+        const projectTag =
+          parsed.data.projectTag?.trim() || P2P_PROJECT_TAG;
+        const result = await bridgeInvestment({
+          investorId: currentUser(req).id,
+          investmentAmount: parsed.data.investmentAmount,
+          projectTag,
+        });
+
+        return res.status(200).json({
+          success: true,
+          ...result,
+          investmentId: result.investment.id,
+        });
+      } catch (error) {
+        const status =
+          error &&
+          typeof error === "object" &&
+          "status" in error &&
+          typeof (error as { status: unknown }).status === "number"
+            ? (error as { status: number }).status
+            : 500;
+        if (status === 400) {
+          return res.status(400).json({
+            error:
+              error instanceof Error
+                ? error.message
+                : "Invalid investment request.",
+          });
+        }
+        console.error("Hub investment bridging error:", error);
+        return res.status(500).json({
+          error:
+            "Failed to route capital into the selected Empire program.",
+        });
+      }
+    },
+  );
+
+  /**
+   * Legacy route: Tie P2P Investment Directly to Pocket Booster Reserve
    */
   app.post(
     "/api/liquidity/bridge-p2p-to-booster",
@@ -312,53 +579,19 @@ export function registerLiquidityRoutes(app: Express): void {
           });
         }
 
-        const investorId = currentUser(req).id;
-        const investmentAmount = parsed.data.investmentAmount;
-        const amountStr = money(investmentAmount);
-
-        // 1. Log the investment in the Peer-to-Peer Ledger
-        const [p2pRecord] = await db
-          .insert(userInvestments)
-          .values({
-            userId: investorId,
-            amountAllocated: amountStr,
-            projectTag: P2P_PROJECT_TAG,
-            yieldRate: money(P2P_ANNUAL_YIELD_RATE, 4),
-            status: "ACTIVE",
-            lastYieldAt: new Date(),
-          })
-          .returning();
-
-        const investmentId = p2pRecord.id;
-
-        // 2. Tying it to Pocket Booster: Inject 100% of this capital into the active microloan liquidity vault
-        await db.insert(pocketBoosterVault).values({
-          investmentId,
-          totalVaultContribution: amountStr,
-          availableLendingCapital: amountStr,
+        const result = await bridgeInvestment({
+          investorId: currentUser(req).id,
+          investmentAmount: parsed.data.investmentAmount,
+          projectTag: P2P_PROJECT_TAG,
         });
-
-        // 3. Update the Central Project Ledger so the investor can see exactly where it went in their back office
-        await db.insert(projectLedger).values({
-          investmentId,
-          operationsSpend: amountStr,
-          description:
-            "100% allocated to the Pocket Booster Instant-Disbursal Reserve Vault to back interest-free member cushions.",
-        });
-
-        // 4. Trigger Automated Text/Dashboard Notification
-        console.log(
-          `[SYSTEM AUTOMATION]: Investor ${investorId} capital bridged directly to Pocket Booster Lending Vault.`,
-        );
 
         return res.status(200).json({
           success: true,
           message:
             "Peer-to-peer investment successfully tied to Pocket Booster. Vault capital has been instantly expanded.",
-          backOfficeVerification:
-            "100% of your capital is active in the Pocket Booster Reserve Vault.",
-          investment: p2pRecord,
-          investmentId,
+          backOfficeVerification: result.backOfficeVerification,
+          investment: result.investment,
+          investmentId: result.investment.id,
         });
       } catch (error) {
         console.error("Liquidity Vault Bridging Error:", error);
@@ -370,11 +603,6 @@ export function registerLiquidityRoutes(app: Express): void {
     },
   );
 
-  /**
-   * Accrue & pay 8.5% compounding daily interest from the subscription fee pool.
-   * Owner-triggered (or cron) — uses active members' monthly subscription totals
-   * as the yield funding source.
-   */
   app.post(
     "/api/liquidity/distribute-yield",
     requireAuth,
@@ -385,7 +613,7 @@ export function registerLiquidityRoutes(app: Express): void {
         return res.status(200).json({
           success: true,
           message:
-            "Subscription revenue routed to P2P investor yield (8.5% APR, daily compound).",
+            "Hub program revenue routed to investor yield (daily compound).",
           ...result,
         });
       } catch (error) {
@@ -397,8 +625,6 @@ export function registerLiquidityRoutes(app: Express): void {
     },
   );
 
-  // Authenticated members can also request a personal accrual preview / soft
-  // of accrued-but-unpaid yield without requiring owner (no payout, just math).
   app.post(
     "/api/liquidity/accrue-my-yield",
     requireAuth,
@@ -419,10 +645,13 @@ export function registerLiquidityRoutes(app: Express): void {
         let pendingInterest = 0;
         for (const inv of mine) {
           const principal = parseFloat(inv.amountAllocated);
-          const rate = parseFloat(inv.yieldRate || String(P2P_ANNUAL_YIELD_RATE));
+          const rate = parseFloat(
+            inv.yieldRate || String(P2P_ANNUAL_YIELD_RATE),
+          );
           const last = inv.lastYieldAt ?? inv.createdAt ?? now;
           const days = Math.floor(
-            (now.getTime() - new Date(last).getTime()) / (24 * 60 * 60 * 1000),
+            (now.getTime() - new Date(last).getTime()) /
+              (24 * 60 * 60 * 1000),
           );
           pendingInterest += compoundDailyInterest(principal, days, rate);
         }

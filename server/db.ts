@@ -363,6 +363,23 @@ export async function ensureTablesExist() {
       ON yield_payouts (user_id, created_at)
     `);
 
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS investment_notifications (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        investment_id VARCHAR(255),
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        project_tag TEXT,
+        read_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_investment_notifications_user"
+      ON investment_notifications (user_id, created_at DESC)
+    `);
+
     console.log("Database tables verified/created");
   } catch (error) {
     console.error("Error ensuring tables exist:", error);
