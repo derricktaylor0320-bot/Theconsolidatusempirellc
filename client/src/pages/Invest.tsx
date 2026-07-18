@@ -220,7 +220,7 @@ export default function Invest() {
               className="text-lg md:text-xl text-foreground/85 max-w-2xl mx-auto mb-3"
             >
               Put capital to work across The Consolidatus Empire — apparel,
-              Pocket Booster, the FR2P Program (Financial Roadway to Prosperity),
+              Pocket Booster, The FR2P Club (Financial Roadway to Prosperity),
               and upcoming real estate — with a clear back office showing exactly
               where your money went.
             </motion.p>

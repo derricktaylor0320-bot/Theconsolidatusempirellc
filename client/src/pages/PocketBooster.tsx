@@ -464,7 +464,7 @@ export default function PocketBooster() {
               · $2,500 · $5,000) — 100% bridges into the Pocket Booster
               Instant-Disbursal Vault. Member subscription fees fund your{" "}
               {(yieldRate * 100).toFixed(1)}% compounding daily yield. Prefer
-              apparel, the FR2P Program, or other Empire programs? Use{" "}
+              apparel, The FR2P Club, or other Empire programs? Use{" "}
               <Link
                 href="/invest"
                 className="text-primary underline underline-offset-2"

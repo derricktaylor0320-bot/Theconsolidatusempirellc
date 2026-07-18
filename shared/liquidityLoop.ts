@@ -61,14 +61,14 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
   },
   {
     tag: "FR2P_PROGRAM_GROWTH",
-    name: "FR2P Program — Financial Roadway to Prosperity",
-    shortName: "FR2P Program",
+    name: "The FR2P Club — Financial Roadway to Prosperity",
+    shortName: "The FR2P Club",
     description:
-      "Fuel the FR2P Program (Financial Roadway to Prosperity) — member pathway, rewards infrastructure, and prosperity growth inside the centralized hub.",
+      "Fuel The FR2P Club (Financial Roadway to Prosperity) — member pathway, rewards infrastructure, and prosperity growth inside the centralized hub.",
     allocationSummary:
-      "100% into FR2P Program growth & member prosperity operations",
+      "100% into The FR2P Club growth & member prosperity operations",
     ledgerDescription:
-      "100% allocated to the FR2P Program (Financial Roadway to Prosperity) — member pathway, rewards, and program expansion under The Consolidatus Empire.",
+      "100% allocated to The FR2P Club (Financial Roadway to Prosperity) — member pathway, rewards, and club expansion under The Consolidatus Empire.",
     annualYieldRate: 0.08,
     status: "open",
     fundsPocketBoosterVault: false,
@@ -108,7 +108,7 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
   },
 ];
 
-/** Legacy tag used before FR2P Program rename — still accepted on invest */
+/** Legacy tag used before The FR2P Club rename — still accepted on invest */
 export const FR2P_LEGACY_PROJECT_TAG = "FR2P_CLUB_GROWTH" as const;
 export const FR2P_PROJECT_TAG = "FR2P_PROGRAM_GROWTH" as const;
 

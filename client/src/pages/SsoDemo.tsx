@@ -107,7 +107,7 @@ export default function SsoDemo() {
           This page acts as a stand-in for one of the embedded apps. It does not
           use the hub login cookie. It only takes a one-time signed handoff token
           and asks the hub to verify it — exactly how Pocket Booster, Prospect
-          Identity, and FR2P Program read the hub identity without a
+          Identity, and The FR2P Club read the hub identity without a
           second login.
         </p>
 
