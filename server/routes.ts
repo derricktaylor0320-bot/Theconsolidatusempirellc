@@ -10,6 +10,7 @@ import { trackingUrlFor } from "@shared/shipping";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth, requireOwner, toPublicUser } from "./auth";
+import { registerPocketBoosterRoutes } from "./pocketBooster";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION } from "@shared/customization";
 import { updateOrderFulfillmentSchema, insertMediaLinkSchema, mediaUploadFieldsSchema, insertReviewSchema, updateProfileSchema, type Review, type User } from "@shared/schema";
 import {
@@ -185,6 +186,9 @@ export async function registerRoutes(
 
   // Shared hub authentication (session + passport local strategy)
   setupAuth(app);
+
+  // Pocket Booster — subscription tiers, cushion autopilot, Pay-to-Learn rewards
+  registerPocketBoosterRoutes(app);
 
   // Ensure the catalog facts (product rows, prices, metadata) hold in whatever
   // DB this server is connected to — dev now, Railway prod on deploy. This is
