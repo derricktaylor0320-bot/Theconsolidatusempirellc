@@ -263,9 +263,18 @@ export async function ensureTablesExist() {
         deduction_amount DECIMAL(10, 2) NOT NULL,
         scheduled_date TIMESTAMP NOT NULL,
         status TEXT NOT NULL DEFAULT 'scheduled',
+        square_order_id TEXT,
+        square_invoice_id TEXT,
+        square_invoice_url TEXT,
+        square_invoice_status TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    // Backfill Square columns on databases created before Square autopilot.
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_order_id TEXT`);
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_id TEXT`);
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_url TEXT`);
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_status TEXT`);
     await db.execute(sql`
       CREATE INDEX IF NOT EXISTS "IDX_repayment_schedules_advance"
       ON repayment_schedules (advance_id)

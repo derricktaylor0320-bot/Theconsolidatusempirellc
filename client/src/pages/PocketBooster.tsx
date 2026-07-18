@@ -55,8 +55,12 @@ type MeResponse = {
       deductionAmount: string;
       scheduledDate: string;
       status: string;
+      squareInvoiceId?: string | null;
+      squareInvoiceUrl?: string | null;
+      squareInvoiceStatus?: string | null;
     }>;
   }>;
+  squareConfigured?: boolean;
   milestones: Array<{
     id: string;
     moduleName: string;
@@ -513,10 +517,27 @@ export default function PocketBooster() {
                     </div>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       {advance.schedules.map((s) => (
-                        <li key={s.id}>
-                          {formatMoney(s.deductionAmount)} on{" "}
-                          {new Date(s.scheduledDate).toLocaleDateString()} (
-                          {s.status})
+                        <li key={s.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span>
+                            {formatMoney(s.deductionAmount)} on{" "}
+                            {new Date(s.scheduledDate).toLocaleDateString()} (
+                            {s.status}
+                            {s.squareInvoiceStatus
+                              ? ` · Square ${s.squareInvoiceStatus}`
+                              : ""}
+                            )
+                          </span>
+                          {s.squareInvoiceUrl ? (
+                            <a
+                              href={s.squareInvoiceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary underline underline-offset-2"
+                              data-testid={`link-square-invoice-${s.id}`}
+                            >
+                              Pay invoice
+                            </a>
+                          ) : null}
                         </li>
                       ))}
                     </ul>

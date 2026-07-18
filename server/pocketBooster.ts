@@ -25,9 +25,14 @@ import {
   tierAllowsRepayment,
   type RepaymentChoice,
 } from "@shared/pocketBooster";
+import {
+  createScheduledRepaymentInvoice,
+  findOrCreateSquareCustomer,
+  isSquareConfigured,
+} from "./squareClient";
 
-function currentUserId(req: Request): string {
-  return (req.user as User).id;
+function currentUser(req: Request): User {
+  return req.user as User;
 }
 
 function parsePaydayDate(value: string): Date | null {
@@ -92,30 +97,36 @@ async function insertRepaymentSchedules(
   amounts: number[],
   firstPayday: Date,
   intervalDays: number,
-): Promise<void> {
+): Promise<RepaymentSchedule[]> {
+  const rows: RepaymentSchedule[] = [];
   for (let i = 0; i < amounts.length; i++) {
-    await db.insert(repaymentSchedules).values({
-      advanceId,
-      userId,
-      deductionAmount: amounts[i].toFixed(2),
-      scheduledDate: addDays(firstPayday, i * intervalDays),
-      status: "scheduled",
-    });
+    const [row] = await db
+      .insert(repaymentSchedules)
+      .values({
+        advanceId,
+        userId,
+        deductionAmount: amounts[i].toFixed(2),
+        scheduledDate: addDays(firstPayday, i * intervalDays),
+        status: "scheduled",
+      })
+      .returning();
+    rows.push(row);
   }
+  return rows;
 }
 
 /**
  * Automated checkbox logic processing engine:
  * builds repayment_schedules rows from the selected repayment choice.
  */
-async function scheduleRepayments(opts: {
+async function buildRepaymentSchedules(opts: {
   advanceId: string;
   userId: string;
   amountRequested: number;
   repaymentChoice: RepaymentChoice;
   nextPayday: Date;
   customSplitCount?: number;
-}): Promise<void> {
+}): Promise<RepaymentSchedule[]> {
   const {
     advanceId,
     userId,
@@ -126,26 +137,96 @@ async function scheduleRepayments(opts: {
   } = opts;
 
   if (repaymentChoice === "FULL_NEXT_PAYDAY") {
-    await insertRepaymentSchedules(
+    return insertRepaymentSchedules(
       advanceId,
       userId,
       [amountRequested],
       nextPayday,
       14,
     );
-    return;
   }
 
   if (repaymentChoice === "BI_WEEKLY_SPLIT") {
     const amounts = splitAmountEvenly(amountRequested, 2);
-    await insertRepaymentSchedules(advanceId, userId, amounts, nextPayday, 14);
-    return;
+    return insertRepaymentSchedules(advanceId, userId, amounts, nextPayday, 14);
   }
 
   // CUSTOM_PAYROLL_SPLIT — equal deductions across N bi-weekly paydays
   const parts = customSplitCount ?? 3;
   const amounts = splitAmountEvenly(amountRequested, parts);
-  await insertRepaymentSchedules(advanceId, userId, amounts, nextPayday, 14);
+  return insertRepaymentSchedules(advanceId, userId, amounts, nextPayday, 14);
+}
+
+/**
+ * Square Autopilot: for each DB schedule row, create + publish a Square invoice
+ * due on that payday (card-on-file charge when available, otherwise emailed invoice).
+ */
+async function queueSquareRepaymentInvoices(opts: {
+  user: User;
+  schedules: RepaymentSchedule[];
+  repaymentChoice: RepaymentChoice;
+}): Promise<{
+  schedules: RepaymentSchedule[];
+  squareQueued: boolean;
+  automaticPayments: number;
+}> {
+  if (!isSquareConfigured()) {
+    console.warn(
+      "[pocket-booster] Square is not configured — repayment schedules saved in DB only.",
+    );
+    return {
+      schedules: opts.schedules,
+      squareQueued: false,
+      automaticPayments: 0,
+    };
+  }
+
+  const customer = await findOrCreateSquareCustomer({
+    email: opts.user.email,
+    givenName: opts.user.displayName,
+  });
+
+  let automaticPayments = 0;
+  const updated: RepaymentSchedule[] = [];
+
+  for (let i = 0; i < opts.schedules.length; i++) {
+    const schedule = opts.schedules[i];
+    const amountCents = Math.round(parseFloat(schedule.deductionAmount) * 100);
+    const partLabel =
+      opts.schedules.length > 1
+        ? ` (payment ${i + 1} of ${opts.schedules.length})`
+        : "";
+
+    const invoice = await createScheduledRepaymentInvoice({
+      amountCents,
+      dueDate: new Date(schedule.scheduledDate!),
+      customerId: customer.customerId,
+      title: `Pocket Booster Cushion Repayment${partLabel}`,
+      description: `Automated ${opts.repaymentChoice.replace(/_/g, " ").toLowerCase()} repayment for advance schedule ${schedule.id}.`,
+      preferCardOnFile: true,
+    });
+
+    if (invoice.automaticPayment) automaticPayments += 1;
+
+    const [row] = await db
+      .update(repaymentSchedules)
+      .set({
+        squareOrderId: invoice.orderId,
+        squareInvoiceId: invoice.invoiceId,
+        squareInvoiceUrl: invoice.publicUrl,
+        squareInvoiceStatus: invoice.status,
+      })
+      .where(eq(repaymentSchedules.id, schedule.id))
+      .returning();
+
+    updated.push(row);
+  }
+
+  return {
+    schedules: updated,
+    squareQueued: true,
+    automaticPayments,
+  };
 }
 
 export function registerPocketBoosterRoutes(app: Express): void {
@@ -155,6 +236,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
       ...POCKET_BOOSTER_PLATFORM,
       tiers: POCKET_BOOSTER_TIERS,
       modules: PAY_TO_LEARN_MODULES,
+      squareConfigured: isSquareConfigured(),
     });
   });
 
@@ -164,7 +246,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
     requireAuth,
     async (req: Request, res: Response) => {
       try {
-        const userId = currentUserId(req);
+        const userId = currentUser(req).id;
         const subscription = await getActiveSubscription(userId);
         const advances = await listAdvancesForUser(userId);
         const milestones = await listMilestonesForUser(userId);
@@ -184,6 +266,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
             subscription != null
               ? getTierByLevel(subscription.tierLevel) ?? null
               : null,
+          squareConfigured: isSquareConfigured(),
         });
       } catch (error) {
         console.error("Pocket Booster me error:", error);
@@ -210,7 +293,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
           return res.status(400).json({ error: "Unknown subscription tier." });
         }
 
-        const userId = currentUserId(req);
+        const userId = currentUser(req).id;
         const existing = await db
           .select()
           .from(userSubscriptions)
@@ -242,8 +325,6 @@ export function registerPocketBoosterRoutes(app: Express): void {
           subscription = created;
         }
 
-        // Stripe subscription / invoice wiring lands here when billing goes live.
-
         return res.status(200).json({
           success: true,
           message: `Tier ${tier.level} (${tier.name}) is active. Cushion limit: $${tier.maxCushionLimit.toFixed(2)}.`,
@@ -259,7 +340,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
     },
   );
 
-  // Route: application form + checked repayment options → automated schedules
+  // Route: application form + Square payment scheduling autopilot
   app.post(
     "/api/pocket-booster/request-cushion",
     requireAuth,
@@ -279,9 +360,10 @@ export function registerPocketBoosterRoutes(app: Express): void {
           nextPaydayDate,
           customSplitCount,
         } = parsed.data;
-        const userId = currentUserId(req);
+        const user = currentUser(req);
+        const userId = user.id;
 
-        // 1. Verify user's max tier limits first
+        // 1. Verify user's max tier limits from the database
         const subscription = await getActiveSubscription(userId);
         if (!subscription) {
           return res
@@ -292,7 +374,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
         const maxLimit = parseFloat(subscription.maxCushionLimit);
         if (amountRequested > maxLimit) {
           return res.status(400).json({
-            error: `Amount exceeds your current tier limit of $${maxLimit.toFixed(2)}`,
+            error: `Amount exceeds your tier limit of $${maxLimit.toFixed(2)}`,
           });
         }
 
@@ -332,8 +414,8 @@ export function registerPocketBoosterRoutes(app: Express): void {
           })
           .returning();
 
-        // 3. Automated Checkbox Logic Processing Engine
-        await scheduleRepayments({
+        // 3. Automated Checkbox Logic Engine tailored for Square
+        const dbSchedules = await buildRepaymentSchedules({
           advanceId: newAdvance.id,
           userId,
           amountRequested,
@@ -342,22 +424,31 @@ export function registerPocketBoosterRoutes(app: Express): void {
           customSplitCount,
         });
 
-        const schedules = await listSchedulesForAdvance(newAdvance.id);
-
-        // 4. Trigger Instant Disbursal API (e.g. Stripe Custom Payouts) goes here
+        // Square Automation: create scheduled invoices / card-on-file debits
+        // matched to each payday calendar date.
+        const squareResult = await queueSquareRepaymentInvoices({
+          user,
+          schedules: dbSchedules,
+          repaymentChoice,
+        });
 
         return res.status(200).json({
           success: true,
           message:
-            "Cushion approved. Repayment processing schedules are locked and fully automated.",
+            "Cushion approved. Square repayment processing schedules are locked and fully automated.",
           advance: newAdvance,
-          schedules,
+          schedules: squareResult.schedules,
+          squareQueued: squareResult.squareQueued,
+          automaticPayments: squareResult.automaticPayments,
         });
       } catch (error) {
-        console.error("Autopilot Engine Error:", error);
-        return res
-          .status(500)
-          .json({ error: "Internal processing engine failure." });
+        console.error("Square Autopilot Engine Error:", error);
+        const detail =
+          error instanceof Error ? error.message : "Unknown Square error";
+        return res.status(500).json({
+          error: "Internal processing engine failure.",
+          detail,
+        });
       }
     },
   );
@@ -376,7 +467,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
         }
 
         const { completedModule } = parsed.data;
-        const userId = currentUserId(req);
+        const userId = currentUser(req).id;
 
         // 1. Log the milestone accomplishment (idempotent per user+module)
         await db
@@ -397,7 +488,6 @@ export function registerPocketBoosterRoutes(app: Express): void {
 
         if (subscription && subscription.tierLevel === 4) {
           // 3. Tier 4 benefit: next month's invoice at 50% ($50 reward)
-          // In production this also triggers Stripe Invoice Item / Coupon API.
           const [updated] = await db
             .update(userSubscriptions)
             .set({

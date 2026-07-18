@@ -355,6 +355,11 @@ export const repaymentSchedules = pgTable("repayment_schedules", {
   }).notNull(),
   scheduledDate: timestamp("scheduled_date").notNull(),
   status: text("status").notNull().default("scheduled"), // scheduled | collected | failed | cancelled
+  // Square Invoices API refs for the payday autopilot charge / emailed invoice.
+  squareOrderId: text("square_order_id"),
+  squareInvoiceId: text("square_invoice_id"),
+  squareInvoiceUrl: text("square_invoice_url"),
+  squareInvoiceStatus: text("square_invoice_status"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
