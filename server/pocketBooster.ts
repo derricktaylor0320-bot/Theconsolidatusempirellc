@@ -6,6 +6,7 @@ import type { User } from "@shared/schema";
 import {
   cashAdvances,
   educationalMilestones,
+  pocketBoosterApplications,
   repaymentSchedules,
   userSubscriptions,
   type CashAdvance,
@@ -20,9 +21,11 @@ import {
   activateSubscriptionSchema,
   completeModuleSchema,
   getTierByLevel,
+  pocketBoosterApplicationSchema,
   requestCushionSchema,
   splitAmountEvenly,
   tierAllowsRepayment,
+  tierLevelFromApplicationValue,
   type RepaymentChoice,
 } from "@shared/pocketBooster";
 import {
@@ -65,6 +68,49 @@ async function getActiveSubscription(
     )
     .limit(1);
   return row;
+}
+
+async function upsertSubscriptionForTier(
+  userId: string,
+  tierLevel: 1 | 2 | 3 | 4,
+): Promise<{ subscription: UserSubscription; tier: NonNullable<ReturnType<typeof getTierByLevel>> }> {
+  const tier = getTierByLevel(tierLevel);
+  if (!tier) {
+    throw new Error("Unknown subscription tier.");
+  }
+
+  const existing = await db
+    .select()
+    .from(userSubscriptions)
+    .where(eq(userSubscriptions.userId, userId))
+    .limit(1);
+
+  const values = {
+    tierLevel: tier.level,
+    monthlySubscription: tier.monthlySubscription.toFixed(2),
+    maxCushionLimit: tier.maxCushionLimit.toFixed(2),
+    nextBillingAmount: tier.monthlySubscription.toFixed(2),
+    subscriptionStatus: "active" as const,
+    updatedAt: new Date(),
+  };
+
+  let subscription: UserSubscription;
+  if (existing[0]) {
+    const [updated] = await db
+      .update(userSubscriptions)
+      .set(values)
+      .where(eq(userSubscriptions.userId, userId))
+      .returning();
+    subscription = updated;
+  } else {
+    const [created] = await db
+      .insert(userSubscriptions)
+      .values({ userId, ...values })
+      .returning();
+    subscription = created;
+  }
+
+  return { subscription, tier };
 }
 
 async function listAdvancesForUser(userId: string): Promise<CashAdvance[]> {
@@ -262,10 +308,29 @@ export function registerPocketBoosterRoutes(app: Express): void {
           })),
         );
 
+        const applications = await db
+          .select({
+            id: pocketBoosterApplications.id,
+            fullName: pocketBoosterApplications.fullName,
+            email: pocketBoosterApplications.email,
+            phone: pocketBoosterApplications.phone,
+            subscriptionTier: pocketBoosterApplications.subscriptionTier,
+            repaymentOption: pocketBoosterApplications.repaymentOption,
+            accountNumberLast4: pocketBoosterApplications.accountNumberLast4,
+            status: pocketBoosterApplications.status,
+            nextPayday: pocketBoosterApplications.nextPayday,
+            createdAt: pocketBoosterApplications.createdAt,
+          })
+          .from(pocketBoosterApplications)
+          .where(eq(pocketBoosterApplications.userId, userId))
+          .orderBy(desc(pocketBoosterApplications.createdAt))
+          .limit(5);
+
         res.json({
           subscription: subscription ?? null,
           advances: advancesWithSchedules,
           milestones,
+          applications,
           tier:
             subscription != null
               ? getTierByLevel(subscription.tierLevel) ?? null
@@ -292,42 +357,11 @@ export function registerPocketBoosterRoutes(app: Express): void {
           });
         }
 
-        const tier = getTierByLevel(parsed.data.tierLevel);
-        if (!tier) {
-          return res.status(400).json({ error: "Unknown subscription tier." });
-        }
-
         const userId = currentUser(req).id;
-        const existing = await db
-          .select()
-          .from(userSubscriptions)
-          .where(eq(userSubscriptions.userId, userId))
-          .limit(1);
-
-        const values = {
-          tierLevel: tier.level,
-          monthlySubscription: tier.monthlySubscription.toFixed(2),
-          maxCushionLimit: tier.maxCushionLimit.toFixed(2),
-          nextBillingAmount: tier.monthlySubscription.toFixed(2),
-          subscriptionStatus: "active" as const,
-          updatedAt: new Date(),
-        };
-
-        let subscription: UserSubscription;
-        if (existing[0]) {
-          const [updated] = await db
-            .update(userSubscriptions)
-            .set(values)
-            .where(eq(userSubscriptions.userId, userId))
-            .returning();
-          subscription = updated;
-        } else {
-          const [created] = await db
-            .insert(userSubscriptions)
-            .values({ userId, ...values })
-            .returning();
-          subscription = created;
-        }
+        const { subscription, tier } = await upsertSubscriptionForTier(
+          userId,
+          parsed.data.tierLevel,
+        );
 
         return res.status(200).json({
           success: true,
@@ -340,6 +374,97 @@ export function registerPocketBoosterRoutes(app: Express): void {
         return res
           .status(500)
           .json({ error: "Failed to activate subscription tier." });
+      }
+    },
+  );
+
+  /**
+   * Secure portal application — personal info, employment, banking,
+   * tier selection, repayment authorization. Activates membership on submit.
+   */
+  app.post(
+    "/api/pocket-booster/apply",
+    requireAuth,
+    async (req: Request, res: Response) => {
+      try {
+        const parsed = pocketBoosterApplicationSchema.safeParse(req.body);
+        if (!parsed.success) {
+          return res.status(400).json({
+            error:
+              parsed.error.errors[0]?.message || "Invalid application payload.",
+          });
+        }
+
+        const data = parsed.data;
+        const user = currentUser(req);
+        const userId = user.id;
+        const nextPayday = parsePaydayDate(data.nextPayday);
+        if (!nextPayday) {
+          return res.status(400).json({ error: "Invalid next payday date." });
+        }
+
+        const tierLevel = tierLevelFromApplicationValue(data.subscriptionTier);
+        const { subscription, tier } = await upsertSubscriptionForTier(
+          userId,
+          tierLevel,
+        );
+
+        if (!tierAllowsRepayment(tier, data.repaymentOption)) {
+          return res.status(400).json({
+            error:
+              "That repayment option is not available on the selected tier.",
+          });
+        }
+
+        const accountDigits = data.accountNumber.replace(/\D/g, "");
+        const [application] = await db
+          .insert(pocketBoosterApplications)
+          .values({
+            userId,
+            fullName: data.fullName,
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            employerName: data.employerName,
+            jobTitle: data.jobTitle,
+            netPay: data.netPay.toFixed(2),
+            payFrequency: data.payFrequency,
+            nextPayday,
+            subscriptionTier: data.subscriptionTier,
+            repaymentOption: data.repaymentOption,
+            routingNumber: data.routingNumber,
+            accountNumber: accountDigits,
+            accountNumberLast4: accountDigits.slice(-4),
+            agreeToTerms: true,
+            status: "processing",
+            updatedAt: new Date(),
+          })
+          .returning({
+            id: pocketBoosterApplications.id,
+            status: pocketBoosterApplications.status,
+            subscriptionTier: pocketBoosterApplications.subscriptionTier,
+            repaymentOption: pocketBoosterApplications.repaymentOption,
+            accountNumberLast4: pocketBoosterApplications.accountNumberLast4,
+            createdAt: pocketBoosterApplications.createdAt,
+          });
+
+        console.log(
+          `[SYSTEM AUTOMATION]: Pocket Booster application ${application.id} submitted by ${userId}; Tier ${tier.level} active.`,
+        );
+
+        return res.status(200).json({
+          success: true,
+          message:
+            "Application securely submitted! Your centralized profile is now processing.",
+          application,
+          subscription,
+          tier,
+        });
+      } catch (error) {
+        console.error("Pocket Booster application error:", error);
+        return res.status(500).json({
+          error: "Failed to submit Pocket Booster application.",
+        });
       }
     },
   );

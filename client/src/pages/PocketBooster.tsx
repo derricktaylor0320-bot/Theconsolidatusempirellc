@@ -6,6 +6,7 @@ import {
   BookOpen,
   CheckCircle2,
   CreditCard,
+  FileText,
   Landmark,
   Loader2,
   Rocket,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PocketBoosterApplication from "@/components/PocketBoosterApplication";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -448,6 +450,24 @@ export default function PocketBooster() {
                 : ""}
             </p>
           )}
+        </section>
+
+        {/* Secure portal application */}
+        <section className="border-t border-primary/15">
+          <div className="max-w-3xl mx-auto px-6 py-14">
+            <div className="flex items-center gap-3 mb-3 justify-center">
+              <FileText className="h-6 w-6 text-primary" />
+              <h2 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">
+                Membership Application
+              </h2>
+            </div>
+            <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Complete the secure portal application — personal info, employment
+              verification, banking for Square autopay, tier selection, and
+              repayment authorization.
+            </p>
+            <PocketBoosterApplication />
+          </div>
         </section>
 
         {/* P2P Liquidity Loop */}

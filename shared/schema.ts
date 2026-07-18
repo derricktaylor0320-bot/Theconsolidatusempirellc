@@ -383,6 +383,34 @@ export const educationalMilestones = pgTable(
 
 export type EducationalMilestone = typeof educationalMilestones.$inferSelect;
 
+/** Secure portal applications — personal, employment, banking, tier choice */
+export const pocketBoosterApplications = pgTable("pocket_booster_applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  address: text("address").notNull(),
+  employerName: text("employer_name").notNull(),
+  jobTitle: text("job_title").notNull(),
+  netPay: decimal("net_pay", { precision: 12, scale: 2 }).notNull(),
+  payFrequency: text("pay_frequency").notNull(),
+  nextPayday: timestamp("next_payday").notNull(),
+  subscriptionTier: text("subscription_tier").notNull(),
+  repaymentOption: text("repayment_option").notNull(),
+  routingNumber: text("routing_number").notNull(),
+  accountNumberLast4: text("account_number_last4").notNull(),
+  /** Full account digits retained for Square ACH setup; never returned to clients */
+  accountNumber: text("account_number").notNull(),
+  status: text("status").notNull().default("submitted"), // submitted | processing | approved | rejected
+  agreeToTerms: boolean("agree_to_terms").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type PocketBoosterApplication =
+  typeof pocketBoosterApplications.$inferSelect;
+
 // ---------------------------------------------------------------------------
 // P2P Liquidity Loop — investor capital backs the Pocket Booster reserve vault
 // ---------------------------------------------------------------------------

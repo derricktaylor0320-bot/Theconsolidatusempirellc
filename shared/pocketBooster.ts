@@ -127,9 +127,70 @@ export const completeModuleSchema = z.object({
     .max(120),
 });
 
+export const PAY_FREQUENCIES = ["Weekly", "Bi-Weekly", "Monthly"] as const;
+
+export const APPLICATION_TIER_VALUES = [
+  "TIER_1",
+  "TIER_2",
+  "TIER_3",
+  "TIER_4",
+] as const;
+
+export type ApplicationTierValue = (typeof APPLICATION_TIER_VALUES)[number];
+
+export function tierLevelFromApplicationValue(
+  value: ApplicationTierValue,
+): 1 | 2 | 3 | 4 {
+  switch (value) {
+    case "TIER_1":
+      return 1;
+    case "TIER_2":
+      return 2;
+    case "TIER_3":
+      return 3;
+    case "TIER_4":
+      return 4;
+  }
+}
+
+/** Full Pocket Booster secure portal application */
+export const pocketBoosterApplicationSchema = z.object({
+  fullName: z.string().trim().min(2, "Full legal name is required").max(120),
+  email: z.string().trim().email("Valid email is required"),
+  phone: z.string().trim().min(7, "Phone number is required").max(40),
+  address: z.string().trim().min(5, "Home address is required").max(300),
+  employerName: z.string().trim().min(2, "Employer name is required").max(160),
+  jobTitle: z.string().trim().min(2, "Job title is required").max(120),
+  netPay: z.coerce
+    .number()
+    .positive("Net pay must be greater than zero")
+    .max(1_000_000),
+  payFrequency: z.enum(PAY_FREQUENCIES),
+  nextPayday: z.string().min(1, "Next payday date is required"),
+  subscriptionTier: z.enum(APPLICATION_TIER_VALUES),
+  repaymentOption: z.enum(["FULL_NEXT_PAYDAY", "BI_WEEKLY_SPLIT"]),
+  routingNumber: z
+    .string()
+    .trim()
+    .regex(/^\d{9}$/, "ABA routing number must be exactly 9 digits"),
+  accountNumber: z
+    .string()
+    .trim()
+    .regex(/^\d{4,17}$/, "Bank account number must be 4–17 digits"),
+  agreeToTerms: z.literal(true, {
+    errorMap: () => ({
+      message:
+        "Applicants must agree to the program authorization terms before submitting.",
+    }),
+  }),
+});
+
 export type ActivateSubscriptionInput = z.infer<typeof activateSubscriptionSchema>;
 export type RequestCushionInput = z.infer<typeof requestCushionSchema>;
 export type CompleteModuleInput = z.infer<typeof completeModuleSchema>;
+export type PocketBoosterApplicationInput = z.infer<
+  typeof pocketBoosterApplicationSchema
+>;
 
 /** Split a dollar amount into N equal parts that sum exactly (handles cents). */
 export function splitAmountEvenly(total: number, parts: number): number[] {

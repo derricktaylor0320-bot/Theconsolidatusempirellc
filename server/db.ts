@@ -301,6 +301,36 @@ export async function ensureTablesExist() {
       ON educational_milestones (user_id, module_name)
     `);
 
+    // Pocket Booster secure portal applications
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS pocket_booster_applications (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        full_name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        address TEXT NOT NULL,
+        employer_name TEXT NOT NULL,
+        job_title TEXT NOT NULL,
+        net_pay DECIMAL(12, 2) NOT NULL,
+        pay_frequency TEXT NOT NULL,
+        next_payday TIMESTAMP NOT NULL,
+        subscription_tier TEXT NOT NULL,
+        repayment_option TEXT NOT NULL,
+        routing_number TEXT NOT NULL,
+        account_number_last4 TEXT NOT NULL,
+        account_number TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'submitted',
+        agree_to_terms BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_pocket_booster_applications_user"
+      ON pocket_booster_applications (user_id, created_at DESC)
+    `);
+
     // P2P Liquidity Loop — investor capital → Pocket Booster reserve vault
     // → cushions; subscription fees → 8.5% daily-compound yield to investors.
     await db.execute(sql`
