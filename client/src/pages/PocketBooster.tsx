@@ -6,9 +6,11 @@ import {
   BookOpen,
   CheckCircle2,
   CreditCard,
+  Landmark,
   Loader2,
   Rocket,
   ShieldCheck,
+  TrendingUp,
   Wallet,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -26,6 +28,11 @@ import {
   type PocketBoosterTier,
   type RepaymentChoice,
 } from "@shared/pocketBooster";
+import {
+  P2P_ANNUAL_YIELD_RATE,
+  P2P_INVESTMENT_AMOUNTS,
+  type P2PInvestmentAmount,
+} from "@shared/liquidityLoop";
 
 type TiersResponse = {
   platformName: string;
@@ -68,6 +75,36 @@ type MeResponse = {
   }>;
 };
 
+type VaultResponse = {
+  projectTag: string;
+  annualYieldRate: number;
+  allowedInvestmentAmounts: number[];
+  totalVaultContribution: number;
+  availableLendingCapital: number;
+  activePositions: number;
+};
+
+type LiquidityMeResponse = {
+  investments: Array<{
+    id: string;
+    amountAllocated: string;
+    projectTag: string;
+    yieldRate: string;
+    accruedYield: string;
+    paidYield: string;
+    status: string;
+    createdAt: string | null;
+    ledger: Array<{
+      id: string;
+      operationsSpend: string;
+      description: string;
+    }>;
+  }>;
+  totals: { allocated: number; paidYield: number };
+  annualYieldRate: number;
+  allowedInvestmentAmounts: number[];
+};
+
 function formatMoney(value: number | string) {
   const n = typeof value === "string" ? parseFloat(value) : value;
   return `$${n.toFixed(2)}`;
@@ -99,10 +136,22 @@ export default function PocketBooster() {
     enabled: isAuthenticated,
   });
 
+  const { data: vault } = useQuery<VaultResponse>({
+    queryKey: ["/api/liquidity/vault"],
+  });
+
+  const { data: liquidityMe } = useQuery<LiquidityMeResponse>({
+    queryKey: ["/api/liquidity/me"],
+    enabled: isAuthenticated,
+  });
+
   const tiers = catalog?.tiers ?? POCKET_BOOSTER_TIERS;
   const modules = catalog?.modules ?? PAY_TO_LEARN_MODULES;
   const activeTier = me?.tier ?? null;
   const maxLimit = activeTier?.maxCushionLimit ?? 0;
+  const investmentAmounts =
+    vault?.allowedInvestmentAmounts ?? [...P2P_INVESTMENT_AMOUNTS];
+  const yieldRate = vault?.annualYieldRate ?? P2P_ANNUAL_YIELD_RATE;
 
   const [selectedTier, setSelectedTier] = useState<1 | 2 | 3 | 4>(1);
   const [amount, setAmount] = useState("");
@@ -110,6 +159,8 @@ export default function PocketBooster() {
     useState<RepaymentChoice>("FULL_NEXT_PAYDAY");
   const [nextPayday, setNextPayday] = useState("");
   const [customSplitCount, setCustomSplitCount] = useState(3);
+  const [investAmount, setInvestAmount] =
+    useState<P2PInvestmentAmount>(100);
 
   useEffect(() => {
     if (activeTier) {
@@ -197,6 +248,35 @@ export default function PocketBooster() {
     },
   });
 
+  const investMutation = useMutation({
+    mutationFn: async (investmentAmount: P2PInvestmentAmount) => {
+      const res = await apiRequest(
+        "POST",
+        "/api/liquidity/bridge-p2p-to-booster",
+        { investmentAmount },
+      );
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/liquidity/me"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/liquidity/vault"] });
+      toast({
+        title: "Capital bridged",
+        description:
+          data.backOfficeVerification ||
+          data.message ||
+          "Investment routed to the Pocket Booster Reserve Vault.",
+      });
+    },
+    onError: (err: unknown) => {
+      toast({
+        title: "Investment failed",
+        description: errorMessage(err, "Could not bridge P2P capital."),
+        variant: "destructive",
+      });
+    },
+  });
+
   const completedModules = new Set(
     (me?.milestones ?? []).map((m) => m.moduleName),
   );
@@ -232,15 +312,17 @@ export default function PocketBooster() {
               transition={{ duration: 0.5, delay: 0.12 }}
               className="text-lg md:text-xl text-foreground/85 max-w-2xl mx-auto mb-3"
             >
-              Subscription-powered cash cushions with automated payday
-              repayment — zero capital outlay to get started.
+              Subscription-powered cash cushions backed by peer-to-peer reserve
+              capital — with {(yieldRate * 100).toFixed(1)}% yield returning to
+              investors.
             </motion.p>
             <p
               className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display"
               data-testid="text-funding-strategy"
             >
               {catalog?.fundingStrategy ??
-                "Zero-Capital (Subscription Powered)"}
+                "Zero-Capital (Subscription Powered)"}{" "}
+              · P2P Liquidity Loop
             </p>
           </div>
         </section>
@@ -366,6 +448,153 @@ export default function PocketBooster() {
                 : ""}
             </p>
           )}
+        </section>
+
+        {/* P2P Liquidity Loop */}
+        <section className="border-t border-primary/15 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.08),_transparent_65%)]">
+          <div className="max-w-4xl mx-auto px-6 py-14">
+            <div className="flex items-center gap-3 mb-3 justify-center">
+              <Landmark className="h-6 w-6 text-primary" />
+              <h2 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">
+                Peer-to-Peer Reserve
+              </h2>
+            </div>
+            <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Invest $100, $500, or $1,000 — 100% bridges into the Pocket Booster
+              Instant-Disbursal Vault. Member subscription fees fund your{" "}
+              {(yieldRate * 100).toFixed(1)}% compounding daily yield. Prefer
+              apparel, FR2P, or other Empire programs? Use{" "}
+              <Link
+                href="/invest"
+                className="text-primary underline underline-offset-2"
+                data-testid="link-empire-invest-from-pb"
+              >
+                Empire Invest
+              </Link>
+              .
+            </p>
+
+            <div
+              className="grid gap-4 sm:grid-cols-3 mb-8"
+              data-testid="vault-stats"
+            >
+              <div className="rounded-xl border border-border/70 bg-background/40 p-4 text-center">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                  Vault total
+                </p>
+                <p className="font-display text-2xl text-primary">
+                  {formatMoney(vault?.totalVaultContribution ?? 0)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border/70 bg-background/40 p-4 text-center">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                  Available to lend
+                </p>
+                <p className="font-display text-2xl text-primary">
+                  {formatMoney(vault?.availableLendingCapital ?? 0)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border/70 bg-background/40 p-4 text-center">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                  Annual yield
+                </p>
+                <p className="font-display text-2xl text-primary inline-flex items-center gap-2 justify-center">
+                  <TrendingUp className="h-5 w-5" />
+                  {(yieldRate * 100).toFixed(1)}%
+                </p>
+              </div>
+            </div>
+
+            {!isAuthenticated ? (
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <p className="text-sm text-muted-foreground">
+                  Sign in to bridge capital into the reserve vault.
+                </p>
+                <Button asChild data-testid="button-sign-in-invest">
+                  <Link href="/auth">Sign In</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="flex flex-wrap justify-center gap-3">
+                  {investmentAmounts.map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() =>
+                        setInvestAmount(amt as P2PInvestmentAmount)
+                      }
+                      className={`min-w-[7rem] rounded-lg border px-5 py-3 font-display text-lg transition-colors ${
+                        investAmount === amt
+                          ? "border-primary bg-primary/15 text-primary"
+                          : "border-border bg-secondary/30 hover:border-primary/40"
+                      }`}
+                      data-testid={`button-invest-amount-${amt}`}
+                    >
+                      {formatMoney(amt)}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex justify-center">
+                  <Button
+                    onClick={() => investMutation.mutate(investAmount)}
+                    disabled={investMutation.isPending}
+                    data-testid="button-bridge-p2p"
+                  >
+                    {investMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Landmark className="h-4 w-4" />
+                    )}
+                    Bridge {formatMoney(investAmount)} to Reserve Vault
+                  </Button>
+                </div>
+
+                {liquidityMe?.investments?.length ? (
+                  <div className="mt-8 space-y-3" data-testid="list-investments">
+                    <h3 className="font-display text-xl uppercase tracking-wide text-primary text-center">
+                      Your back office
+                    </h3>
+                    <p className="text-center text-sm text-muted-foreground">
+                      Allocated {formatMoney(liquidityMe.totals.allocated)} ·
+                      Yield paid {formatMoney(liquidityMe.totals.paidYield)} ·{" "}
+                      <Link
+                        href="/invest"
+                        className="text-primary underline underline-offset-2"
+                      >
+                        Full portfolio
+                      </Link>
+                    </p>
+                    {liquidityMe.investments.slice(0, 5).map((inv) => (
+                      <div
+                        key={inv.id}
+                        className="rounded-lg border border-border/70 bg-background/40 p-4"
+                      >
+                        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+                          <p className="font-display text-lg text-primary">
+                            {formatMoney(inv.amountAllocated)}
+                          </p>
+                          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                            {inv.projectTag.replace(/_/g, " ")} · {inv.status}
+                          </p>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Yield rate {(parseFloat(inv.yieldRate) * 100).toFixed(1)}
+                          % · Paid {formatMoney(inv.paidYield)} · Accrued{" "}
+                          {formatMoney(inv.accruedYield)}
+                        </p>
+                        {inv.ledger[0] ? (
+                          <p className="text-xs text-foreground/70 mt-2">
+                            {inv.ledger[0].description}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </div>
         </section>
 
         {/* Cushion request */}

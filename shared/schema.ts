@@ -382,3 +382,91 @@ export const educationalMilestones = pgTable(
 );
 
 export type EducationalMilestone = typeof educationalMilestones.$inferSelect;
+
+// ---------------------------------------------------------------------------
+// P2P Liquidity Loop — investor capital backs the Pocket Booster reserve vault
+// ---------------------------------------------------------------------------
+
+export const userInvestments = pgTable("user_investments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  amountAllocated: decimal("amount_allocated", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+  projectTag: text("project_tag").notNull().default("POCKET_BOOSTER_RESERVE"),
+  yieldRate: decimal("yield_rate", { precision: 6, scale: 4 }).notNull().default("0.0850"),
+  accruedYield: decimal("accrued_yield", {
+    precision: 12,
+    scale: 4,
+  })
+    .notNull()
+    .default("0"),
+  paidYield: decimal("paid_yield", {
+    precision: 12,
+    scale: 4,
+  })
+    .notNull()
+    .default("0"),
+  status: text("status").notNull().default("ACTIVE"), // ACTIVE | CLOSED
+  lastYieldAt: timestamp("last_yield_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type UserInvestment = typeof userInvestments.$inferSelect;
+
+export const pocketBoosterVault = pgTable("pocket_booster_vault", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  investmentId: varchar("investment_id").notNull().unique(),
+  totalVaultContribution: decimal("total_vault_contribution", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+  availableLendingCapital: decimal("available_lending_capital", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type PocketBoosterVault = typeof pocketBoosterVault.$inferSelect;
+
+export const projectLedger = pgTable("project_ledger", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  investmentId: varchar("investment_id").notNull(),
+  operationsSpend: decimal("operations_spend", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type ProjectLedger = typeof projectLedger.$inferSelect;
+
+export const yieldPayouts = pgTable("yield_payouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  investmentId: varchar("investment_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 4 }).notNull(),
+  source: text("source").notNull().default("SUBSCRIPTION_REVENUE"),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type YieldPayout = typeof yieldPayouts.$inferSelect;
+
+/** In-app investor notifications — where money went & how it was used */
+export const investmentNotifications = pgTable("investment_notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  investmentId: varchar("investment_id"),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  projectTag: text("project_tag"),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type InvestmentNotification = typeof investmentNotifications.$inferSelect;
