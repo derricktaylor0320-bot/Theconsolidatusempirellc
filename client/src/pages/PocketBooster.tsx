@@ -209,6 +209,15 @@ export default function PocketBooster() {
         <section className="relative overflow-hidden border-b border-primary/20">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.18),_transparent_55%),linear-gradient(180deg,_hsl(25_45%_10%)_0%,_hsl(var(--background))_100%)]" />
           <div className="relative max-w-5xl mx-auto px-6 py-16 md:py-20 text-center">
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-xs md:text-sm uppercase tracking-[0.35em] text-primary font-display mb-5"
+              data-testid="text-pocket-booster-status"
+            >
+              Now Open
+            </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -236,17 +245,32 @@ export default function PocketBooster() {
               repayment — zero capital outlay to get started.
             </motion.p>
             <p
-              className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display"
+              className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display mb-8"
               data-testid="text-funding-strategy"
             >
               {catalog?.fundingStrategy ??
                 "Zero-Capital (Subscription Powered)"}
             </p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.18 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-3"
+            >
+              <Button asChild data-testid="button-open-choose-tier">
+                <a href="#tiers">Choose Your Tier</a>
+              </Button>
+              {!authLoading && !isAuthenticated ? (
+                <Button asChild variant="outline" data-testid="button-open-sign-in">
+                  <Link href="/auth">Sign In to Start</Link>
+                </Button>
+              ) : null}
+            </motion.div>
           </div>
         </section>
 
         {/* Tiers */}
-        <section className="max-w-6xl mx-auto px-6 py-14">
+        <section id="tiers" className="max-w-6xl mx-auto px-6 py-14 scroll-mt-24">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3">
               Choose Your Tier
