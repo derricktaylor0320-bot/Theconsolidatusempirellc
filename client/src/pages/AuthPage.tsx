@@ -132,7 +132,7 @@ export default function AuthPage() {
               <p className="text-muted-foreground mt-4 text-lg">
                 Sign in once from the Centralized Hub and move freely between
                 every Khomplete Khemistri app — Pocket Booster, Prospect
-                Identity, FR2P Club and more.
+                Identity, FR2P Program and more.
               </p>
               <ul className="mt-6 space-y-2 text-sm text-muted-foreground inline-block text-left">
                 <li className="flex items-center gap-2">

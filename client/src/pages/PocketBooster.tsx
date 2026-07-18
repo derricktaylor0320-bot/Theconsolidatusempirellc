@@ -460,10 +460,11 @@ export default function PocketBooster() {
               </h2>
             </div>
             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Invest $100, $500, or $1,000 — 100% bridges into the Pocket Booster
+              Minimum $100, up to $5,000 ($100 · $500 · $1,000 · $1,500 · $2,000
+              · $2,500 · $5,000) — 100% bridges into the Pocket Booster
               Instant-Disbursal Vault. Member subscription fees fund your{" "}
               {(yieldRate * 100).toFixed(1)}% compounding daily yield. Prefer
-              apparel, FR2P, or other Empire programs? Use{" "}
+              apparel, the FR2P Program, or other Empire programs? Use{" "}
               <Link
                 href="/invest"
                 className="text-primary underline underline-offset-2"
@@ -516,7 +517,7 @@ export default function PocketBooster() {
               </div>
             ) : (
               <div className="space-y-5">
-                <div className="flex flex-wrap justify-center gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
                   {investmentAmounts.map((amt) => (
                     <button
                       key={amt}
@@ -524,7 +525,7 @@ export default function PocketBooster() {
                       onClick={() =>
                         setInvestAmount(amt as P2PInvestmentAmount)
                       }
-                      className={`min-w-[7rem] rounded-lg border px-5 py-3 font-display text-lg transition-colors ${
+                      className={`rounded-lg border px-3 py-3 font-display text-base sm:text-lg transition-colors ${
                         investAmount === amt
                           ? "border-primary bg-primary/15 text-primary"
                           : "border-border bg-secondary/30 hover:border-primary/40"

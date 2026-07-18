@@ -20,6 +20,7 @@ import {
   bridgeP2pSchema,
   compoundDailyInterest,
   getProgramByTag,
+  isAllowedInvestmentAmount,
   openInvestmentPrograms,
 } from "@shared/liquidityLoop";
 
@@ -259,7 +260,22 @@ async function bridgeInvestment(params: {
       { status: 400 },
     );
   }
+  if (
+    !isAllowedInvestmentAmount(
+      params.investmentAmount,
+      program.investmentAmounts,
+    )
+  ) {
+    throw Object.assign(
+      new Error(
+        `Investment for ${program.shortName} must be one of: $${program.investmentAmounts.join(", $")}.`,
+      ),
+      { status: 400 },
+    );
+  }
 
+  // Persist the canonical program tag (maps legacy FR2P_CLUB_GROWTH → FR2P_PROGRAM_GROWTH)
+  const canonicalTag = program.tag;
   const amountStr = money(params.investmentAmount);
   const yieldRate = money(program.annualYieldRate, 4);
 
@@ -268,7 +284,7 @@ async function bridgeInvestment(params: {
     .values({
       userId: params.investorId,
       amountAllocated: amountStr,
-      projectTag: program.tag,
+      projectTag: canonicalTag,
       yieldRate,
       status: "ACTIVE",
       lastYieldAt: new Date(),
@@ -296,13 +312,13 @@ async function bridgeInvestment(params: {
   await notifyInvestor({
     userId: params.investorId,
     investmentId,
-    projectTag: program.tag,
+    projectTag: canonicalTag,
     title: `Capital allocated — ${program.shortName}`,
     body: notificationBody,
   });
 
   console.log(
-    `[SYSTEM AUTOMATION]: Investor ${params.investorId} capital bridged to ${program.tag} ($${params.investmentAmount}).`,
+    `[SYSTEM AUTOMATION]: Investor ${params.investorId} capital bridged to ${canonicalTag} ($${params.investmentAmount}).`,
   );
 
   return {
@@ -520,7 +536,7 @@ export function registerLiquidityRoutes(app: Express): void {
           return res.status(400).json({
             error:
               parsed.error.errors[0]?.message ||
-              "Investment amount must be $100, $500, or $1,000.",
+              "Investment amount must be one of the allowed ticket sizes ($100–$5,000).",
           });
         }
 
@@ -575,7 +591,7 @@ export function registerLiquidityRoutes(app: Express): void {
           return res.status(400).json({
             error:
               parsed.error.errors[0]?.message ||
-              "Investment amount must be $100, $500, or $1,000.",
+              "Investment amount must be one of the allowed ticket sizes ($100–$5,000).",
           });
         }
 

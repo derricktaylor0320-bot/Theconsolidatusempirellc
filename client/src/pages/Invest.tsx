@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -90,6 +90,7 @@ function programIcon(tag: string) {
   switch (tag) {
     case "POCKET_BOOSTER_RESERVE":
       return Rocket;
+    case "FR2P_PROGRAM_GROWTH":
     case "FR2P_CLUB_GROWTH":
       return TrendingUp;
     case "APPAREL_OPERATIONS":
@@ -116,8 +117,6 @@ export default function Invest() {
   });
 
   const programs = catalog?.programs ?? HUB_INVESTMENT_PROGRAMS;
-  const amounts =
-    catalog?.allowedInvestmentAmounts ?? [...P2P_INVESTMENT_AMOUNTS];
 
   const [selectedTag, setSelectedTag] = useState(
     () =>
@@ -131,6 +130,20 @@ export default function Invest() {
     () => programs.find((p) => p.tag === selectedTag) ?? programs[0],
     [programs, selectedTag],
   );
+
+  const amounts = useMemo(
+    () =>
+      selectedProgram?.investmentAmounts ??
+      catalog?.allowedInvestmentAmounts ??
+      [...P2P_INVESTMENT_AMOUNTS],
+    [selectedProgram, catalog?.allowedInvestmentAmounts],
+  );
+
+  useEffect(() => {
+    if (!amounts.includes(investAmount)) {
+      setInvestAmount((amounts[0] ?? 100) as P2PInvestmentAmount);
+    }
+  }, [amounts, investAmount]);
 
   const investMutation = useMutation({
     mutationFn: async () => {
@@ -207,8 +220,9 @@ export default function Invest() {
               className="text-lg md:text-xl text-foreground/85 max-w-2xl mx-auto mb-3"
             >
               Put capital to work across The Consolidatus Empire — apparel,
-              Pocket Booster, FR2P Club, and upcoming real estate — with a clear
-              back office showing exactly where your money went.
+              Pocket Booster, the FR2P Program (Financial Roadway to Prosperity),
+              and upcoming real estate — with a clear back office showing exactly
+              where your money went.
             </motion.p>
             <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display">
               Tangible ROI · No stock market · Full allocation transparency
@@ -302,7 +316,7 @@ export default function Invest() {
                   {(selectedProgram.annualYieldRate * 100).toFixed(1)}% APR
                   (daily compound).
                 </p>
-                <div className="flex flex-wrap justify-center gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
                   {amounts.map((amt) => (
                     <button
                       key={amt}
@@ -310,7 +324,7 @@ export default function Invest() {
                       onClick={() =>
                         setInvestAmount(amt as P2PInvestmentAmount)
                       }
-                      className={`min-w-[7rem] rounded-lg border px-5 py-3 font-display text-lg transition-colors ${
+                      className={`rounded-lg border px-3 py-3 font-display text-base sm:text-lg transition-colors ${
                         investAmount === amt
                           ? "border-primary bg-primary/15 text-primary"
                           : "border-border bg-secondary/30 hover:border-primary/40"
@@ -321,6 +335,9 @@ export default function Invest() {
                     </button>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Minimum $100 · then $500 steps to $2,500 · then $5,000
+                </p>
                 {authLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin text-primary mx-auto" />
                 ) : !isAuthenticated ? (
