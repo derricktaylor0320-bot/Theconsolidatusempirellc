@@ -7,6 +7,8 @@ import { RecentReviewsPanel } from "@/components/Reviews";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { Rocket } from "lucide-react";
 import customer1 from "@assets/Screenshot_20241031_133807_1764213200371.jpg";
 import customer2 from "@assets/Screenshot_20241031_134111_1764213200405.jpg";
 import customer3 from "@assets/Screenshot_20240625_095453_1764213200413.jpg";
@@ -221,6 +223,68 @@ export default function Home() {
         </section>
 
         <RecentReviewsPanel />
+
+        <section
+          className="relative overflow-hidden border-y border-primary/20"
+          data-testid="section-pocket-booster-open"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.14),_transparent_60%),linear-gradient(180deg,_hsl(25_40%_12%)_0%,_hsl(var(--background))_100%)]" />
+          <div className="relative container mx-auto px-4 py-24 text-center max-w-3xl">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-xs md:text-sm uppercase tracking-[0.35em] text-primary font-display mb-5"
+              data-testid="text-home-pocket-booster-status"
+            >
+              Now Open
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45 }}
+              className="inline-flex items-center justify-center rounded-full p-4 mb-6 border border-primary/40 bg-primary/10"
+            >
+              <Rocket className="h-8 w-8 text-primary" />
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-4xl md:text-5xl font-display font-bold uppercase tracking-tight text-primary mb-5"
+              data-testid="text-home-pocket-booster-title"
+            >
+              Pocket Booster
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.08 }}
+              className="text-lg text-foreground/85 mb-10 leading-relaxed"
+            >
+              Cash cushions with automated payday repayment — subscription-powered
+              funding is live on the Consolidatus Empire website.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.14 }}
+            >
+              <Link href="/pocket-booster">
+                <Button
+                  className="bg-primary text-black hover:bg-white hover:text-black font-display uppercase tracking-wider text-lg px-8 py-6 h-auto"
+                  data-testid="button-home-open-pocket-booster"
+                >
+                  Open Pocket Booster
+                </Button>
+              </Link>
+            </motion.div>
+          </div>
+        </section>
 
         <section className="py-24 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4 text-center max-w-3xl">

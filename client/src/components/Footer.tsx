@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground py-12 mt-auto">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3 mb-2">
                <img src={logo} alt="Logo" className="h-12 w-12 rounded-full border border-primary/20" />
@@ -27,7 +27,15 @@ export default function Footer() {
               <li><Link href="/number-three" className="hover:text-primary transition-colors">The Number Three</Link></li>
               <li><Link href="/apparel" className="hover:text-primary transition-colors">Apparel</Link></li>
               <li><Link href="/accessories" className="hover:text-primary transition-colors">Accessories</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-display font-semibold mb-4 uppercase tracking-wider">Apps</h4>
+            <ul className="space-y-2 text-sm text-secondary-foreground/70">
               <li><Link href="/hub" className="hover:text-primary transition-colors">Centralized Hub</Link></li>
+              <li><Link href="/pocket-booster" className="hover:text-primary transition-colors" data-testid="link-footer-pocket-booster">Pocket Booster</Link></li>
+              <li><Link href="/fr2p" className="hover:text-primary transition-colors">The FR2P Club</Link></li>
             </ul>
           </div>
 
