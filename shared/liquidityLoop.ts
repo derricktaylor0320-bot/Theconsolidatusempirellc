@@ -100,11 +100,11 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "Real Estate & Properties",
     shortName: "Real Estate",
     description:
-      "Owners and property ventures — including motel acquisitions — launching soon under the Empire umbrella.",
+      "First up: mom-and-pop motel takeovers through creative financing — we step into day-to-day operations, tidy the property up so it feels like home (fresh rooms, real hospitality), and put a little extra retirement money in the owner’s pocket from the revenue. Same playbook next for laundromat acquisitions. Launching soon.",
     allocationSummary:
-      "Property acquisition & motel operations (launching soon)",
+      "100% into motel (then laundromat) acquisition & operations — creative financing pipeline",
     ledgerDescription:
-      "Reserved for Real Estate & Properties — motel and property ventures under The Consolidatus Empire (program launching soon).",
+      "Reserved for Real Estate & Properties — mom-and-pop motel acquisitions via creative financing, operator takeovers with guest-experience upgrades, retiring-owner revenue participation, then the same model for laundromats under The Consolidatus Empire (program launching soon).",
     annualYieldRate: 0.09,
     status: "coming_soon",
     fundsPocketBoosterVault: false,
