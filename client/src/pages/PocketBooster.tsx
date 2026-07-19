@@ -260,12 +260,18 @@ export default function PocketBooster() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/liquidity/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/liquidity/vault"] });
+      const units = data.details?.allocatedUnits;
       toast({
-        title: "Capital bridged",
+        title:
+          data.complianceStatus === "VERIFIED_COMPLIANT"
+            ? "Participation units issued"
+            : "Capital bridged",
         description:
-          data.backOfficeVerification ||
-          data.message ||
-          "Investment routed to the Pocket Booster Reserve Vault.",
+          units != null
+            ? `${units} non-equity RPUs bridged to the Reserve Vault. Zero voting rights.`
+            : data.backOfficeVerification ||
+              data.message ||
+              "Investment routed to the Pocket Booster Reserve Vault.",
       });
     },
     onError: (err: unknown) => {

@@ -4,6 +4,7 @@ import { db } from "./db";
 import { requireAuth, requireOwner } from "./auth";
 import type { User } from "@shared/schema";
 import {
+  companyEquity,
   investmentNotifications,
   pocketBoosterVault,
   projectLedger,
@@ -13,13 +14,19 @@ import {
   type UserInvestment,
 } from "@shared/schema";
 import {
+  CORE_LLC_MEMBERS,
   HUB_INVESTMENT_PROGRAMS,
   P2P_ANNUAL_YIELD_RATE,
   P2P_INVESTMENT_AMOUNTS,
   P2P_PROJECT_TAG,
+  RPU_COMPLIANCE_STATUS,
+  RPU_INSTRUMENT_TYPE,
+  RPU_LEGAL_DISCLAIMER,
+  RPU_LOCK_PERIOD_DAYS,
   bridgeP2pSchema,
   compoundDailyInterest,
   getProgramByTag,
+  issueParticipationUnitsSchema,
   openInvestmentPrograms,
 } from "@shared/liquidityLoop";
 
@@ -232,7 +239,64 @@ async function listInvestmentsForUser(userId: string): Promise<UserInvestment[]>
 }
 
 /**
- * Bridge capital into a hub investment program.
+ * Partnership shield — confirm foundational LLC equity is present and untouched.
+ * RPU issuance never writes to company_equity.
+ */
+async function assertCoreEquityShield(): Promise<{
+  members: string[];
+  coreEquityUntouched: true;
+}> {
+  const rows = await db
+    .select({
+      memberName: companyEquity.memberName,
+      equityPercentage: companyEquity.equityPercentage,
+      isFoundational: companyEquity.isFoundational,
+    })
+    .from(companyEquity)
+    .where(eq(companyEquity.isFoundational, true));
+
+  const lockedNames = new Set(
+    rows
+      .filter((r) => r.equityPercentage === "FOUNDATIONAL_LOCKED")
+      .map((r) => r.memberName),
+  );
+
+  const missing = CORE_LLC_MEMBERS.filter((name) => !lockedNames.has(name));
+  if (missing.length > 0) {
+    throw Object.assign(
+      new Error(
+        `Core LLC equity shield failed — missing foundational member lock: ${missing.join(", ")}.`,
+      ),
+      { status: 500 },
+    );
+  }
+
+  console.log(
+    `[COMPLIANCE CHECK] Core LLC equity remains safely locked across ${CORE_LLC_MEMBERS.length} foundational members.`,
+  );
+
+  return {
+    members: [...CORE_LLC_MEMBERS],
+    coreEquityUntouched: true,
+  };
+}
+
+export type RpuComplianceDetails = {
+  investmentId: string;
+  allocatedUnits: number;
+  allocatedPool: string;
+  lockPeriodDays: number;
+  hasVotingRights: false;
+  instrumentType: typeof RPU_INSTRUMENT_TYPE;
+  annualYieldRate: number;
+  legalDisclaimer: string;
+  coreEquityUntouched: true;
+  foundationalMembers: readonly string[];
+};
+
+/**
+ * Bridge capital into a hub investment program as Revenue Participation Units.
+ * Issues non-voting utility units (1 unit = $1). Never allocates corporate shares.
  * Pocket Booster also expands the lending vault; all programs write ledger + notify.
  */
 async function bridgeInvestment(params: {
@@ -244,7 +308,12 @@ async function bridgeInvestment(params: {
   programName: string;
   backOfficeVerification: string;
   message: string;
+  complianceStatus: typeof RPU_COMPLIANCE_STATUS;
+  details: RpuComplianceDetails;
 }> {
+  // 1. Double-check core partnership shield before any unit issuance
+  const equityShield = await assertCoreEquityShield();
+
   const program = getProgramByTag(params.projectTag);
   if (!program) {
     throw Object.assign(new Error("Unknown investment program."), {
@@ -261,6 +330,10 @@ async function bridgeInvestment(params: {
   }
 
   const amountStr = money(params.investmentAmount);
+  // 1 Unit = $1.00 USD contribution — non-voting project utility milestones
+  const unitsAllocated = params.investmentAmount;
+  const unitsStr = money(unitsAllocated);
+  // Annual APR (compounded daily) — never treat 0.085 as a daily rate
   const yieldRate = money(program.annualYieldRate, 4);
 
   const [p2pRecord] = await db
@@ -268,8 +341,12 @@ async function bridgeInvestment(params: {
     .values({
       userId: params.investorId,
       amountAllocated: amountStr,
+      unitsCount: unitsStr,
       projectTag: program.tag,
       yieldRate,
+      lockPeriodDays: RPU_LOCK_PERIOD_DAYS,
+      hasVotingRights: false,
+      instrumentType: RPU_INSTRUMENT_TYPE,
       status: "ACTIVE",
       lastYieldAt: new Date(),
     })
@@ -291,25 +368,39 @@ async function bridgeInvestment(params: {
     description: program.ledgerDescription,
   });
 
-  const notificationBody = `Your $${params.investmentAmount.toFixed(0)} investment is now active in ${program.name}. ${program.allocationSummary}. Target yield: ${(program.annualYieldRate * 100).toFixed(1)}% APR compounding daily.`;
+  const notificationBody = `Your $${params.investmentAmount.toFixed(0)} (${unitsAllocated.toFixed(0)} Revenue Participation Units) is now active in ${program.name}. ${program.allocationSummary}. Target yield: ${(program.annualYieldRate * 100).toFixed(1)}% APR compounding daily. ${RPU_LOCK_PERIOD_DAYS}-day liquidity lock. Non-equity — zero voting rights.`;
 
   await notifyInvestor({
     userId: params.investorId,
     investmentId,
     projectTag: program.tag,
-    title: `Capital allocated — ${program.shortName}`,
+    title: `Revenue Participation Units issued — ${program.shortName}`,
     body: notificationBody,
   });
 
   console.log(
-    `[SYSTEM AUTOMATION]: Investor ${params.investorId} capital bridged to ${program.tag} ($${params.investmentAmount}).`,
+    `[COMPLIANCE ENGINE]: Investor ${params.investorId} issued ${unitsAllocated} RPUs into ${program.tag} ($${params.investmentAmount}). has_voting_rights=false.`,
   );
 
   return {
     investment: p2pRecord,
     programName: program.name,
     backOfficeVerification: program.allocationSummary,
-    message: `Investment successfully tied to ${program.name}. Your back office shows exactly where the capital went.`,
+    message:
+      "Revenue Participation Units successfully issued. Allocation is locked to project utility.",
+    complianceStatus: RPU_COMPLIANCE_STATUS,
+    details: {
+      investmentId,
+      allocatedUnits: unitsAllocated,
+      allocatedPool: program.tag,
+      lockPeriodDays: RPU_LOCK_PERIOD_DAYS,
+      hasVotingRights: false,
+      instrumentType: RPU_INSTRUMENT_TYPE,
+      annualYieldRate: program.annualYieldRate,
+      legalDisclaimer: RPU_LEGAL_DISCLAIMER,
+      coreEquityUntouched: equityShield.coreEquityUntouched,
+      foundationalMembers: CORE_LLC_MEMBERS,
+    },
   };
 }
 
@@ -556,7 +647,71 @@ export function registerLiquidityRoutes(app: Express): void {
         console.error("Hub investment bridging error:", error);
         return res.status(500).json({
           error:
-            "Failed to route capital into the selected Empire program.",
+            error instanceof Error &&
+            error.message.includes("Core LLC equity shield")
+              ? error.message
+              : "Failed to securely process financial participation units.",
+        });
+      }
+    },
+  );
+
+  /**
+   * Compliance controller: Issue Revenue Participation Units.
+   * Ensures NO corporate shares or voting equity are allocated to platform investors.
+   */
+  app.post(
+    "/api/liquidity/issue-participation-units",
+    requireAuth,
+    async (req: Request, res: Response) => {
+      try {
+        const parsed = issueParticipationUnitsSchema.safeParse(req.body);
+        if (!parsed.success) {
+          return res.status(400).json({
+            error:
+              parsed.error.errors[0]?.message ||
+              "Capital contribution must be $100, $250, $500, or $1,000.",
+          });
+        }
+
+        const result = await bridgeInvestment({
+          investorId: currentUser(req).id,
+          investmentAmount: parsed.data.capitalContribution,
+          projectTag: parsed.data.targetProjectPool,
+        });
+
+        return res.status(200).json({
+          success: true,
+          complianceStatus: result.complianceStatus,
+          message: result.message,
+          details: result.details,
+          backOfficeVerification: result.backOfficeVerification,
+          investment: result.investment,
+          investmentId: result.investment.id,
+        });
+      } catch (error) {
+        console.error("Compliance Engine Error:", error);
+        const status =
+          error &&
+          typeof error === "object" &&
+          "status" in error &&
+          typeof (error as { status: unknown }).status === "number"
+            ? (error as { status: number }).status
+            : 500;
+        if (status === 400) {
+          return res.status(400).json({
+            error:
+              error instanceof Error
+                ? error.message
+                : "Invalid participation unit request.",
+          });
+        }
+        return res.status(500).json({
+          error:
+            error instanceof Error &&
+            error.message.includes("Core LLC equity shield")
+              ? error.message
+              : "Failed to securely process financial participation units.",
         });
       }
     },
@@ -587,8 +742,9 @@ export function registerLiquidityRoutes(app: Express): void {
 
         return res.status(200).json({
           success: true,
-          message:
-            "Peer-to-peer investment successfully tied to Pocket Booster. Vault capital has been instantly expanded.",
+          complianceStatus: result.complianceStatus,
+          message: result.message,
+          details: result.details,
           backOfficeVerification: result.backOfficeVerification,
           investment: result.investment,
           investmentId: result.investment.id,
@@ -597,7 +753,7 @@ export function registerLiquidityRoutes(app: Express): void {
         console.error("Liquidity Vault Bridging Error:", error);
         return res.status(500).json({
           error:
-            "Failed to route P2P capital into the Pocket Booster ecosystem.",
+            "Failed to securely process financial participation units.",
         });
       }
     },

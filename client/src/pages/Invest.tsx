@@ -21,6 +21,8 @@ import { apiRequest } from "@/lib/queryClient";
 import {
   HUB_INVESTMENT_PROGRAMS,
   P2P_INVESTMENT_AMOUNTS,
+  RPU_LEGAL_DISCLAIMER,
+  RPU_LOCK_PERIOD_DAYS,
   type HubInvestmentProgram,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
@@ -34,8 +36,12 @@ type LiquidityMeResponse = {
   investments: Array<{
     id: string;
     amountAllocated: string;
+    unitsCount?: string;
     projectTag: string;
     yieldRate: string;
+    lockPeriodDays?: number;
+    hasVotingRights?: boolean;
+    instrumentType?: string;
     accruedYield: string;
     paidYield: string;
     status: string;
@@ -146,12 +152,18 @@ export default function Invest() {
       queryClient.invalidateQueries({
         queryKey: ["/api/liquidity/notifications"],
       });
+      const units = data.details?.allocatedUnits;
       toast({
-        title: "Capital allocated",
+        title:
+          data.complianceStatus === "VERIFIED_COMPLIANT"
+            ? "Participation units issued"
+            : "Capital allocated",
         description:
-          data.backOfficeVerification ||
-          data.message ||
-          "Your investment is active in the back office.",
+          units != null
+            ? `${units} Revenue Participation Units locked to project utility. ${data.backOfficeVerification || data.message || ""}`
+            : data.backOfficeVerification ||
+              data.message ||
+              "Your investment is active in the back office.",
       });
     },
     onError: (err: unknown) => {
@@ -339,19 +351,28 @@ export default function Invest() {
                     </Button>
                   </div>
                 ) : (
-                  <Button
-                    onClick={() => investMutation.mutate()}
-                    disabled={investMutation.isPending}
-                    data-testid="button-confirm-hub-invest"
-                  >
-                    {investMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Landmark className="h-4 w-4" />
-                    )}
-                    Bridge {formatMoney(investAmount)} into{" "}
-                    {selectedProgram.shortName}
-                  </Button>
+                  <div className="space-y-3">
+                    <Button
+                      onClick={() => investMutation.mutate()}
+                      disabled={investMutation.isPending}
+                      data-testid="button-confirm-hub-invest"
+                    >
+                      {investMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Landmark className="h-4 w-4" />
+                      )}
+                      Issue {formatMoney(investAmount)} Participation Units
+                    </Button>
+                    <p
+                      className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed"
+                      data-testid="text-rpu-disclaimer"
+                    >
+                      Issues non-equity Revenue Participation Units (1 unit =
+                      $1) with a {RPU_LOCK_PERIOD_DAYS}-day liquidity lock and
+                      zero voting rights. {RPU_LEGAL_DISCLAIMER}
+                    </p>
+                  </div>
                 )}
               </>
             ) : (
@@ -489,6 +510,14 @@ export default function Invest() {
                             {inv.status}
                           </p>
                         </div>
+                        <p className="text-xs text-primary/90 mb-2">
+                          {parseFloat(
+                            inv.unitsCount ?? inv.amountAllocated,
+                          ).toFixed(0)}{" "}
+                          RPUs ·{" "}
+                          {inv.lockPeriodDays ?? RPU_LOCK_PERIOD_DAYS}-day lock ·
+                          no voting rights
+                        </p>
                         <p className="text-sm text-muted-foreground mb-2">
                           Paid {formatMoney(inv.paidYield)} · Accrued{" "}
                           {formatMoney(inv.accruedYield)}
