@@ -38,7 +38,7 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "Pocket Booster Reserve",
     shortName: "Pocket Booster",
     description:
-      "Back interest-free member cushions. Your capital funds the Instant-Disbursal Reserve Vault; subscription fees return your yield.",
+      "Reserve Vault emergency cushion support — your capital funds interest-free member cushions; subscription fees return your yield.",
     allocationSummary:
       "100% into the Pocket Booster Instant-Disbursal Reserve Vault",
     ledgerDescription:
@@ -53,11 +53,11 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "FR2P Club Growth",
     shortName: "FR2P Club",
     description:
-      "Fuel The FR2P Club’s member experience, rewards infrastructure, and community growth inside the centralized hub.",
+      "A personal venture focused on direct affiliate marketing and professional growth — courses, AI promotion, and sales built for recurring revenue with full compliance.",
     allocationSummary:
-      "100% into FR2P Club growth & member rewards operations",
+      "100% into FR2P Club growth, courses & affiliate operations",
     ledgerDescription:
-      "100% allocated to FR2P Club Growth — member rewards, community operations, and club expansion under The Consolidatus Empire.",
+      "100% allocated to The FR2P Club — direct affiliate marketing, professional growth courses, AI promotion & sales, and compliant recurring-revenue operations under The Consolidatus Empire.",
     annualYieldRate: 0.08,
     status: "open",
     fundsPocketBoosterVault: false,
@@ -68,7 +68,7 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "Apparel & Brand Operations",
     shortName: "Apparel Line",
     description:
-      "Put capital into Khomplete Khemistri apparel inventory, fulfillment, and brand operations that power the storefront.",
+      "Put capital into Khomplete Khemistri Apparel — our branded clothing line — covering inventory, fulfillment, and brand operations.",
     allocationSummary:
       "100% into apparel inventory & brand operations",
     ledgerDescription:
