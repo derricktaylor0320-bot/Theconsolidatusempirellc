@@ -15,7 +15,7 @@ export const RPU_INSTRUMENT_TYPE = "REVENUE_PARTICIPATION_UNIT" as const;
 export const RPU_LOCK_PERIOD_DAYS = 90;
 export const RPU_COMPLIANCE_STATUS = "VERIFIED_COMPLIANT" as const;
 export const RPU_LEGAL_DISCLAIMER =
-  "This transaction constitutes a non-equity Revenue Participation Agreement. Holder holds zero voting shares or foundational LLC ownership.";
+  "Your money goes only to the project you select — it does not buy ownership, voting shares, or any piece of the founders' LLC equity. This is a non-equity Revenue Participation Agreement locked to project utility only.";
 
 /**
  * Foundational LLC members whose corporate equity must never be diluted

@@ -387,7 +387,7 @@ async function bridgeInvestment(params: {
     programName: program.name,
     backOfficeVerification: program.allocationSummary,
     message:
-      "Revenue Participation Units successfully issued. Allocation is locked to project utility.",
+      "Revenue Participation Units successfully issued. Your capital is locked to the selected project only — it does not touch founder LLC shares or voting equity.",
     complianceStatus: RPU_COMPLIANCE_STATUS,
     details: {
       investmentId,
