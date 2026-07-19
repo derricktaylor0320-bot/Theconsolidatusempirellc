@@ -7,6 +7,7 @@ import { getStorefrontProducts, dedupeByName } from "./storefrontProducts";
 import { syncStorefrontToSquare, squareConfigured } from "./squareCatalogSync";
 import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
 import { trackingUrlFor } from "@shared/shipping";
+import { resolvePublicSiteUrl } from "@shared/site";
 import { ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth, requireOwner, toPublicUser } from "./auth";
@@ -1242,13 +1243,7 @@ export async function registerRoutes(
       // Build a direct "leave a review" link for the shipping email: point at
       // the product page of the first item in the order (falls back to the
       // site root when the product can't be resolved anymore).
-      const publicBaseUrl = (
-        process.env.APP_URL ||
-        process.env.PUBLIC_URL ||
-        (process.env.REPLIT_DOMAINS
-          ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}`
-          : "")
-      ).replace(/\/$/, "");
+      const publicBaseUrl = resolvePublicSiteUrl() || "";
       let reviewUrl: string | undefined;
       if (publicBaseUrl) {
         reviewUrl = publicBaseUrl;

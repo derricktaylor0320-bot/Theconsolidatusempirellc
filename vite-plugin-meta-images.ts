@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 
 /**
- * Vite plugin that updates og:image and twitter:image meta tags
- * to point to the app's opengraph image with the correct Replit domain.
+ * Vite plugin that updates og:image / twitter:image (and og:url when present)
+ * to absolute URLs on the public site origin (APP_URL, custom domain, or Replit).
  */
 export function metaImagesPlugin(): Plugin {
   return {
@@ -12,7 +12,7 @@ export function metaImagesPlugin(): Plugin {
     transformIndexHtml(html) {
       const baseUrl = getDeploymentUrl();
       if (!baseUrl) {
-        log('[meta-images] no Replit deployment domain found, skipping meta tag updates');
+        log('[meta-images] no deployment domain found, skipping meta tag updates');
         return html;
       }
 
@@ -37,17 +37,41 @@ export function metaImagesPlugin(): Plugin {
       }
 
       const imageUrl = `${baseUrl}/opengraph.${imageExt}`;
+      const siteUrl = `${baseUrl}/`;
 
       log('[meta-images] updating meta image tags to:', imageUrl);
 
-      html = html.replace(
-        /<meta\s+property="og:image"\s+content="[^"]*"\s*\/>/g,
-        `<meta property="og:image" content="${imageUrl}" />`
-      );
+      if (/property="og:image"/.test(html)) {
+        html = html.replace(
+          /<meta\s+property="og:image"\s+content="[^"]*"\s*\/>/g,
+          `<meta property="og:image" content="${imageUrl}" />`
+        );
+      } else {
+        html = html.replace(
+          /<meta\s+property="og:type"\s+content="website"\s*\/>/,
+          `<meta property="og:type" content="website" />\n    <meta property="og:image" content="${imageUrl}" />`
+        );
+      }
+
+      if (/name="twitter:image"/.test(html)) {
+        html = html.replace(
+          /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/g,
+          `<meta name="twitter:image" content="${imageUrl}" />`
+        );
+      } else {
+        html = html.replace(
+          /<meta\s+name="twitter:card"\s+content="summary_large_image"\s*\/>/,
+          `<meta name="twitter:card" content="summary_large_image" />\n    <meta name="twitter:image" content="${imageUrl}" />`
+        );
+      }
 
       html = html.replace(
-        /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/g,
-        `<meta name="twitter:image" content="${imageUrl}" />`
+        /<meta\s+property="og:url"\s+content="[^"]*"\s*\/>/g,
+        `<meta property="og:url" content="${siteUrl}" />`
+      );
+      html = html.replace(
+        /<link\s+rel="canonical"\s+href="[^"]*"\s*\/>/g,
+        `<link rel="canonical" href="${siteUrl}" />`
       );
 
       return html;
@@ -56,6 +80,13 @@ export function metaImagesPlugin(): Plugin {
 }
 
 function getDeploymentUrl(): string | null {
+  const explicit = process.env.APP_URL || process.env.PUBLIC_URL;
+  if (explicit) {
+    const url = explicit.replace(/\/$/, '');
+    log('[meta-images] using APP_URL/PUBLIC_URL:', url);
+    return url;
+  }
+
   if (process.env.REPLIT_INTERNAL_APP_DOMAIN) {
     const url = `https://${process.env.REPLIT_INTERNAL_APP_DOMAIN}`;
     log('[meta-images] using internal app domain:', url);
@@ -65,6 +96,16 @@ function getDeploymentUrl(): string | null {
   if (process.env.REPLIT_DEV_DOMAIN) {
     const url = `https://${process.env.REPLIT_DEV_DOMAIN}`;
     log('[meta-images] using dev domain:', url);
+    return url;
+  }
+
+  // Canonical public domain for TCE Holdings (The Consolidatus Empire Holdings).
+  // Used so OG/canonical tags stay pointed at the custom domain even before
+  // APP_URL is set on Railway; runtime redirects still use the request host
+  // until APP_URL=https://tceholdings.org is configured.
+  if (process.env.NODE_ENV === 'production') {
+    const url = 'https://tceholdings.org';
+    log('[meta-images] using production custom domain:', url);
     return url;
   }
 
