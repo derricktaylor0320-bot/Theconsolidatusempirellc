@@ -520,7 +520,7 @@ export function registerLiquidityRoutes(app: Express): void {
           return res.status(400).json({
             error:
               parsed.error.errors[0]?.message ||
-              "Investment amount must be $100, $500, or $1,000.",
+              "Investment amount must be $100, $250, $500, or $1,000.",
           });
         }
 
@@ -575,7 +575,7 @@ export function registerLiquidityRoutes(app: Express): void {
           return res.status(400).json({
             error:
               parsed.error.errors[0]?.message ||
-              "Investment amount must be $100, $500, or $1,000.",
+              "Investment amount must be $100, $250, $500, or $1,000.",
           });
         }
 

@@ -4,7 +4,7 @@ import { z } from "zod";
 export const P2P_ANNUAL_YIELD_RATE = 0.085;
 
 /** Allowed peer-to-peer investment ticket sizes (USD) */
-export const P2P_INVESTMENT_AMOUNTS = [100, 500, 1000] as const;
+export const P2P_INVESTMENT_AMOUNTS = [100, 250, 500, 1000] as const;
 
 export type P2PInvestmentAmount = (typeof P2P_INVESTMENT_AMOUNTS)[number];
 
@@ -133,6 +133,7 @@ export function compoundDailyInterest(
 export const bridgeP2pSchema = z.object({
   investmentAmount: z.union([
     z.literal(100),
+    z.literal(250),
     z.literal(500),
     z.literal(1000),
   ]),
