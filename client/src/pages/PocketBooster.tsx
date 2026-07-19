@@ -460,7 +460,7 @@ export default function PocketBooster() {
               </h2>
             </div>
             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Invest $100, $500, or $1,000 — 100% bridges into the Pocket Booster
+              Invest $100, $250, $500, or $1,000 — 100% bridges into the Pocket Booster
               Instant-Disbursal Vault. Member subscription fees fund your{" "}
               {(yieldRate * 100).toFixed(1)}% compounding daily yield. Prefer
               apparel, FR2P, or other Empire programs? Use{" "}
