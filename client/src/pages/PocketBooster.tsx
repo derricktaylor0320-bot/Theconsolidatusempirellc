@@ -330,6 +330,17 @@ export default function PocketBooster() {
                 "Zero-Capital (Subscription Powered)"}{" "}
               · P2P Liquidity Loop
             </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Part of the{" "}
+              <Link
+                href="/pathway"
+                className="text-primary underline underline-offset-2"
+                data-testid="link-pb-pathway"
+              >
+                Empire Pathway
+              </Link>{" "}
+              — S1 Emergency Fund through S6 Six-Figure Skill Accelerator.
+            </p>
           </div>
         </section>
 
