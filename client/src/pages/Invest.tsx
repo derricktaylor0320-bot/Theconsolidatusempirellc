@@ -229,7 +229,15 @@ export default function Invest() {
               tracking so you can see exactly where your money went.
             </motion.p>
             <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display">
-              Tangible ROI · No stock market · Full allocation transparency
+              Project-only capital · No owner shares · Full allocation transparency
+            </p>
+            <p
+              className="text-sm text-muted-foreground max-w-2xl mx-auto mt-4"
+              data-testid="text-project-only-capital"
+            >
+              When you invest, your capital funds only the program you pick.
+              It has nothing to do with the owners&apos; shares or LLC ownership —
+              those stay with the founding members.
             </p>
           </div>
         </section>
@@ -368,8 +376,9 @@ export default function Invest() {
                       className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed"
                       data-testid="text-rpu-disclaimer"
                     >
-                      Issues non-equity Revenue Participation Units (1 unit =
-                      $1) with a {RPU_LOCK_PERIOD_DAYS}-day liquidity lock and
+                      Your {formatMoney(investAmount)} goes only into{" "}
+                      {selectedProgram.shortName} as Revenue Participation Units
+                      (1 unit = $1), with a {RPU_LOCK_PERIOD_DAYS}-day lock and
                       zero voting rights. {RPU_LEGAL_DISCLAIMER}
                     </p>
                   </div>
