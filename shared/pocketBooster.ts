@@ -69,24 +69,155 @@ export const REPAYMENT_LABELS: Record<RepaymentChoice, string> = {
   CUSTOM_PAYROLL_SPLIT: "Custom Payroll Split",
 };
 
-/** Tier 4 Pay-to-Learn modules that unlock the 50% membership rebate */
+/** A single takeable lesson inside a Pay-to-Learn program */
+export type PayToLearnLesson = {
+  id: string;
+  title: string;
+  minutes: number;
+  /** Short teaching body the member actually reads/works through */
+  body: string[];
+  /** One keyed takeaway they apply before advancing */
+  actionPrompt: string;
+};
+
+/** Tier 4 Pay-to-Learn programs — real tools members take; completion auto-rewards */
 export const PAY_TO_LEARN_MODULES = [
   {
     id: "cashflow-foundations",
-    title: "Cashflow Foundations",
-    description: "Build a simple weekly money plan that keeps cushions temporary.",
+    title: "Cash Flow Foundations",
+    description:
+      "Build a simple weekly money plan that keeps cushions temporary — take the lessons, then the system marks you complete.",
+    lessons: [
+      {
+        id: "cf-1",
+        title: "Map Your Real Cash Week",
+        minutes: 8,
+        body: [
+          "List every dollar that hits your account this week and every bill that leaves it — paydays, tips, transfers, subscriptions, food, transport.",
+          "Separate needs (housing, food, transport, minimum debt) from wants. Cushions exist for needs when timing slips — not for lifestyle upgrades.",
+          "Your cushion stays temporary only if this map is honest. Guessing creates the payday-loan cycle Pocket Booster is built to break.",
+        ],
+        actionPrompt:
+          "Write your next 7 days of income and must-pay bills. Circle the one day cash gets tight.",
+      },
+      {
+        id: "cf-2",
+        title: "The Temporary Cushion Rule",
+        minutes: 7,
+        body: [
+          "A Pocket Booster cushion is a bridge, not income. Treat borrowed dollars as already owed on your next payday.",
+          "Before you request a cushion, name the exact bill it covers and the exact repayment date. No vague “extra money.”",
+          "If you cannot name the repayment source, do not borrow — tighten the week plan first.",
+        ],
+        actionPrompt:
+          "If you needed a cushion tomorrow, which one bill would it cover and which payday pays it back?",
+      },
+      {
+        id: "cf-3",
+        title: "Weekly Money Plan Template",
+        minutes: 10,
+        body: [
+          "Use three buckets: Survive (bills & food), Stabilize (cushion repayment & small reserve), and Grow (skills & side income).",
+          "Move money on payday in that order. Growth never jumps ahead of Survive or Stabilize.",
+          "Review every Sunday for 10 minutes. Adjust amounts — keep the order. This is the foundation that unlocks larger cushions later.",
+        ],
+        actionPrompt:
+          "Assign this week’s dollars into Survive / Stabilize / Grow. Confirm Grow is last.",
+      },
+    ],
   },
   {
     id: "income-acceleration",
     title: "Income Acceleration",
-    description: "Map skills and side income paths toward six-figure momentum.",
+    description:
+      "Map skills and side-income paths toward six-figure momentum — finish the track and the system rewards Tier 4 automatically.",
+    lessons: [
+      {
+        id: "ia-1",
+        title: "Inventory Your Monetizable Skills",
+        minutes: 8,
+        body: [
+          "List skills people already pay for — driving, cooking, coding, sales, care work, content, trades, admin.",
+          "Circle two you could offer in the next 30 days without new debt. Speed beats perfection.",
+          "Income acceleration starts with proof of paid work, not a perfect business plan.",
+        ],
+        actionPrompt:
+          "Name two skills you could sell this month and one person or platform who might buy them.",
+      },
+      {
+        id: "ia-2",
+        title: "Design a 30-Day Side Offer",
+        minutes: 10,
+        body: [
+          "Package one offer with a clear outcome, price, and delivery time (example: “resume rewrite — $75 — 48 hours”).",
+          "Tell ten people or post in three communities. Track replies, not likes.",
+          "Use cushion capacity only if repayment still fits Survive + Stabilize. Never fund a hustle by skipping repayment.",
+        ],
+        actionPrompt:
+          "Write your one-sentence offer: outcome + price + delivery time.",
+      },
+      {
+        id: "ia-3",
+        title: "From Side Offer to Six-Figure Path",
+        minutes: 9,
+        body: [
+          "Six-figure momentum is stacked months of paid offers, not one viral win. Raise price when demand shows up.",
+          "Reinvest a slice of new income into skills (Tier 4 Pay-to-Learn) and a personal reserve before lifestyle upgrades.",
+          "Your Pocket Booster repayment history becomes proof you can handle larger capital — protect that record.",
+        ],
+        actionPrompt:
+          "Set a 90-day income target and the weekly offer count needed to reach it.",
+      },
+    ],
   },
   {
     id: "credit-and-capital",
-    title: "Credit & Capital Basics",
-    description: "Understand how repayment discipline unlocks bigger opportunities.",
+    title: "Capital Accessories",
+    description:
+      "Learn the capital tools — repayment discipline, credit posture, and reserve access — then graduate for an automatic reward.",
+    lessons: [
+      {
+        id: "ca-1",
+        title: "Repayment Is Your Credit Story",
+        minutes: 8,
+        body: [
+          "Inside Pocket Booster, on-time cushion repayment is your internal credit file. It unlocks higher tiers and larger limits.",
+          "Missed repayments shrink access. Autopilot (Full Next Payday, Bi-Weekly, or Custom Split) exists to protect that story.",
+          "Treat every scheduled invoice like a non-negotiable bill — ahead of wants.",
+        ],
+        actionPrompt:
+          "Open your next repayment date and add it to your calendar with a payday reminder.",
+      },
+      {
+        id: "ca-2",
+        title: "Capital Tools You Can Actually Use",
+        minutes: 9,
+        body: [
+          "Capital Accessories are the tools around the cushion: tier membership, Autopilot schedules, Square invoices, and the P2P Reserve Vault.",
+          "Each tool has a job — membership sets your limit, Autopilot collects, invoices document, Reserve funds the pool.",
+          "Using the tools in order (activate → borrow only what you need → repay on schedule) is how capital compounds for you.",
+        ],
+        actionPrompt:
+          "Name which capital tool you will use next: Activate Tier, Request Cushion, Autopilot, or Reserve.",
+      },
+      {
+        id: "ca-3",
+        title: "Graduate Into Larger Opportunity",
+        minutes: 8,
+        body: [
+          "When you finish this track, the system logs your milestone — you do not manually “Mark Complete.”",
+          "Tier 4 members receive the skill rebate automatically on the next billing cycle for investing in education.",
+          "Keep stacking: Cash Flow Foundations + Income Acceleration + Capital Accessories = the full Pay-to-Learn roadway.",
+        ],
+        actionPrompt:
+          "Confirm you will finish the remaining lessons so the system can graduate and reward you.",
+      },
+    ],
   },
 ] as const;
+
+export type PayToLearnModule = (typeof PAY_TO_LEARN_MODULES)[number];
+export type PayToLearnModuleId = PayToLearnModule["id"];
 
 export function getTierByLevel(level: number): PocketBoosterTier | undefined {
   return POCKET_BOOSTER_TIERS.find((t) => t.level === level);
