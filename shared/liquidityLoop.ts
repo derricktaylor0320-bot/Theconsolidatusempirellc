@@ -87,7 +87,7 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
   {
     tag: "FR2P_PROGRAM",
     name: "The FR2P Program (Financial Roadway to Prosperity)",
-    shortName: "FR2P Club",
+    shortName: "The FR2P Club",
     description:
       "A personal venture focused on direct affiliate marketing and professional growth — courses, AI promotion, and sales built for recurring revenue with full compliance.",
     allocationSummary:

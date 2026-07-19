@@ -264,7 +264,7 @@ export default function Invest() {
             >
               Put your capital to work across The Consolidatus Empire LLC —
               choose Khomplete Khemistri Apparel (our branded clothing line), The
-              FR2P Club (my personal venture for direct affiliate marketing,
+              The FR2P Club (my personal venture for direct affiliate marketing,
               courses, AI promotion & sales, and compliant recurring revenue),
               Pocket Booster (Reserve Vault emergency cushion support), or
               Premium Choice Hot Dogs (our premium street-food line). Upcoming:
