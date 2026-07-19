@@ -20,7 +20,7 @@ export default function FR2P() {
           <p className="mt-2 text-xs md:text-sm text-secondary-foreground/70">
             Pocket Booster&apos;s eight program tabs (S1–S8) live on{" "}
             <Link
-              href="/pocket-booster#stages"
+              href="/pocket-booster#program-codes"
               className="text-primary underline underline-offset-2 hover:text-primary/80"
               data-testid="link-fr2p-pathway"
             >

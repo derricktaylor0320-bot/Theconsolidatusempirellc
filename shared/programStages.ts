@@ -23,6 +23,8 @@ export type ProgramStage = {
   title: string;
   /** What this Pocket Booster tab represents for the member */
   meaning: string;
+  /** Concrete actions this code unlocks or runs inside Pocket Booster */
+  inProgram: string;
   visualIdentity: string;
   /** Primary brand hex for this stage's visual identity */
   color: string;
@@ -48,6 +50,8 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "Emergency Fund First",
     meaning:
       "Immediate financial stabilization. This Pocket Booster tab focuses on establishing a cash cushion to prevent future reliance on high-interest debt when unexpected expenses hit.",
+    inProgram:
+      "Inside Pocket Booster, S1 steers you to Choose Your Tier, activate a membership, and request an interest-free cushion from the Reserve Vault before bills force payday loans or credit cards.",
     visualIdentity: "Rich Crimson Red",
     color: "#9B1B30",
     colorSoft: "#9B1B3026",
@@ -60,6 +64,8 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "The Color of Money",
     meaning:
       "Financial literacy and mindset shift. This Pocket Booster tab educates members on how money works, moving from consumer habits toward asset ownership and wealth generation through Pay-to-Learn.",
+    inProgram:
+      "Inside Pocket Booster, S2 opens the Pay-to-Learn track — cashflow, income, and capital modules that rewire spending habits and can unlock Tier 4 membership rebates when you complete them.",
     visualIdentity: "Deep Emerald Green",
     color: "#046307",
     colorSoft: "#04630726",
@@ -72,10 +78,12 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "Community Accountability",
     meaning:
       "Peer-to-peer support and group responsibility. This Pocket Booster tab leans on community encouragement, shared resources, and mutual trust so members stay on track with their financial goals.",
+    inProgram:
+      "Inside Pocket Booster, S3 is the accountability layer — stay visible to the community pathway, share progress with peers, and keep repayment and growth goals honest instead of going it alone.",
     visualIdentity: "Royal Navy Blue",
     color: "#0A1F44",
     colorSoft: "#0A1F4426",
-    relatedHref: "/pocket-booster#stages",
+    relatedHref: "/pocket-booster#program-codes",
     relatedLabel: "Pocket Booster Community",
   },
   {
@@ -84,6 +92,8 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "Structured Repayment Plans",
     meaning:
       "Disciplined financial management. This Pocket Booster tab runs the cushion Autopilot — systematically repaying microloan cushions and building a clean repayment profile.",
+    inProgram:
+      "Inside Pocket Booster, S4 powers Cushion Autopilot: pick Full Next Payday, Bi-Weekly Split, or Custom Payroll Split, schedule Square invoices, and prove repayment discipline for larger limits.",
     visualIdentity: "Deep Purple",
     color: "#4A0080",
     colorSoft: "#4A008026",
@@ -96,10 +106,12 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "Side Hustle & Business Growth",
     meaning:
       "Entrepreneurial launchpad. This Pocket Booster tab focuses on new income streams, launching micro-enterprises, and scaling a side hustle into a profitable business.",
+    inProgram:
+      "Inside Pocket Booster, S5 turns surplus cushion capacity into growth fuel — use stability from earlier stages to fund side hustles, micro-enterprises, and income experiments without derailing repayment.",
     visualIdentity: "Dark Brown Leather",
     color: "#3D2314",
     colorSoft: "#3D231426",
-    relatedHref: "/pocket-booster#stages",
+    relatedHref: "/pocket-booster#program-codes",
     relatedLabel: "Growth Track",
   },
   {
@@ -108,6 +120,8 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "Six-Figure Skill Accelerator",
     meaning:
       "Professionalizing income. This Pocket Booster tab is the Tier 4 leap — advanced skills, priority funding, and scalable infrastructure toward six-figure momentum.",
+    inProgram:
+      "Inside Pocket Booster, S6 maps to Tier 4 ($100/mo, up to $1,000 cushion): Priority Instant Funding, Affiliate Rewards Access, and the Pay-to-Learn track with a 50% skill rebate when modules are complete.",
     visualIdentity: "Vibrant Sparkling Emerald Green",
     color: "#00A86B",
     colorSoft: "#00A86B26",
@@ -120,6 +134,8 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "Legacy & Portfolio Building",
     meaning:
       "Wealth preservation and investment. This Pocket Booster tab channels disciplined capital into multi-generational wealth — including the P2P reserve vault that backs member cushions.",
+    inProgram:
+      "Inside Pocket Booster, S7 is the Peer-to-Peer Reserve path — bridge $100–$1,000 into the Instant-Disbursal Vault that funds member cushions while your position earns compounding yield from subscription revenue.",
     visualIdentity: "Sparkling Deep Blue",
     color: "#0B1D51",
     colorSoft: "#0B1D5126",
@@ -132,10 +148,12 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     title: "The Sovereign Executive",
     meaning:
       "Pinnacle of ownership and leadership. This Pocket Booster tab represents full executive authority — steering your position across the program with sovereign ownership of your financial path.",
+    inProgram:
+      "Inside Pocket Booster, S8 is the end-state operating posture: you run cushions, skills, community accountability, and reserve capital as one sovereign stack — directing every tab instead of reacting stage by stage.",
     visualIdentity: "Sparkling Burnt Orange",
     color: "#C2410C",
     colorSoft: "#C2410C26",
-    relatedHref: "/pocket-booster#stages",
+    relatedHref: "/pocket-booster#program-codes",
     relatedLabel: "Sovereign Track",
   },
 ];
