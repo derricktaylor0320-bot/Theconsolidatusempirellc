@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EmbedAuthBanner from "@/components/EmbedAuthBanner";
@@ -16,6 +17,17 @@ export default function FR2P() {
           <h1 className="font-display text-xl md:text-2xl font-bold uppercase tracking-wider text-primary">
             Financial Roadway 2 Prosperity Club
           </h1>
+          <p className="mt-2 text-xs md:text-sm text-secondary-foreground/70">
+            Walk the eight-stage Empire journey on{" "}
+            <Link
+              href="/pathway"
+              className="text-primary underline underline-offset-2 hover:text-primary/80"
+              data-testid="link-fr2p-pathway"
+            >
+              Empire Pathway
+            </Link>
+            .
+          </p>
         </div>
         <div className="flex-grow w-full relative">
           <iframe
