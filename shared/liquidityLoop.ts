@@ -10,6 +10,23 @@ export type P2PInvestmentAmount = (typeof P2P_INVESTMENT_AMOUNTS)[number];
 
 export const P2P_PROJECT_TAG = "POCKET_BOOSTER_RESERVE" as const;
 
+/** Revenue Participation Units — non-equity project utility instrument */
+export const RPU_INSTRUMENT_TYPE = "REVENUE_PARTICIPATION_UNIT" as const;
+export const RPU_LOCK_PERIOD_DAYS = 90;
+export const RPU_COMPLIANCE_STATUS = "VERIFIED_COMPLIANT" as const;
+export const RPU_LEGAL_DISCLAIMER =
+  "This transaction constitutes a non-equity Revenue Participation Agreement. Holder holds zero voting shares or foundational LLC ownership.";
+
+/**
+ * Foundational LLC members whose corporate equity must never be diluted
+ * by platform investor unit issuance.
+ */
+export const CORE_LLC_MEMBERS = [
+  "Derrick Taylor",
+  "Carlyle Oliver",
+  "Jerome Young Jr",
+] as const;
+
 export type HubProgramStatus = "open" | "coming_soon";
 
 export type HubInvestmentProgram = {
@@ -142,3 +159,18 @@ export const bridgeP2pSchema = z.object({
 });
 
 export type BridgeP2pInput = z.infer<typeof bridgeP2pSchema>;
+
+/** Explicit RPU issuance payload (alias of bridge invest) */
+export const issueParticipationUnitsSchema = z.object({
+  capitalContribution: z.union([
+    z.literal(100),
+    z.literal(250),
+    z.literal(500),
+    z.literal(1000),
+  ]),
+  targetProjectPool: z.string().min(1),
+});
+
+export type IssueParticipationUnitsInput = z.infer<
+  typeof issueParticipationUnitsSchema
+>;

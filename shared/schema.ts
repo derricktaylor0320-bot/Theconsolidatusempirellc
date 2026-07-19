@@ -394,8 +394,18 @@ export const userInvestments = pgTable("user_investments", {
     precision: 12,
     scale: 2,
   }).notNull(),
+  /** 1 Revenue Participation Unit = $1.00 USD contribution */
+  unitsCount: decimal("units_count", {
+    precision: 12,
+    scale: 2,
+  }).notNull(),
   projectTag: text("project_tag").notNull().default("POCKET_BOOSTER_RESERVE"),
   yieldRate: decimal("yield_rate", { precision: 6, scale: 4 }).notNull().default("0.0850"),
+  lockPeriodDays: integer("lock_period_days").notNull().default(90),
+  hasVotingRights: boolean("has_voting_rights").notNull().default(false),
+  instrumentType: text("instrument_type")
+    .notNull()
+    .default("REVENUE_PARTICIPATION_UNIT"),
   accruedYield: decimal("accrued_yield", {
     precision: 12,
     scale: 4,
@@ -414,6 +424,23 @@ export const userInvestments = pgTable("user_investments", {
 });
 
 export type UserInvestment = typeof userInvestments.$inferSelect;
+
+/**
+ * Core LLC equity shield — foundational ownership only.
+ * Invest / RPU paths must NEVER insert or update this table.
+ */
+export const companyEquity = pgTable("company_equity", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  memberName: text("member_name").notNull().unique(),
+  /** Non-numeric lock label — never treated as investor-dilutable shares */
+  equityPercentage: text("equity_percentage")
+    .notNull()
+    .default("FOUNDATIONAL_LOCKED"),
+  isFoundational: boolean("is_foundational").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type CompanyEquity = typeof companyEquity.$inferSelect;
 
 export const pocketBoosterVault = pgTable("pocket_booster_vault", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
