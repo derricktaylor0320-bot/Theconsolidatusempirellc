@@ -399,7 +399,7 @@ export const userInvestments = pgTable("user_investments", {
     precision: 12,
     scale: 2,
   }).notNull(),
-  projectTag: text("project_tag").notNull().default("POCKET_BOOSTER_RESERVE"),
+  projectTag: text("project_tag").notNull().default("POCKET_BOOSTER"),
   yieldRate: decimal("yield_rate", { precision: 6, scale: 4 }).notNull().default("0.0850"),
   lockPeriodDays: integer("lock_period_days").notNull().default(90),
   hasVotingRights: boolean("has_voting_rights").notNull().default(false),
@@ -441,6 +441,23 @@ export const companyEquity = pgTable("company_equity", {
 });
 
 export type CompanyEquity = typeof companyEquity.$inferSelect;
+
+/**
+ * Five-pillar yield configs — annual rates + asset-backed revenue description.
+ * Source of truth for live investor yield calculation widgets.
+ */
+export const projectYieldConfigs = pgTable("project_yield_configs", {
+  projectTag: varchar("project_tag", { length: 50 }).primaryKey(),
+  projectName: varchar("project_name", { length: 100 }).notNull(),
+  annualYieldRate: decimal("annual_yield_rate", {
+    precision: 5,
+    scale: 4,
+  }).notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  backingAssetDescription: text("backing_asset_description"),
+});
+
+export type ProjectYieldConfig = typeof projectYieldConfigs.$inferSelect;
 
 export const pocketBoosterVault = pgTable("pocket_booster_vault", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

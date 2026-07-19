@@ -8,6 +8,7 @@ import {
   investmentNotifications,
   pocketBoosterVault,
   projectLedger,
+  projectYieldConfigs,
   userInvestments,
   userSubscriptions,
   yieldPayouts,
@@ -24,6 +25,8 @@ import {
   RPU_LEGAL_DISCLAIMER,
   RPU_LOCK_PERIOD_DAYS,
   bridgeP2pSchema,
+  canonicalizeProjectTag,
+  compoundDailyBankers,
   compoundDailyInterest,
   getProgramByTag,
   issueParticipationUnitsSchema,
@@ -417,6 +420,160 @@ export function registerLiquidityRoutes(app: Express): void {
       openPrograms: openInvestmentPrograms().map((p) => p.tag),
     });
   });
+
+  // Public five-pillar yield config catalog
+  app.get("/api/liquidity/yield-configs", async (_req, res) => {
+    try {
+      const rows = await db.select().from(projectYieldConfigs);
+      res.json({
+        complianceProtocol: "REVENUE_PARTICIPATION_UNITS_ONLY",
+        configs: rows,
+      });
+    } catch (error) {
+      console.error("Yield configs error:", error);
+      res.status(500).json({ error: "Failed to load project yield configs." });
+    }
+  });
+
+  /**
+   * Core route: calculate investor daily compounding yield per pillar.
+   * Investors may only request their own userId; owners may inspect any.
+   */
+  app.get(
+    "/api/liquidity/calculate-investor-yield/:userId",
+    requireAuth,
+    async (req: Request, res: Response) => {
+      try {
+        const { userId } = req.params;
+        const me = currentUser(req);
+        const ownerAllowlist = (process.env.OWNER_EMAILS || "")
+          .split(",")
+          .map((e) => e.trim().toLowerCase())
+          .filter(Boolean);
+        const isOwner =
+          ownerAllowlist.length === 0 ||
+          ownerAllowlist.includes((me.email || "").toLowerCase());
+        if (me.id !== userId && !isOwner) {
+          return res.status(403).json({
+            error: "You can only view your own yield calculations.",
+          });
+        }
+
+        const investments = await db
+          .select({
+            id: userInvestments.id,
+            projectTag: userInvestments.projectTag,
+            dollarValue: userInvestments.amountAllocated,
+            createdAt: userInvestments.createdAt,
+            projectName: projectYieldConfigs.projectName,
+            annualYieldRate: projectYieldConfigs.annualYieldRate,
+            backingAssetDescription:
+              projectYieldConfigs.backingAssetDescription,
+          })
+          .from(userInvestments)
+          .innerJoin(
+            projectYieldConfigs,
+            eq(
+              userInvestments.projectTag,
+              projectYieldConfigs.projectTag,
+            ),
+          )
+          .where(
+            and(
+              eq(userInvestments.userId, userId),
+              eq(userInvestments.status, "ACTIVE"),
+            ),
+          );
+
+        // Also resolve any leftover legacy tags that weren't migrated yet
+        const legacyInvestments =
+          investments.length === 0
+            ? await db
+                .select()
+                .from(userInvestments)
+                .where(
+                  and(
+                    eq(userInvestments.userId, userId),
+                    eq(userInvestments.status, "ACTIVE"),
+                  ),
+                )
+            : [];
+
+        const assetRows =
+          investments.length > 0
+            ? investments
+            : legacyInvestments.map((inv) => {
+                const program = getProgramByTag(inv.projectTag);
+                return {
+                  id: inv.id,
+                  projectTag: canonicalizeProjectTag(inv.projectTag),
+                  dollarValue: inv.amountAllocated,
+                  createdAt: inv.createdAt,
+                  projectName: program?.name ?? inv.projectTag,
+                  annualYieldRate: money(
+                    program?.annualYieldRate ?? 0,
+                    4,
+                  ),
+                  backingAssetDescription:
+                    program?.backingAssetDescription ?? null,
+                };
+              });
+
+        if (assetRows.length === 0) {
+          return res.status(200).json({
+            success: true,
+            message: "No active investments found.",
+            complianceProtocol: "REVENUE_PARTICIPATION_UNITS_ONLY",
+            investorId: userId,
+            assets: [],
+          });
+        }
+
+        const updatedAssets = assetRows.map((asset) => {
+          const principal = parseFloat(asset.dollarValue);
+          const annualRate = parseFloat(asset.annualYieldRate);
+          const dateInvested = asset.createdAt
+            ? new Date(asset.createdAt)
+            : new Date();
+          const timeDifference = Date.now() - dateInvested.getTime();
+          const daysActive = Math.max(
+            1,
+            Math.floor(timeDifference / (1000 * 3600 * 24)),
+          );
+          const totalEarnings = compoundDailyBankers(
+            principal,
+            daysActive,
+            annualRate,
+          );
+          const currentValue = principal + totalEarnings;
+
+          return {
+            investmentId: asset.id,
+            pillarTag: asset.projectTag,
+            pillarName: asset.projectName,
+            backingAssetDescription: asset.backingAssetDescription,
+            annualPercentage: `${(annualRate * 100).toFixed(1)}%`,
+            daysCompounding: daysActive,
+            initialPrincipal: principal.toFixed(2),
+            currentValue: currentValue.toFixed(2),
+            totalEarnings: totalEarnings.toFixed(2),
+          };
+        });
+
+        return res.status(200).json({
+          success: true,
+          complianceProtocol: "REVENUE_PARTICIPATION_UNITS_ONLY",
+          investorId: userId,
+          assets: updatedAssets,
+        });
+      } catch (error) {
+        console.error("Yield Calculation Failure:", error);
+        return res.status(500).json({
+          error: "Failed to securely calculate live asset-backed returns.",
+        });
+      }
+    },
+  );
 
   // Public vault snapshot (Pocket Booster lending liquidity)
   app.get("/api/liquidity/vault", async (_req, res) => {

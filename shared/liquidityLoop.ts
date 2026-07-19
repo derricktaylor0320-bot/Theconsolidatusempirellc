@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** Default annual yield for open hub investment programs (no stock market) */
+/** Default annual yield for Pocket Booster (primary reserve pillar) */
 export const P2P_ANNUAL_YIELD_RATE = 0.085;
 
 /** Allowed peer-to-peer investment ticket sizes (USD) */
@@ -8,7 +8,8 @@ export const P2P_INVESTMENT_AMOUNTS = [100, 250, 500, 1000] as const;
 
 export type P2PInvestmentAmount = (typeof P2P_INVESTMENT_AMOUNTS)[number];
 
-export const P2P_PROJECT_TAG = "POCKET_BOOSTER_RESERVE" as const;
+/** Canonical Pocket Booster pillar tag (5-pillar structure) */
+export const P2P_PROJECT_TAG = "POCKET_BOOSTER" as const;
 
 /** Revenue Participation Units — non-equity project utility instrument */
 export const RPU_INSTRUMENT_TYPE = "REVENUE_PARTICIPATION_UNIT" as const;
@@ -42,32 +43,50 @@ export type HubInvestmentProgram = {
   status: HubProgramStatus;
   /** When true, capital also expands the Pocket Booster lending vault */
   fundsPocketBoosterVault: boolean;
+  /** Asset-backed revenue description for yield configs */
+  backingAssetDescription: string;
   href?: string;
 };
 
 /**
- * Investable (and upcoming) programs under The Consolidatus Empire umbrella.
- * Members put money to work inside the hub — transparent allocation, tangible ROI.
+ * Legacy project tags → canonical 5-pillar tags (for older investments).
+ */
+export const LEGACY_PROJECT_TAG_MAP: Record<string, string> = {
+  POCKET_BOOSTER_RESERVE: "POCKET_BOOSTER",
+  FR2P_CLUB_GROWTH: "FR2P_PROGRAM",
+  APPAREL_OPERATIONS: "KHOMPLETE_KHEMISTRI",
+  PREMIUM_CHOICE_HOT_DOGS: "PREMIUM_CHOICE_DOGS",
+  REAL_ESTATE_PROPERTIES: "COMMERCIAL_REAL_ESTATE",
+};
+
+export function canonicalizeProjectTag(tag: string): string {
+  return LEGACY_PROJECT_TAG_MAP[tag] ?? tag;
+}
+
+/**
+ * Five-pillar Empire Invest structure — exact yield configs for the hub.
  */
 export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
   {
-    tag: "POCKET_BOOSTER_RESERVE",
-    name: "Pocket Booster Reserve",
-    shortName: "Pocket Booster",
+    tag: "KHOMPLETE_KHEMISTRI",
+    name: "Khomplete Khemistri Apparel Line",
+    shortName: "Khomplete Khemistri",
     description:
-      "Reserve Vault emergency cushion support — your capital funds interest-free member cushions; subscription fees return your yield.",
+      "Put capital into Khomplete Khemistri Apparel — our branded clothing line — covering inventory, fulfillment, and brand operations.",
     allocationSummary:
-      "100% into the Pocket Booster Instant-Disbursal Reserve Vault",
+      "100% into Khomplete Khemistri apparel inventory & brand operations",
     ledgerDescription:
-      "100% allocated to the Pocket Booster Instant-Disbursal Reserve Vault to back interest-free member cushions.",
-    annualYieldRate: 0.085,
+      "100% allocated to Khomplete Khemistri Apparel — inventory, fulfillment, and storefront growth for the branded clothing line under The Consolidatus Empire.",
+    annualYieldRate: 0.07,
     status: "open",
-    fundsPocketBoosterVault: true,
-    href: "/pocket-booster",
+    fundsPocketBoosterVault: false,
+    backingAssetDescription:
+      "High-margin physical apparel sales and fabric inventory.",
+    href: "/apparel",
   },
   {
-    tag: "FR2P_CLUB_GROWTH",
-    name: "FR2P Club Growth",
+    tag: "FR2P_PROGRAM",
+    name: "The FR2P Program (Financial Roadway to Prosperity)",
     shortName: "FR2P Club",
     description:
       "A personal venture focused on direct affiliate marketing and professional growth — courses, AI promotion, and sales built for recurring revenue with full compliance.",
@@ -78,51 +97,58 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     annualYieldRate: 0.08,
     status: "open",
     fundsPocketBoosterVault: false,
+    backingAssetDescription:
+      "Membership subscriptions and outside ad platform revenue.",
     href: "/fr2p",
   },
   {
-    tag: "APPAREL_OPERATIONS",
-    name: "Khomplete Khemistri Apparel",
-    shortName: "Khomplete Khemistri",
+    tag: "POCKET_BOOSTER",
+    name: "Pocket Booster Liquidity Vault",
+    shortName: "Pocket Booster",
     description:
-      "Put capital into Khomplete Khemistri Apparel — our branded clothing line — covering inventory, fulfillment, and brand operations.",
+      "Reserve Vault emergency cushion support — your capital funds interest-free member cushions; subscription fees return your yield.",
     allocationSummary:
-      "100% into Khomplete Khemistri apparel inventory & brand operations",
+      "100% into the Pocket Booster Instant-Disbursal Reserve Vault",
     ledgerDescription:
-      "100% allocated to Khomplete Khemistri Apparel — inventory, fulfillment, and storefront growth for the branded clothing line under The Consolidatus Empire.",
-    annualYieldRate: 0.075,
+      "100% allocated to the Pocket Booster Instant-Disbursal Reserve Vault to back interest-free member cushions.",
+    annualYieldRate: 0.085,
     status: "open",
-    fundsPocketBoosterVault: false,
-    href: "/apparel",
+    fundsPocketBoosterVault: true,
+    backingAssetDescription: "Recurring monthly flat subscriber fees.",
+    href: "/pocket-booster",
   },
   {
-    tag: "PREMIUM_CHOICE_HOT_DOGS",
-    name: "Premium Choice Hot Dogs",
+    tag: "PREMIUM_CHOICE_DOGS",
+    name: "Premium Choice Dogs Infrastructure",
     shortName: "Premium Choice Dogs",
     description:
-      "Fund the Premium Choice Hot Dogs street-food operation — quality franks, drinks, and homemade desserts under The Consolidatus Empire.",
+      "Fund Premium Choice Dogs infrastructure — quality franks, drinks, and homemade desserts from physical mobile units under The Consolidatus Empire.",
     allocationSummary:
-      "100% into Premium Choice Hot Dogs inventory, cart ops & street-food growth",
+      "100% into Premium Choice Dogs inventory, cart ops & street-food growth",
     ledgerDescription:
-      "100% allocated to Premium Choice Hot Dogs — food inventory, cart operations, drinks, desserts, and street-food growth under The Consolidatus Empire.",
-    annualYieldRate: 0.07,
+      "100% allocated to Premium Choice Dogs — food inventory, cart operations, drinks, desserts, and street-food growth under The Consolidatus Empire.",
+    annualYieldRate: 0.11,
     status: "open",
     fundsPocketBoosterVault: false,
+    backingAssetDescription:
+      "Daily cash-and-card transactions from physical mobile units.",
     href: "/hot-dogs",
   },
   {
-    tag: "REAL_ESTATE_PROPERTIES",
-    name: "Real Estate & Properties",
+    tag: "COMMERCIAL_REAL_ESTATE",
+    name: "Commercial Real Estate Portfolio",
     shortName: "Real Estate",
     description:
       "First up: mom-and-pop motel takeovers through creative financing — we step into day-to-day operations, tidy the property up so it feels like home (fresh rooms, real hospitality), and put a little extra retirement money in the owner's pocket from the revenue. Same playbook next for laundromat acquisitions. Launching soon.",
     allocationSummary:
       "100% into motel (then laundromat) acquisition & operations — creative financing pipeline",
     ledgerDescription:
-      "Reserved for Real Estate & Properties — mom-and-pop motel acquisitions via creative financing, operator takeovers with guest-experience upgrades, retiring-owner revenue participation, then the same model for laundromats under The Consolidatus Empire (program launching soon).",
-    annualYieldRate: 0.09,
+      "Reserved for Commercial Real Estate — mom-and-pop motel acquisitions via creative financing, operator takeovers with guest-experience upgrades, retiring-owner revenue participation, then the same model for laundromats under The Consolidatus Empire (program launching soon).",
+    annualYieldRate: 0,
     status: "coming_soon",
     fundsPocketBoosterVault: false,
+    backingAssetDescription:
+      "Future brick-and-mortar equity (Independent motels & laundromats).",
   },
 ];
 
@@ -134,7 +160,8 @@ export const HUB_PROGRAM_TAGS = HUB_INVESTMENT_PROGRAMS.map((p) => p.tag) as [
 export function getProgramByTag(
   tag: string,
 ): HubInvestmentProgram | undefined {
-  return HUB_INVESTMENT_PROGRAMS.find((p) => p.tag === tag);
+  const canonical = canonicalizeProjectTag(tag);
+  return HUB_INVESTMENT_PROGRAMS.find((p) => p.tag === canonical);
 }
 
 export function openInvestmentPrograms(): HubInvestmentProgram[] {
@@ -142,7 +169,7 @@ export function openInvestmentPrograms(): HubInvestmentProgram[] {
 }
 
 /**
- * Daily compound factor for APR compounded daily.
+ * Daily compound factor for APR compounded daily (true effective daily rate).
  * Effective daily rate = (1 + r)^(1/365) - 1
  */
 export function dailyCompoundRate(
@@ -160,6 +187,20 @@ export function compoundDailyInterest(
   if (principal <= 0 || days <= 0) return 0;
   const factor = Math.pow(1 + dailyCompoundRate(annualRate), days);
   return principal * (factor - 1);
+}
+
+/**
+ * Banker's daily compound used for live investor yield widgets:
+ * A = P * (1 + r/365)^days
+ */
+export function compoundDailyBankers(
+  principal: number,
+  days: number,
+  annualRate: number,
+): number {
+  if (principal <= 0 || days <= 0 || annualRate <= 0) return 0;
+  const currentValue = principal * Math.pow(1 + annualRate / 365, days);
+  return currentValue - principal;
 }
 
 export const bridgeP2pSchema = z.object({

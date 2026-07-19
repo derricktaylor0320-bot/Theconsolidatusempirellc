@@ -310,7 +310,7 @@ export async function ensureTablesExist() {
         user_id VARCHAR(255) NOT NULL,
         amount_allocated DECIMAL(12, 2) NOT NULL,
         units_count DECIMAL(12, 2) NOT NULL DEFAULT 0,
-        project_tag TEXT NOT NULL DEFAULT 'POCKET_BOOSTER_RESERVE',
+        project_tag TEXT NOT NULL DEFAULT 'POCKET_BOOSTER',
         yield_rate DECIMAL(6, 4) NOT NULL DEFAULT 0.0850,
         lock_period_days INTEGER NOT NULL DEFAULT 90,
         has_voting_rights BOOLEAN NOT NULL DEFAULT false,
@@ -365,6 +365,58 @@ export async function ensureTablesExist() {
         ('Carlyle Oliver', 'FOUNDATIONAL_LOCKED', true),
         ('Jerome Young Jr', 'FOUNDATIONAL_LOCKED', true)
       ON CONFLICT (member_name) DO NOTHING
+    `);
+
+    // Five-pillar project yield configs (source of truth for live yield widgets)
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS project_yield_configs (
+        project_tag VARCHAR(50) PRIMARY KEY,
+        project_name VARCHAR(100) NOT NULL,
+        annual_yield_rate DECIMAL(5, 4) NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        backing_asset_description TEXT
+      )
+    `);
+    await db.execute(sql`
+      INSERT INTO project_yield_configs
+        (project_tag, project_name, annual_yield_rate, is_active, backing_asset_description)
+      VALUES
+        ('KHOMPLETE_KHEMISTRI', 'Khomplete Khemistri Apparel Line', 0.0700, TRUE, 'High-margin physical apparel sales and fabric inventory.'),
+        ('FR2P_PROGRAM', 'The FR2P Program (Financial Roadway to Prosperity)', 0.0800, TRUE, 'Membership subscriptions and outside ad platform revenue.'),
+        ('POCKET_BOOSTER', 'Pocket Booster Liquidity Vault', 0.0850, TRUE, 'Recurring monthly flat subscriber fees.'),
+        ('PREMIUM_CHOICE_DOGS', 'Premium Choice Dogs Infrastructure', 0.1100, TRUE, 'Daily cash-and-card transactions from physical mobile units.'),
+        ('COMMERCIAL_REAL_ESTATE', 'Commercial Real Estate Portfolio', 0.0000, FALSE, 'Future brick-and-mortar equity (Independent motels & laundromats).')
+      ON CONFLICT (project_tag) DO UPDATE SET
+        project_name = EXCLUDED.project_name,
+        annual_yield_rate = EXCLUDED.annual_yield_rate,
+        is_active = EXCLUDED.is_active,
+        backing_asset_description = EXCLUDED.backing_asset_description
+    `);
+
+    // Migrate legacy pillar tags → canonical 5-pillar tags
+    await db.execute(sql`
+      UPDATE user_investments SET project_tag = 'POCKET_BOOSTER'
+      WHERE project_tag = 'POCKET_BOOSTER_RESERVE'
+    `);
+    await db.execute(sql`
+      UPDATE user_investments SET project_tag = 'FR2P_PROGRAM'
+      WHERE project_tag = 'FR2P_CLUB_GROWTH'
+    `);
+    await db.execute(sql`
+      UPDATE user_investments SET project_tag = 'KHOMPLETE_KHEMISTRI'
+      WHERE project_tag = 'APPAREL_OPERATIONS'
+    `);
+    await db.execute(sql`
+      UPDATE user_investments SET project_tag = 'PREMIUM_CHOICE_DOGS'
+      WHERE project_tag = 'PREMIUM_CHOICE_HOT_DOGS'
+    `);
+    await db.execute(sql`
+      UPDATE user_investments SET project_tag = 'COMMERCIAL_REAL_ESTATE'
+      WHERE project_tag = 'REAL_ESTATE_PROPERTIES'
+    `);
+    await db.execute(sql`
+      ALTER TABLE user_investments
+      ALTER COLUMN project_tag SET DEFAULT 'POCKET_BOOSTER'
     `);
 
     await db.execute(sql`

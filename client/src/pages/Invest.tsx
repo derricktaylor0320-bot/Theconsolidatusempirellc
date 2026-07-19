@@ -95,14 +95,19 @@ function errorMessage(err: unknown, fallback: string) {
 
 function programIcon(tag: string) {
   switch (tag) {
+    case "POCKET_BOOSTER":
     case "POCKET_BOOSTER_RESERVE":
       return Rocket;
+    case "FR2P_PROGRAM":
     case "FR2P_CLUB_GROWTH":
       return TrendingUp;
+    case "KHOMPLETE_KHEMISTRI":
     case "APPAREL_OPERATIONS":
       return Shirt;
+    case "PREMIUM_CHOICE_DOGS":
     case "PREMIUM_CHOICE_HOT_DOGS":
       return Beef;
+    case "COMMERCIAL_REAL_ESTATE":
     case "REAL_ESTATE_PROPERTIES":
       return Building2;
     default:
@@ -110,8 +115,26 @@ function programIcon(tag: string) {
   }
 }
 
+type YieldAsset = {
+  investmentId: string;
+  pillarTag: string;
+  pillarName: string;
+  annualPercentage: string;
+  daysCompounding: number;
+  initialPrincipal: string;
+  currentValue: string;
+  totalEarnings: string;
+  backingAssetDescription?: string | null;
+};
+
+type YieldResponse = {
+  success: boolean;
+  complianceProtocol?: string;
+  assets: YieldAsset[];
+};
+
 export default function Invest() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -124,14 +147,28 @@ export default function Invest() {
     enabled: isAuthenticated,
   });
 
+  const { data: yieldLive } = useQuery<YieldResponse>({
+    queryKey: ["/api/liquidity/calculate-investor-yield", user?.id],
+    enabled: isAuthenticated && Boolean(user?.id),
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/liquidity/calculate-investor-yield/${user!.id}`,
+        { credentials: "include" },
+      );
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${await res.text()}`);
+      }
+      return res.json();
+    },
+  });
+
   const programs = catalog?.programs ?? HUB_INVESTMENT_PROGRAMS;
   const amounts =
     catalog?.allowedInvestmentAmounts ?? [...P2P_INVESTMENT_AMOUNTS];
 
   const [selectedTag, setSelectedTag] = useState(
     () =>
-      programs.find((p) => p.status === "open")?.tag ??
-      "POCKET_BOOSTER_RESERVE",
+      programs.find((p) => p.status === "open")?.tag ?? "POCKET_BOOSTER",
   );
   const [investAmount, setInvestAmount] =
     useState<P2PInvestmentAmount>(100);
@@ -152,6 +189,9 @@ export default function Invest() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/liquidity/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/liquidity/vault"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/liquidity/calculate-investor-yield"],
+      });
       queryClient.invalidateQueries({
         queryKey: ["/api/liquidity/notifications"],
       });
@@ -507,6 +547,52 @@ export default function Invest() {
                     </p>
                   )}
                 </div>
+
+                {/* Live daily-compound yield widgets */}
+                {yieldLive?.assets?.length ? (
+                  <div
+                    className="space-y-4 mb-10"
+                    data-testid="list-live-yield-assets"
+                  >
+                    <h3 className="font-display text-xl uppercase tracking-wide text-primary text-center">
+                      Live compounding yield
+                    </h3>
+                    <p className="text-center text-xs text-muted-foreground mb-2">
+                      Asset-backed RPUs only ·{" "}
+                      {yieldLive.complianceProtocol?.replace(/_/g, " ")}
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {yieldLive.assets.map((asset) => (
+                        <div
+                          key={asset.investmentId}
+                          className="rounded-lg border border-primary/30 bg-primary/5 p-4"
+                          data-testid={`yield-asset-${asset.investmentId}`}
+                        >
+                          <p className="font-display text-sm uppercase tracking-wide text-primary mb-1">
+                            {asset.pillarName}
+                          </p>
+                          <p className="text-2xl font-display text-foreground mb-1">
+                            {formatMoney(asset.currentValue)}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Started at {formatMoney(asset.initialPrincipal)} ·
+                            earned {formatMoney(asset.totalEarnings)} over{" "}
+                            {asset.daysCompounding} day
+                            {asset.daysCompounding === 1 ? "" : "s"}
+                          </p>
+                          <p className="text-xs text-primary/90 mt-2">
+                            {asset.annualPercentage} APR · daily compound
+                          </p>
+                          {asset.backingAssetDescription ? (
+                            <p className="text-xs text-muted-foreground mt-2 border-t border-border/40 pt-2">
+                              Backed by {asset.backingAssetDescription}
+                            </p>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
                 {/* Positions */}
                 <div className="space-y-4" data-testid="list-hub-investments">
