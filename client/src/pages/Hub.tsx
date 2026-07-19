@@ -34,7 +34,7 @@ const APPS: AppNode[] = [
   { href: "/media", label: "Media & Music", Icon: Music },
   { href: "/canvas", label: "Logo Collection", Icon: Palette },
   { href: "/fr2p", label: "FR2P Club", Icon: TrendingUp },
-  { href: "/pathway", label: "Empire Pathway", Icon: Compass },
+  { href: "/pathway", label: "PB Stages", Icon: Compass },
   { href: "/pocket-booster", label: "Pocket Booster", Icon: Rocket },
   { href: "/invest", label: "Empire Invest", Icon: CircleDollarSign },
 ];

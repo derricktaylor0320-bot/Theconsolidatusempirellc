@@ -29,10 +29,16 @@ import {
   type RepaymentChoice,
 } from "@shared/pocketBooster";
 import {
+  PROGRAM_PATHWAY,
+  PROGRAM_STAGES,
+  type ProgramStageId,
+} from "@shared/programStages";
+import {
   P2P_ANNUAL_YIELD_RATE,
   P2P_INVESTMENT_AMOUNTS,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type TiersResponse = {
   platformName: string;
@@ -161,6 +167,9 @@ export default function PocketBooster() {
   const [customSplitCount, setCustomSplitCount] = useState(3);
   const [investAmount, setInvestAmount] =
     useState<P2PInvestmentAmount>(100);
+  const [activeStageId, setActiveStageId] = useState<ProgramStageId>("S1");
+  const activeStage =
+    PROGRAM_STAGES.find((s) => s.id === activeStageId) ?? PROGRAM_STAGES[0];
 
   useEffect(() => {
     if (activeTier) {
@@ -330,22 +339,162 @@ export default function PocketBooster() {
                 "Zero-Capital (Subscription Powered)"}{" "}
               · P2P Liquidity Loop
             </p>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Part of the{" "}
-              <Link
-                href="/pathway"
+            <p className="mt-4 text-sm text-muted-foreground max-w-xl mx-auto">
+              {PROGRAM_PATHWAY.tagline} Jump to{" "}
+              <a
+                href="#stages"
                 className="text-primary underline underline-offset-2"
-                data-testid="link-pb-pathway"
+                data-testid="link-pb-stages"
               >
-                Empire Pathway
-              </Link>{" "}
-              — S1 Emergency Fund through S6 Six-Figure Skill Accelerator.
+                the eight program tabs
+              </a>{" "}
+              below for each stage description.
             </p>
           </div>
         </section>
 
+        {/* Pocket Booster program stage tabs (S1–S8) */}
+        <section
+          id="stages"
+          className="border-t border-primary/15 bg-secondary/15"
+          data-testid="section-pocket-booster-stages"
+        >
+          <div className="max-w-5xl mx-auto px-6 py-14">
+            <div className="text-center mb-8">
+              <p className="font-display text-xs uppercase tracking-[0.3em] text-primary mb-2">
+                {PROGRAM_PATHWAY.program}
+              </p>
+              <h2
+                className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3"
+                data-testid="text-pb-stages-title"
+              >
+                {PROGRAM_PATHWAY.shortName}
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Each code (S1–S8) is a Pocket Booster program tab. Select a tab
+                to see what that stage represents in the journey.
+              </p>
+            </div>
+
+            <Tabs
+              value={activeStageId}
+              onValueChange={(value) =>
+                setActiveStageId(value as ProgramStageId)
+              }
+              className="w-full"
+            >
+              <TabsList
+                className="flex h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0 md:justify-center"
+                data-testid="tabs-pocket-booster-stages"
+              >
+                {PROGRAM_STAGES.map((stage) => (
+                  <TabsTrigger
+                    key={stage.id}
+                    value={stage.id}
+                    className="min-w-[4.25rem] flex-col gap-0.5 border px-3 py-2 data-[state=active]:shadow-none"
+                    style={{
+                      borderColor:
+                        activeStageId === stage.id
+                          ? stage.color
+                          : "hsl(var(--border))",
+                      background:
+                        activeStageId === stage.id
+                          ? stage.colorSoft
+                          : "transparent",
+                      color:
+                        activeStageId === stage.id
+                          ? stage.color
+                          : "hsl(var(--muted-foreground))",
+                    }}
+                    data-testid={`tab-pb-stage-${stage.id}`}
+                  >
+                    <span className="font-display text-sm font-bold tracking-wider">
+                      {stage.id}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-widest opacity-80">
+                      Tab {stage.level}
+                    </span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {PROGRAM_STAGES.map((stage) => (
+                <TabsContent
+                  key={stage.id}
+                  value={stage.id}
+                  className="mt-8 focus-visible:outline-none"
+                  data-testid={`panel-pb-stage-${stage.id}`}
+                >
+                  <motion.article
+                    key={stage.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="max-w-3xl mx-auto"
+                  >
+                    <div
+                      className="h-1.5 w-full mb-6"
+                      style={{
+                        background: `linear-gradient(90deg, ${stage.color}, transparent)`,
+                      }}
+                    />
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      <span
+                        className="font-display text-sm uppercase tracking-[0.25em]"
+                        style={{ color: stage.color }}
+                        data-testid="text-pb-active-stage-id"
+                      >
+                        {stage.id} · Tab {stage.level}
+                      </span>
+                      <span
+                        className="text-xs uppercase tracking-widest px-2 py-1 border"
+                        style={{
+                          borderColor: stage.color,
+                          color: stage.color,
+                          background: stage.colorSoft,
+                        }}
+                        data-testid="text-pb-active-visual-identity"
+                      >
+                        {stage.visualIdentity}
+                      </span>
+                    </div>
+                    <h3
+                      className="font-display text-2xl md:text-4xl font-bold uppercase tracking-tight mb-4"
+                      data-testid="text-pb-active-stage-title"
+                    >
+                      {stage.title}
+                    </h3>
+                    <p
+                      className="text-foreground/85 text-base md:text-lg leading-relaxed mb-6"
+                      data-testid="text-pb-active-stage-meaning"
+                    >
+                      {stage.meaning}
+                    </p>
+                    <Button
+                      asChild
+                      className="uppercase tracking-wider font-display text-white hover:opacity-90"
+                      style={{ backgroundColor: stage.color }}
+                      data-testid="button-pb-stage-continue"
+                    >
+                      <a href={stage.relatedHref}>
+                        Continue to {stage.relatedLabel}
+                      </a>
+                    </Button>
+                  </motion.article>
+                </TabsContent>
+              ))}
+            </Tabs>
+
+            {activeStage && (
+              <p className="sr-only" aria-live="polite">
+                Showing Pocket Booster tab {activeStage.id}: {activeStage.title}
+              </p>
+            )}
+          </div>
+        </section>
+
         {/* Tiers */}
-        <section className="max-w-6xl mx-auto px-6 py-14">
+        <section id="tiers" className="max-w-6xl mx-auto px-6 py-14">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3">
               Choose Your Tier
@@ -468,7 +617,10 @@ export default function PocketBooster() {
         </section>
 
         {/* P2P Liquidity Loop */}
-        <section className="border-t border-primary/15 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.08),_transparent_65%)]">
+        <section
+          id="reserve"
+          className="border-t border-primary/15 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.08),_transparent_65%)]"
+        >
           <div className="max-w-4xl mx-auto px-6 py-14">
             <div className="flex items-center gap-3 mb-3 justify-center">
               <Landmark className="h-6 w-6 text-primary" />
@@ -615,7 +767,10 @@ export default function PocketBooster() {
         </section>
 
         {/* Cushion request */}
-        <section className="border-t border-primary/15 bg-secondary/20">
+        <section
+          id="cushion"
+          className="border-t border-primary/15 bg-secondary/20"
+        >
           <div className="max-w-3xl mx-auto px-6 py-14">
             <div className="flex items-center gap-3 mb-3 justify-center">
               <Wallet className="h-6 w-6 text-primary" />
@@ -795,7 +950,7 @@ export default function PocketBooster() {
         </section>
 
         {/* Pay-to-Learn */}
-        <section className="max-w-5xl mx-auto px-6 py-14">
+        <section id="pay-to-learn" className="max-w-5xl mx-auto px-6 py-14">
           <div className="flex items-center gap-3 mb-3 justify-center">
             <BookOpen className="h-6 w-6 text-primary" />
             <h2 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">
