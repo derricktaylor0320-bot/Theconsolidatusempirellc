@@ -27,7 +27,8 @@ create your own session; don't store the raw token.
 
 ### Option A — call the hub (no shared secret, recommended)
 
-`POST https://<hub-domain>/api/auth/sso/verify`
+`POST https://tceholdings.org/api/auth/sso/verify`
+(or `https://<hub-domain>/api/auth/sso/verify` while the custom domain is still verifying on Railway)
 Body: `{ "token": "<token>" }`
 
 Response on success (`200`):

@@ -7,7 +7,9 @@ The Consolidatus Empire is a premium e-commerce platform for Khomplete Khemistri
 ## Live Deployment
 
 - **Host:** Railway — project "The Consolidatus Empire", environment `production`
-- **Live URL:** https://khomplete-khemistri-apparel.up.railway.app
+- **Custom domain:** https://tceholdings.org — **TCE Holdings** = The Consolidatus Empire Holdings (Railway DNS/SSL validation may take up to ~48 hours after purchase/attach)
+- **Interim Railway URL:** https://khomplete-khemistri-apparel.up.railway.app (works until the custom domain verifies)
+- **Env:** Set `APP_URL=https://tceholdings.org` (or `PUBLIC_URL`) on Railway once the domain is live so checkout redirects, password-reset emails, review links, and Open Graph tags use the custom domain
 - **Services:**
   - `poetic-balance` — the web app, deployed from GitHub repo `derricktaylor0320-bot/Theconsolidatusempirellc` (branch `main`)
   - `Postgres` — database holding all migrated store data (Stripe-synced catalog + app tables)

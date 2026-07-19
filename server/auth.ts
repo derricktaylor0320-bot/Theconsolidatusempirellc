@@ -18,6 +18,7 @@ import {
   type PublicUser,
   type User,
 } from "@shared/schema";
+import { resolvePublicSiteUrl } from "@shared/site";
 
 const scryptAsync = promisify(scrypt);
 
@@ -63,14 +64,11 @@ function hashResetToken(token: string): string {
 }
 
 // Resolve the public origin so emailed reset links point at the right host.
-// Prefer explicit config (APP_URL/PUBLIC_URL), then Replit's domain, then the
-// incoming request's host as a last resort.
+// Prefer APP_URL/PUBLIC_URL / production custom domain (tceholdings.org), then
+// the incoming request's host as a last resort.
 function getPublicBaseUrl(req: { headers: Record<string, any>; protocol: string }): string {
-  const explicit = process.env.APP_URL || process.env.PUBLIC_URL;
-  if (explicit) return explicit.replace(/\/$/, "");
-
-  const replitDomain = process.env.REPLIT_DOMAINS?.split(",")[0];
-  if (replitDomain) return `https://${replitDomain}`;
+  const configured = resolvePublicSiteUrl();
+  if (configured) return configured;
 
   const forwardedProto = req.headers["x-forwarded-proto"];
   const proto = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || req.protocol || "http";
