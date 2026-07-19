@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
+  Beef,
   Bell,
   Building2,
   CheckCircle2,
@@ -21,6 +22,8 @@ import { apiRequest } from "@/lib/queryClient";
 import {
   HUB_INVESTMENT_PROGRAMS,
   P2P_INVESTMENT_AMOUNTS,
+  RPU_LEGAL_DISCLAIMER,
+  RPU_LOCK_PERIOD_DAYS,
   type HubInvestmentProgram,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
@@ -34,8 +37,12 @@ type LiquidityMeResponse = {
   investments: Array<{
     id: string;
     amountAllocated: string;
+    unitsCount?: string;
     projectTag: string;
     yieldRate: string;
+    lockPeriodDays?: number;
+    hasVotingRights?: boolean;
+    instrumentType?: string;
     accruedYield: string;
     paidYield: string;
     status: string;
@@ -94,6 +101,8 @@ function programIcon(tag: string) {
       return TrendingUp;
     case "APPAREL_OPERATIONS":
       return Shirt;
+    case "PREMIUM_CHOICE_HOT_DOGS":
+      return Beef;
     case "REAL_ESTATE_PROPERTIES":
       return Building2;
     default:
@@ -146,12 +155,18 @@ export default function Invest() {
       queryClient.invalidateQueries({
         queryKey: ["/api/liquidity/notifications"],
       });
+      const units = data.details?.allocatedUnits;
       toast({
-        title: "Capital allocated",
+        title:
+          data.complianceStatus === "VERIFIED_COMPLIANT"
+            ? "Participation units issued"
+            : "Capital allocated",
         description:
-          data.backOfficeVerification ||
-          data.message ||
-          "Your investment is active in the back office.",
+          units != null
+            ? `${units} Revenue Participation Units locked to project utility. ${data.backOfficeVerification || data.message || ""}`
+            : data.backOfficeVerification ||
+              data.message ||
+              "Your investment is active in the back office.",
       });
     },
     onError: (err: unknown) => {
@@ -204,14 +219,29 @@ export default function Invest() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.12 }}
-              className="text-lg md:text-xl text-foreground/85 max-w-2xl mx-auto mb-3"
+              className="text-lg md:text-xl text-foreground/85 max-w-3xl mx-auto mb-3"
+              data-testid="text-invest-intro"
             >
-              Put capital to work across The Consolidatus Empire — apparel,
-              Pocket Booster, FR2P Club, and upcoming real estate — with a clear
-              back office showing exactly where your money went.
+              Put your capital to work across The Consolidatus Empire LLC —
+              choose Khomplete Khemistri Apparel (our branded clothing line), The
+              FR2P Club (my personal venture for direct affiliate marketing,
+              courses, AI promotion & sales, and compliant recurring revenue),
+              Pocket Booster (Reserve Vault emergency cushion support), or
+              Premium Choice Hot Dogs (our premium street-food line). Upcoming:
+              real estate — mom-and-pop motel takeovers, then laundromats,
+              through creative financing. Clear back-office tracking so you see
+              exactly where your money went.
             </motion.p>
             <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display">
-              Tangible ROI · No stock market · Full allocation transparency
+              Project-only capital · No owner shares · Full allocation transparency
+            </p>
+            <p
+              className="text-sm text-muted-foreground max-w-2xl mx-auto mt-4"
+              data-testid="text-project-only-capital"
+            >
+              When you invest, your capital funds only the program you pick.
+              It has nothing to do with the owners&apos; shares or LLC ownership —
+              those stay with the founding members.
             </p>
           </div>
         </section>
@@ -333,25 +363,42 @@ export default function Invest() {
                     </Button>
                   </div>
                 ) : (
-                  <Button
-                    onClick={() => investMutation.mutate()}
-                    disabled={investMutation.isPending}
-                    data-testid="button-confirm-hub-invest"
-                  >
-                    {investMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Landmark className="h-4 w-4" />
-                    )}
-                    Bridge {formatMoney(investAmount)} into{" "}
-                    {selectedProgram.shortName}
-                  </Button>
+                  <div className="space-y-3">
+                    <Button
+                      onClick={() => investMutation.mutate()}
+                      disabled={investMutation.isPending}
+                      data-testid="button-confirm-hub-invest"
+                    >
+                      {investMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Landmark className="h-4 w-4" />
+                      )}
+                      Issue {formatMoney(investAmount)} Participation Units
+                    </Button>
+                    <p
+                      className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed"
+                      data-testid="text-rpu-disclaimer"
+                    >
+                      Your {formatMoney(investAmount)} goes only into{" "}
+                      {selectedProgram.shortName} as Revenue Participation Units
+                      (1 unit = $1), with a {RPU_LOCK_PERIOD_DAYS}-day lock and
+                      zero voting rights. {RPU_LEGAL_DISCLAIMER}
+                    </p>
+                  </div>
                 )}
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Real estate & property investing opens soon — motel and owner
-                ventures under the Empire umbrella.
+              <p
+                className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed"
+                data-testid="text-real-estate-pipeline"
+              >
+                Coming soon: we&apos;re building a local mom-and-pop motel
+                pipeline — creative financing, sit-downs with owners ready to
+                retire, and us taking over day-to-day ops while they keep a
+                little extra income. We&apos;ll tighten the guest experience
+                (clean, smells like home, real hospitality), then run the same
+                playbook for laundromat acquisitions.
               </p>
             )}
           </div>
@@ -483,6 +530,14 @@ export default function Invest() {
                             {inv.status}
                           </p>
                         </div>
+                        <p className="text-xs text-primary/90 mb-2">
+                          {parseFloat(
+                            inv.unitsCount ?? inv.amountAllocated,
+                          ).toFixed(0)}{" "}
+                          RPUs ·{" "}
+                          {inv.lockPeriodDays ?? RPU_LOCK_PERIOD_DAYS}-day lock ·
+                          no voting rights
+                        </p>
                         <p className="text-sm text-muted-foreground mb-2">
                           Paid {formatMoney(inv.paidYield)} · Accrued{" "}
                           {formatMoney(inv.accruedYield)}

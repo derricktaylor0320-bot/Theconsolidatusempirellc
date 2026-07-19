@@ -302,14 +302,19 @@ export async function ensureTablesExist() {
     `);
 
     // P2P Liquidity Loop — investor capital → Pocket Booster reserve vault
-    // → cushions; subscription fees → 8.5% daily-compound yield to investors.
+    // → cushions; subscription fees → 8.5% annual APR compounded daily.
+    // Investors receive non-equity Revenue Participation Units only.
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS user_investments (
         id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id VARCHAR(255) NOT NULL,
         amount_allocated DECIMAL(12, 2) NOT NULL,
+        units_count DECIMAL(12, 2) NOT NULL DEFAULT 0,
         project_tag TEXT NOT NULL DEFAULT 'POCKET_BOOSTER_RESERVE',
         yield_rate DECIMAL(6, 4) NOT NULL DEFAULT 0.0850,
+        lock_period_days INTEGER NOT NULL DEFAULT 90,
+        has_voting_rights BOOLEAN NOT NULL DEFAULT false,
+        instrument_type TEXT NOT NULL DEFAULT 'REVENUE_PARTICIPATION_UNIT',
         accrued_yield DECIMAL(12, 4) NOT NULL DEFAULT 0,
         paid_yield DECIMAL(12, 4) NOT NULL DEFAULT 0,
         status TEXT NOT NULL DEFAULT 'ACTIVE',
@@ -318,8 +323,48 @@ export async function ensureTablesExist() {
       )
     `);
     await db.execute(sql`
+      ALTER TABLE user_investments
+      ADD COLUMN IF NOT EXISTS units_count DECIMAL(12, 2) NOT NULL DEFAULT 0
+    `);
+    await db.execute(sql`
+      ALTER TABLE user_investments
+      ADD COLUMN IF NOT EXISTS lock_period_days INTEGER NOT NULL DEFAULT 90
+    `);
+    await db.execute(sql`
+      ALTER TABLE user_investments
+      ADD COLUMN IF NOT EXISTS has_voting_rights BOOLEAN NOT NULL DEFAULT false
+    `);
+    await db.execute(sql`
+      ALTER TABLE user_investments
+      ADD COLUMN IF NOT EXISTS instrument_type TEXT NOT NULL DEFAULT 'REVENUE_PARTICIPATION_UNIT'
+    `);
+    await db.execute(sql`
+      UPDATE user_investments
+      SET units_count = amount_allocated
+      WHERE units_count = 0 OR units_count IS NULL
+    `);
+    await db.execute(sql`
       CREATE INDEX IF NOT EXISTS "IDX_user_investments_user_status"
       ON user_investments (user_id, status)
+    `);
+
+    // Core LLC equity shield — foundational members only; never written by RPU issuance
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS company_equity (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        member_name TEXT NOT NULL UNIQUE,
+        equity_percentage TEXT NOT NULL DEFAULT 'FOUNDATIONAL_LOCKED',
+        is_foundational BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      INSERT INTO company_equity (member_name, equity_percentage, is_foundational)
+      VALUES
+        ('Derrick Taylor', 'FOUNDATIONAL_LOCKED', true),
+        ('Carlyle Oliver', 'FOUNDATIONAL_LOCKED', true),
+        ('Jerome Young Jr', 'FOUNDATIONAL_LOCKED', true)
+      ON CONFLICT (member_name) DO NOTHING
     `);
 
     await db.execute(sql`

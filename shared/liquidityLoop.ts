@@ -10,6 +10,23 @@ export type P2PInvestmentAmount = (typeof P2P_INVESTMENT_AMOUNTS)[number];
 
 export const P2P_PROJECT_TAG = "POCKET_BOOSTER_RESERVE" as const;
 
+/** Revenue Participation Units — non-equity project utility instrument */
+export const RPU_INSTRUMENT_TYPE = "REVENUE_PARTICIPATION_UNIT" as const;
+export const RPU_LOCK_PERIOD_DAYS = 90;
+export const RPU_COMPLIANCE_STATUS = "VERIFIED_COMPLIANT" as const;
+export const RPU_LEGAL_DISCLAIMER =
+  "Your money goes only to the project you select — it does not buy ownership, voting shares, or any piece of the founders' LLC equity. This is a non-equity Revenue Participation Agreement locked to project utility only.";
+
+/**
+ * Foundational LLC members whose corporate equity must never be diluted
+ * by platform investor unit issuance.
+ */
+export const CORE_LLC_MEMBERS = [
+  "Derrick Taylor",
+  "Carlyle Oliver",
+  "Jerome Young Jr",
+] as const;
+
 export type HubProgramStatus = "open" | "coming_soon";
 
 export type HubInvestmentProgram = {
@@ -38,7 +55,7 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "Pocket Booster Reserve",
     shortName: "Pocket Booster",
     description:
-      "Back interest-free member cushions. Your capital funds the Instant-Disbursal Reserve Vault; subscription fees return your yield.",
+      "Reserve Vault emergency cushion support — your capital funds interest-free member cushions; subscription fees return your yield.",
     allocationSummary:
       "100% into the Pocket Booster Instant-Disbursal Reserve Vault",
     ledgerDescription:
@@ -53,11 +70,11 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "FR2P Club Growth",
     shortName: "FR2P Club",
     description:
-      "Fuel The FR2P Club’s member experience, rewards infrastructure, and community growth inside the centralized hub.",
+      "A personal venture focused on direct affiliate marketing and professional growth — courses, AI promotion, and sales built for recurring revenue with full compliance.",
     allocationSummary:
-      "100% into FR2P Club growth & member rewards operations",
+      "100% into FR2P Club growth, courses & affiliate operations",
     ledgerDescription:
-      "100% allocated to FR2P Club Growth — member rewards, community operations, and club expansion under The Consolidatus Empire.",
+      "100% allocated to The FR2P Club — direct affiliate marketing, professional growth courses, AI promotion & sales, and compliant recurring-revenue operations under The Consolidatus Empire.",
     annualYieldRate: 0.08,
     status: "open",
     fundsPocketBoosterVault: false,
@@ -65,29 +82,44 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
   },
   {
     tag: "APPAREL_OPERATIONS",
-    name: "Apparel & Brand Operations",
-    shortName: "Apparel Line",
+    name: "Khomplete Khemistri Apparel",
+    shortName: "Khomplete Khemistri",
     description:
-      "Put capital into Khomplete Khemistri apparel inventory, fulfillment, and brand operations that power the storefront.",
+      "Put capital into Khomplete Khemistri Apparel — our branded clothing line — covering inventory, fulfillment, and brand operations.",
     allocationSummary:
-      "100% into apparel inventory & brand operations",
+      "100% into Khomplete Khemistri apparel inventory & brand operations",
     ledgerDescription:
-      "100% allocated to Apparel & Brand Operations — inventory, fulfillment, and storefront growth for the Khomplete Khemistri apparel line.",
+      "100% allocated to Khomplete Khemistri Apparel — inventory, fulfillment, and storefront growth for the branded clothing line under The Consolidatus Empire.",
     annualYieldRate: 0.075,
     status: "open",
     fundsPocketBoosterVault: false,
     href: "/apparel",
   },
   {
+    tag: "PREMIUM_CHOICE_HOT_DOGS",
+    name: "Premium Choice Hot Dogs",
+    shortName: "Premium Choice Dogs",
+    description:
+      "Fund the Premium Choice Hot Dogs street-food operation — quality franks, drinks, and homemade desserts under The Consolidatus Empire.",
+    allocationSummary:
+      "100% into Premium Choice Hot Dogs inventory, cart ops & street-food growth",
+    ledgerDescription:
+      "100% allocated to Premium Choice Hot Dogs — food inventory, cart operations, drinks, desserts, and street-food growth under The Consolidatus Empire.",
+    annualYieldRate: 0.07,
+    status: "open",
+    fundsPocketBoosterVault: false,
+    href: "/hot-dogs",
+  },
+  {
     tag: "REAL_ESTATE_PROPERTIES",
     name: "Real Estate & Properties",
     shortName: "Real Estate",
     description:
-      "Owners and property ventures — including motel acquisitions — launching soon under the Empire umbrella.",
+      "First up: mom-and-pop motel takeovers through creative financing — we step into day-to-day operations, tidy the property up so it feels like home (fresh rooms, real hospitality), and put a little extra retirement money in the owner's pocket from the revenue. Same playbook next for laundromat acquisitions. Launching soon.",
     allocationSummary:
-      "Property acquisition & motel operations (launching soon)",
+      "100% into motel (then laundromat) acquisition & operations — creative financing pipeline",
     ledgerDescription:
-      "Reserved for Real Estate & Properties — motel and property ventures under The Consolidatus Empire (program launching soon).",
+      "Reserved for Real Estate & Properties — mom-and-pop motel acquisitions via creative financing, operator takeovers with guest-experience upgrades, retiring-owner revenue participation, then the same model for laundromats under The Consolidatus Empire (program launching soon).",
     annualYieldRate: 0.09,
     status: "coming_soon",
     fundsPocketBoosterVault: false,
@@ -142,3 +174,18 @@ export const bridgeP2pSchema = z.object({
 });
 
 export type BridgeP2pInput = z.infer<typeof bridgeP2pSchema>;
+
+/** Explicit RPU issuance payload (alias of bridge invest) */
+export const issueParticipationUnitsSchema = z.object({
+  capitalContribution: z.union([
+    z.literal(100),
+    z.literal(250),
+    z.literal(500),
+    z.literal(1000),
+  ]),
+  targetProjectPool: z.string().min(1),
+});
+
+export type IssueParticipationUnitsInput = z.infer<
+  typeof issueParticipationUnitsSchema
+>;
