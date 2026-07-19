@@ -82,18 +82,33 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
   },
   {
     tag: "APPAREL_OPERATIONS",
-    name: "Apparel & Brand Operations",
-    shortName: "Apparel Line",
+    name: "Khomplete Khemistri Apparel",
+    shortName: "Khomplete Khemistri",
     description:
       "Put capital into Khomplete Khemistri Apparel — our branded clothing line — covering inventory, fulfillment, and brand operations.",
     allocationSummary:
-      "100% into apparel inventory & brand operations",
+      "100% into Khomplete Khemistri apparel inventory & brand operations",
     ledgerDescription:
-      "100% allocated to Apparel & Brand Operations — inventory, fulfillment, and storefront growth for the Khomplete Khemistri apparel line.",
+      "100% allocated to Khomplete Khemistri Apparel — inventory, fulfillment, and storefront growth for the branded clothing line under The Consolidatus Empire.",
     annualYieldRate: 0.075,
     status: "open",
     fundsPocketBoosterVault: false,
     href: "/apparel",
+  },
+  {
+    tag: "PREMIUM_CHOICE_HOT_DOGS",
+    name: "Premium Choice Hot Dogs",
+    shortName: "Premium Choice Dogs",
+    description:
+      "Fund the Premium Choice Hot Dogs street-food operation — quality franks, drinks, and homemade desserts under The Consolidatus Empire.",
+    allocationSummary:
+      "100% into Premium Choice Hot Dogs inventory, cart ops & street-food growth",
+    ledgerDescription:
+      "100% allocated to Premium Choice Hot Dogs — food inventory, cart operations, drinks, desserts, and street-food growth under The Consolidatus Empire.",
+    annualYieldRate: 0.07,
+    status: "open",
+    fundsPocketBoosterVault: false,
+    href: "/hot-dogs",
   },
   {
     tag: "REAL_ESTATE_PROPERTIES",

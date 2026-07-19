@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
+  Beef,
   Bell,
   Building2,
   CheckCircle2,
@@ -100,6 +101,8 @@ function programIcon(tag: string) {
       return TrendingUp;
     case "APPAREL_OPERATIONS":
       return Shirt;
+    case "PREMIUM_CHOICE_HOT_DOGS":
+      return Beef;
     case "REAL_ESTATE_PROPERTIES":
       return Building2;
     default:
@@ -220,15 +223,14 @@ export default function Invest() {
               data-testid="text-invest-intro"
             >
               Put your capital to work across The Consolidatus Empire LLC —
-              including Khomplete Khemistri Apparel, our branded clothing line;
-              Pocket Booster for Reserve Vault emergency cushion support; and The
-              FR2P Club, a personal venture of mine focused on direct affiliate
-              marketing and professional growth. It offers courses plus AI
-              promotion and sales built for recurring revenue and full compliance,
-              alongside our upcoming real estate venture — starting with
-              mom-and-pop motel takeovers (then laundromats) through creative
-              financing — with clear back-office tracking so you can see exactly
-              where your money went.
+              choose Khomplete Khemistri Apparel (our branded clothing line), The
+              FR2P Club (my personal venture for direct affiliate marketing,
+              courses, AI promotion & sales, and compliant recurring revenue),
+              Pocket Booster (Reserve Vault emergency cushion support), or
+              Premium Choice Hot Dogs (our premium street-food line). Upcoming:
+              real estate — mom-and-pop motel takeovers, then laundromats,
+              through creative financing. Clear back-office tracking so you see
+              exactly where your money went.
             </motion.p>
             <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display">
               Project-only capital · No owner shares · Full allocation transparency
