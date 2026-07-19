@@ -50,6 +50,11 @@ export default function Accessories() {
                 soldOutColors={product.soldOutColors}
                 scents={product.scents}
                 variants={product.variants}
+                imageFit={
+                  product.imageUrl?.includes("kk_branded_logo_lighter")
+                    ? "contain"
+                    : "cover"
+                }
               />
             ))}
           </div>

@@ -342,7 +342,7 @@ function ProductDetailContent({
           <img
             src={product.imageUrl}
             alt={product.title}
-            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") ? "object-contain p-3" : "object-cover"} w-full h-full`}
+            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") ? "object-contain p-3" : "object-cover"} w-full h-full`}
             data-testid="img-product-detail"
           />
           {soldOut && (

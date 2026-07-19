@@ -1170,7 +1170,9 @@ const LIGHTER_PRICE_ID = "price_kkbrandedlighter";
 const LIGHTER_NAME = "Custom Branded Luxury Logo Lighter";
 const LIGHTER_PRICE_CENTS = 3000;
 const LIGHTER_BLANK_COST_CENTS = 1995;
-const LIGHTER_IMAGE = "/assets/kk_branded_logo_lighter.png";
+// Square 2x2 grid so all four branded lighters fit the product-card perimeter
+// (the prior wide 4-across shot was cropped by object-cover).
+const LIGHTER_IMAGE = "/assets/kk_branded_logo_lighter_grid.png";
 const LIGHTER_COLORS =
   "Black, Blue, Dark Blue, Golden Yellow, Green, Metallic Silver, Pink, Red, White";
 const LIGHTER_DESCRIPTION =

@@ -42,7 +42,12 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
   const price = activeVariant ? activeVariant.price : basePrice;
   const priceId = activeVariant ? (activeVariant.priceId ?? undefined) : basePriceId;
   const soldOut = activeVariant ? activeVariant.soldOut : baseSoldOut;
-  const fitClass = imageFit === "contain" ? "object-contain p-2" : "object-cover";
+  // Wide multi-item shots (e.g. four lighters) get cropped by cover in the
+  // square card frame — prefer contain when the catalog image needs the full perimeter.
+  const autoContain =
+    typeof image === "string" && image.includes("kk_branded_logo_lighter");
+  const fitClass =
+    imageFit === "contain" || autoContain ? "object-contain p-2" : "object-cover";
   const { addItem } = useCart();
   const usesCaseType = !!caseType && caseType.trim().length > 0;
   const logoChoices = logoOptions

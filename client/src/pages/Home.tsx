@@ -89,6 +89,11 @@ export default function Home() {
                 colors={product.colors}
                 soldOutColors={product.soldOutColors}
                 scents={product.scents}
+                imageFit={
+                  product.imageUrl?.includes("kk_branded_logo_lighter")
+                    ? "contain"
+                    : "cover"
+                }
               />
             ))}
           </div>

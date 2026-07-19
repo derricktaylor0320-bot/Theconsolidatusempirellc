@@ -162,7 +162,7 @@ export default function Cart() {
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="h-24 w-24 rounded-lg object-cover bg-muted flex-shrink-0"
+                      className={`h-24 w-24 rounded-lg bg-muted flex-shrink-0 ${item.image?.includes("kk_branded_logo_lighter") ? "object-contain p-1" : "object-cover"}`}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between gap-2">
