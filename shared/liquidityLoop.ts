@@ -100,7 +100,7 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "Real Estate & Properties",
     shortName: "Real Estate",
     description:
-      "First up: mom-and-pop motel takeovers through creative financing — we step into day-to-day operations, tidy the property up so it feels like home (fresh rooms, real hospitality), and put a little extra retirement money in the owner’s pocket from the revenue. Same playbook next for laundromat acquisitions. Launching soon.",
+      "First up: mom-and-pop motel takeovers through creative financing — we step into day-to-day operations, tidy the property up so it feels like home (fresh rooms, real hospitality), and put a little extra retirement money in the owner's pocket from the revenue. Same playbook next for laundromat acquisitions. Launching soon.",
     allocationSummary:
       "100% into motel (then laundromat) acquisition & operations — creative financing pipeline",
     ledgerDescription:
