@@ -60,7 +60,7 @@ export default function Pathway() {
             className="font-display text-xs md:text-sm uppercase tracking-[0.35em] text-primary mb-3"
             data-testid="text-pathway-eyebrow"
           >
-            The Consolidatus Empire
+            Pocket Booster Program
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 14 }}
@@ -86,22 +86,22 @@ export default function Pathway() {
             transition={{ duration: 0.45, delay: 0.2 }}
             className="flex flex-wrap items-center justify-center gap-3"
           >
-            <Link href="/fr2p">
+            <Link href="/pocket-booster#stages">
               <Button
                 className="bg-primary text-black hover:bg-primary/90 uppercase tracking-wider font-display"
-                data-testid="button-pathway-fr2p"
+                data-testid="button-pathway-pocket-booster"
               >
-                Enter FR2P Club
+                Open Pocket Booster Tabs
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/pocket-booster">
+            <Link href="/fr2p">
               <Button
                 variant="outline"
                 className="uppercase tracking-wider font-display border-primary/40"
-                data-testid="button-pathway-pocket-booster"
+                data-testid="button-pathway-fr2p"
               >
-                Start with Pocket Booster
+                Enter FR2P Club
               </Button>
             </Link>
           </motion.div>
@@ -135,7 +135,7 @@ export default function Pathway() {
                     {stage.id}
                   </span>
                   <span className="block text-[10px] uppercase tracking-widest opacity-80">
-                    Stage {stage.level}
+                    Tab {stage.level}
                   </span>
                 </motion.button>
               );
@@ -168,7 +168,7 @@ export default function Pathway() {
                     data-testid="text-active-stage-id"
                   >
                     <Sparkles className="h-4 w-4" />
-                    {active.id} · Stage {active.level}
+                    {active.id} · Tab {active.level}
                   </span>
                   <span
                     className="text-xs uppercase tracking-widest px-2 py-1 border"
@@ -210,7 +210,7 @@ export default function Pathway() {
 
           <div className="mt-16 max-w-4xl mx-auto">
             <h3 className="font-display text-xl md:text-2xl font-bold uppercase tracking-wide text-center mb-8 text-primary">
-              Full Roadway
+              Full Pocket Booster Roadway
             </h3>
             <ol className="space-y-0" data-testid="list-pathway-stages">
               {stages.map((stage, index) => (

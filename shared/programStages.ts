@@ -1,8 +1,10 @@
 /**
- * The Consolidatus Empire — Financial Roadway program stages (S1–S8).
+ * Pocket Booster — program stage tabs (S1–S8).
  *
- * Canonical definitions for the member journey from emergency stabilization
- * through sovereign executive ownership of the multi-program hub.
+ * These eight codes describe what each Pocket Booster program tab represents
+ * along the member journey from emergency cash cushion through sovereign
+ * executive ownership. They are Pocket Booster program definitions — not
+ * product catalog items (e.g. vitamin supplement bottles).
  */
 
 export type ProgramStageId =
@@ -19,22 +21,24 @@ export type ProgramStage = {
   id: ProgramStageId;
   level: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   title: string;
+  /** What this Pocket Booster tab represents for the member */
   meaning: string;
   visualIdentity: string;
   /** Primary brand hex for this stage's visual identity */
   color: string;
   /** Soft companion tint for backgrounds / gradients */
   colorSoft: string;
-  /** Hub app that advances this stage */
+  /** In-app focus area advanced by this Pocket Booster tab */
   relatedHref: string;
   relatedLabel: string;
 };
 
 export const PROGRAM_PATHWAY = {
-  name: "Financial Roadway 2 Prosperity",
-  shortName: "Empire Pathway",
+  name: "Pocket Booster Program",
+  shortName: "Pocket Booster Stages",
   tagline:
-    "Eight stages from cash cushion to sovereign ownership across The Consolidatus Empire.",
+    "Eight Pocket Booster tabs — from cash cushion to sovereign ownership — each with a clear purpose in the program.",
+  program: "Pocket Booster",
 } as const;
 
 export const PROGRAM_STAGES: ProgramStage[] = [
@@ -43,23 +47,23 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     level: 1,
     title: "Emergency Fund First",
     meaning:
-      "Immediate financial stabilization. This tier focuses on establishing a cash cushion to prevent future reliance on high-interest debt in case of unexpected expenses.",
+      "Immediate financial stabilization. This Pocket Booster tab focuses on establishing a cash cushion to prevent future reliance on high-interest debt when unexpected expenses hit.",
     visualIdentity: "Rich Crimson Red",
     color: "#9B1B30",
     colorSoft: "#9B1B3026",
-    relatedHref: "/pocket-booster",
-    relatedLabel: "Pocket Booster",
+    relatedHref: "/pocket-booster#tiers",
+    relatedLabel: "Cushion Tiers",
   },
   {
     id: "S2",
     level: 2,
     title: "The Color of Money",
     meaning:
-      "Financial literacy and mindset shift. This phase educates users on how money works, shifting the perspective from consumerism to asset ownership and wealth generation.",
+      "Financial literacy and mindset shift. This Pocket Booster tab educates members on how money works, moving from consumer habits toward asset ownership and wealth generation through Pay-to-Learn.",
     visualIdentity: "Deep Emerald Green",
     color: "#046307",
     colorSoft: "#04630726",
-    relatedHref: "/pocket-booster",
+    relatedHref: "/pocket-booster#pay-to-learn",
     relatedLabel: "Pay-to-Learn",
   },
   {
@@ -67,23 +71,23 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     level: 3,
     title: "Community Accountability",
     meaning:
-      "Peer-to-peer support and group responsibility. This stage leverages the community to provide encouragement, shared resources, and a structure of mutual trust for achieving financial goals.",
+      "Peer-to-peer support and group responsibility. This Pocket Booster tab leans on community encouragement, shared resources, and mutual trust so members stay on track with their financial goals.",
     visualIdentity: "Royal Navy Blue",
     color: "#0A1F44",
     colorSoft: "#0A1F4426",
-    relatedHref: "/fr2p",
-    relatedLabel: "FR2P Club",
+    relatedHref: "/pocket-booster#stages",
+    relatedLabel: "Pocket Booster Community",
   },
   {
     id: "S4",
     level: 4,
     title: "Structured Repayment Plans",
     meaning:
-      "Disciplined financial management. This tier implements the system for systematically repaying the initial cash cushion microloans and establishing a perfect credit profile.",
+      "Disciplined financial management. This Pocket Booster tab runs the cushion Autopilot — systematically repaying microloan cushions and building a clean repayment profile.",
     visualIdentity: "Deep Purple",
     color: "#4A0080",
     colorSoft: "#4A008026",
-    relatedHref: "/pocket-booster",
+    relatedHref: "/pocket-booster#cushion",
     relatedLabel: "Cushion Autopilot",
   },
   {
@@ -91,23 +95,23 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     level: 5,
     title: "Side Hustle & Business Growth",
     meaning:
-      "Entrepreneurial launchpad. This stage is focused on generating new income streams, launching micro-enterprises, and scaling a side business to a profitable level.",
+      "Entrepreneurial launchpad. This Pocket Booster tab focuses on new income streams, launching micro-enterprises, and scaling a side hustle into a profitable business.",
     visualIdentity: "Dark Brown Leather",
     color: "#3D2314",
     colorSoft: "#3D231426",
-    relatedHref: "/hub",
-    relatedLabel: "Empire Hub",
+    relatedHref: "/pocket-booster#stages",
+    relatedLabel: "Growth Track",
   },
   {
     id: "S6",
     level: 6,
     title: "Six-Figure Skill Accelerator",
     meaning:
-      "Professionalizing income. This phase represents the leap from a side hustle to a high-income business by mastering advanced skills and implementing scalable business infrastructure.",
+      "Professionalizing income. This Pocket Booster tab is the Tier 4 leap — advanced skills, priority funding, and scalable infrastructure toward six-figure momentum.",
     visualIdentity: "Vibrant Sparkling Emerald Green",
     color: "#00A86B",
     colorSoft: "#00A86B26",
-    relatedHref: "/pocket-booster",
+    relatedHref: "/pocket-booster#tiers",
     relatedLabel: "Tier 4 Accelerator",
   },
   {
@@ -115,24 +119,24 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     level: 7,
     title: "Legacy & Portfolio Building",
     meaning:
-      "Wealth preservation and investment. This tier utilizes business capital to build multi-generational wealth through asset accumulation, stock portfolios, real estate, and other investment vehicles.",
+      "Wealth preservation and investment. This Pocket Booster tab channels disciplined capital into multi-generational wealth — including the P2P reserve vault that backs member cushions.",
     visualIdentity: "Sparkling Deep Blue",
     color: "#0B1D51",
     colorSoft: "#0B1D5126",
-    relatedHref: "/invest",
-    relatedLabel: "Empire Invest",
+    relatedHref: "/pocket-booster#reserve",
+    relatedLabel: "P2P Reserve Vault",
   },
   {
     id: "S8",
     level: 8,
     title: "The Sovereign Executive",
     meaning:
-      "Pinnacle of ownership and leadership. This represents complete executive authority and sovereign ownership of collaborative ventures, steering the entire multi-program Empire hub.",
+      "Pinnacle of ownership and leadership. This Pocket Booster tab represents full executive authority — steering your position across the program with sovereign ownership of your financial path.",
     visualIdentity: "Sparkling Burnt Orange",
     color: "#C2410C",
     colorSoft: "#C2410C26",
-    relatedHref: "/hub",
-    relatedLabel: "Empire Hub",
+    relatedHref: "/pocket-booster#stages",
+    relatedLabel: "Sovereign Track",
   },
 ];
 

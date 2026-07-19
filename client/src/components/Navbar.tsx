@@ -51,7 +51,7 @@ export default function Navbar() {
     { href: "/hot-dogs", label: "Premium Choice Hot Dogs" },
     { href: "/media", label: "Media & Music" },
     { href: "/fr2p", label: "The FR2P Club" },
-    { href: "/pathway", label: "Empire Pathway" },
+    { href: "/pathway", label: "PB Stages" },
     { href: "/pocket-booster", label: "Pocket Booster" },
     { href: "/invest", label: "Empire Invest" },
   ];

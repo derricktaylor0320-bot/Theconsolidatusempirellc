@@ -18,13 +18,13 @@ export default function FR2P() {
             Financial Roadway 2 Prosperity Club
           </h1>
           <p className="mt-2 text-xs md:text-sm text-secondary-foreground/70">
-            Walk the eight-stage Empire journey on{" "}
+            Pocket Booster&apos;s eight program tabs (S1–S8) live on{" "}
             <Link
-              href="/pathway"
+              href="/pocket-booster#stages"
               className="text-primary underline underline-offset-2 hover:text-primary/80"
               data-testid="link-fr2p-pathway"
             >
-              Empire Pathway
+              Pocket Booster
             </Link>
             .
           </p>
