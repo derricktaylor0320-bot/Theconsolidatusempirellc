@@ -225,8 +225,10 @@ export default function Invest() {
               FR2P Club, a personal venture of mine focused on direct affiliate
               marketing and professional growth. It offers courses plus AI
               promotion and sales built for recurring revenue and full compliance,
-              alongside our upcoming real estate venture — with clear back-office
-              tracking so you can see exactly where your money went.
+              alongside our upcoming real estate venture — starting with
+              mom-and-pop motel takeovers (then laundromats) through creative
+              financing — with clear back-office tracking so you can see exactly
+              where your money went.
             </motion.p>
             <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display">
               Project-only capital · No owner shares · Full allocation transparency
@@ -385,9 +387,16 @@ export default function Invest() {
                 )}
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Real estate & property investing opens soon — motel and owner
-                ventures under the Empire umbrella.
+              <p
+                className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed"
+                data-testid="text-real-estate-pipeline"
+              >
+                Coming soon: we&apos;re building a local mom-and-pop motel
+                pipeline — creative financing, sit-downs with owners ready to
+                retire, and us taking over day-to-day ops while they keep a
+                little extra income. We&apos;ll tighten the guest experience
+                (clean, smells like home, real hospitality), then run the same
+                playbook for laundromat acquisitions.
               </p>
             )}
           </div>
