@@ -204,11 +204,17 @@ export default function Invest() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.12 }}
-              className="text-lg md:text-xl text-foreground/85 max-w-2xl mx-auto mb-3"
+              className="text-lg md:text-xl text-foreground/85 max-w-3xl mx-auto mb-3"
+              data-testid="text-invest-intro"
             >
-              Put capital to work across The Consolidatus Empire — apparel,
-              Pocket Booster, FR2P Club, and upcoming real estate — with a clear
-              back office showing exactly where your money went.
+              Put your capital to work across The Consolidatus Empire LLC —
+              including Khomplete Khemistri Apparel, our branded clothing line;
+              Pocket Booster for Reserve Vault emergency cushion support; and The
+              FR2P Club, a personal venture of mine focused on direct affiliate
+              marketing and professional growth. It offers courses plus AI
+              promotion and sales built for recurring revenue and full compliance,
+              alongside our upcoming real estate venture — with clear back-office
+              tracking so you can see exactly where your money went.
             </motion.p>
             <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display">
               Tangible ROI · No stock market · Full allocation transparency
