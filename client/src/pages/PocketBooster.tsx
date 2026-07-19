@@ -38,7 +38,25 @@ import {
   P2P_INVESTMENT_AMOUNTS,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import plaqueS1 from "@assets/badge_red_gold_swords.jpg";
+import plaqueS2 from "@assets/badge_green_swords.jpg";
+import plaqueS3 from "@assets/badge_navy_silver.jpg";
+import plaqueS4 from "@assets/badge_purple_swords.jpg";
+import plaqueS5 from "@assets/badge_brown_gold_ornate.jpg";
+import plaqueS6 from "@assets/logo_lime_green.jpg";
+import plaqueS7 from "@assets/logo_5swords_blue_gold.jpg";
+import plaqueS8 from "@assets/logo_orange.jpg";
+
+const STAGE_PLAQUE_IMAGES: Record<ProgramStageId, string> = {
+  S1: plaqueS1,
+  S2: plaqueS2,
+  S3: plaqueS3,
+  S4: plaqueS4,
+  S5: plaqueS5,
+  S6: plaqueS6,
+  S7: plaqueS7,
+  S8: plaqueS8,
+};
 
 type TiersResponse = {
   platformName: string;
@@ -168,8 +186,6 @@ export default function PocketBooster() {
   const [investAmount, setInvestAmount] =
     useState<P2PInvestmentAmount>(100);
   const [activeStageId, setActiveStageId] = useState<ProgramStageId>("S1");
-  const activeStage =
-    PROGRAM_STAGES.find((s) => s.id === activeStageId) ?? PROGRAM_STAGES[0];
 
   useEffect(() => {
     if (activeTier) {
@@ -340,168 +356,30 @@ export default function PocketBooster() {
               · P2P Liquidity Loop
             </p>
             <p className="mt-4 text-sm text-muted-foreground max-w-xl mx-auto">
-              {PROGRAM_PATHWAY.tagline} Jump to{" "}
+              {PROGRAM_PATHWAY.tagline} Inside{" "}
               <a
-                href="#stages"
+                href="#tiers"
                 className="text-primary underline underline-offset-2"
                 data-testid="link-pb-stages"
               >
-                the eight program tabs
+                Choose Your Tier
               </a>{" "}
-              below for each stage description.
+              you&apos;ll find membership levels plus the eight program plaques
+              (S1–S8) with a full explanation of what each code does.
             </p>
           </div>
         </section>
 
-        {/* Pocket Booster program stage tabs (S1–S8) */}
-        <section
-          id="stages"
-          className="border-t border-primary/15 bg-secondary/15"
-          data-testid="section-pocket-booster-stages"
-        >
-          <div className="max-w-5xl mx-auto px-6 py-14">
-            <div className="text-center mb-8">
-              <p className="font-display text-xs uppercase tracking-[0.3em] text-primary mb-2">
-                {PROGRAM_PATHWAY.program}
-              </p>
-              <h2
-                className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3"
-                data-testid="text-pb-stages-title"
-              >
-                {PROGRAM_PATHWAY.shortName}
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Each code (S1–S8) is a Pocket Booster program tab. Select a tab
-                to see what that stage represents in the journey.
-              </p>
-            </div>
-
-            <Tabs
-              value={activeStageId}
-              onValueChange={(value) =>
-                setActiveStageId(value as ProgramStageId)
-              }
-              className="w-full"
-            >
-              <TabsList
-                className="flex h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0 md:justify-center"
-                data-testid="tabs-pocket-booster-stages"
-              >
-                {PROGRAM_STAGES.map((stage) => (
-                  <TabsTrigger
-                    key={stage.id}
-                    value={stage.id}
-                    className="min-w-[4.25rem] flex-col gap-0.5 border px-3 py-2 data-[state=active]:shadow-none"
-                    style={{
-                      borderColor:
-                        activeStageId === stage.id
-                          ? stage.color
-                          : "hsl(var(--border))",
-                      background:
-                        activeStageId === stage.id
-                          ? stage.colorSoft
-                          : "transparent",
-                      color:
-                        activeStageId === stage.id
-                          ? stage.color
-                          : "hsl(var(--muted-foreground))",
-                    }}
-                    data-testid={`tab-pb-stage-${stage.id}`}
-                  >
-                    <span className="font-display text-sm font-bold tracking-wider">
-                      {stage.id}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-widest opacity-80">
-                      Tab {stage.level}
-                    </span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {PROGRAM_STAGES.map((stage) => (
-                <TabsContent
-                  key={stage.id}
-                  value={stage.id}
-                  className="mt-8 focus-visible:outline-none"
-                  data-testid={`panel-pb-stage-${stage.id}`}
-                >
-                  <motion.article
-                    key={stage.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="max-w-3xl mx-auto"
-                  >
-                    <div
-                      className="h-1.5 w-full mb-6"
-                      style={{
-                        background: `linear-gradient(90deg, ${stage.color}, transparent)`,
-                      }}
-                    />
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                      <span
-                        className="font-display text-sm uppercase tracking-[0.25em]"
-                        style={{ color: stage.color }}
-                        data-testid="text-pb-active-stage-id"
-                      >
-                        {stage.id} · Tab {stage.level}
-                      </span>
-                      <span
-                        className="text-xs uppercase tracking-widest px-2 py-1 border"
-                        style={{
-                          borderColor: stage.color,
-                          color: stage.color,
-                          background: stage.colorSoft,
-                        }}
-                        data-testid="text-pb-active-visual-identity"
-                      >
-                        {stage.visualIdentity}
-                      </span>
-                    </div>
-                    <h3
-                      className="font-display text-2xl md:text-4xl font-bold uppercase tracking-tight mb-4"
-                      data-testid="text-pb-active-stage-title"
-                    >
-                      {stage.title}
-                    </h3>
-                    <p
-                      className="text-foreground/85 text-base md:text-lg leading-relaxed mb-6"
-                      data-testid="text-pb-active-stage-meaning"
-                    >
-                      {stage.meaning}
-                    </p>
-                    <Button
-                      asChild
-                      className="uppercase tracking-wider font-display text-white hover:opacity-90"
-                      style={{ backgroundColor: stage.color }}
-                      data-testid="button-pb-stage-continue"
-                    >
-                      <a href={stage.relatedHref}>
-                        Continue to {stage.relatedLabel}
-                      </a>
-                    </Button>
-                  </motion.article>
-                </TabsContent>
-              ))}
-            </Tabs>
-
-            {activeStage && (
-              <p className="sr-only" aria-live="polite">
-                Showing Pocket Booster tab {activeStage.id}: {activeStage.title}
-              </p>
-            )}
-          </div>
-        </section>
-
-        {/* Tiers */}
+        {/* Tiers + S1–S8 program plaques */}
         <section id="tiers" className="max-w-6xl mx-auto px-6 py-14">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3">
               Choose Your Tier
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Your monthly membership unlocks a matching cushion limit and
-              repayment options.
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Pick a monthly membership for your cushion limit, then study the
+              eight program plaques below — each code (S1–S8) explains what that
+              stage does inside Pocket Booster.
             </p>
           </div>
 
@@ -614,6 +492,162 @@ export default function PocketBooster() {
                 : ""}
             </p>
           )}
+
+          {/* Eight program plaques (S1–S8) */}
+          <div
+            id="program-codes"
+            className="mt-16 pt-12 border-t border-primary/20"
+            data-testid="section-pocket-booster-stages"
+          >
+            {/* Legacy #stages deep link from Pathway / FR2P */}
+            <span id="stages" className="sr-only">
+              Pocket Booster program codes
+            </span>
+            <div className="text-center mb-8">
+              <p className="font-display text-xs uppercase tracking-[0.3em] text-primary mb-2">
+                {PROGRAM_PATHWAY.program}
+              </p>
+              <h3
+                className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wide text-primary mb-3"
+                data-testid="text-pb-stages-title"
+              >
+                Program Plaques · Codes S1–S8
+              </h3>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                These eight plaques are the Pocket Booster program codes. Select
+                a plaque for the full explanation of what that code does inside
+                the program.
+              </p>
+            </div>
+
+            <div
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8"
+              data-testid="grid-pocket-booster-plaques"
+            >
+              {PROGRAM_STAGES.map((stage, index) => {
+                const selected = activeStageId === stage.id;
+                return (
+                  <motion.button
+                    key={stage.id}
+                    type="button"
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => setActiveStageId(stage.id)}
+                    className="text-left border p-3 transition-colors"
+                    style={{
+                      borderColor: selected ? stage.color : "hsl(var(--border))",
+                      background: selected ? stage.colorSoft : "hsl(var(--secondary) / 0.35)",
+                    }}
+                    data-testid={`plaque-card-${stage.id}`}
+                    aria-pressed={selected}
+                  >
+                    <div
+                      className="aspect-square mb-3 overflow-hidden border bg-black/40"
+                      style={{ borderColor: stage.color }}
+                    >
+                      <img
+                        src={STAGE_PLAQUE_IMAGES[stage.id]}
+                        alt={`${stage.id} ${stage.title} program plaque`}
+                        className="h-full w-full object-contain p-2"
+                        data-testid={`img-plaque-${stage.id}`}
+                      />
+                    </div>
+                    <p
+                      className="font-display text-sm font-bold tracking-wider"
+                      style={{ color: stage.color }}
+                    >
+                      {stage.id}
+                    </p>
+                    <p className="font-display text-sm uppercase tracking-tight text-foreground/90 line-clamp-2">
+                      {stage.title}
+                    </p>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {PROGRAM_STAGES.map((stage) =>
+              stage.id === activeStageId ? (
+                <motion.article
+                  key={stage.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="max-w-3xl mx-auto border p-6 md:p-8"
+                  style={{
+                    borderColor: stage.color,
+                    background: `linear-gradient(180deg, ${stage.colorSoft}, transparent)`,
+                  }}
+                  data-testid={`panel-pb-stage-${stage.id}`}
+                >
+                  <div
+                    className="h-1.5 w-full mb-6"
+                    style={{
+                      background: `linear-gradient(90deg, ${stage.color}, transparent)`,
+                    }}
+                  />
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <span
+                      className="font-display text-sm uppercase tracking-[0.25em]"
+                      style={{ color: stage.color }}
+                      data-testid="text-pb-active-stage-id"
+                    >
+                      {stage.id} · Code {stage.level}
+                    </span>
+                    <span
+                      className="text-xs uppercase tracking-widest px-2 py-1 border"
+                      style={{
+                        borderColor: stage.color,
+                        color: stage.color,
+                        background: stage.colorSoft,
+                      }}
+                      data-testid="text-pb-active-visual-identity"
+                    >
+                      {stage.visualIdentity}
+                    </span>
+                  </div>
+                  <h4
+                    className="font-display text-2xl md:text-3xl font-bold uppercase tracking-tight mb-4"
+                    data-testid="text-pb-active-stage-title"
+                  >
+                    {stage.title}
+                  </h4>
+                  <p
+                    className="text-foreground/85 text-base md:text-lg leading-relaxed mb-4"
+                    data-testid="text-pb-active-stage-meaning"
+                  >
+                    {stage.meaning}
+                  </p>
+                  <p
+                    className="text-foreground/75 text-sm md:text-base leading-relaxed mb-6 border-l-2 pl-4"
+                    style={{ borderColor: stage.color }}
+                    data-testid="text-pb-active-stage-in-program"
+                  >
+                    {stage.inProgram}
+                  </p>
+                  <Button
+                    asChild
+                    className="uppercase tracking-wider font-display text-white hover:opacity-90"
+                    style={{ backgroundColor: stage.color }}
+                    data-testid="button-pb-stage-continue"
+                  >
+                    <a href={stage.relatedHref}>
+                      Continue to {stage.relatedLabel}
+                    </a>
+                  </Button>
+                </motion.article>
+              ) : null,
+            )}
+
+            <p className="sr-only" aria-live="polite">
+              Showing Pocket Booster code {activeStageId}:{" "}
+              {
+                PROGRAM_STAGES.find((s) => s.id === activeStageId)?.title
+              }
+            </p>
+          </div>
         </section>
 
         {/* P2P Liquidity Loop */}

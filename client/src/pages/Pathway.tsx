@@ -86,12 +86,12 @@ export default function Pathway() {
             transition={{ duration: 0.45, delay: 0.2 }}
             className="flex flex-wrap items-center justify-center gap-3"
           >
-            <Link href="/pocket-booster#stages">
+            <Link href="/pocket-booster#program-codes">
               <Button
                 className="bg-primary text-black hover:bg-primary/90 uppercase tracking-wider font-display"
                 data-testid="button-pathway-pocket-booster"
               >
-                Open Pocket Booster Tabs
+                Open Choose Your Tier Plaques
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -189,10 +189,16 @@ export default function Pathway() {
                   {active.title}
                 </h2>
                 <p
-                  className="text-foreground/85 text-lg leading-relaxed mb-8"
+                  className="text-foreground/85 text-lg leading-relaxed mb-4"
                   data-testid="text-active-stage-meaning"
                 >
                   {active.meaning}
+                </p>
+                <p
+                  className="text-foreground/75 text-base leading-relaxed mb-8 border-l-2 border-primary/50 pl-4"
+                  data-testid="text-active-stage-in-program"
+                >
+                  {active.inProgram}
                 </p>
                 <Link href={active.relatedHref}>
                   <Button
