@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import brandBadge from "@assets/1781697764383_1781711765541.png";
+import consolidatusBadge from "@assets/badge_consolidatus_empire_standalone_218.png";
 
 type BrandSectionBannerProps = {
   /** Optional page-specific caption under the badge */
@@ -7,16 +7,21 @@ type BrandSectionBannerProps = {
   className?: string;
   /** Slightly tighter for dense pages */
   compact?: boolean;
+  /** Override the default Consolidatus Empire badge */
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 /**
- * Site-wide intro for Khomplete Khemistri Apparel & Accessories —
- * the new business-name royalty badge, stretched across the section.
+ * Site-wide intro for The Consolidatus Empire —
+ * the royalty badge stretched across the section.
  */
 export default function BrandSectionBanner({
   caption,
   className = "",
   compact = false,
+  imageSrc = consolidatusBadge,
+  imageAlt = "The Consolidatus Empire LLC — Royalty Badge of Honor",
 }: BrandSectionBannerProps) {
   return (
     <motion.div
@@ -26,8 +31,8 @@ export default function BrandSectionBanner({
       data-testid="brand-section-banner"
     >
       <img
-        src={brandBadge}
-        alt="Khomplete Khemistri Apparel & Accessories — Royalty Badge of Honor"
+        src={imageSrc}
+        alt={imageAlt}
         className={`w-full ${compact ? "max-w-2xl" : "max-w-4xl"} mx-auto h-auto object-contain drop-shadow-2xl ${compact ? "mb-4" : "mb-6"}`}
         data-testid="img-brand-section-banner"
       />

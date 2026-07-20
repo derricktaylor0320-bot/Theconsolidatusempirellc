@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Instagram, Twitter, Facebook } from "lucide-react";
-import logo from "@assets/Screenshot_20251126_202749_Photos_1764207404143.jpg";
+import logo from "@assets/badge_consolidatus_empire_standalone_218.png";
 
 export default function Footer() {
   return (
@@ -9,13 +9,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3 mb-2">
-               <img src={logo} alt="Logo" className="h-12 w-12 rounded-full border border-primary/20" />
+               <img src={logo} alt="The Consolidatus Empire LLC Logo" className="h-12 w-12 object-contain drop-shadow-md" data-testid="img-footer-logo" />
                <h3 className="font-display text-xl font-bold uppercase tracking-wider text-primary">
                  The Consolidatus Empire
                </h3>
             </div>
             <p className="text-sm text-secondary-foreground/70">
-              Khomplete Khemistri Mgmt LLC. <br/>
+              The Consolidatus Empire LLC. <br/>
               Merging urban culture with premium quality. Designed for those who create their own formula for success.
             </p>
           </div>
@@ -59,7 +59,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-secondary-foreground/10 mt-12 pt-8 text-center text-xs text-secondary-foreground/50">
-          <p>&copy; {new Date().getFullYear()} Khomplete Khemistri Mgmt LLC. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} The Consolidatus Empire LLC. All rights reserved.</p>
         </div>
       </div>
     </footer>

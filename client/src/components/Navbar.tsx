@@ -60,7 +60,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 font-display font-bold text-2xl tracking-tighter uppercase hover:text-primary transition-colors">
-          <img src={logo} alt="Khomplete Khemistri Logo" className="h-12 w-12 object-contain drop-shadow-md" />
+          <img src={logo} alt="The Consolidatus Empire Logo" className="h-12 w-12 object-contain drop-shadow-md" />
           <span>The Consolidatus <span className="gold-shine">Empire</span></span>
         </Link>
 

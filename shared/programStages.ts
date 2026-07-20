@@ -65,7 +65,7 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     meaning:
       "Financial literacy and mindset shift. This Pocket Booster tab educates members on how money works, moving from consumer habits toward asset ownership and wealth generation through Pay-to-Learn.",
     inProgram:
-      "Inside Pocket Booster, S2 opens the Pay-to-Learn track — cashflow, income, and capital modules that rewire spending habits and can unlock Tier 4 membership rebates when you complete them.",
+      "Inside Pocket Booster, S2 opens the Pay-to-Learn track — Cash Flow Foundations, Income Acceleration, and Capital Accessories — real programs you take; graduating them can unlock Tier 4 membership rebates automatically.",
     visualIdentity: "Deep Emerald Green",
     color: "#046307",
     colorSoft: "#04630726",

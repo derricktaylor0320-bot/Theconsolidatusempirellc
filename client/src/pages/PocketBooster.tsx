@@ -25,6 +25,7 @@ import {
   PAY_TO_LEARN_MODULES,
   POCKET_BOOSTER_TIERS,
   REPAYMENT_LABELS,
+  type PayToLearnModule,
   type PocketBoosterTier,
   type RepaymentChoice,
 } from "@shared/pocketBooster";
@@ -186,10 +187,13 @@ export default function PocketBooster() {
   const [investAmount, setInvestAmount] =
     useState<P2PInvestmentAmount>(100);
   const [activeStageId, setActiveStageId] = useState<ProgramStageId>("S1");
+  const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
+  const [lessonIndex, setLessonIndex] = useState(0);
+  const [lessonNotes, setLessonNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (activeTier) {
-      setSelectedTier(activeTier.level);
+      // Prefill repayment options only — do not auto-select / auto-activate a tier
       const first = activeTier.repaymentOptions[0];
       if (first) setRepaymentChoice(first);
     }
@@ -312,6 +316,39 @@ export default function PocketBooster() {
     (me?.milestones ?? []).map((m) => m.moduleName),
   );
 
+  const activeCourse: PayToLearnModule | undefined = modules.find(
+    (m) => m.id === activeCourseId,
+  );
+  const activeLesson = activeCourse?.lessons[lessonIndex];
+  const courseLessonCount = activeCourse?.lessons.length ?? 0;
+  const isLastLesson =
+    activeCourse != null && lessonIndex >= courseLessonCount - 1;
+
+  const openCourse = (moduleId: string) => {
+    setActiveCourseId(moduleId);
+    setLessonIndex(0);
+  };
+
+  const advanceLesson = () => {
+    if (!activeCourse) return;
+    if (!isLastLesson) {
+      setLessonIndex((i) => i + 1);
+      return;
+    }
+    // Graduation: system marks complete automatically — no manual Mark Complete
+    if (!completedModules.has(activeCourse.id)) {
+      moduleMutation.mutate(activeCourse.id, {
+        onSuccess: () => {
+          setActiveCourseId(null);
+          setLessonIndex(0);
+        },
+      });
+    } else {
+      setActiveCourseId(null);
+      setLessonIndex(0);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -356,17 +393,137 @@ export default function PocketBooster() {
               · P2P Liquidity Loop
             </p>
             <p className="mt-4 text-sm text-muted-foreground max-w-xl mx-auto">
-              {PROGRAM_PATHWAY.tagline} Inside{" "}
+              {PROGRAM_PATHWAY.tagline} Open the{" "}
               <a
-                href="#tiers"
+                href="#building-blocks"
                 className="text-primary underline underline-offset-2"
                 data-testid="link-pb-stages"
               >
-                Choose Your Tier
-              </a>{" "}
-              you&apos;ll find membership levels plus the eight program plaques
-              (S1–S8) with a full explanation of what each code does.
+                colorful program tabs
+              </a>
+              , choose a membership only when you are ready to activate, and take
+              the real Pay-to-Learn programs below.
             </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <Button asChild data-testid="button-open-building-blocks">
+                <a href="#building-blocks">Open Building Blocks</a>
+              </Button>
+              <Button asChild variant="outline" data-testid="button-open-pay-to-learn">
+                <a href="#pay-to-learn">Take a Program</a>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Colorful S1–S8 building-block tabs */}
+        <section
+          id="building-blocks"
+          className="border-y border-primary/15 bg-secondary/20"
+          data-testid="section-building-blocks"
+        >
+          <div className="max-w-6xl mx-auto px-6 py-12">
+            <div className="text-center mb-8">
+              <p className="font-display text-xs uppercase tracking-[0.3em] text-primary mb-2">
+                Pocket Booster Application
+              </p>
+              <h2
+                className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3"
+                data-testid="text-building-blocks-title"
+              >
+                Building Blocks · Colorful Tabs S1–S8
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                These eight colored tabs are the program building blocks. Tap a
+                tab to see what that stage does — then continue into the matching
+                tool inside Pocket Booster.
+              </p>
+            </div>
+
+            <div
+              className="flex gap-2 overflow-x-auto pb-3 justify-start md:justify-center"
+              data-testid="pocket-booster-stage-tabs"
+            >
+              {PROGRAM_STAGES.map((stage, index) => {
+                const selected = activeStageId === stage.id;
+                return (
+                  <motion.button
+                    key={stage.id}
+                    type="button"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.04 }}
+                    onClick={() => setActiveStageId(stage.id)}
+                    className="shrink-0 min-w-[4.75rem] px-3 py-2.5 border transition-colors"
+                    style={{
+                      borderColor: selected ? stage.color : "hsl(var(--border))",
+                      background: selected ? stage.color : "transparent",
+                      color: selected ? "#0a0a0a" : stage.color,
+                    }}
+                    data-testid={`tab-building-block-${stage.id}`}
+                    aria-pressed={selected}
+                  >
+                    <span className="block font-display text-sm font-bold tracking-wider">
+                      {stage.id}
+                    </span>
+                    <span className="block text-[10px] uppercase tracking-widest opacity-80">
+                      Tab {stage.level}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {PROGRAM_STAGES.map((stage) =>
+              stage.id === activeStageId ? (
+                <motion.article
+                  key={stage.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-8 max-w-3xl mx-auto border p-6 md:p-8"
+                  style={{
+                    borderColor: stage.color,
+                    background: `linear-gradient(180deg, ${stage.colorSoft}, transparent)`,
+                  }}
+                  data-testid={`panel-building-block-${stage.id}`}
+                >
+                  <div
+                    className="h-1.5 w-full mb-5"
+                    style={{
+                      background: `linear-gradient(90deg, ${stage.color}, transparent)`,
+                    }}
+                  />
+                  <p
+                    className="font-display text-xs uppercase tracking-[0.25em] mb-2"
+                    style={{ color: stage.color }}
+                  >
+                    {stage.id} · {stage.visualIdentity}
+                  </p>
+                  <h3 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-tight mb-3">
+                    {stage.title}
+                  </h3>
+                  <p className="text-foreground/85 leading-relaxed mb-3">
+                    {stage.meaning}
+                  </p>
+                  <p
+                    className="text-foreground/75 text-sm leading-relaxed mb-6 border-l-2 pl-4"
+                    style={{ borderColor: stage.color }}
+                  >
+                    {stage.inProgram}
+                  </p>
+                  <Button
+                    asChild
+                    className="uppercase tracking-wider font-display text-black"
+                    style={{ backgroundColor: stage.color }}
+                    data-testid="button-building-block-continue"
+                  >
+                    <a href={stage.relatedHref}>
+                      Continue to {stage.relatedLabel}
+                    </a>
+                  </Button>
+                </motion.article>
+              ) : null,
+            )}
           </div>
         </section>
 
@@ -377,9 +534,9 @@ export default function PocketBooster() {
               Choose Your Tier
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Pick a monthly membership for your cushion limit, then study the
-              eight program plaques below — each code (S1–S8) explains what that
-              stage does inside Pocket Booster.
+              Browse every membership freely. Nothing is Active until you
+              press Activate on the one tier you want — Starter Cushion and the
+              rest stay inactive until you choose.
             </p>
           </div>
 
@@ -400,7 +557,7 @@ export default function PocketBooster() {
                     isActive
                       ? "border-primary bg-primary/15"
                       : isSelected
-                        ? "border-primary/70 bg-secondary/60"
+                        ? "border-primary/50 bg-secondary/40"
                         : "border-border bg-secondary/30 hover:border-primary/40"
                   }`}
                   data-testid={`tier-card-${tier.level}`}
@@ -409,11 +566,15 @@ export default function PocketBooster() {
                     <p className="font-display text-sm uppercase tracking-widest text-primary">
                       Tier {tier.level}
                     </p>
-                    {isActive && (
+                    {isActive ? (
                       <span className="inline-flex items-center gap-1 text-xs text-primary">
                         <CheckCircle2 className="h-3.5 w-3.5" /> Active
                       </span>
-                    )}
+                    ) : isSelected ? (
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                        Selected
+                      </span>
+                    ) : null}
                   </div>
                   <h3 className="font-display text-xl font-bold uppercase tracking-wide mb-2">
                     {tier.name}
@@ -475,7 +636,7 @@ export default function PocketBooster() {
                 )}
                 {activeTier?.level === selectedTier
                   ? `Tier ${selectedTier} Active`
-                  : `Activate Tier ${selectedTier}`}
+                  : `Activate Tier ${selectedTier} Only`}
               </Button>
             )}
           </div>
@@ -983,62 +1144,205 @@ export default function PocketBooster() {
           </div>
         </section>
 
-        {/* Pay-to-Learn */}
+        {/* Pay-to-Learn — actual takeable programs */}
         <section id="pay-to-learn" className="max-w-5xl mx-auto px-6 py-14">
           <div className="flex items-center gap-3 mb-3 justify-center">
             <BookOpen className="h-6 w-6 text-primary" />
             <h2 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">
-              Pay-to-Learn Track
+              Pay-to-Learn Programs
             </h2>
           </div>
           <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Complete a skill module to log your milestone. Tier 4 members earn a
-            50% rebate on next month&apos;s membership ($50 instead of $100).
+            These are the actual programs you take inside Pocket Booster — Cash
+            Flow Foundations, Income Acceleration, and Capital Accessories.
+            Finish every lesson and the system graduates you automatically
+            (Tier 4 members get the 50% skill rebate). No manual Mark Complete.
           </p>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {modules.map((mod, index) => {
-              const done = completedModules.has(mod.id);
-              return (
-                <motion.div
-                  key={mod.id}
-                  initial={{ opacity: 0, y: 14 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.07 }}
-                  className="rounded-xl border border-border bg-secondary/25 p-5 flex flex-col"
-                  data-testid={`module-card-${mod.id}`}
-                >
-                  <h3 className="font-display text-lg uppercase tracking-wide mb-2">
-                    {mod.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground flex-grow mb-4">
-                    {mod.description}
-                  </p>
-                  <Button
-                    variant={done ? "secondary" : "default"}
-                    disabled={
-                      !isAuthenticated || done || moduleMutation.isPending
-                    }
-                    onClick={() => moduleMutation.mutate(mod.id)}
-                    data-testid={`button-complete-module-${mod.id}`}
+          {!activeCourse ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {modules.map((mod, index) => {
+                const done = completedModules.has(mod.id);
+                const lessonCount = mod.lessons?.length ?? 0;
+                return (
+                  <motion.div
+                    key={mod.id}
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.07 }}
+                    className="rounded-xl border border-border bg-secondary/25 p-5 flex flex-col"
+                    data-testid={`module-card-${mod.id}`}
                   >
+                    <h3 className="font-display text-lg uppercase tracking-wide mb-2">
+                      {mod.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground flex-grow mb-3">
+                      {mod.description}
+                    </p>
+                    <p className="text-xs uppercase tracking-widest text-primary/80 mb-4">
+                      {lessonCount} lessons · takeable program
+                    </p>
                     {done ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4" /> Completed
-                      </>
+                      <Button
+                        variant="secondary"
+                        disabled
+                        data-testid={`button-complete-module-${mod.id}`}
+                      >
+                        <CheckCircle2 className="h-4 w-4" /> Graduated
+                      </Button>
                     ) : (
-                      "Mark Complete"
+                      <Button
+                        disabled={!isAuthenticated}
+                        onClick={() => openCourse(mod.id)}
+                        data-testid={`button-start-module-${mod.id}`}
+                      >
+                        {!isAuthenticated ? "Sign in to take program" : "Start Program"}
+                      </Button>
                     )}
-                  </Button>
-                </motion.div>
-              );
-            })}
-          </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <div
+              className="rounded-xl border border-primary/40 bg-secondary/30 p-6 md:p-8"
+              data-testid="course-player"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div>
+                  <p className="font-display text-xs uppercase tracking-[0.25em] text-primary mb-1">
+                    Taking program
+                  </p>
+                  <h3
+                    className="font-display text-2xl font-bold uppercase tracking-wide"
+                    data-testid="text-active-course-title"
+                  >
+                    {activeCourse.title}
+                  </h3>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setActiveCourseId(null);
+                    setLessonIndex(0);
+                  }}
+                  data-testid="button-exit-course"
+                >
+                  Exit
+                </Button>
+              </div>
+
+              <div
+                className="flex gap-2 mb-6 overflow-x-auto"
+                data-testid="course-lesson-progress"
+              >
+                {activeCourse.lessons.map((lesson, idx) => (
+                  <button
+                    key={lesson.id}
+                    type="button"
+                    onClick={() => setLessonIndex(idx)}
+                    className={`shrink-0 px-3 py-1.5 text-xs font-display uppercase tracking-wider border ${
+                      idx === lessonIndex
+                        ? "border-primary bg-primary text-black"
+                        : idx < lessonIndex
+                          ? "border-primary/50 text-primary"
+                          : "border-border text-muted-foreground"
+                    }`}
+                    data-testid={`button-lesson-${lesson.id}`}
+                  >
+                    {idx + 1}. {lesson.title}
+                  </button>
+                ))}
+              </div>
+
+              {activeLesson && (
+                <article data-testid={`lesson-panel-${activeLesson.id}`}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+                    <h4 className="font-display text-xl uppercase tracking-wide">
+                      Lesson {lessonIndex + 1}: {activeLesson.title}
+                    </h4>
+                    <span className="text-xs text-muted-foreground uppercase tracking-widest">
+                      ~{activeLesson.minutes} min
+                    </span>
+                  </div>
+                  <div className="space-y-4 text-foreground/85 leading-relaxed mb-6">
+                    {activeLesson.body.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+                  <div className="rounded-lg border border-primary/30 bg-background/40 p-4 mb-6">
+                    <Label
+                      htmlFor="lesson-action"
+                      className="font-display text-xs uppercase tracking-widest text-primary mb-2 block"
+                    >
+                      Apply it now
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {activeLesson.actionPrompt}
+                    </p>
+                    <Input
+                      id="lesson-action"
+                      value={lessonNotes[activeLesson.id] ?? ""}
+                      onChange={(e) =>
+                        setLessonNotes((prev) => ({
+                          ...prev,
+                          [activeLesson.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Type your answer or plan here…"
+                      data-testid="input-lesson-action"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      variant="outline"
+                      disabled={lessonIndex === 0}
+                      onClick={() => setLessonIndex((i) => Math.max(0, i - 1))}
+                      data-testid="button-lesson-back"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      onClick={advanceLesson}
+                      disabled={
+                        moduleMutation.isPending ||
+                        !(lessonNotes[activeLesson.id] ?? "").trim()
+                      }
+                      data-testid="button-lesson-continue"
+                    >
+                      {moduleMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isLastLesson ? (
+                        "Finish & Graduate"
+                      ) : (
+                        "Next Lesson"
+                      )}
+                    </Button>
+                  </div>
+                  {isLastLesson && (
+                    <p className="text-xs text-muted-foreground mt-4">
+                      Finishing this lesson graduates you automatically — the
+                      system logs the milestone and applies any Tier 4 rebate.
+                    </p>
+                  )}
+                </article>
+              )}
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              <Link href="/auth" className="text-primary underline underline-offset-2">
+                Sign in
+              </Link>{" "}
+              to take programs and earn automatic graduation rewards.
+            </p>
+          )}
 
           {user && activeTier?.level === 4 && (
             <p className="text-center text-sm text-primary mt-6">
-              Premium Tier 4 active — module completion applies your skill
+              Premium Tier 4 active — graduating a program applies your skill
               rebate automatically.
             </p>
           )}
