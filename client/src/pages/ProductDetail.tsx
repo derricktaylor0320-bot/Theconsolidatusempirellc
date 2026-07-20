@@ -46,6 +46,8 @@ function listingForType(productType?: string) {
       return { href: "/vintage", label: "Vintage" };
     case "poetry":
       return { href: "/poetry", label: "Poetry" };
+    case "elements":
+      return { href: "/elements", label: "Health & Skin Care" };
     case "apparel":
     default:
       return { href: "/apparel", label: "Apparel" };
