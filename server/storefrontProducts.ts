@@ -1,4 +1,3 @@
-import { stripeStorage } from "./stripeStorage";
 import {
   isDefaultLogoCustomizable,
   apparelSizesFor,
