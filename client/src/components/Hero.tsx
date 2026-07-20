@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import heroImage from "@assets/1783773416912_1783774780616.png";
-import consolidatusLogo from "@assets/consolidatus_empire_logo_nobg.png";
+import consolidatusLogo from "@assets/badge_consolidatus_empire_standalone_218.png";
 
 export default function Hero() {
   return (
