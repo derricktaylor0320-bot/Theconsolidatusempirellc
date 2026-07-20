@@ -11,6 +11,31 @@ export interface SupplementInfo {
 
 const SUPPLEMENTS: { match: RegExp; info: SupplementInfo }[] = [
   {
+    match: /natural\s*spring\s*water/i,
+    info: {
+      intro:
+        "Don’t just hydrate—upgrade your chemistry. Khomplete Khemistri Natural Spring Water is 100% natural spring water, sourced from the earth’s own filtration system—not a city facility.",
+      benefits: [
+        {
+          label: "True Purity",
+          text: "No industrial processing, no chemical recycling—just as nature intended. Not recycled, processed tap water with a fancy brand name.",
+        },
+        {
+          label: "The Element of Life",
+          text: "Pure H2O that supports your body’s health and your skin’s vitality from the inside out.",
+        },
+        {
+          label: "Elite Quality",
+          text: "A premium, naturally sourced water that stands above mass-produced bottled water stripped of its natural character.",
+        },
+        {
+          label: "Taste the Difference",
+          text: "The average person might settle for tap water in a bottle—you aren’t the average person. Choose hydration with natural character.",
+        },
+      ],
+    },
+  },
+  {
     // Match gel before the generic sea-moss capsule entry so the 16 oz jar
     // gets gel-specific copy on the product detail page.
     match: /sea\s*moss\s*gel/i,
