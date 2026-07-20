@@ -1,6 +1,5 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
-import { stripeStorage } from "./stripeStorage";
 import { createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
 import { stateTaxInfo } from "@shared/salesTax";
 import { getStorefrontProducts, dedupeByName } from "./storefrontProducts";
