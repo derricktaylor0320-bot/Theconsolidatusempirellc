@@ -182,7 +182,7 @@
     top: 50%;
     z-index: 20;
     display: flex;
-    width: clamp(4rem, 18cqw, 9.25rem);
+    width: clamp(3rem, 15cqw, 6.75rem);
     min-height: clamp(1.8rem, 7.5cqw, 2.8rem);
     transform:
       translate(-50%, -50%)
