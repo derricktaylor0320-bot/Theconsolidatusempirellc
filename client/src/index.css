@@ -141,6 +141,102 @@
     .gold-shine { animation: none; }
   }
 
+  /* Full-screen navigation compass. Alternating radii keep every destination
+     readable on small screens while preserving one clockwise sequence. */
+  .compass-rose {
+    --compass-outer-radius: 39cqw;
+    --compass-inner-radius: 29cqw;
+    container-type: size;
+    position: relative;
+    width: min(92vw, calc(100dvh - 9.5rem), 46rem);
+    height: min(92vw, calc(100dvh - 9.5rem), 46rem);
+    min-width: 17rem;
+    min-height: 17rem;
+    isolation: isolate;
+  }
+
+  .compass-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 10;
+    display: flex;
+    width: clamp(3.75rem, 18cqw, 8rem);
+    height: clamp(3.75rem, 18cqw, 8rem);
+    transform: translate(-50%, -50%);
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--primary) / 0.65);
+    border-radius: 9999px;
+    background:
+      radial-gradient(circle at 35% 30%, hsl(47 92% 72% / 0.26), transparent 38%),
+      hsl(var(--background) / 0.94);
+    box-shadow:
+      0 0 0 0.3rem hsl(var(--background) / 0.7),
+      0 0 2.5rem hsl(var(--primary) / 0.32);
+  }
+
+  .compass-nav-link {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 20;
+    display: flex;
+    width: clamp(4rem, 20cqw, 9.25rem);
+    min-height: clamp(1.8rem, 7.5cqw, 2.8rem);
+    transform:
+      translate(-50%, -50%)
+      rotate(var(--angle))
+      translateY(calc(-1 * var(--distance)))
+      rotate(var(--counter-angle));
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    border-width: 1px;
+    border-radius: 9999px;
+    padding: 0.2rem 0.35rem;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: clamp(0.5rem, 2.25cqw, 0.75rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+    box-shadow:
+      0 0.2rem 0.8rem hsl(var(--background) / 0.75),
+      0 0 1rem hsl(var(--primary) / 0.12);
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .compass-nav-link:hover,
+  .compass-nav-link:focus-visible {
+    z-index: 30;
+    box-shadow:
+      0 0 0 0.12rem hsl(var(--background)),
+      0 0 0 0.24rem hsl(var(--primary)),
+      0 0 1.4rem hsl(var(--primary) / 0.38);
+    outline: none;
+  }
+
+  .compass-link-number {
+    flex: none;
+    color: currentColor;
+    font-family: var(--font-sans);
+    font-size: 0.72em;
+    opacity: 0.7;
+  }
+
+  @media (max-height: 30rem) {
+    .compass-rose {
+      min-width: 15rem;
+      min-height: 15rem;
+    }
+  }
+
   /* Logo / badge pickers: always-visible scrollbar so mobile shoppers can
      scroll through the full catalog and see each crest without it being cut off. */
   .logo-picker-scroll {
