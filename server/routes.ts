@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
 import { stateTaxInfo } from "@shared/salesTax";
 import { getStorefrontProducts, dedupeByName } from "./storefrontProducts";
+import { catalogStorage } from "./catalogStorage";
 import { syncStorefrontToSquare, squareConfigured } from "./squareCatalogSync";
 import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
 import { trackingUrlFor } from "@shared/shipping";
@@ -647,7 +648,7 @@ export async function registerRoutes(
 
       let rows: any[] = [];
       try {
-        rows = await stripeStorage.getProductsWithPricesByType(type);
+        rows = await catalogStorage.getProductsWithPricesByType(type);
       } catch (dbError) {
         console.error('Database query failed for products by type:', dbError);
       }
@@ -743,7 +744,7 @@ export async function registerRoutes(
 
       // Server-authoritative pricing: never trust an amount from the client.
       // The price comes from our synced product data in the database.
-      const priceRow: any = await stripeStorage.getPriceWithProduct(priceId);
+      const priceRow: any = await catalogStorage.getPriceWithProduct(priceId);
       if (!priceRow || priceRow.unit_amount == null) {
         return res.status(404).json({ error: "Product price not found" });
       }
@@ -945,7 +946,7 @@ export async function registerRoutes(
 
         // Server-authoritative pricing: the amount always comes from the DB,
         // never from the client.
-        const priceRow: any = await stripeStorage.getPriceWithProduct(priceId);
+        const priceRow: any = await catalogStorage.getPriceWithProduct(priceId);
         if (!priceRow || priceRow.unit_amount == null) {
           return res.status(404).json({ error: "One of your items is no longer available." });
         }
