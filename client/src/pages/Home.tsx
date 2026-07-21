@@ -238,7 +238,7 @@ export default function Home() {
               Build Your Empire
             </h2>
             <p className="text-lg text-secondary-foreground/80 mb-10 leading-relaxed">
-              The Consolidatus Empire represents more than just commerce; it's about ownership, creativity, and self-determination. From Khomplete Khemistri Apparel to our creative ventures, we are building a legacy.
+              The Consolidatus Empire LLC represents more than just commerce; it's about ownership, creativity, and self-determination. From Khomplete Khemistri Apparel to our creative ventures, we are building a legacy.
             </p>
             <Link href="/hub">
               <Button className="bg-primary text-black hover:bg-white hover:text-black font-display uppercase tracking-wider text-lg px-8 py-6 h-auto">
