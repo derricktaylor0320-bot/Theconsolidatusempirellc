@@ -9,7 +9,7 @@
  * so emails, checkout redirects, and Open Graph tags use the custom domain.
  */
 
-export const SITE_BRAND = "The Consolidatus Empire";
+export const SITE_BRAND = "The Consolidatus Empire LLC";
 export const SITE_HOLDINGS_NAME = "The Consolidatus Empire Holdings";
 export const SITE_DOMAIN = "tceholdings.org";
 export const SITE_URL = `https://${SITE_DOMAIN}`;

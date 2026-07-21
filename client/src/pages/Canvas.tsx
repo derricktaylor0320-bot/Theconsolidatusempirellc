@@ -267,7 +267,7 @@ export default function Canvas() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
               </div>
               <p className="text-center text-primary/80 text-sm uppercase tracking-widest mt-4">
-                The Consolidatus Empire • Est. 2020
+                The Consolidatus Empire LLC • Est. 2020
               </p>
             </motion.div>
 

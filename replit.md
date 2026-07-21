@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Consolidatus Empire is a premium e-commerce platform for Khomplete Khemistri Mgmt LLC, featuring multiple brand divisions including apparel, accessories, creative studios, and integrated services. The platform is built as a full-stack TypeScript application with React frontend and Express backend, using PostgreSQL for data persistence and Stripe for payment processing.
+The Consolidatus Empire LLC is a premium e-commerce platform featuring multiple brand divisions, including Khomplete Khemistri Apparel, accessories, creative studios, and integrated services. The platform is built as a full-stack TypeScript application with a React frontend and Express backend, using PostgreSQL for data persistence and Stripe for payment processing.
 
 ## Live Deployment
 

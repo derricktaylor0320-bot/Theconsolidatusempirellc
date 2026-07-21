@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import heroImage from "@assets/1783773416912_1783774780616.png";
-import consolidatusLogo from "@assets/badge_consolidatus_empire_standalone_218.png";
+import consolidatusLogo from "../../../image.png";
 
 export default function Hero() {
   return (
@@ -27,7 +27,7 @@ export default function Hero() {
         >
           <img 
             src={consolidatusLogo} 
-            alt="The Consolidatus Empire Logo" 
+            alt="The Consolidatus Empire LLC crest"
             className="w-72 h-auto md:w-96 lg:w-[26rem] object-contain drop-shadow-[0_8px_30px_rgba(0,0,0,0.6)]"
           />
         </motion.div>

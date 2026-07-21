@@ -11,7 +11,7 @@ export default function Footer() {
             <div className="flex items-center gap-3 mb-2">
                <img src={logo} alt="The Consolidatus Empire LLC Logo" className="h-12 w-12 object-contain drop-shadow-md" data-testid="img-footer-logo" />
                <h3 className="font-display text-xl font-bold uppercase tracking-wider text-primary">
-                 The Consolidatus Empire
+                 The Consolidatus Empire LLC
                </h3>
             </div>
             <p className="text-sm text-secondary-foreground/70">
