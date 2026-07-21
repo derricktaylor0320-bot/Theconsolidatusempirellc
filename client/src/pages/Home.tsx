@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
-import BrandSectionBanner from "@/components/BrandSectionBanner";
 import ProductCard from "@/components/ProductCard";
 import { RecentReviewsPanel } from "@/components/Reviews";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import customer1 from "@assets/Screenshot_20241031_133807_1764213200371.jpg";
 import customer2 from "@assets/Screenshot_20241031_134111_1764213200405.jpg";
 import customer3 from "@assets/Screenshot_20240625_095453_1764213200413.jpg";
 import customer4 from "@assets/Screenshot_20240625_095500_1764213200425.jpg";
-import lightersBanner from "@assets/consolidatus_branded_lighters_banner.png";
 export default function Home() {
   const { data: allProducts } = useQuery({
     queryKey: ["/api/products"],
@@ -54,14 +52,6 @@ export default function Home() {
       <main className="flex-grow">
         <Hero />
 
-        <section className="pt-16 pb-8 container mx-auto px-4">
-          <BrandSectionBanner
-            compact
-            imageSrc={lightersBanner}
-            imageAlt="The Consolidatus Empire LLC — branded logo lighters"
-          />
-        </section>
-        
         <section className="py-24 container mx-auto px-4">
           <div className="flex justify-between items-end mb-12">
             <div>

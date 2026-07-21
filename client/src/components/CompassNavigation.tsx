@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SITE_LINKS } from "@/lib/siteNavigation";
-import logo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
+import logo from "../../../image.png";
 
 type CompassNavigationProps = {
   accountName: string;
