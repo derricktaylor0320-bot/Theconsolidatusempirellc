@@ -43,12 +43,11 @@ middleware in development. See `replit.md` for the full architecture overview an
   `no _account_id found; skipped catalog product inserts` and `/api/products` returns `[]`. This is
   expected locally, not a bug. Square/Stripe/email integrations are all optional and guarded
   (`squareConfigured()`), so the rest of the app runs fine without them.
-- **Pre-existing code bug (as of this setup): `stripeStorage` is undefined.** It is referenced in
-  `server/routes.ts` and `server/storefrontProducts.ts` but never declared/imported, so `npm run
-  check` reports 4 `Cannot find name 'stripeStorage'` errors and the product-catalog read
-  (`/api/products`) and checkout endpoints fail at runtime. This is an application defect,
-  independent of environment setup. Auth, sessions, program stages, media, reviews, Pocket Booster,
-  invest, and subscribe endpoints all work.
+- **Catalog reads go through `server/catalogStorage.ts` (`catalogStorage`).** The old Stripe-specific
+  storage layer was removed; `catalogStorage` reads the product catalog from the `stripe.products` /
+  `stripe.prices` tables. That schema name is only an artifact of the migration helper that creates
+  the tables (`stripe-replit-sync`) used purely for local storage — there is no live Stripe
+  integration and payments run through Square.
 - Optional env vars (see `server/`): `OWNER_EMAILS` (admin allowlist), `APP_URL`/`PUBLIC_URL`
   (public origin for redirects/emails), `SQUARE_ACCESS_TOKEN`/`SQUARE_LOCATION_ID` (payments),
   `MEDIA_DIR` (persistent uploads volume in prod).
