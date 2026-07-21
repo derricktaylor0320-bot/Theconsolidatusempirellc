@@ -25,7 +25,7 @@ import Cart from "@/pages/Cart";
 import ProductDetail from "@/pages/ProductDetail";
 import Vintage from "@/pages/Vintage";
 import Policies from "@/pages/Policies";
-import premiumchoicedogs from "@/pages/premium choice dogs" ; 
+import HotDogs from "@/pages/HotDogs";
 import Poetry from "@/pages/Poetry";
 import Media from "@/pages/Media";
 import VIP from "@/pages/VIP";
@@ -62,7 +62,7 @@ function Router() {
       <Route path="/vintage" component={Vintage} />
       <Route path="/policies" component={Policies} />
       <Route path="/poetry" component={Poetry} />
-      <Route path=/premium-choice-dogs" component={HotDogs}/<
+      <Route path="/premium-choice-dogs" component={HotDogs} />
       <Route path="/media" component={Media} />
       <Route path="/vip" component={VIP} />
       <Route path="/checkout/success" component={CheckoutSuccess} />
