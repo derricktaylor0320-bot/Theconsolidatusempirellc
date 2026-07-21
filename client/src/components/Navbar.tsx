@@ -1,8 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, Menu, LogIn, LogOut, User as UserIcon } from "lucide-react";
+import { ShoppingCart, LogIn, LogOut, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,11 +14,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useCart } from "@/hooks/useCart";
+import CompassNavigation from "@/components/CompassNavigation";
 
 import logo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
 
 export default function Navbar() {
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const { itemCount } = useCart();
@@ -36,48 +36,14 @@ export default function Navbar() {
 
   const accountName = user?.displayName || user?.email || "";
 
-  const links = [
-    { href: "/", label: "Home" },
-    { href: "/hub", label: "Centralized Hub" },
-    { href: "/about", label: "About Us" },
-    { href: "/number-three", label: "The Number Three" },
-    { href: "/canvas", label: "Branded Logo Collection" },
-    { href: "/apparel", label: "Apparel" },
-    { href: "/accessories", label: "Accessories" },
-    { href: "/bedding", label: "Bedding & Intimates" },
-    { href: "/elements", label: "Elements Health & Skincare" },
-    { href: "/vintage", label: "Vintage Baltimore" },
-    { href: "/poetry", label: "Poetry on a Plaque" },
-    { href: "/hot-dogs", label: "Premium Choice Hot Dogs" },
-    { href: "/media", label: "Media & Music" },
-    { href: "/fr2p", label: "The FR2P Club" },
-    { href: "/pathway", label: "PB Stages" },
-    { href: "/pocket-booster", label: "Pocket Booster" },
-    { href: "/invest", label: "Empire Invest" },
-  ];
-
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 font-display font-bold text-2xl tracking-tighter uppercase hover:text-primary transition-colors">
-          <img src={logo} alt="The Consolidatus Empire Logo" className="h-12 w-12 object-contain drop-shadow-md" />
-          <span>The Consolidatus <span className="gold-shine">Empire</span></span>
+          <img src={logo} alt="The Consolidatus Empire LLC logo" className="h-12 w-12 object-contain drop-shadow-md" />
+          <span className="hidden sm:inline">The Consolidatus <span className="gold-shine">Empire LLC</span></span>
+          <span className="gold-shine text-lg sm:hidden">TCE</span>
         </Link>
-
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6 mx-6 flex-1 min-w-0 overflow-x-auto">
-          {links.map((link) => (
-            <Link 
-              key={link.href} 
-              href={link.href}
-              className={`text-sm font-medium transition-colors hover:text-primary uppercase tracking-widest whitespace-nowrap shrink-0 ${
-                location === link.href ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
 
         <div className="flex items-center gap-3">
           {/* Auth control (desktop) */}
@@ -168,71 +134,13 @@ export default function Navbar() {
             </Button>
           </Link>
 
-          {/* Mobile Nav */}
-          <div className="md:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <nav className="flex flex-col gap-4 mt-8">
-                  {links.map((link) => (
-                    <Link 
-                      key={link.href} 
-                      href={link.href}
-                      className={`text-lg font-medium transition-colors hover:text-primary uppercase tracking-widest ${
-                        location === link.href ? "text-primary" : "text-muted-foreground"
-                      }`}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-
-                  <div className="border-t border-border pt-4 mt-2">
-                    {isAuthenticated ? (
-                      <div className="flex flex-col gap-3">
-                        <div
-                          className="flex items-center gap-2 text-sm text-muted-foreground"
-                          data-testid="text-account-email-mobile"
-                        >
-                          <UserIcon className="h-4 w-4 text-primary" />
-                          <span className="truncate">{accountName}</span>
-                        </div>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setIsOpen(false);
-                            handleLogout();
-                          }}
-                          className="uppercase tracking-widest gap-2"
-                          data-testid="button-logout-mobile"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Sign Out
-                        </Button>
-                      </div>
-                    ) : (
-                      <Link
-                        href="/auth"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <Button
-                          className="w-full bg-primary text-black hover:bg-primary/90 uppercase tracking-widest gap-2 font-display"
-                          data-testid="button-signin-mobile"
-                        >
-                          <LogIn className="h-4 w-4" />
-                          Sign In
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
+          <CompassNavigation
+            accountName={accountName}
+            isAuthenticated={isAuthenticated}
+            isOpen={isOpen}
+            onLogout={handleLogout}
+            onOpenChange={setIsOpen}
+          />
         </div>
       </div>
     </nav>
