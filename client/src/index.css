@@ -182,8 +182,8 @@
     top: 50%;
     z-index: 20;
     display: flex;
-    width: clamp(3rem, 15cqw, 6.75rem);
-    min-height: clamp(1.8rem, 7.5cqw, 2.8rem);
+    width: clamp(2.625rem, 14cqw, 6.4rem);
+    min-height: clamp(2rem, 7.5cqw, 2.8rem);
     transform:
       translate(-50%, -50%)
       rotate(var(--angle))
