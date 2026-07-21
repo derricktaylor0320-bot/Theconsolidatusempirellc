@@ -62,6 +62,7 @@ function Router() {
       <Route path="/vintage" component={Vintage} />
       <Route path="/policies" component={Policies} />
       <Route path="/poetry" component={Poetry} />
+      <Route path="/hot-dogs" component={HotDogs} />
       <Route path="/premium-choice-dogs" component={HotDogs} />
       <Route path="/media" component={Media} />
       <Route path="/vip" component={VIP} />
