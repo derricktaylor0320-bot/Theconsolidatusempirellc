@@ -144,8 +144,8 @@
   /* Full-screen navigation compass. Alternating radii keep every destination
      readable on small screens while preserving one clockwise sequence. */
   .compass-rose {
-    --compass-outer-radius: 39cqw;
-    --compass-inner-radius: 29cqw;
+    --compass-outer-radius: 40cqw;
+    --compass-inner-radius: 27cqw;
     container-type: size;
     position: relative;
     width: min(92vw, calc(100dvh - 9.5rem), 46rem);
@@ -182,12 +182,12 @@
     top: 50%;
     z-index: 20;
     display: flex;
-    width: clamp(4rem, 20cqw, 9.25rem);
+    width: clamp(4rem, 18cqw, 9.25rem);
     min-height: clamp(1.8rem, 7.5cqw, 2.8rem);
     transform:
       translate(-50%, -50%)
       rotate(var(--angle))
-      translateY(calc(-1 * var(--distance)))
+      translateX(var(--distance))
       rotate(var(--counter-angle));
     align-items: center;
     justify-content: center;
