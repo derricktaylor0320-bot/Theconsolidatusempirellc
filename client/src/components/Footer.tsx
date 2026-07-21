@@ -44,7 +44,9 @@ export default function Footer() {
           <div>
             <h4 className="font-display font-semibold mb-4 uppercase tracking-wider">Support</h4>
             <ul className="space-y-2 text-sm text-secondary-foreground/70">
-              <li><a href="mailto:supporttheconsolidatusempire@gmail.com" className="hover:text-primary transition-colors">Contact Us</a></li>
+              <li><a href="mailto:theconsolidatusempire@gmail.com" className="hover:text-primary transition-colors">Contact Us</a></li>
+              <li><a href="tel:+18445612444" className="hover:text-primary transition-colors" data-testid="link-footer-phone">Toll-Free: 844-561-2444</a></li>
+              <li><a href="mailto:theconsolidatusempire@gmail.com" className="hover:text-primary transition-colors" data-testid="link-footer-email">theconsolidatusempire@gmail.com</a></li>
               <li><Link href="/policies" className="hover:text-primary transition-colors">Shipping & Policies</Link></li>
             </ul>
           </div>
