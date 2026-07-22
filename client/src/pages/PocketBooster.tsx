@@ -134,6 +134,11 @@ export default function PocketBooster() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    document.body.classList.add("pocket-booster-theme");
+    return () => document.body.classList.remove("pocket-booster-theme");
+  }, []);
+
   const { data: catalog } = useQuery<TiersResponse>({
     queryKey: ["/api/pocket-booster/tiers"],
   });
@@ -332,12 +337,12 @@ export default function PocketBooster() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="pocket-booster-theme min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-primary/20">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.18),_transparent_55%),linear-gradient(180deg,_hsl(25_45%_10%)_0%,_hsl(var(--background))_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.24),_transparent_55%),linear-gradient(180deg,_hsl(42_68%_88%)_0%,_hsl(var(--background))_100%)]" />
           <div className="relative max-w-5xl mx-auto px-6 py-16 md:py-20 text-center">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
