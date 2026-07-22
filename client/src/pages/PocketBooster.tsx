@@ -39,25 +39,6 @@ import {
   P2P_INVESTMENT_AMOUNTS,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
-import plaqueS1 from "@assets/badge_red_gold_swords.jpg";
-import plaqueS2 from "@assets/badge_green_swords.jpg";
-import plaqueS3 from "@assets/badge_navy_silver.jpg";
-import plaqueS4 from "@assets/badge_purple_swords.jpg";
-import plaqueS5 from "@assets/badge_brown_gold_ornate.jpg";
-import plaqueS6 from "@assets/logo_lime_green.jpg";
-import plaqueS7 from "@assets/logo_5swords_blue_gold.jpg";
-import plaqueS8 from "@assets/logo_orange.jpg";
-
-const STAGE_PLAQUE_IMAGES: Record<ProgramStageId, string> = {
-  S1: plaqueS1,
-  S2: plaqueS2,
-  S3: plaqueS3,
-  S4: plaqueS4,
-  S5: plaqueS5,
-  S6: plaqueS6,
-  S7: plaqueS7,
-  S8: plaqueS8,
-};
 
 type TiersResponse = {
   platformName: string;
@@ -654,7 +635,7 @@ export default function PocketBooster() {
             </p>
           )}
 
-          {/* Eight program plaques (S1–S8) */}
+          {/* Eight program codes (S1–S8) */}
           <div
             id="program-codes"
             className="mt-16 pt-12 border-t border-primary/20"
@@ -672,12 +653,11 @@ export default function PocketBooster() {
                 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wide text-primary mb-3"
                 data-testid="text-pb-stages-title"
               >
-                Program Plaques · Codes S1–S8
+                Program Codes S1–S8
               </h3>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                These eight plaques are the Pocket Booster program codes. Select
-                a plaque for the full explanation of what that code does inside
-                the program.
+                Select a code for the full explanation of what it does inside
+                Pocket Booster.
               </p>
             </div>
 
@@ -696,7 +676,7 @@ export default function PocketBooster() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => setActiveStageId(stage.id)}
-                    className="text-left border p-3 transition-colors"
+                    className="flex min-h-28 flex-col justify-between gap-4 border p-4 text-left transition-colors"
                     style={{
                       borderColor: selected ? stage.color : "hsl(var(--border))",
                       background: selected ? stage.colorSoft : "hsl(var(--secondary) / 0.35)",
@@ -704,19 +684,8 @@ export default function PocketBooster() {
                     data-testid={`plaque-card-${stage.id}`}
                     aria-pressed={selected}
                   >
-                    <div
-                      className="aspect-square mb-3 overflow-hidden border bg-black/40"
-                      style={{ borderColor: stage.color }}
-                    >
-                      <img
-                        src={STAGE_PLAQUE_IMAGES[stage.id]}
-                        alt={`${stage.id} ${stage.title} program plaque`}
-                        className="h-full w-full object-contain p-2"
-                        data-testid={`img-plaque-${stage.id}`}
-                      />
-                    </div>
                     <p
-                      className="font-display text-sm font-bold tracking-wider"
+                      className="font-display text-2xl font-bold tracking-wider"
                       style={{ color: stage.color }}
                     >
                       {stage.id}
