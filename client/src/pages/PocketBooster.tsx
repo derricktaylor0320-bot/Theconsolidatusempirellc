@@ -33,6 +33,7 @@ import {
 import {
   PROGRAM_PATHWAY,
   PROGRAM_STAGES,
+  type ProgramStage,
   type ProgramStageId,
 } from "@shared/programStages";
 import {
@@ -112,6 +113,17 @@ type LiquidityMeResponse = {
   allowedInvestmentAmounts: number[];
 };
 
+const CREST_LABELS: Record<ProgramStageId, string> = {
+  S1: "Red Foundation Crest",
+  S2: "Money Green Crest",
+  S3: "Navy Community Crest",
+  S4: "Purple Autopilot Crest",
+  S5: "Brown Growth Crest",
+  S6: "Six-Figure Emerald Crest",
+  S7: "Founders Royal Blue & Silver Crest",
+  S8: "Diamond Burnt Orange Crest",
+};
+
 function formatMoney(value: number | string) {
   const n = typeof value === "string" ? parseFloat(value) : value;
   return `$${n.toFixed(2)}`;
@@ -127,6 +139,81 @@ function errorMessage(err: unknown, fallback: string) {
     // not JSON — use raw text
   }
   return raw || fallback;
+}
+
+function ProgramColorCrest({ stage }: { stage: ProgramStage }) {
+  const gradientId = `program-crest-${stage.id}`;
+  const isDiamond = stage.id === "S8";
+
+  return (
+    <div
+      className="mx-auto aspect-[4/5] w-full max-w-[11rem]"
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 160 200"
+        className="h-full w-full drop-shadow-[0_10px_18px_rgba(107,74,21,0.22)]"
+        role="img"
+      >
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#fff6d8" />
+            <stop offset="34%" stopColor={stage.color} />
+            <stop offset="68%" stopColor={stage.color} />
+            <stop offset="100%" stopColor="#f4c650" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M80 9c7 12 17 18 31 18 4 0 9-.5 14-1-2 15 2 28 13 39-8 12-11 25-8 40 2 11 0 24-8 36-9 15-24 28-42 40-18-12-33-25-42-40-8-12-10-25-8-36 3-15 0-28-8-40 11-11 15-24 13-39 5 .5 10 1 14 1 14 0 24-6 31-18z"
+          fill={`url(#${gradientId})`}
+          stroke="#b7831f"
+          strokeWidth="5"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M80 28c9 11 21 17 37 17-5 16-1 29 9 40-5 9-7 19-5 31 2 19-12 36-41 55-29-19-43-36-41-55 2-12 0-22-5-31 10-11 14-24 9-40 16 0 28-6 37-17z"
+          fill="none"
+          stroke="#fff6d8"
+          strokeOpacity="0.9"
+          strokeWidth="3"
+        />
+        <path
+          d="M28 76c-8 13-10 29-4 45M132 76c8 13 10 29 4 45"
+          fill="none"
+          stroke="#b7831f"
+          strokeLinecap="round"
+          strokeWidth="4"
+        />
+        {isDiamond ? (
+          <path
+            d="M80 58 108 91 80 139 52 91z"
+            fill="none"
+            stroke="#fff6d8"
+            strokeWidth="5"
+            strokeLinejoin="round"
+          />
+        ) : (
+          <path
+            d="M80 56v82M57 80c12 8 34 8 46 0M57 116c12-8 34-8 46 0"
+            fill="none"
+            stroke="#fff6d8"
+            strokeLinecap="round"
+            strokeWidth="5"
+          />
+        )}
+        <circle cx="80" cy="42" r="8" fill="#fff6d8" stroke="#b7831f" strokeWidth="3" />
+        <text
+          x="80"
+          y="105"
+          textAnchor="middle"
+          className="fill-white font-display text-[30px] font-bold tracking-wider"
+          style={{ paintOrder: "stroke", stroke: "rgba(48, 28, 8, 0.45)", strokeWidth: 3 }}
+        >
+          {stage.id}
+        </text>
+      </svg>
+    </div>
+  );
 }
 
 export default function PocketBooster() {
@@ -412,7 +499,7 @@ export default function PocketBooster() {
           </div>
         </section>
 
-        {/* Colorful S1–S8 building-block tabs */}
+        {/* Colorful S1–S8 building-block crests */}
         <section
           id="building-blocks"
           className="border-y border-primary/15 bg-secondary/20"
@@ -427,17 +514,17 @@ export default function PocketBooster() {
                 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3"
                 data-testid="text-building-blocks-title"
               >
-                Building Blocks · Colorful Tabs S1–S8
+                Building Blocks · Color Crests S1–S8
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                These eight colored tabs are the program building blocks. Tap a
-                tab to see what that stage does — then continue into the matching
-                tool inside Pocket Booster.
+                These eight color crests are the program building blocks. Tap a
+                crest to see what that stage represents — then continue into the
+                matching tool inside Pocket Booster.
               </p>
             </div>
 
             <div
-              className="flex gap-2 overflow-x-auto pb-3 justify-start md:justify-center"
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
               data-testid="pocket-booster-stage-tabs"
             >
               {PROGRAM_STAGES.map((stage, index) => {
@@ -451,20 +538,29 @@ export default function PocketBooster() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.04 }}
                     onClick={() => setActiveStageId(stage.id)}
-                    className="shrink-0 min-w-[4.75rem] px-3 py-2.5 border transition-colors"
+                    className="rounded-2xl border p-4 text-center transition-colors"
                     style={{
                       borderColor: selected ? stage.color : "hsl(var(--border))",
-                      background: selected ? stage.color : "transparent",
-                      color: selected ? "#0a0a0a" : stage.color,
+                      background: selected
+                        ? `linear-gradient(180deg, ${stage.colorSoft}, hsl(var(--card)))`
+                        : "hsl(var(--card) / 0.78)",
+                      boxShadow: selected
+                        ? `0 0 0 2px ${stage.colorSoft}, 0 14px 30px ${stage.colorSoft}`
+                        : "none",
                     }}
                     data-testid={`tab-building-block-${stage.id}`}
                     aria-pressed={selected}
+                    aria-label={`${CREST_LABELS[stage.id]}: ${stage.title}`}
                   >
-                    <span className="block font-display text-sm font-bold tracking-wider">
-                      {stage.id}
+                    <ProgramColorCrest stage={stage} />
+                    <span
+                      className="mt-3 block font-display text-sm font-bold uppercase tracking-[0.18em]"
+                      style={{ color: stage.color }}
+                    >
+                      {CREST_LABELS[stage.id]}
                     </span>
-                    <span className="block text-[10px] uppercase tracking-widest opacity-80">
-                      Tab {stage.level}
+                    <span className="mt-1 block text-xs uppercase tracking-wide text-foreground/75">
+                      {stage.title}
                     </span>
                   </motion.button>
                 );
