@@ -6,6 +6,7 @@ import {
   BookOpen,
   CheckCircle2,
   CreditCard,
+  FileDown,
   Landmark,
   Loader2,
   Rocket,
@@ -391,6 +392,16 @@ export default function PocketBooster() {
               </Button>
               <Button asChild variant="outline" data-testid="button-open-pay-to-learn">
                 <a href="#pay-to-learn">Take a Program</a>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                data-testid="button-download-pdf-application"
+              >
+                <a href="/assets/pocket-booster-application.pdf" download>
+                  <FileDown className="h-4 w-4" />
+                  Download PDF Application
+                </a>
               </Button>
             </div>
           </div>
