@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SITE_LINKS } from "@/lib/siteNavigation";
-import logo from "../../../image.png";
+import compassLogo from "@assets/generated_images/consolidatus_empire_logo_2020.png";
 
 type CompassNavigationProps = {
   accountName: string;
@@ -150,7 +150,7 @@ export default function CompassNavigation({
                 <div className="absolute inset-[-18%] rounded-full border border-primary/25" />
                 <div className="absolute inset-[-34%] animate-[spin_36s_linear_infinite] rounded-full border border-dashed border-primary/20 motion-reduce:animate-none" />
                 <img
-                  src={logo}
+                  src={compassLogo}
                   alt=""
                   className="h-[72%] w-[72%] object-contain drop-shadow-[0_0_10px_hsl(var(--primary)/0.6)]"
                 />
