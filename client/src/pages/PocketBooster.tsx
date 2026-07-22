@@ -40,6 +40,14 @@ import {
   P2P_INVESTMENT_AMOUNTS,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
+import crestS1 from "../../../1784461844509.png";
+import crestS2 from "../../../1784461847699.png";
+import crestS3 from "../../../1784461886570.png";
+import crestS4 from "../../../1784461894503.png";
+import crestS5 from "../../../1784461891241.png";
+import crestS6 from "../../../copilot_image_1784465292890.jpeg";
+import crestS7 from "../../../copilot_image_1784466865731.jpeg";
+import crestS8 from "../../../copilot_image_1784466330810_jpeg.jpg";
 
 type TiersResponse = {
   platformName: string;
@@ -112,6 +120,28 @@ type LiquidityMeResponse = {
   allowedInvestmentAmounts: number[];
 };
 
+const CREST_LABELS: Record<ProgramStageId, string> = {
+  S1: "Red Foundation Crest",
+  S2: "Money Green Crest",
+  S3: "Navy Community Crest",
+  S4: "Purple Autopilot Crest",
+  S5: "Brown Growth Crest",
+  S6: "Six-Figure Emerald Crest",
+  S7: "Founders Royal Blue & Silver Crest",
+  S8: "Diamond Burnt Orange Crest",
+};
+
+const STAGE_CREST_IMAGES: Record<ProgramStageId, string> = {
+  S1: crestS1,
+  S2: crestS2,
+  S3: crestS3,
+  S4: crestS4,
+  S5: crestS5,
+  S6: crestS6,
+  S7: crestS7,
+  S8: crestS8,
+};
+
 function formatMoney(value: number | string) {
   const n = typeof value === "string" ? parseFloat(value) : value;
   return `$${n.toFixed(2)}`;
@@ -133,6 +163,11 @@ export default function PocketBooster() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    document.body.classList.add("pocket-booster-theme");
+    return () => document.body.classList.remove("pocket-booster-theme");
+  }, []);
 
   const { data: catalog } = useQuery<TiersResponse>({
     queryKey: ["/api/pocket-booster/tiers"],
@@ -332,12 +367,12 @@ export default function PocketBooster() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="pocket-booster-theme min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-primary/20">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.18),_transparent_55%),linear-gradient(180deg,_hsl(25_45%_10%)_0%,_hsl(var(--background))_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.24),_transparent_55%),linear-gradient(180deg,_hsl(42_68%_88%)_0%,_hsl(var(--background))_100%)]" />
           <div className="relative max-w-5xl mx-auto px-6 py-16 md:py-20 text-center">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -407,7 +442,7 @@ export default function PocketBooster() {
           </div>
         </section>
 
-        {/* Colorful S1–S8 building-block tabs */}
+        {/* Colorful S1–S8 building-block crests */}
         <section
           id="building-blocks"
           className="border-y border-primary/15 bg-secondary/20"
@@ -422,17 +457,17 @@ export default function PocketBooster() {
                 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3"
                 data-testid="text-building-blocks-title"
               >
-                Building Blocks · Colorful Tabs S1–S8
+                Building Blocks · Color Crests S1–S8
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                These eight colored tabs are the program building blocks. Tap a
-                tab to see what that stage does — then continue into the matching
-                tool inside Pocket Booster.
+                These eight color crests are the program building blocks. Tap a
+                crest to see what that stage represents — then continue into the
+                matching tool inside Pocket Booster.
               </p>
             </div>
 
             <div
-              className="flex gap-2 overflow-x-auto pb-3 justify-start md:justify-center"
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
               data-testid="pocket-booster-stage-tabs"
             >
               {PROGRAM_STAGES.map((stage, index) => {
@@ -446,20 +481,46 @@ export default function PocketBooster() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.04 }}
                     onClick={() => setActiveStageId(stage.id)}
-                    className="shrink-0 min-w-[4.75rem] px-3 py-2.5 border transition-colors"
+                    className="relative rounded-2xl border p-4 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     style={{
                       borderColor: selected ? stage.color : "hsl(var(--border))",
-                      background: selected ? stage.color : "transparent",
-                      color: selected ? "#0a0a0a" : stage.color,
+                      background: selected
+                        ? `linear-gradient(180deg, ${stage.colorSoft}, hsl(var(--card)))`
+                        : "hsl(var(--card) / 0.78)",
+                      boxShadow: selected
+                        ? `0 0 0 3px ${stage.color}, 0 14px 34px ${stage.colorSoft}`
+                        : "none",
+                      outline: selected ? `2px solid ${stage.color}` : "none",
+                      outlineOffset: "3px",
                     }}
                     data-testid={`tab-building-block-${stage.id}`}
                     aria-pressed={selected}
+                    aria-label={`${CREST_LABELS[stage.id]}: ${stage.title}`}
                   >
-                    <span className="block font-display text-sm font-bold tracking-wider">
-                      {stage.id}
+                    {selected ? (
+                      <span
+                        className="absolute right-3 top-3 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-white"
+                        style={{ backgroundColor: stage.color }}
+                      >
+                        Selected
+                      </span>
+                    ) : null}
+                    <div className="overflow-hidden rounded-xl border border-primary/25 bg-background/60">
+                      <img
+                        src={STAGE_CREST_IMAGES[stage.id]}
+                        alt={`${CREST_LABELS[stage.id]} for ${stage.title}`}
+                        className="aspect-[16/10] h-full w-full object-cover"
+                        data-testid={`img-building-block-crest-${stage.id}`}
+                      />
+                    </div>
+                    <span
+                      className="mt-3 block font-display text-sm font-bold uppercase tracking-[0.18em]"
+                      style={{ color: stage.color }}
+                    >
+                      {CREST_LABELS[stage.id]}
                     </span>
-                    <span className="block text-[10px] uppercase tracking-widest opacity-80">
-                      Tab {stage.level}
+                    <span className="mt-1 block text-xs uppercase tracking-wide text-foreground/75">
+                      {stage.title}
                     </span>
                   </motion.button>
                 );
