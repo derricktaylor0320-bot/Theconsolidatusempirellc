@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import heroBackground from "../../../image_1784694080293.jpeg";
-import crestLogo from "../../../image.png";
 
 export default function Hero() {
   return (
@@ -19,19 +18,6 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-          className="mb-6 flex items-center justify-center"
-        >
-          <img
-            src={crestLogo}
-            alt="Golden-brown three-eagle crest for The Consolidatus Empire LLC"
-            className="h-auto w-72 object-contain drop-shadow-[0_8px_30px_rgba(0,0,0,0.6)] md:w-96 lg:w-[26rem]"
-          />
-        </motion.div>
-
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
