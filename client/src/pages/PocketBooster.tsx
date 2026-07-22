@@ -33,7 +33,6 @@ import {
 import {
   PROGRAM_PATHWAY,
   PROGRAM_STAGES,
-  type ProgramStage,
   type ProgramStageId,
 } from "@shared/programStages";
 import {
@@ -41,6 +40,14 @@ import {
   P2P_INVESTMENT_AMOUNTS,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
+import crestS1 from "../../../1784461844509.png";
+import crestS2 from "../../../1784461847699.png";
+import crestS3 from "../../../1784461886570.png";
+import crestS4 from "../../../1784461894503.png";
+import crestS5 from "../../../1784461891241.png";
+import crestS6 from "../../../copilot_image_1784465292890.jpeg";
+import crestS7 from "../../../copilot_image_1784466865731.jpeg";
+import crestS8 from "../../../copilot_image_1784466330810_jpeg.jpg";
 
 type TiersResponse = {
   platformName: string;
@@ -124,6 +131,17 @@ const CREST_LABELS: Record<ProgramStageId, string> = {
   S8: "Diamond Burnt Orange Crest",
 };
 
+const STAGE_CREST_IMAGES: Record<ProgramStageId, string> = {
+  S1: crestS1,
+  S2: crestS2,
+  S3: crestS3,
+  S4: crestS4,
+  S5: crestS5,
+  S6: crestS6,
+  S7: crestS7,
+  S8: crestS8,
+};
+
 function formatMoney(value: number | string) {
   const n = typeof value === "string" ? parseFloat(value) : value;
   return `$${n.toFixed(2)}`;
@@ -139,81 +157,6 @@ function errorMessage(err: unknown, fallback: string) {
     // not JSON — use raw text
   }
   return raw || fallback;
-}
-
-function ProgramColorCrest({ stage }: { stage: ProgramStage }) {
-  const gradientId = `program-crest-${stage.id}`;
-  const isDiamond = stage.id === "S8";
-
-  return (
-    <div
-      className="mx-auto aspect-[4/5] w-full max-w-[11rem]"
-      aria-hidden="true"
-    >
-      <svg
-        viewBox="0 0 160 200"
-        className="h-full w-full drop-shadow-[0_10px_18px_rgba(107,74,21,0.22)]"
-        role="img"
-      >
-        <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fff6d8" />
-            <stop offset="34%" stopColor={stage.color} />
-            <stop offset="68%" stopColor={stage.color} />
-            <stop offset="100%" stopColor="#f4c650" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M80 9c7 12 17 18 31 18 4 0 9-.5 14-1-2 15 2 28 13 39-8 12-11 25-8 40 2 11 0 24-8 36-9 15-24 28-42 40-18-12-33-25-42-40-8-12-10-25-8-36 3-15 0-28-8-40 11-11 15-24 13-39 5 .5 10 1 14 1 14 0 24-6 31-18z"
-          fill={`url(#${gradientId})`}
-          stroke="#b7831f"
-          strokeWidth="5"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M80 28c9 11 21 17 37 17-5 16-1 29 9 40-5 9-7 19-5 31 2 19-12 36-41 55-29-19-43-36-41-55 2-12 0-22-5-31 10-11 14-24 9-40 16 0 28-6 37-17z"
-          fill="none"
-          stroke="#fff6d8"
-          strokeOpacity="0.9"
-          strokeWidth="3"
-        />
-        <path
-          d="M28 76c-8 13-10 29-4 45M132 76c8 13 10 29 4 45"
-          fill="none"
-          stroke="#b7831f"
-          strokeLinecap="round"
-          strokeWidth="4"
-        />
-        {isDiamond ? (
-          <path
-            d="M80 58 108 91 80 139 52 91z"
-            fill="none"
-            stroke="#fff6d8"
-            strokeWidth="5"
-            strokeLinejoin="round"
-          />
-        ) : (
-          <path
-            d="M80 56v82M57 80c12 8 34 8 46 0M57 116c12-8 34-8 46 0"
-            fill="none"
-            stroke="#fff6d8"
-            strokeLinecap="round"
-            strokeWidth="5"
-          />
-        )}
-        <circle cx="80" cy="42" r="8" fill="#fff6d8" stroke="#b7831f" strokeWidth="3" />
-        <text
-          x="80"
-          y="105"
-          textAnchor="middle"
-          className="fill-white font-display text-[30px] font-bold tracking-wider"
-          style={{ paintOrder: "stroke", stroke: "rgba(48, 28, 8, 0.45)", strokeWidth: 3 }}
-        >
-          {stage.id}
-        </text>
-      </svg>
-    </div>
-  );
 }
 
 export default function PocketBooster() {
@@ -562,7 +505,14 @@ export default function PocketBooster() {
                         Selected
                       </span>
                     ) : null}
-                    <ProgramColorCrest stage={stage} />
+                    <div className="overflow-hidden rounded-xl border border-primary/25 bg-background/60">
+                      <img
+                        src={STAGE_CREST_IMAGES[stage.id]}
+                        alt={`${CREST_LABELS[stage.id]} for ${stage.title}`}
+                        className="aspect-[16/10] h-full w-full object-cover"
+                        data-testid={`img-building-block-crest-${stage.id}`}
+                      />
+                    </div>
                     <span
                       className="mt-3 block font-display text-sm font-bold uppercase tracking-[0.18em]"
                       style={{ color: stage.color }}
