@@ -538,20 +538,30 @@ export default function PocketBooster() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.04 }}
                     onClick={() => setActiveStageId(stage.id)}
-                    className="rounded-2xl border p-4 text-center transition-colors"
+                    className="relative rounded-2xl border p-4 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     style={{
                       borderColor: selected ? stage.color : "hsl(var(--border))",
                       background: selected
                         ? `linear-gradient(180deg, ${stage.colorSoft}, hsl(var(--card)))`
                         : "hsl(var(--card) / 0.78)",
                       boxShadow: selected
-                        ? `0 0 0 2px ${stage.colorSoft}, 0 14px 30px ${stage.colorSoft}`
+                        ? `0 0 0 3px ${stage.color}, 0 14px 34px ${stage.colorSoft}`
                         : "none",
+                      outline: selected ? `2px solid ${stage.color}` : "none",
+                      outlineOffset: "3px",
                     }}
                     data-testid={`tab-building-block-${stage.id}`}
                     aria-pressed={selected}
                     aria-label={`${CREST_LABELS[stage.id]}: ${stage.title}`}
                   >
+                    {selected ? (
+                      <span
+                        className="absolute right-3 top-3 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-white"
+                        style={{ backgroundColor: stage.color }}
+                      >
+                        Selected
+                      </span>
+                    ) : null}
                     <ProgramColorCrest stage={stage} />
                     <span
                       className="mt-3 block font-display text-sm font-bold uppercase tracking-[0.18em]"
