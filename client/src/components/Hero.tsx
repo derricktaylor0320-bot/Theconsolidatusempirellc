@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import heroBackground from "@assets/1783773416912_1783774780616.png";
+import heroBackground from "../../../image_1784694080293.jpeg";
 import crestLogo from "../../../image.png";
 
 export default function Hero() {
