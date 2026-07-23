@@ -244,9 +244,14 @@ export default function About() {
                   <filter
                     id="letterhead-logo-knockout"
                     colorInterpolationFilters="sRGB"
+                    x="-10%"
+                    y="-10%"
+                    width="120%"
+                    height="120%"
                   >
                     <feColorMatrix
                       type="matrix"
+                      result="logo-alpha"
                       values="
                         1 0 0 0 0
                         0 1 0 0 0
@@ -254,7 +259,7 @@ export default function About() {
                         .85 .85 .85 0 -.35
                       "
                     />
-                    <feComponentTransfer>
+                    <feComponentTransfer result="strengthened-alpha">
                       <feFuncA
                         type="gamma"
                         amplitude="1.35"
@@ -262,6 +267,12 @@ export default function About() {
                         offset="0"
                       />
                     </feComponentTransfer>
+                    <feFlood floodColor="#4a2d18" result="letterhead-ink" />
+                    <feComposite
+                      in="letterhead-ink"
+                      in2="strengthened-alpha"
+                      operator="in"
+                    />
                   </filter>
                 </svg>
                 <img
