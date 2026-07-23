@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { motion } from "framer-motion";
+import companyCrest from "../../../image.png";
 
 const lifestyleCollections = [
   {
@@ -237,9 +238,12 @@ export default function About() {
               <div className="relative mx-auto mb-10 max-w-xl text-center">
                 <div className="flex items-center justify-center gap-4">
                   <span className="h-px flex-1 bg-[#a47a34]/55" />
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#a47a34] font-brand text-2xl font-bold">
-                    TCE
-                  </div>
+                  <img
+                    src={companyCrest}
+                    alt="The Consolidatus Empire LLC TCE crest"
+                    className="h-36 w-36 border border-[#a47a34] object-cover shadow-lg sm:h-44 sm:w-44"
+                    data-testid="img-founders-letterhead-logo"
+                  />
                   <span className="h-px flex-1 bg-[#a47a34]/55" />
                 </div>
                 <p className="mt-5 font-brand text-xl font-bold uppercase tracking-[0.18em] sm:text-2xl">
