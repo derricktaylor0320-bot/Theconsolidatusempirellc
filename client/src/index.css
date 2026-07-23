@@ -102,6 +102,41 @@
   --ring: 43 78% 52%;
 }
 
+/* Pocket Booster is a distinct cream-and-gold program environment. The
+   scoped variables preserve the Empire's chocolate foundation everywhere
+   else while also styling portalled navigation and dialogs on these routes. */
+.pocket-booster-theme {
+  color-scheme: light;
+  --background: 44 58% 95%;
+  --foreground: 30 30% 17%;
+
+  --card: 45 67% 98%;
+  --card-foreground: 30 30% 17%;
+
+  --popover: 45 67% 98%;
+  --popover-foreground: 30 30% 17%;
+
+  --primary: 40 68% 38%;
+  --primary-foreground: 45 70% 98%;
+
+  --secondary: 43 43% 89%;
+  --secondary-foreground: 30 30% 19%;
+
+  --muted: 42 34% 91%;
+  --muted-foreground: 30 18% 39%;
+
+  --accent: 42 76% 45%;
+  --accent-foreground: 30 34% 15%;
+
+  --destructive: 0 65% 38%;
+  --destructive-foreground: 45 70% 98%;
+
+  --border: 41 51% 54%;
+  --input: 44 45% 92%;
+  --ring: 40 68% 38%;
+  --button-outline: hsl(40 62% 38% / 0.7);
+}
+
 @layer base {
   * {
     @apply border-border;

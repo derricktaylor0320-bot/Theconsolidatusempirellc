@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { POCKET_BOOSTER_CRESTS } from "@/lib/pocketBoosterCrests";
 import {
   PAY_TO_LEARN_MODULES,
   POCKET_BOOSTER_TIERS,
@@ -40,6 +41,7 @@ import {
   P2P_INVESTMENT_AMOUNTS,
   type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
+import tceLogo from "../../../image.png";
 
 type TiersResponse = {
   platformName: string;
@@ -133,6 +135,11 @@ export default function PocketBooster() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    document.body.classList.add("pocket-booster-theme");
+    return () => document.body.classList.remove("pocket-booster-theme");
+  }, []);
 
   const { data: catalog } = useQuery<TiersResponse>({
     queryKey: ["/api/pocket-booster/tiers"],
@@ -332,38 +339,53 @@ export default function PocketBooster() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="pocket-booster-theme min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-primary/20">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.18),_transparent_55%),linear-gradient(180deg,_hsl(25_45%_10%)_0%,_hsl(var(--background))_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(48_100%_100%/0.95),_transparent_48%),radial-gradient(ellipse_at_20%_30%,_hsl(var(--primary)/0.16),_transparent_38%),linear-gradient(180deg,_hsl(42_58%_89%)_0%,_hsl(var(--background))_82%)]" />
           <div className="relative max-w-5xl mx-auto px-6 py-16 md:py-20 text-center">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
-              className="inline-flex items-center justify-center rounded-full p-5 mb-6 border border-primary/40 bg-primary/10"
+              className="mx-auto mb-8 inline-flex max-w-3xl flex-col items-center gap-6 rounded-[2rem] border border-primary/35 bg-card/90 p-5 text-center shadow-[0_24px_70px_hsl(var(--primary)/0.16)] backdrop-blur sm:flex-row sm:p-7 sm:text-left"
             >
-              <Rocket className="h-10 w-10 text-primary" />
+              <img
+                src={tceLogo}
+                alt="The Consolidatus Empire LLC TCE crest"
+                className="h-32 w-32 shrink-0 rounded-2xl border border-primary/35 object-cover shadow-lg"
+                data-testid="img-pocket-booster-tce-logo"
+              />
+              <span
+                className="hidden h-28 w-px bg-gradient-to-b from-transparent via-primary/70 to-transparent sm:block"
+                aria-hidden
+              />
+              <div>
+                <p className="mb-2 font-brand text-xs uppercase tracking-[0.26em] text-primary">
+                  The Consolidatus Empire LLC presents
+                </p>
+                <h1
+                  className="font-display text-4xl font-bold uppercase tracking-wider text-primary md:text-6xl"
+                  data-testid="text-pocket-booster-title"
+                >
+                  Pocket Booster
+                </h1>
+                <p className="mt-2 font-display text-sm uppercase tracking-[0.22em] text-foreground/70">
+                  TCE Financial Wellness Platform
+                </p>
+              </div>
             </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.05 }}
-              className="font-display text-4xl md:text-6xl font-bold uppercase tracking-wider text-primary mb-4"
-              data-testid="text-pocket-booster-title"
-            >
-              Pocket Booster
-            </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12 }}
               className="text-lg md:text-xl text-foreground/85 max-w-2xl mx-auto mb-3"
             >
-              Subscription-powered cash cushions backed by peer-to-peer reserve
-              capital — with {(yieldRate * 100).toFixed(1)}% yield returning to
+              TCE introduces a cream-and-gold financial wellness environment:
+              subscription-powered cash cushions backed by peer-to-peer reserve
+              capital, with {(yieldRate * 100).toFixed(1)}% yield returning to
               investors.
             </motion.p>
             <p
@@ -381,7 +403,7 @@ export default function PocketBooster() {
                 className="text-primary underline underline-offset-2"
                 data-testid="link-pb-stages"
               >
-                colorful program tabs
+                full-color program crests
               </a>
               , choose a membership only when you are ready to activate, and take
               the real Pay-to-Learn programs below.
@@ -407,7 +429,7 @@ export default function PocketBooster() {
           </div>
         </section>
 
-        {/* Colorful S1–S8 building-block tabs */}
+        {/* Full-color S1–S8 building-block crests */}
         <section
           id="building-blocks"
           className="border-y border-primary/15 bg-secondary/20"
@@ -422,17 +444,17 @@ export default function PocketBooster() {
                 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3"
                 data-testid="text-building-blocks-title"
               >
-                Building Blocks · Colorful Tabs S1–S8
+                Building Blocks · Full-Color Crests S1–S8
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                These eight colored tabs are the program building blocks. Tap a
-                tab to see what that stage does — then continue into the matching
-                tool inside Pocket Booster.
+                These eight crests are the program building blocks. Select a
+                full-color crest to see what that stage does, then continue into
+                the matching Pocket Booster tool.
               </p>
             </div>
 
             <div
-              className="flex gap-2 overflow-x-auto pb-3 justify-start md:justify-center"
+              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
               data-testid="pocket-booster-stage-tabs"
             >
               {PROGRAM_STAGES.map((stage, index) => {
@@ -446,20 +468,46 @@ export default function PocketBooster() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.04 }}
                     onClick={() => setActiveStageId(stage.id)}
-                    className="shrink-0 min-w-[4.75rem] px-3 py-2.5 border transition-colors"
+                    className="rounded-2xl border bg-card p-3 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     style={{
                       borderColor: selected ? stage.color : "hsl(var(--border))",
-                      background: selected ? stage.color : "transparent",
-                      color: selected ? "#0a0a0a" : stage.color,
+                      boxShadow: selected
+                        ? `0 0 0 3px ${stage.color}, 0 16px 34px ${stage.colorSoft}`
+                        : "0 8px 24px hsl(var(--foreground) / 0.06)",
                     }}
                     data-testid={`tab-building-block-${stage.id}`}
                     aria-pressed={selected}
+                    aria-label={`${stage.id}: ${stage.title}`}
                   >
-                    <span className="block font-display text-sm font-bold tracking-wider">
-                      {stage.id}
+                    <span className="flex aspect-[3/2] items-center justify-center overflow-hidden rounded-xl bg-background">
+                      <img
+                        src={POCKET_BOOSTER_CRESTS[stage.id]}
+                        alt={`${stage.id} ${stage.title} Pocket Booster crest`}
+                        className="h-full w-full object-contain"
+                        loading="lazy"
+                        data-testid={`img-building-block-crest-${stage.id}`}
+                      />
                     </span>
-                    <span className="block text-[10px] uppercase tracking-widest opacity-80">
-                      Tab {stage.level}
+                    <span className="mt-3 flex items-center justify-between gap-3">
+                      <span>
+                        <span
+                          className="block font-display text-sm font-bold tracking-wider"
+                          style={{ color: stage.color }}
+                        >
+                          {stage.id}
+                        </span>
+                        <span className="block text-xs uppercase tracking-wide text-foreground/75">
+                          {stage.title}
+                        </span>
+                      </span>
+                      {selected ? (
+                        <span
+                          className="rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white"
+                          style={{ backgroundColor: stage.color }}
+                        >
+                          Selected
+                        </span>
+                      ) : null}
                     </span>
                   </motion.button>
                 );
@@ -479,6 +527,12 @@ export default function PocketBooster() {
                   }}
                   data-testid={`panel-building-block-${stage.id}`}
                 >
+                  <img
+                    src={POCKET_BOOSTER_CRESTS[stage.id]}
+                    alt={`${stage.id} ${stage.title} full-color Pocket Booster crest`}
+                    className="mb-6 aspect-[3/2] w-full rounded-xl bg-background object-contain"
+                    data-testid={`img-building-block-active-crest-${stage.id}`}
+                  />
                   <div
                     className="h-1.5 w-full mb-5"
                     style={{
@@ -673,7 +727,7 @@ export default function PocketBooster() {
             </div>
 
             <div
-              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8"
+              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8"
               data-testid="grid-pocket-booster-plaques"
             >
               {PROGRAM_STAGES.map((stage, index) => {
@@ -687,23 +741,34 @@ export default function PocketBooster() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => setActiveStageId(stage.id)}
-                    className="flex min-h-28 flex-col justify-between gap-4 border p-4 text-left transition-colors"
+                    className="flex flex-col gap-3 rounded-2xl border bg-card p-3 text-left transition-all"
                     style={{
                       borderColor: selected ? stage.color : "hsl(var(--border))",
-                      background: selected ? stage.colorSoft : "hsl(var(--secondary) / 0.35)",
+                      boxShadow: selected
+                        ? `0 0 0 3px ${stage.color}, 0 14px 30px ${stage.colorSoft}`
+                        : "0 8px 24px hsl(var(--foreground) / 0.06)",
                     }}
                     data-testid={`plaque-card-${stage.id}`}
                     aria-pressed={selected}
                   >
-                    <p
-                      className="font-display text-2xl font-bold tracking-wider"
-                      style={{ color: stage.color }}
-                    >
-                      {stage.id}
-                    </p>
-                    <p className="font-display text-sm uppercase tracking-tight text-foreground/90 line-clamp-2">
-                      {stage.title}
-                    </p>
+                    <img
+                      src={POCKET_BOOSTER_CRESTS[stage.id]}
+                      alt={`${stage.id} ${stage.title} Pocket Booster crest`}
+                      className="aspect-[3/2] w-full rounded-xl bg-background object-contain"
+                      loading="lazy"
+                      data-testid={`img-plaque-crest-${stage.id}`}
+                    />
+                    <span className="flex items-baseline gap-2 px-1 pb-1">
+                      <span
+                        className="font-display text-lg font-bold tracking-wider"
+                        style={{ color: stage.color }}
+                      >
+                        {stage.id}
+                      </span>
+                      <span className="font-display text-xs uppercase tracking-tight text-foreground/85">
+                        {stage.title}
+                      </span>
+                    </span>
                   </motion.button>
                 );
               })}
@@ -723,6 +788,12 @@ export default function PocketBooster() {
                   }}
                   data-testid={`panel-pb-stage-${stage.id}`}
                 >
+                  <img
+                    src={POCKET_BOOSTER_CRESTS[stage.id]}
+                    alt={`${stage.id} ${stage.title} full-color Pocket Booster crest`}
+                    className="mb-6 aspect-[3/2] w-full rounded-xl bg-background object-contain"
+                    data-testid={`img-pb-active-crest-${stage.id}`}
+                  />
                   <div
                     className="h-1.5 w-full mb-6"
                     style={{

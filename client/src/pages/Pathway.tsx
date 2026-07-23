@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { Button } from "@/components/ui/button";
+import { POCKET_BOOSTER_CRESTS } from "@/lib/pocketBoosterCrests";
 import {
   PROGRAM_PATHWAY,
   PROGRAM_STAGES,
@@ -28,8 +29,13 @@ export default function Pathway() {
   const [activeId, setActiveId] = useState<string>(stages[0]?.id ?? "S1");
   const active = stages.find((s) => s.id === activeId) ?? stages[0];
 
+  useEffect(() => {
+    document.body.classList.add("pocket-booster-theme");
+    return () => document.body.classList.remove("pocket-booster-theme");
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="pocket-booster-theme min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow relative overflow-hidden">
         <div
@@ -109,7 +115,7 @@ export default function Pathway() {
 
         <section className="relative z-10 container mx-auto px-4 pb-6">
           <div
-            className="flex gap-2 overflow-x-auto pb-2 justify-start md:justify-center"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
             data-testid="pathway-stage-nav"
           >
             {stages.map((stage, index) => {
@@ -122,20 +128,33 @@ export default function Pathway() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.04 }}
                   onClick={() => setActiveId(stage.id)}
-                  className="shrink-0 min-w-[4.5rem] px-3 py-2 border transition-colors"
+                  className="rounded-2xl border bg-card p-3 text-left transition-all"
                   style={{
                     borderColor: selected ? stage.color : "hsl(var(--border))",
-                    background: selected ? stage.colorSoft : "transparent",
-                    color: selected ? stage.color : "hsl(var(--muted-foreground))",
+                    boxShadow: selected
+                      ? `0 0 0 3px ${stage.color}, 0 14px 30px ${stage.colorSoft}`
+                      : "0 8px 24px hsl(var(--foreground) / 0.06)",
                   }}
                   data-testid={`button-stage-${stage.id}`}
                   aria-pressed={selected}
                 >
-                  <span className="block font-display text-sm font-bold tracking-wider">
-                    {stage.id}
-                  </span>
-                  <span className="block text-[10px] uppercase tracking-widest opacity-80">
-                    Tab {stage.level}
+                  <img
+                    src={POCKET_BOOSTER_CRESTS[stage.id]}
+                    alt={`${stage.id} ${stage.title} Pocket Booster crest`}
+                    className="aspect-[3/2] w-full rounded-xl bg-background object-contain"
+                    loading="lazy"
+                    data-testid={`img-pathway-crest-${stage.id}`}
+                  />
+                  <span className="mt-3 flex items-baseline gap-2 px-1">
+                    <span
+                      className="font-display text-sm font-bold tracking-wider"
+                      style={{ color: stage.color }}
+                    >
+                      {stage.id}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-wide text-foreground/75">
+                      {stage.title}
+                    </span>
                   </span>
                 </motion.button>
               );
@@ -155,6 +174,12 @@ export default function Pathway() {
                 className="max-w-3xl mx-auto"
                 data-testid={`panel-stage-${active.id}`}
               >
+                <img
+                  src={POCKET_BOOSTER_CRESTS[active.id]}
+                  alt={`${active.id} ${active.title} full-color Pocket Booster crest`}
+                  className="mb-8 aspect-[3/2] w-full rounded-2xl border border-primary/25 bg-card object-contain shadow-xl"
+                  data-testid={`img-pathway-active-crest-${active.id}`}
+                />
                 <div
                   className="h-1.5 w-full mb-8"
                   style={{
@@ -230,10 +255,11 @@ export default function Pathway() {
                     className="w-full text-left group flex gap-4 py-5 border-t border-border/60 hover:bg-secondary/30 transition-colors px-2 md:px-4"
                     data-testid={`list-stage-${stage.id}`}
                   >
-                    <span
-                      className="shrink-0 w-1 self-stretch"
-                      style={{ backgroundColor: stage.color }}
-                      aria-hidden
+                    <img
+                      src={POCKET_BOOSTER_CRESTS[stage.id]}
+                      alt={`${stage.id} ${stage.title} Pocket Booster crest`}
+                      className="aspect-[3/2] w-28 shrink-0 rounded-lg bg-background object-contain sm:w-36"
+                      loading="lazy"
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
