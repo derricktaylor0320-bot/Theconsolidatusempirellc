@@ -6,11 +6,18 @@ import heroBackground from "../../../image_1784694080293.jpeg";
 export default function Hero() {
   return (
     <section className="relative flex h-[85vh] w-full items-center justify-center overflow-hidden text-white">
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-[#160d09]">
+        <img
+          src={heroBackground}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl"
+        />
         <img
           src={heroBackground}
           alt="The Consolidatus Empire Headquarters"
-          className="h-full w-full object-cover"
+          className="relative h-full w-full object-contain object-center"
+          data-testid="img-home-headquarters"
         />
         <div className="absolute inset-0 bg-black/25" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_45%_at_50%_40%,rgba(0,0,0,0.35),transparent_75%)]" />
