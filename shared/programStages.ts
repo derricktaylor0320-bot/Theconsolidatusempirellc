@@ -37,9 +37,9 @@ export type ProgramStage = {
 
 export const PROGRAM_PATHWAY = {
   name: "Pocket Booster Program",
-  shortName: "Pocket Booster Stages",
+  shortName: "Pocket Booster Building Blocks",
   tagline:
-    "Eight Pocket Booster tabs — from cash cushion to sovereign ownership — each with a clear purpose in the program.",
+    "Eight building blocks — from cash cushion to sovereign ownership — all inside the Pocket Booster platform.",
   program: "Pocket Booster",
 } as const;
 
@@ -133,14 +133,14 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     level: 7,
     title: "Legacy & Portfolio Building",
     meaning:
-      "Wealth preservation and investment. This Pocket Booster tab channels disciplined capital into multi-generational wealth — including the P2P reserve vault that backs member cushions.",
+      "Wealth preservation and investment. This Pocket Booster tab helps members put an investment to work toward multi-generational wealth while supporting the reserve that backs member cushions.",
     inProgram:
-      "Inside Pocket Booster, S7 is the Peer-to-Peer Reserve path — bridge $100–$1,000 into the Instant-Disbursal Vault that funds member cushions while your position earns compounding yield from subscription revenue.",
+      "Inside Pocket Booster, S7 is the Member Investment Reserve path — put $100–$1,000 to work in the Instant-Disbursal Vault that funds member cushions while your position earns compounding yield from subscription revenue.",
     visualIdentity: "Sparkling Deep Blue",
     color: "#0B1D51",
     colorSoft: "#0B1D5126",
     relatedHref: "/pocket-booster#reserve",
-    relatedLabel: "P2P Reserve Vault",
+    relatedLabel: "Member Investment Reserve",
   },
   {
     id: "S8",

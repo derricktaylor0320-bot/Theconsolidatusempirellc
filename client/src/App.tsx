@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Redirect, Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,7 +15,6 @@ import Accessories from "@/pages/Accessories";
 import Bedding from "@/pages/Bedding";
 import Elements from "@/pages/Elements";
 import PocketBooster from "@/pages/PocketBooster";
-import Pathway from "@/pages/Pathway";
 import Invest from "@/pages/Invest";
 import Hub from "@/pages/Hub";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
@@ -50,7 +49,9 @@ function Router() {
       <Route path="/orders" component={Orders} />
       <Route path="/profile" component={Profile} />
       <Route path="/fr2p" component={FR2P} />
-      <Route path="/pathway" component={Pathway} />
+      <Route path="/pathway">
+        <Redirect to="/pocket-booster#building-blocks" replace />
+      </Route>
       <Route path="/pocket-booster" component={PocketBooster} />
       <Route path="/invest" component={Invest} />
       <Route path="/apparel" component={Apparel} />

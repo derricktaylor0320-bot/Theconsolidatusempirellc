@@ -51,7 +51,6 @@ export const SITE_LINKS: SiteLink[] = [
   },
   { href: "/media", label: "Media & Music", compactLabel: "Media & Music" },
   { href: "/fr2p", label: "The FR2P Club", compactLabel: "FR2P Club" },
-  { href: "/pathway", label: "PB Stages", compactLabel: "PB Stages" },
   {
     href: "/pocket-booster",
     label: "Pocket Booster",

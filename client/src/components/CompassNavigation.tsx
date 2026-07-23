@@ -71,7 +71,7 @@ export default function CompassNavigation({
               Explore the Empire
             </SheetTitle>
             <SheetDescription className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground sm:text-xs">
-              17 destinations in sidebar order — choose any golden point
+              {SITE_LINKS.length} destinations — choose any golden point
             </SheetDescription>
           </SheetHeader>
 
