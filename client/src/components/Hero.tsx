@@ -16,7 +16,7 @@ export default function Hero() {
         <img
           src={heroBackground}
           alt="The Consolidatus Empire Headquarters"
-          className="relative h-full w-full object-contain object-center"
+          className="relative h-full w-full object-cover object-center md:object-contain"
           data-testid="img-home-headquarters"
         />
         <div className="absolute inset-0 bg-black/25" />
