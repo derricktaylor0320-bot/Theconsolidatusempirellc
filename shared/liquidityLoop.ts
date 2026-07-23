@@ -3,10 +3,10 @@ import { z } from "zod";
 /** Default annual yield for open hub investment programs (no stock market) */
 export const P2P_ANNUAL_YIELD_RATE = 0.085;
 
-/** Allowed peer-to-peer investment ticket sizes (USD) */
-export const P2P_INVESTMENT_AMOUNTS = [100, 250, 500, 1000] as const;
-
-export type P2PInvestmentAmount = (typeof P2P_INVESTMENT_AMOUNTS)[number];
+/** Flexible peer-to-peer investment limits (USD) */
+export const P2P_MIN_INVESTMENT_AMOUNT = 20;
+export const P2P_MAX_INVESTMENT_AMOUNT = 9_999_999_999.99;
+export const P2P_INVESTMENT_AMOUNT_STEP = 0.01;
 
 export const P2P_PROJECT_TAG = "POCKET_BOOSTER_RESERVE" as const;
 
@@ -162,13 +162,21 @@ export function compoundDailyInterest(
   return principal * (factor - 1);
 }
 
+export const p2pInvestmentAmountSchema = z
+  .number()
+  .finite()
+  .min(
+    P2P_MIN_INVESTMENT_AMOUNT,
+    `Investment amount must be at least $${P2P_MIN_INVESTMENT_AMOUNT}.`,
+  )
+  .max(P2P_MAX_INVESTMENT_AMOUNT, "Investment amount is too large.")
+  .multipleOf(
+    P2P_INVESTMENT_AMOUNT_STEP,
+    "Investment amount can include no more than two decimal places.",
+  );
+
 export const bridgeP2pSchema = z.object({
-  investmentAmount: z.union([
-    z.literal(100),
-    z.literal(250),
-    z.literal(500),
-    z.literal(1000),
-  ]),
+  investmentAmount: p2pInvestmentAmountSchema,
   /** Defaults to Pocket Booster when omitted (legacy bridge route) */
   projectTag: z.string().optional(),
 });
@@ -177,12 +185,7 @@ export type BridgeP2pInput = z.infer<typeof bridgeP2pSchema>;
 
 /** Explicit RPU issuance payload (alias of bridge invest) */
 export const issueParticipationUnitsSchema = z.object({
-  capitalContribution: z.union([
-    z.literal(100),
-    z.literal(250),
-    z.literal(500),
-    z.literal(1000),
-  ]),
+  capitalContribution: p2pInvestmentAmountSchema,
   targetProjectPool: z.string().min(1),
 });
 

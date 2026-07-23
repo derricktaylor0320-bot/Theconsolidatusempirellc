@@ -16,21 +16,27 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
   HUB_INVESTMENT_PROGRAMS,
-  P2P_INVESTMENT_AMOUNTS,
+  P2P_INVESTMENT_AMOUNT_STEP,
+  P2P_MAX_INVESTMENT_AMOUNT,
+  P2P_MIN_INVESTMENT_AMOUNT,
   RPU_LEGAL_DISCLAIMER,
   RPU_LOCK_PERIOD_DAYS,
+  p2pInvestmentAmountSchema,
   type HubInvestmentProgram,
-  type P2PInvestmentAmount,
 } from "@shared/liquidityLoop";
 
 type ProgramsResponse = {
   programs: HubInvestmentProgram[];
-  allowedInvestmentAmounts: number[];
+  minimumInvestmentAmount: number;
+  maximumInvestmentAmount: number;
+  investmentAmountStep: number;
 };
 
 type LiquidityMeResponse = {
@@ -72,7 +78,9 @@ type LiquidityMeResponse = {
   }>;
   unreadNotifications: number;
   totals: { allocated: number; paidYield: number };
-  allowedInvestmentAmounts: number[];
+  minimumInvestmentAmount: number;
+  maximumInvestmentAmount: number;
+  investmentAmountStep: number;
   programs: HubInvestmentProgram[];
 };
 
@@ -125,16 +133,25 @@ export default function Invest() {
   });
 
   const programs = catalog?.programs ?? HUB_INVESTMENT_PROGRAMS;
-  const amounts =
-    catalog?.allowedInvestmentAmounts ?? [...P2P_INVESTMENT_AMOUNTS];
+  const minimumInvestmentAmount =
+    catalog?.minimumInvestmentAmount ?? P2P_MIN_INVESTMENT_AMOUNT;
+  const maximumInvestmentAmount =
+    catalog?.maximumInvestmentAmount ?? P2P_MAX_INVESTMENT_AMOUNT;
+  const investmentAmountStep =
+    catalog?.investmentAmountStep ?? P2P_INVESTMENT_AMOUNT_STEP;
 
   const [selectedTag, setSelectedTag] = useState(
     () =>
       programs.find((p) => p.status === "open")?.tag ??
       "POCKET_BOOSTER_RESERVE",
   );
-  const [investAmount, setInvestAmount] =
-    useState<P2PInvestmentAmount>(100);
+  const [investAmount, setInvestAmount] = useState(
+    String(P2P_MIN_INVESTMENT_AMOUNT),
+  );
+  const parsedInvestAmount = Number(investAmount);
+  const isInvestAmountValid =
+    investAmount.trim() !== "" &&
+    p2pInvestmentAmountSchema.safeParse(parsedInvestAmount).success;
 
   const selectedProgram = useMemo(
     () => programs.find((p) => p.tag === selectedTag) ?? programs[0],
@@ -144,7 +161,7 @@ export default function Invest() {
   const investMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/liquidity/invest", {
-        investmentAmount: investAmount,
+        investmentAmount: parsedInvestAmount,
         projectTag: selectedTag,
       });
       return res.json();
@@ -333,24 +350,33 @@ export default function Invest() {
                   {(selectedProgram.annualYieldRate * 100).toFixed(1)}% APR
                   (daily compound).
                 </p>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {amounts.map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() =>
-                        setInvestAmount(amt as P2PInvestmentAmount)
-                      }
-                      className={`min-w-[7rem] rounded-lg border px-5 py-3 font-display text-lg transition-colors ${
-                        investAmount === amt
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-secondary/30 hover:border-primary/40"
-                      }`}
-                      data-testid={`button-hub-invest-amount-${amt}`}
-                    >
-                      {formatMoney(amt)}
-                    </button>
-                  ))}
+                <div className="space-y-2 max-w-xs mx-auto text-left">
+                  <Label htmlFor="hub-investment-amount">
+                    Investment amount (minimum{" "}
+                    {formatMoney(minimumInvestmentAmount)})
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      $
+                    </span>
+                    <Input
+                      id="hub-investment-amount"
+                      type="number"
+                      min={minimumInvestmentAmount}
+                      max={maximumInvestmentAmount}
+                      step={investmentAmountStep}
+                      value={investAmount}
+                      onChange={(event) => setInvestAmount(event.target.value)}
+                      inputMode="decimal"
+                      className="pl-7"
+                      required
+                      data-testid="input-hub-investment-amount"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Enter any amount starting at{" "}
+                    {formatMoney(minimumInvestmentAmount)}.
+                  </p>
                 </div>
                 {authLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin text-primary mx-auto" />
@@ -368,7 +394,9 @@ export default function Invest() {
                   <div className="space-y-3">
                     <Button
                       onClick={() => investMutation.mutate()}
-                      disabled={investMutation.isPending}
+                      disabled={
+                        investMutation.isPending || !isInvestAmountValid
+                      }
                       data-testid="button-confirm-hub-invest"
                     >
                       {investMutation.isPending ? (
@@ -376,16 +404,27 @@ export default function Invest() {
                       ) : (
                         <Landmark className="h-4 w-4" />
                       )}
-                      Issue {formatMoney(investAmount)} Participation Units
+                      Issue{" "}
+                      {isInvestAmountValid
+                        ? `${formatMoney(parsedInvestAmount)} `
+                        : ""}
+                      Participation Units
                     </Button>
                     <p
                       className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed"
                       data-testid="text-rpu-disclaimer"
                     >
-                      Your {formatMoney(investAmount)} goes only into{" "}
+                      Your{" "}
+                      {isInvestAmountValid
+                        ? formatMoney(parsedInvestAmount)
+                        : "investment"}{" "}
+                      goes only into{" "}
                       {selectedProgram.shortName} as Revenue Participation Units
                       (1 unit = $1), with a {RPU_LOCK_PERIOD_DAYS}-day lock and
-                      zero voting rights. {RPU_LEGAL_DISCLAIMER}
+                      zero voting rights. {RPU_LEGAL_DISCLAIMER} It is designed
+                      to generate an ROI. Through your Investor Back Office, you
+                      can track every allocation, ledger line, and yield payout
+                      in real-time to watch your money work and grow.
                     </p>
                   </div>
                 )}

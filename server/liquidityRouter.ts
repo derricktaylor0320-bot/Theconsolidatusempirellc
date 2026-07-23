@@ -17,7 +17,9 @@ import {
   CORE_LLC_MEMBERS,
   HUB_INVESTMENT_PROGRAMS,
   P2P_ANNUAL_YIELD_RATE,
-  P2P_INVESTMENT_AMOUNTS,
+  P2P_INVESTMENT_AMOUNT_STEP,
+  P2P_MAX_INVESTMENT_AMOUNT,
+  P2P_MIN_INVESTMENT_AMOUNT,
   P2P_PROJECT_TAG,
   RPU_COMPLIANCE_STATUS,
   RPU_INSTRUMENT_TYPE,
@@ -368,7 +370,7 @@ async function bridgeInvestment(params: {
     description: program.ledgerDescription,
   });
 
-  const notificationBody = `Your $${params.investmentAmount.toFixed(0)} (${unitsAllocated.toFixed(0)} Revenue Participation Units) is now active in ${program.name}. ${program.allocationSummary}. Target yield: ${(program.annualYieldRate * 100).toFixed(1)}% APR compounding daily. ${RPU_LOCK_PERIOD_DAYS}-day liquidity lock. Non-equity — zero voting rights.`;
+  const notificationBody = `Your $${params.investmentAmount.toFixed(2)} (${unitsAllocated.toFixed(2)} Revenue Participation Units) is now active in ${program.name}. ${program.allocationSummary}. Target yield: ${(program.annualYieldRate * 100).toFixed(1)}% APR compounding daily. ${RPU_LOCK_PERIOD_DAYS}-day liquidity lock. Non-equity — zero voting rights.`;
 
   await notifyInvestor({
     userId: params.investorId,
@@ -413,7 +415,9 @@ export function registerLiquidityRoutes(app: Express): void {
   app.get("/api/liquidity/programs", (_req, res) => {
     res.json({
       programs: HUB_INVESTMENT_PROGRAMS,
-      allowedInvestmentAmounts: P2P_INVESTMENT_AMOUNTS,
+      minimumInvestmentAmount: P2P_MIN_INVESTMENT_AMOUNT,
+      maximumInvestmentAmount: P2P_MAX_INVESTMENT_AMOUNT,
+      investmentAmountStep: P2P_INVESTMENT_AMOUNT_STEP,
       openPrograms: openInvestmentPrograms().map((p) => p.tag),
     });
   });
@@ -442,7 +446,9 @@ export function registerLiquidityRoutes(app: Express): void {
       res.json({
         projectTag: P2P_PROJECT_TAG,
         annualYieldRate: P2P_ANNUAL_YIELD_RATE,
-        allowedInvestmentAmounts: P2P_INVESTMENT_AMOUNTS,
+        minimumInvestmentAmount: P2P_MIN_INVESTMENT_AMOUNT,
+        maximumInvestmentAmount: P2P_MAX_INVESTMENT_AMOUNT,
+        investmentAmountStep: P2P_INVESTMENT_AMOUNT_STEP,
         totalVaultContribution: parseFloat(totals?.contributed ?? "0"),
         availableLendingCapital: parseFloat(totals?.available ?? "0"),
         activePositions: parseInt(totals?.positions ?? "0", 10),
@@ -524,7 +530,9 @@ export function registerLiquidityRoutes(app: Express): void {
             paidYield: totalPaidYield,
           },
           annualYieldRate: P2P_ANNUAL_YIELD_RATE,
-          allowedInvestmentAmounts: P2P_INVESTMENT_AMOUNTS,
+          minimumInvestmentAmount: P2P_MIN_INVESTMENT_AMOUNT,
+          maximumInvestmentAmount: P2P_MAX_INVESTMENT_AMOUNT,
+          investmentAmountStep: P2P_INVESTMENT_AMOUNT_STEP,
           programs: HUB_INVESTMENT_PROGRAMS,
         });
       } catch (error) {
@@ -611,7 +619,7 @@ export function registerLiquidityRoutes(app: Express): void {
           return res.status(400).json({
             error:
               parsed.error.errors[0]?.message ||
-              "Investment amount must be $100, $250, $500, or $1,000.",
+              `Investment amount must be at least $${P2P_MIN_INVESTMENT_AMOUNT}.`,
           });
         }
 
@@ -670,7 +678,7 @@ export function registerLiquidityRoutes(app: Express): void {
           return res.status(400).json({
             error:
               parsed.error.errors[0]?.message ||
-              "Capital contribution must be $100, $250, $500, or $1,000.",
+              `Capital contribution must be at least $${P2P_MIN_INVESTMENT_AMOUNT}.`,
           });
         }
 
@@ -730,7 +738,7 @@ export function registerLiquidityRoutes(app: Express): void {
           return res.status(400).json({
             error:
               parsed.error.errors[0]?.message ||
-              "Investment amount must be $100, $250, $500, or $1,000.",
+              `Investment amount must be at least $${P2P_MIN_INVESTMENT_AMOUNT}.`,
           });
         }
 

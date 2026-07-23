@@ -135,7 +135,7 @@ export const PROGRAM_STAGES: ProgramStage[] = [
     meaning:
       "Wealth preservation and investment. This Pocket Booster tab helps members put an investment to work toward multi-generational wealth while supporting the reserve that backs member cushions.",
     inProgram:
-      "Inside Pocket Booster, S7 is the Member Investment Reserve path — put $100–$1,000 to work in the Instant-Disbursal Vault that funds member cushions while your position earns compounding yield from subscription revenue.",
+      "Inside Pocket Booster, S7 is the Member Investment Reserve path — put any amount starting at $20 to work in the Instant-Disbursal Vault that funds member cushions while your position earns compounding yield from subscription revenue.",
     visualIdentity: "Sparkling Deep Blue",
     color: "#0B1D51",
     colorSoft: "#0B1D5126",
