@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { motion } from "framer-motion";
 import letterheadCrest from "@assets/generated_images/consolidatus_empire_logo_2020.png";
+import foundersPhoto from "../../../1784771072078.png";
 
 const lifestyleCollections = [
   {
@@ -222,6 +223,25 @@ export default function About() {
                 A Message from Our Founders
               </h2>
             </div>
+
+            <motion.figure
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              className="mb-10 overflow-hidden rounded-2xl border border-primary/35 bg-background shadow-2xl"
+              data-testid="founders-photo"
+            >
+              <img
+                src={foundersPhoto}
+                alt="Khomplete Khemistri founders Derrick Taylor, Carlyle R. Oliver, and Jerome Young Jr., from left to right"
+                className="aspect-[3/2] w-full object-cover"
+              />
+              <figcaption className="grid grid-cols-3 divide-x divide-primary/25 border-t border-primary/30 bg-background/95 text-center font-brand text-[10px] font-semibold uppercase tracking-wide text-primary sm:text-sm sm:tracking-wider">
+                <span className="px-1 py-3 sm:px-3">Derrick Taylor</span>
+                <span className="px-1 py-3 sm:px-3">Carlyle R. Oliver</span>
+                <span className="px-1 py-3 sm:px-3">Jerome Young Jr.</span>
+              </figcaption>
+            </motion.figure>
 
             <motion.article
               initial={{ opacity: 0, y: 24 }}
