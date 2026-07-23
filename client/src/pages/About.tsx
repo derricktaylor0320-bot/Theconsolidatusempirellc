@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { motion } from "framer-motion";
-import companyCrest from "../../../image.png";
+import letterheadCrest from "@assets/generated_images/consolidatus_empire_logo_2020.png";
 
 const lifestyleCollections = [
   {
@@ -236,22 +236,44 @@ export default function About() {
               </div>
 
               <div className="relative mx-auto mb-10 max-w-xl text-center">
-                <div className="flex items-center justify-center gap-4">
-                  <span className="h-px flex-1 bg-[#a47a34]/55" />
-                  <img
-                    src={companyCrest}
-                    alt="The Consolidatus Empire LLC TCE crest"
-                    className="h-36 w-36 border border-[#a47a34] object-cover shadow-lg sm:h-44 sm:w-44"
-                    data-testid="img-founders-letterhead-logo"
-                  />
-                  <span className="h-px flex-1 bg-[#a47a34]/55" />
-                </div>
-                <p className="mt-5 font-brand text-xl font-bold uppercase tracking-[0.18em] sm:text-2xl">
-                  The Consolidatus Empire
-                </p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.35em] text-[#7a5627]">
-                  Est. 2020
-                </p>
+                <svg
+                  aria-hidden="true"
+                  className="absolute h-0 w-0"
+                  focusable="false"
+                >
+                  <filter
+                    id="letterhead-logo-knockout"
+                    colorInterpolationFilters="sRGB"
+                  >
+                    <feColorMatrix
+                      type="matrix"
+                      values="
+                        1 0 0 0 0
+                        0 1 0 0 0
+                        0 0 1 0 0
+                        .85 .85 .85 0 -.35
+                      "
+                    />
+                    <feComponentTransfer>
+                      <feFuncA
+                        type="gamma"
+                        amplitude="1.35"
+                        exponent=".72"
+                        offset="0"
+                      />
+                    </feComponentTransfer>
+                  </filter>
+                </svg>
+                <img
+                  src={letterheadCrest}
+                  alt="The Consolidatus Empire LLC letterhead crest"
+                  className="mx-auto h-auto w-full max-w-sm"
+                  style={{
+                    filter:
+                      "url(#letterhead-logo-knockout) drop-shadow(0 5px 5px rgb(97 61 19 / 0.18))",
+                  }}
+                  data-testid="img-founders-letterhead-logo"
+                />
               </div>
 
               <blockquote className="relative mx-auto max-w-3xl space-y-6 text-base leading-8 sm:text-lg">
