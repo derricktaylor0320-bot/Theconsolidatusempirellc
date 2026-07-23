@@ -38,8 +38,10 @@ import {
 } from "@shared/programStages";
 import {
   P2P_ANNUAL_YIELD_RATE,
-  P2P_INVESTMENT_AMOUNTS,
-  type P2PInvestmentAmount,
+  P2P_INVESTMENT_AMOUNT_STEP,
+  P2P_MAX_INVESTMENT_AMOUNT,
+  P2P_MIN_INVESTMENT_AMOUNT,
+  p2pInvestmentAmountSchema,
 } from "@shared/liquidityLoop";
 import tceLogo from "../../../image.png";
 
@@ -87,7 +89,9 @@ type MeResponse = {
 type VaultResponse = {
   projectTag: string;
   annualYieldRate: number;
-  allowedInvestmentAmounts: number[];
+  minimumInvestmentAmount: number;
+  maximumInvestmentAmount: number;
+  investmentAmountStep: number;
   totalVaultContribution: number;
   availableLendingCapital: number;
   activePositions: number;
@@ -111,7 +115,9 @@ type LiquidityMeResponse = {
   }>;
   totals: { allocated: number; paidYield: number };
   annualYieldRate: number;
-  allowedInvestmentAmounts: number[];
+  minimumInvestmentAmount: number;
+  maximumInvestmentAmount: number;
+  investmentAmountStep: number;
 };
 
 function formatMoney(value: number | string) {
@@ -163,8 +169,12 @@ export default function PocketBooster() {
   const modules = catalog?.modules ?? PAY_TO_LEARN_MODULES;
   const activeTier = me?.tier ?? null;
   const maxLimit = activeTier?.maxCushionLimit ?? 0;
-  const investmentAmounts =
-    vault?.allowedInvestmentAmounts ?? [...P2P_INVESTMENT_AMOUNTS];
+  const minimumInvestmentAmount =
+    vault?.minimumInvestmentAmount ?? P2P_MIN_INVESTMENT_AMOUNT;
+  const maximumInvestmentAmount =
+    vault?.maximumInvestmentAmount ?? P2P_MAX_INVESTMENT_AMOUNT;
+  const investmentAmountStep =
+    vault?.investmentAmountStep ?? P2P_INVESTMENT_AMOUNT_STEP;
   const yieldRate = vault?.annualYieldRate ?? P2P_ANNUAL_YIELD_RATE;
 
   const [selectedTier, setSelectedTier] = useState<1 | 2 | 3 | 4>(1);
@@ -173,8 +183,13 @@ export default function PocketBooster() {
     useState<RepaymentChoice>("FULL_NEXT_PAYDAY");
   const [nextPayday, setNextPayday] = useState("");
   const [customSplitCount, setCustomSplitCount] = useState(3);
-  const [investAmount, setInvestAmount] =
-    useState<P2PInvestmentAmount>(100);
+  const [investAmount, setInvestAmount] = useState(
+    String(P2P_MIN_INVESTMENT_AMOUNT),
+  );
+  const parsedInvestAmount = Number(investAmount);
+  const isInvestAmountValid =
+    investAmount.trim() !== "" &&
+    p2pInvestmentAmountSchema.safeParse(parsedInvestAmount).success;
   const [activeStageId, setActiveStageId] = useState<ProgramStageId>("S1");
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [lessonIndex, setLessonIndex] = useState(0);
@@ -267,11 +282,11 @@ export default function PocketBooster() {
   });
 
   const investMutation = useMutation({
-    mutationFn: async (investmentAmount: P2PInvestmentAmount) => {
+    mutationFn: async () => {
       const res = await apiRequest(
         "POST",
         "/api/liquidity/bridge-p2p-to-booster",
-        { investmentAmount },
+        { investmentAmount: parsedInvestAmount },
       );
       return res.json();
     },
@@ -720,11 +735,12 @@ export default function PocketBooster() {
               </h2>
             </div>
             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Put your investment to work and watch it grow. Choose $100, $250,
-              $500, or $1,000 — 100% goes into the Pocket Booster
-              Instant-Disbursal Vault. Member subscription fees fund your{" "}
-              {(yieldRate * 100).toFixed(1)}% compounding daily yield. Prefer
-              apparel, The FR2P Club, or another Empire program? Use{" "}
+              Put your investment to work and watch it grow. Invest any amount
+              starting at {formatMoney(minimumInvestmentAmount)} — 100% goes
+              into the Pocket Booster Instant-Disbursal Vault. Member
+              subscription fees fund your {(yieldRate * 100).toFixed(1)}%
+              compounding daily yield. Prefer apparel, The FR2P Club, or another
+              Empire program? Use{" "}
               <Link
                 href="/invest"
                 className="text-primary underline underline-offset-2"
@@ -777,29 +793,38 @@ export default function PocketBooster() {
               </div>
             ) : (
               <div className="space-y-5">
-                <div className="flex flex-wrap justify-center gap-3">
-                  {investmentAmounts.map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() =>
-                        setInvestAmount(amt as P2PInvestmentAmount)
-                      }
-                      className={`min-w-[7rem] rounded-lg border px-5 py-3 font-display text-lg transition-colors ${
-                        investAmount === amt
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-secondary/30 hover:border-primary/40"
-                      }`}
-                      data-testid={`button-invest-amount-${amt}`}
-                    >
-                      {formatMoney(amt)}
-                    </button>
-                  ))}
+                <div className="space-y-2 max-w-xs mx-auto">
+                  <Label htmlFor="reserve-investment-amount">
+                    Investment amount (minimum{" "}
+                    {formatMoney(minimumInvestmentAmount)})
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      $
+                    </span>
+                    <Input
+                      id="reserve-investment-amount"
+                      type="number"
+                      min={minimumInvestmentAmount}
+                      max={maximumInvestmentAmount}
+                      step={investmentAmountStep}
+                      value={investAmount}
+                      onChange={(event) => setInvestAmount(event.target.value)}
+                      inputMode="decimal"
+                      className="pl-7"
+                      required
+                      data-testid="input-reserve-investment-amount"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Enter any amount starting at{" "}
+                    {formatMoney(minimumInvestmentAmount)}.
+                  </p>
                 </div>
                 <div className="flex justify-center">
                   <Button
-                    onClick={() => investMutation.mutate(investAmount)}
-                    disabled={investMutation.isPending}
+                    onClick={() => investMutation.mutate()}
+                    disabled={investMutation.isPending || !isInvestAmountValid}
                     data-testid="button-bridge-p2p"
                   >
                     {investMutation.isPending ? (
@@ -807,7 +832,11 @@ export default function PocketBooster() {
                     ) : (
                       <Landmark className="h-4 w-4" />
                     )}
-                    Put {formatMoney(investAmount)} to Work
+                    Put{" "}
+                    {isInvestAmountValid
+                      ? formatMoney(parsedInvestAmount)
+                      : "Your Investment"}{" "}
+                    to Work
                   </Button>
                 </div>
 
