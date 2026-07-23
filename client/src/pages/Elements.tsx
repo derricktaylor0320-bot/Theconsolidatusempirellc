@@ -47,7 +47,7 @@ export default function Elements() {
           </div>
         ) : allProducts.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground" data-testid="text-elements-empty">
-            Products coming soon.
+            Products are temporarily unavailable. Please refresh this page.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">

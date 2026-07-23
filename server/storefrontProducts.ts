@@ -4,6 +4,7 @@ import {
   scentsFor,
   FULL_LOGO_CATALOG_OPTION,
 } from "@shared/customization";
+import { catalogStorage } from "./catalogStorage";
 
 // A single storefront product as the React app consumes it. Prices are dollar
 // strings (e.g. "30.00"); `priceId` is the Stripe price the checkout uses.
@@ -82,7 +83,7 @@ export interface StorefrontProductsResult {
 export async function getStorefrontProductsDetailed(): Promise<StorefrontProductsResult> {
   let rows: any[] = [];
   try {
-    rows = await stripeStorage.listProductsWithPrices();
+    rows = await catalogStorage.listProductsWithPrices();
   } catch (err) {
     console.error('Failed to read products from the catalog database:', err);
   }

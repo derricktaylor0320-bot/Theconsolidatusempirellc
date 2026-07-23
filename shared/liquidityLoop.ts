@@ -67,12 +67,12 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
   },
   {
     tag: "FR2P_CLUB_GROWTH",
-    name: "FR2P Club Growth",
-    shortName: "FR2P Club",
+    name: "The FR2P Club Program",
+    shortName: "The FR2P Club",
     description:
-      "A personal venture focused on direct affiliate marketing and professional growth — courses, AI promotion, and sales built for recurring revenue with full compliance.",
+      "The FR2P Club Program focuses on direct affiliate marketing and professional growth — courses, AI promotion, and sales built for recurring revenue with full compliance.",
     allocationSummary:
-      "100% into FR2P Club growth, courses & affiliate operations",
+      "100% into The FR2P Club Program, courses & affiliate operations",
     ledgerDescription:
       "100% allocated to The FR2P Club — direct affiliate marketing, professional growth courses, AI promotion & sales, and compliant recurring-revenue operations under The Consolidatus Empire.",
     annualYieldRate: 0.08,
@@ -85,7 +85,7 @@ export const HUB_INVESTMENT_PROGRAMS: HubInvestmentProgram[] = [
     name: "Khomplete Khemistri Apparel",
     shortName: "Khomplete Khemistri",
     description:
-      "Put capital into Khomplete Khemistri Apparel — our branded clothing line — covering inventory, fulfillment, and brand operations.",
+      "Put your investment to work in Khomplete Khemistri Apparel — our branded clothing line — covering inventory, fulfillment, and brand operations.",
     allocationSummary:
       "100% into Khomplete Khemistri apparel inventory & brand operations",
     ledgerDescription:

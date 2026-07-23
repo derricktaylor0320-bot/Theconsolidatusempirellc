@@ -34,9 +34,8 @@ export default function Footer() {
           <div>
             <h4 className="font-display font-semibold mb-4 uppercase tracking-wider">Apps</h4>
             <ul className="space-y-2 text-sm text-secondary-foreground/70">
-              <li><Link href="/pathway" className="hover:text-primary transition-colors" data-testid="link-footer-pathway">Pocket Booster Stages</Link></li>
               <li><Link href="/pocket-booster" className="hover:text-primary transition-colors">Pocket Booster</Link></li>
-              <li><Link href="/fr2p" className="hover:text-primary transition-colors">FR2P Club</Link></li>
+              <li><Link href="/fr2p" className="hover:text-primary transition-colors">The FR2P Club</Link></li>
               <li><Link href="/invest" className="hover:text-primary transition-colors">Empire Invest</Link></li>
             </ul>
           </div>

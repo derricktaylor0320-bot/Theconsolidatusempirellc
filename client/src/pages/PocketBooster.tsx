@@ -295,7 +295,7 @@ export default function PocketBooster() {
     onError: (err: unknown) => {
       toast({
         title: "Investment failed",
-        description: errorMessage(err, "Could not bridge P2P capital."),
+        description: errorMessage(err, "Could not add your investment."),
         variant: "destructive",
       });
     },
@@ -384,9 +384,8 @@ export default function PocketBooster() {
               className="text-lg md:text-xl text-foreground/85 max-w-2xl mx-auto mb-3"
             >
               TCE introduces a cream-and-gold financial wellness environment:
-              subscription-powered cash cushions backed by peer-to-peer reserve
-              capital, with {(yieldRate * 100).toFixed(1)}% yield returning to
-              investors.
+              subscription-powered cash cushions backed by member investments,
+              with {(yieldRate * 100).toFixed(1)}% yield returning to investors.
             </motion.p>
             <p
               className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display"
@@ -394,7 +393,7 @@ export default function PocketBooster() {
             >
               {catalog?.fundingStrategy ??
                 "Zero-Capital (Subscription Powered)"}{" "}
-              · P2P Liquidity Loop
+              · Member Investment Loop
             </p>
             <p className="mt-4 text-sm text-muted-foreground max-w-xl mx-auto">
               {PROGRAM_PATHWAY.tagline} Open the{" "}
@@ -436,6 +435,12 @@ export default function PocketBooster() {
           data-testid="section-building-blocks"
         >
           <div className="max-w-6xl mx-auto px-6 py-12">
+            <span id="program-codes" className="sr-only">
+              Pocket Booster program codes
+            </span>
+            <span id="stages" className="sr-only">
+              Pocket Booster program stages
+            </span>
             <div className="text-center mb-8">
               <p className="font-display text-xs uppercase tracking-[0.3em] text-primary mb-2">
                 Pocket Booster Application
@@ -700,169 +705,9 @@ export default function PocketBooster() {
             </p>
           )}
 
-          {/* Eight program codes (S1–S8) */}
-          <div
-            id="program-codes"
-            className="mt-16 pt-12 border-t border-primary/20"
-            data-testid="section-pocket-booster-stages"
-          >
-            {/* Legacy #stages deep link from Pathway / FR2P */}
-            <span id="stages" className="sr-only">
-              Pocket Booster program codes
-            </span>
-            <div className="text-center mb-8">
-              <p className="font-display text-xs uppercase tracking-[0.3em] text-primary mb-2">
-                {PROGRAM_PATHWAY.program}
-              </p>
-              <h3
-                className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wide text-primary mb-3"
-                data-testid="text-pb-stages-title"
-              >
-                Program Codes S1–S8
-              </h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Select a code for the full explanation of what it does inside
-                Pocket Booster.
-              </p>
-            </div>
-
-            <div
-              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8"
-              data-testid="grid-pocket-booster-plaques"
-            >
-              {PROGRAM_STAGES.map((stage, index) => {
-                const selected = activeStageId === stage.id;
-                return (
-                  <motion.button
-                    key={stage.id}
-                    type="button"
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => setActiveStageId(stage.id)}
-                    className="flex flex-col gap-3 rounded-2xl border bg-card p-3 text-left transition-all"
-                    style={{
-                      borderColor: selected ? stage.color : "hsl(var(--border))",
-                      boxShadow: selected
-                        ? `0 0 0 3px ${stage.color}, 0 14px 30px ${stage.colorSoft}`
-                        : "0 8px 24px hsl(var(--foreground) / 0.06)",
-                    }}
-                    data-testid={`plaque-card-${stage.id}`}
-                    aria-pressed={selected}
-                  >
-                    <img
-                      src={POCKET_BOOSTER_CRESTS[stage.id]}
-                      alt={`${stage.id} ${stage.title} Pocket Booster crest`}
-                      className="aspect-[3/2] w-full rounded-xl bg-background object-contain"
-                      loading="lazy"
-                      data-testid={`img-plaque-crest-${stage.id}`}
-                    />
-                    <span className="flex items-baseline gap-2 px-1 pb-1">
-                      <span
-                        className="font-display text-lg font-bold tracking-wider"
-                        style={{ color: stage.color }}
-                      >
-                        {stage.id}
-                      </span>
-                      <span className="font-display text-xs uppercase tracking-tight text-foreground/85">
-                        {stage.title}
-                      </span>
-                    </span>
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            {PROGRAM_STAGES.map((stage) =>
-              stage.id === activeStageId ? (
-                <motion.article
-                  key={stage.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="max-w-3xl mx-auto border p-6 md:p-8"
-                  style={{
-                    borderColor: stage.color,
-                    background: `linear-gradient(180deg, ${stage.colorSoft}, transparent)`,
-                  }}
-                  data-testid={`panel-pb-stage-${stage.id}`}
-                >
-                  <img
-                    src={POCKET_BOOSTER_CRESTS[stage.id]}
-                    alt={`${stage.id} ${stage.title} full-color Pocket Booster crest`}
-                    className="mb-6 aspect-[3/2] w-full rounded-xl bg-background object-contain"
-                    data-testid={`img-pb-active-crest-${stage.id}`}
-                  />
-                  <div
-                    className="h-1.5 w-full mb-6"
-                    style={{
-                      background: `linear-gradient(90deg, ${stage.color}, transparent)`,
-                    }}
-                  />
-                  <div className="flex flex-wrap items-center gap-3 mb-3">
-                    <span
-                      className="font-display text-sm uppercase tracking-[0.25em]"
-                      style={{ color: stage.color }}
-                      data-testid="text-pb-active-stage-id"
-                    >
-                      {stage.id} · Code {stage.level}
-                    </span>
-                    <span
-                      className="text-xs uppercase tracking-widest px-2 py-1 border"
-                      style={{
-                        borderColor: stage.color,
-                        color: stage.color,
-                        background: stage.colorSoft,
-                      }}
-                      data-testid="text-pb-active-visual-identity"
-                    >
-                      {stage.visualIdentity}
-                    </span>
-                  </div>
-                  <h4
-                    className="font-display text-2xl md:text-3xl font-bold uppercase tracking-tight mb-4"
-                    data-testid="text-pb-active-stage-title"
-                  >
-                    {stage.title}
-                  </h4>
-                  <p
-                    className="text-foreground/85 text-base md:text-lg leading-relaxed mb-4"
-                    data-testid="text-pb-active-stage-meaning"
-                  >
-                    {stage.meaning}
-                  </p>
-                  <p
-                    className="text-foreground/75 text-sm md:text-base leading-relaxed mb-6 border-l-2 pl-4"
-                    style={{ borderColor: stage.color }}
-                    data-testid="text-pb-active-stage-in-program"
-                  >
-                    {stage.inProgram}
-                  </p>
-                  <Button
-                    asChild
-                    className="uppercase tracking-wider font-display text-white hover:opacity-90"
-                    style={{ backgroundColor: stage.color }}
-                    data-testid="button-pb-stage-continue"
-                  >
-                    <a href={stage.relatedHref}>
-                      Continue to {stage.relatedLabel}
-                    </a>
-                  </Button>
-                </motion.article>
-              ) : null,
-            )}
-
-            <p className="sr-only" aria-live="polite">
-              Showing Pocket Booster code {activeStageId}:{" "}
-              {
-                PROGRAM_STAGES.find((s) => s.id === activeStageId)?.title
-              }
-            </p>
-          </div>
         </section>
 
-        {/* P2P Liquidity Loop */}
+        {/* Member investment reserve */}
         <section
           id="reserve"
           className="border-t border-primary/15 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.08),_transparent_65%)]"
@@ -871,14 +716,15 @@ export default function PocketBooster() {
             <div className="flex items-center gap-3 mb-3 justify-center">
               <Landmark className="h-6 w-6 text-primary" />
               <h2 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">
-                Peer-to-Peer Reserve
+                Member Investment Reserve
               </h2>
             </div>
             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Invest $100, $250, $500, or $1,000 — 100% bridges into the Pocket Booster
+              Put your investment to work and watch it grow. Choose $100, $250,
+              $500, or $1,000 — 100% goes into the Pocket Booster
               Instant-Disbursal Vault. Member subscription fees fund your{" "}
               {(yieldRate * 100).toFixed(1)}% compounding daily yield. Prefer
-              apparel, FR2P, or other Empire programs? Use{" "}
+              apparel, The FR2P Club, or another Empire program? Use{" "}
               <Link
                 href="/invest"
                 className="text-primary underline underline-offset-2"
@@ -923,7 +769,7 @@ export default function PocketBooster() {
             {!isAuthenticated ? (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <p className="text-sm text-muted-foreground">
-                  Sign in to bridge capital into the reserve vault.
+                  Sign in to put your investment to work in the reserve vault.
                 </p>
                 <Button asChild data-testid="button-sign-in-invest">
                   <Link href="/auth">Sign In</Link>
@@ -961,7 +807,7 @@ export default function PocketBooster() {
                     ) : (
                       <Landmark className="h-4 w-4" />
                     )}
-                    Bridge {formatMoney(investAmount)} to Reserve Vault
+                    Put {formatMoney(investAmount)} to Work
                   </Button>
                 </div>
 

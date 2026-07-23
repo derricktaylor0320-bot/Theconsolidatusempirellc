@@ -222,24 +222,25 @@ export default function Invest() {
               className="text-lg md:text-xl text-foreground/85 max-w-3xl mx-auto mb-3"
               data-testid="text-invest-intro"
             >
-              Put your capital to work across The Consolidatus Empire LLC —
-              choose Khomplete Khemistri Apparel (our branded clothing line), The
-              FR2P Club (my personal venture for direct affiliate marketing,
-              courses, AI promotion & sales, and compliant recurring revenue),
+              Put your investment to work and watch it grow across The
+              Consolidatus Empire LLC — choose Khomplete Khemistri Apparel (our
+              branded clothing line), The FR2P Club Program (direct affiliate
+              marketing, courses, AI promotion and sales, and compliant
+              recurring revenue),
               Pocket Booster (Reserve Vault emergency cushion support), or
               Premium Choice Hot Dogs (our premium street-food line). Upcoming:
               real estate — mom-and-pop motel takeovers, then laundromats,
               through creative financing. Clear back-office tracking so you see
-              exactly where your money went.
+              where your investment goes and how it grows.
             </motion.p>
             <p className="text-sm uppercase tracking-[0.2em] text-primary/80 font-display">
-              Project-only capital · No owner shares · Full allocation transparency
+              Project-focused investments · No owner shares · Full allocation transparency
             </p>
             <p
               className="text-sm text-muted-foreground max-w-2xl mx-auto mt-4"
               data-testid="text-project-only-capital"
             >
-              When you invest, your capital funds only the program you pick.
+              Your investment supports only the program you pick.
               It has nothing to do with the owners&apos; shares or LLC ownership —
               those stay with the founding members.
             </p>
@@ -356,7 +357,8 @@ export default function Invest() {
                 ) : !isAuthenticated ? (
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                     <p className="text-sm text-muted-foreground">
-                      Sign in to allocate capital and open your back office.
+                      Sign in to put your investment to work and open your back
+                      office.
                     </p>
                     <Button asChild data-testid="button-sign-in-invest-page">
                       <Link href="/auth">Sign In</Link>
@@ -414,8 +416,8 @@ export default function Invest() {
               </h2>
             </div>
             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-              See every allocation, ledger line, and yield payout. Trust comes
-              from knowing exactly how your capital was used.
+              Follow every allocation, ledger line, and yield payout so you can
+              see where your investment goes and how it grows.
             </p>
 
             {!isAuthenticated ? (
@@ -434,7 +436,7 @@ export default function Invest() {
                 >
                   <div className="rounded-xl border border-border/70 bg-background/40 p-4 text-center">
                     <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                      Capital at work
+                      Investment at work
                     </p>
                     <p className="font-display text-2xl text-primary">
                       {formatMoney(me?.totals.allocated ?? 0)}
@@ -557,8 +559,8 @@ export default function Invest() {
                     ))
                   ) : (
                     <p className="text-center text-sm text-muted-foreground">
-                      No positions yet. Choose a program above to put money to
-                      work.
+                      No positions yet. Choose a program above to put your
+                      investment to work.
                     </p>
                   )}
                 </div>

@@ -32,7 +32,7 @@ export default function FR2P() {
         <div className="flex-grow w-full relative">
           <iframe
             src={src}
-            title="FR2P Club"
+            title="The FR2P Club"
             className="absolute inset-0 w-full h-full border-0"
             data-testid="iframe-fr2p"
           />
