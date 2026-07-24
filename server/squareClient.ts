@@ -357,6 +357,41 @@ export interface ScheduledRepaymentInvoiceResult {
   automaticPayment: boolean;
 }
 
+export interface RetrievedRepaymentInvoice {
+  invoiceId: string;
+  status: string;
+  updatedAt: Date | null;
+}
+
+/** Read Square's current invoice status before updating repayment history. */
+export async function retrieveRepaymentInvoice(
+  invoiceId: string,
+): Promise<RetrievedRepaymentInvoice | null> {
+  if (!invoiceId) return null;
+
+  let data: any;
+  try {
+    data = await squareFetch(`/v2/invoices/${encodeURIComponent(invoiceId)}`);
+  } catch {
+    return null;
+  }
+
+  const invoice = data?.invoice;
+  if (!invoice?.id) return null;
+
+  const updatedAt =
+    typeof invoice.updated_at === 'string'
+      ? new Date(invoice.updated_at)
+      : null;
+
+  return {
+    invoiceId: invoice.id,
+    status: String(invoice.status || 'UNKNOWN').toUpperCase(),
+    updatedAt:
+      updatedAt && !Number.isNaN(updatedAt.getTime()) ? updatedAt : null,
+  };
+}
+
 function toSquareDate(date: Date): string {
   // Invoice due_date is a calendar date (YYYY-MM-DD) in the location timezone.
   return date.toISOString().slice(0, 10);

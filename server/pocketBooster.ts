@@ -18,19 +18,24 @@ import {
   POCKET_BOOSTER_TIERS,
   PAY_TO_LEARN_MODULES,
   activateSubscriptionSchema,
+  calculatePocketBoosterEligibility,
   completeModuleSchema,
   getTierByLevel,
+  isRepaymentCycleOnTime,
   requestCushionSchema,
   splitAmountEvenly,
   tierAllowsRepayment,
+  type PocketBoosterEligibility,
   type RepaymentChoice,
 } from "@shared/pocketBooster";
 import {
   createScheduledRepaymentInvoice,
   findOrCreateSquareCustomer,
   isSquareConfigured,
+  retrieveRepaymentInvoice,
 } from "./squareClient";
 import {
+  creditVaultCapital,
   debitVaultForCushion,
   getVaultAvailableCapital,
 } from "./liquidityRouter";
@@ -83,6 +88,114 @@ async function listSchedulesForAdvance(
     .from(repaymentSchedules)
     .where(eq(repaymentSchedules.advanceId, advanceId))
     .orderBy(repaymentSchedules.scheduledDate);
+}
+
+type AdvanceWithSchedules = CashAdvance & {
+  schedules: RepaymentSchedule[];
+};
+
+async function listAdvancesWithSchedules(
+  userId: string,
+): Promise<AdvanceWithSchedules[]> {
+  const advances = await listAdvancesForUser(userId);
+  return Promise.all(
+    advances.map(async (advance) => ({
+      ...advance,
+      schedules: await listSchedulesForAdvance(advance.id),
+    })),
+  );
+}
+
+/**
+ * Reconcile scheduled invoices with Square. A completed advance is marked
+ * repaid exactly once, which also safely restores its reserve-vault capital.
+ */
+async function syncSquareRepaymentHistory(userId: string): Promise<void> {
+  if (!isSquareConfigured()) return;
+
+  const advances = await listAdvancesWithSchedules(userId);
+  for (const advance of advances) {
+    if (advance.status !== "active") continue;
+
+    for (const schedule of advance.schedules) {
+      if (
+        schedule.status === "collected" ||
+        schedule.status === "cancelled" ||
+        !schedule.squareInvoiceId
+      ) {
+        continue;
+      }
+
+      const invoice = await retrieveRepaymentInvoice(schedule.squareInvoiceId);
+      if (!invoice) continue;
+
+      const nextStatus =
+        invoice.status === "PAID"
+          ? "collected"
+          : invoice.status === "CANCELED"
+            ? "cancelled"
+            : invoice.status === "FAILED"
+              ? "failed"
+              : schedule.status;
+
+      await db
+        .update(repaymentSchedules)
+        .set({
+          status: nextStatus,
+          squareInvoiceStatus: invoice.status,
+          collectedAt:
+            invoice.status === "PAID"
+              ? invoice.updatedAt ?? new Date()
+              : schedule.collectedAt,
+        })
+        .where(eq(repaymentSchedules.id, schedule.id));
+    }
+
+    const refreshedSchedules = await listSchedulesForAdvance(advance.id);
+    if (
+      refreshedSchedules.length === 0 ||
+      !refreshedSchedules.every((schedule) => schedule.status === "collected")
+    ) {
+      continue;
+    }
+
+    const repaidAt = refreshedSchedules.reduce<Date>((latest, schedule) => {
+      const collectedAt = schedule.collectedAt
+        ? new Date(schedule.collectedAt)
+        : latest;
+      return collectedAt > latest ? collectedAt : latest;
+    }, new Date(0));
+
+    const [repaidAdvance] = await db
+      .update(cashAdvances)
+      .set({ status: "repaid", repaidAt })
+      .where(
+        and(
+          eq(cashAdvances.id, advance.id),
+          eq(cashAdvances.status, "active"),
+        ),
+      )
+      .returning();
+
+    if (repaidAdvance) {
+      await creditVaultCapital(parseFloat(repaidAdvance.amountBorrowed));
+    }
+  }
+}
+
+function buildEligibility(
+  advances: AdvanceWithSchedules[],
+  grandfatheredTier = 1,
+): PocketBoosterEligibility {
+  return calculatePocketBoosterEligibility(
+    advances.map((advance) => ({
+      tierLevel: advance.tierLevel,
+      repaidOnTime:
+        advance.status === "repaid" &&
+        isRepaymentCycleOnTime(advance.schedules),
+    })),
+    grandfatheredTier,
+  );
 }
 
 async function listMilestonesForUser(
@@ -252,20 +365,19 @@ export function registerPocketBoosterRoutes(app: Express): void {
       try {
         const userId = currentUser(req).id;
         const subscription = await getActiveSubscription(userId);
-        const advances = await listAdvancesForUser(userId);
+        await syncSquareRepaymentHistory(userId);
+        const advances = await listAdvancesWithSchedules(userId);
         const milestones = await listMilestonesForUser(userId);
-
-        const advancesWithSchedules = await Promise.all(
-          advances.slice(0, 10).map(async (advance) => ({
-            ...advance,
-            schedules: await listSchedulesForAdvance(advance.id),
-          })),
+        const eligibility = buildEligibility(
+          advances,
+          subscription?.tierLevel ?? 1,
         );
 
         res.json({
           subscription: subscription ?? null,
-          advances: advancesWithSchedules,
+          advances: advances.slice(0, 10),
           milestones,
+          eligibility,
           tier:
             subscription != null
               ? getTierByLevel(subscription.tierLevel) ?? null
@@ -303,6 +415,20 @@ export function registerPocketBoosterRoutes(app: Express): void {
           .from(userSubscriptions)
           .where(eq(userSubscriptions.userId, userId))
           .limit(1);
+        await syncSquareRepaymentHistory(userId);
+        const advances = await listAdvancesWithSchedules(userId);
+        const eligibility = buildEligibility(
+          advances,
+          existing[0]?.tierLevel ?? 1,
+        );
+
+        if (tier.level > eligibility.highestUnlockedTier) {
+          const currentTier = getTierByLevel(eligibility.progressTier);
+          return res.status(403).json({
+            error: `Tier ${tier.level} is locked. Complete ${eligibility.remainingRepayments} more on-time ${currentTier?.name ?? `Tier ${eligibility.progressTier}`} cushion repayment${eligibility.remainingRepayments === 1 ? "" : "s"} to unlock the next tier.`,
+            eligibility,
+          });
+        }
 
         const values = {
           tierLevel: tier.level,
@@ -334,6 +460,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
           message: `Tier ${tier.level} (${tier.name}) is active. Cushion limit: $${tier.maxCushionLimit.toFixed(2)}.`,
           subscription,
           tier,
+          eligibility,
         });
       } catch (error) {
         console.error("Pocket Booster activate error:", error);
@@ -373,6 +500,24 @@ export function registerPocketBoosterRoutes(app: Express): void {
           return res
             .status(400)
             .json({ error: "No active subscription found." });
+        }
+
+        await syncSquareRepaymentHistory(userId);
+        const [openAdvance] = await db
+          .select({ id: cashAdvances.id })
+          .from(cashAdvances)
+          .where(
+            and(
+              eq(cashAdvances.userId, userId),
+              eq(cashAdvances.status, "active"),
+            ),
+          )
+          .limit(1);
+        if (openAdvance) {
+          return res.status(400).json({
+            error:
+              "Repay your current cushion before requesting the next one. Each completed on-time cushion builds your tier trust.",
+          });
         }
 
         const maxLimit = parseFloat(subscription.maxCushionLimit);
@@ -428,6 +573,7 @@ export function registerPocketBoosterRoutes(app: Express): void {
           .insert(cashAdvances)
           .values({
             userId,
+            tierLevel: subscription.tierLevel,
             amountBorrowed: amountRequested.toFixed(2),
             repaymentType: repaymentChoice,
             status: "active",

@@ -9,6 +9,7 @@ import {
   FileDown,
   Landmark,
   Loader2,
+  LockKeyhole,
   Rocket,
   ShieldCheck,
   TrendingUp,
@@ -64,9 +65,11 @@ type MeResponse = {
   tier: PocketBoosterTier | null;
   advances: Array<{
     id: string;
+    tierLevel: number;
     amountBorrowed: string;
     repaymentType: string;
     status: string;
+    repaidAt: string | null;
     createdAt: string | null;
     schedules: Array<{
       id: string;
@@ -78,6 +81,15 @@ type MeResponse = {
       squareInvoiceStatus?: string | null;
     }>;
   }>;
+  eligibility: {
+    highestUnlockedTier: number;
+    progressTier: number;
+    onTimeRepayments: number;
+    requiredRepayments: number;
+    remainingRepayments: number;
+    isMaxTier: boolean;
+    onTimeRepaymentsByTier: Record<number, number>;
+  };
   squareConfigured?: boolean;
   milestones: Array<{
     id: string;
@@ -168,6 +180,7 @@ export default function PocketBooster() {
   const tiers = catalog?.tiers ?? POCKET_BOOSTER_TIERS;
   const modules = catalog?.modules ?? PAY_TO_LEARN_MODULES;
   const activeTier = me?.tier ?? null;
+  const highestUnlockedTier = me?.eligibility.highestUnlockedTier ?? 1;
   const maxLimit = activeTier?.maxCushionLimit ?? 0;
   const minimumInvestmentAmount =
     vault?.minimumInvestmentAmount ?? P2P_MIN_INVESTMENT_AMOUNT;
@@ -419,8 +432,8 @@ export default function PocketBooster() {
               >
                 full-color program crests
               </a>
-              , choose a membership only when you are ready to activate, and take
-              the real Pay-to-Learn programs below.
+              , start with the $10 Starter Cushion to build repayment trust, and
+              take the real Pay-to-Learn programs below.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button asChild data-testid="button-open-building-blocks">
@@ -597,30 +610,75 @@ export default function PocketBooster() {
         <section id="tiers" className="max-w-6xl mx-auto px-6 py-14">
           <div className="text-center mb-10">
             <h2 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-primary mb-3">
-              Choose Your Tier
+              Build Trust, Unlock More
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Browse every membership freely. Nothing is Active until you
-              press Activate on the one tier you want — Starter Cushion and the
-              rest stay inactive until you choose.
+              Pocket Booster is a billed trust-building process, not an instant
+              choice of any limit. Everyone starts at $10 per month for access
+              to a cushion up to $100.
             </p>
+          </div>
+
+          <div
+            className="mb-8 grid gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-5 md:grid-cols-3 md:p-6"
+            data-testid="panel-tier-unlock-rules"
+          >
+            {[
+              {
+                number: "1",
+                title: "Start at $10 / $100",
+                body: "Activate Tier 1 first. The other three tiers stay locked while you establish trust.",
+              },
+              {
+                number: "2",
+                title: "Repay twice on time",
+                body: "Use a cushion, pay every billed installment by its due date, then successfully repeat that cycle.",
+              },
+              {
+                number: "3",
+                title: "Next tier unlocks",
+                body: "After the second on-time repayment at each level, the next membership and larger cushion automatically become available.",
+              },
+            ].map((step) => (
+              <div key={step.number} className="flex gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary font-display font-bold text-black">
+                  {step.number}
+                </span>
+                <div>
+                  <h3 className="font-display text-sm font-bold uppercase tracking-wide text-primary">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground/75">
+                    {step.body}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {tiers.map((tier, index) => {
               const isActive = activeTier?.level === tier.level;
               const isSelected = selectedTier === tier.level;
+              const isLocked = tier.level > highestUnlockedTier;
+              const onTimeRepayments =
+                me?.eligibility.onTimeRepaymentsByTier[tier.level] ?? 0;
               return (
                 <motion.button
                   key={tier.level}
                   type="button"
+                  disabled={isLocked}
                   initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.06 }}
-                  onClick={() => setSelectedTier(tier.level)}
+                  onClick={() => {
+                    if (!isLocked) setSelectedTier(tier.level);
+                  }}
                   className={`text-left rounded-xl border p-5 transition-colors ${
-                    isActive
+                    isLocked
+                      ? "cursor-not-allowed border-border/60 bg-muted/35 opacity-70"
+                      : isActive
                       ? "border-primary bg-primary/15"
                       : isSelected
                         ? "border-primary/50 bg-secondary/40"
@@ -635,6 +693,10 @@ export default function PocketBooster() {
                     {isActive ? (
                       <span className="inline-flex items-center gap-1 text-xs text-primary">
                         <CheckCircle2 className="h-3.5 w-3.5" /> Active
+                      </span>
+                    ) : isLocked ? (
+                      <span className="inline-flex items-center gap-1 text-xs uppercase tracking-wider text-muted-foreground">
+                        <LockKeyhole className="h-3.5 w-3.5" /> Locked
                       </span>
                     ) : isSelected ? (
                       <span className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -669,6 +731,16 @@ export default function PocketBooster() {
                       ))}
                     </ul>
                   ) : null}
+                  <p
+                    className="mt-4 border-t border-border/60 pt-3 text-xs leading-relaxed text-muted-foreground"
+                    data-testid={`text-tier-progress-${tier.level}`}
+                  >
+                    {isLocked
+                      ? `Unlocks after 2 on-time repayments at Tier ${tier.level - 1}.`
+                      : tier.level === 4
+                        ? "Highest Pocket Booster tier."
+                        : `${Math.min(onTimeRepayments, 2)} of 2 on-time repayments toward Tier ${tier.level + 1}.`}
+                  </p>
                 </motion.button>
               );
             })}
@@ -691,7 +763,8 @@ export default function PocketBooster() {
                 onClick={() => activateMutation.mutate(selectedTier)}
                 disabled={
                   activateMutation.isPending ||
-                  activeTier?.level === selectedTier
+                  activeTier?.level === selectedTier ||
+                  selectedTier > highestUnlockedTier
                 }
                 data-testid="button-activate-tier"
               >
@@ -702,22 +775,26 @@ export default function PocketBooster() {
                 )}
                 {activeTier?.level === selectedTier
                   ? `Tier ${selectedTier} Active`
-                  : `Activate Tier ${selectedTier} Only`}
+                  : `Activate Tier ${selectedTier}`}
               </Button>
             )}
           </div>
 
           {isAuthenticated && me?.subscription && (
-            <p
-              className="text-center text-sm text-muted-foreground mt-4"
-              data-testid="text-billing-amount"
-            >
-              Next billing: {formatMoney(me.subscription.nextBillingAmount)}
-              {parseFloat(me.subscription.nextBillingAmount) <
-              parseFloat(me.subscription.monthlySubscription)
-                ? " (skill rebate applied)"
-                : ""}
-            </p>
+            <div className="mt-4 space-y-1 text-center text-sm text-muted-foreground">
+              <p data-testid="text-billing-amount">
+                Next billing: {formatMoney(me.subscription.nextBillingAmount)}
+                {parseFloat(me.subscription.nextBillingAmount) <
+                parseFloat(me.subscription.monthlySubscription)
+                  ? " (skill rebate applied)"
+                  : ""}
+              </p>
+              <p data-testid="text-tier-unlock-progress">
+                {me.eligibility.isMaxTier
+                  ? "All Pocket Booster tiers unlocked."
+                  : `${me.eligibility.onTimeRepayments} of ${me.eligibility.requiredRepayments} on-time Tier ${me.eligibility.progressTier} repayments complete. ${me.eligibility.remainingRepayments} more unlock${me.eligibility.remainingRepayments === 1 ? "s" : ""} Tier ${me.eligibility.progressTier + 1} automatically.`}
+              </p>
+            </div>
           )}
 
         </section>
@@ -900,8 +977,9 @@ export default function PocketBooster() {
               </h2>
             </div>
             <p className="text-center text-muted-foreground mb-8">
-              Pick an amount within your tier limit and lock an automated
-              repayment schedule on your next payday.
+              Request one cushion at a time within your active limit. Repay
+              every billed installment on time; after two successful cycles at
+              this level, the next tier unlocks automatically.
             </p>
 
             {!isAuthenticated ? (
@@ -1033,6 +1111,7 @@ export default function PocketBooster() {
                         {formatMoney(advance.amountBorrowed)}
                       </p>
                       <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                        Tier {advance.tierLevel} ·{" "}
                         {advance.repaymentType.replace(/_/g, " ")} ·{" "}
                         {advance.status}
                       </p>
