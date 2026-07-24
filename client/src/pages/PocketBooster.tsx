@@ -632,7 +632,7 @@ export default function PocketBooster() {
               {
                 number: "2",
                 title: "Repay twice on time",
-                body: "Use a cushion, pay every billed installment by its due date, then successfully repeat that cycle.",
+                body: "Use a cushion, repay every billed installment by its due date and within 30 days, then successfully repeat that cycle.",
               },
               {
                 number: "3",

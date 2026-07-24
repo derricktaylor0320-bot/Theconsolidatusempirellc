@@ -192,7 +192,7 @@ function buildEligibility(
       tierLevel: advance.tierLevel,
       repaidOnTime:
         advance.status === "repaid" &&
-        isRepaymentCycleOnTime(advance.schedules),
+        isRepaymentCycleOnTime(advance.schedules, advance.createdAt),
     })),
     grandfatheredTier,
   );

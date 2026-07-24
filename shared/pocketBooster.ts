@@ -263,12 +263,19 @@ function validDate(value: Date | string | null): Date | null {
 
 /**
  * A trust-building cycle counts only when every billed installment was
- * collected no later than the end of its scheduled due date.
+ * collected no later than its scheduled due date and the entire cushion was
+ * repaid within 30 days.
  */
 export function isRepaymentCycleOnTime(
   schedules: PocketBoosterScheduleForEligibility[],
+  cycleStartedAt: Date | string | null,
 ): boolean {
   if (schedules.length === 0) return false;
+  const startedAt = validDate(cycleStartedAt);
+  if (!startedAt) return false;
+  const cycleDeadline = new Date(startedAt);
+  cycleDeadline.setUTCDate(cycleDeadline.getUTCDate() + 30);
+  cycleDeadline.setUTCHours(23, 59, 59, 999);
 
   return schedules.every((schedule) => {
     if (schedule.status !== "collected") return false;
@@ -278,7 +285,10 @@ export function isRepaymentCycleOnTime(
 
     const dueEndOfDay = new Date(dueAt);
     dueEndOfDay.setUTCHours(23, 59, 59, 999);
-    return collectedAt.getTime() <= dueEndOfDay.getTime();
+    return (
+      collectedAt.getTime() <= dueEndOfDay.getTime() &&
+      collectedAt.getTime() <= cycleDeadline.getTime()
+    );
   });
 }
 

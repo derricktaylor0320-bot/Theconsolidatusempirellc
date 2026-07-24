@@ -74,7 +74,7 @@ test("a repayment cycle is on time only when every installment clears by its due
         scheduledDate: "2026-07-24T00:00:00.000Z",
         collectedAt: "2026-07-24T09:00:00.000Z",
       },
-    ]),
+    ], "2026-07-01T12:00:00.000Z"),
     true,
   );
 
@@ -85,7 +85,7 @@ test("a repayment cycle is on time only when every installment clears by its due
         scheduledDate: "2026-07-10T00:00:00.000Z",
         collectedAt: "2026-07-11T00:00:00.000Z",
       },
-    ]),
+    ], "2026-07-01T12:00:00.000Z"),
     false,
   );
 
@@ -96,7 +96,18 @@ test("a repayment cycle is on time only when every installment clears by its due
         scheduledDate: "2026-07-10T00:00:00.000Z",
         collectedAt: null,
       },
-    ]),
+    ], "2026-07-01T12:00:00.000Z"),
+    false,
+  );
+
+  assert.equal(
+    isRepaymentCycleOnTime([
+      {
+        status: "collected",
+        scheduledDate: "2026-08-15T00:00:00.000Z",
+        collectedAt: "2026-08-05T10:00:00.000Z",
+      },
+    ], "2026-07-01T12:00:00.000Z"),
     false,
   );
 });
