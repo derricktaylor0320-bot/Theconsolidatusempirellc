@@ -334,12 +334,15 @@ export type UserSubscription = typeof userSubscriptions.$inferSelect;
 export const cashAdvances = pgTable("cash_advances", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
+  // Snapshot the active tier so each repayment builds trust at the level used.
+  tierLevel: integer("tier_level").notNull().default(1),
   amountBorrowed: decimal("amount_borrowed", {
     precision: 10,
     scale: 2,
   }).notNull(),
   repaymentType: text("repayment_type").notNull(),
   status: text("status").notNull().default("active"), // active | repaid | cancelled
+  repaidAt: timestamp("repaid_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -360,6 +363,8 @@ export const repaymentSchedules = pgTable("repayment_schedules", {
   squareInvoiceId: text("square_invoice_id"),
   squareInvoiceUrl: text("square_invoice_url"),
   squareInvoiceStatus: text("square_invoice_status"),
+  // Square's paid timestamp, used to determine whether the installment was on time.
+  collectedAt: timestamp("collected_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

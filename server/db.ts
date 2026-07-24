@@ -244,11 +244,21 @@ export async function ensureTablesExist() {
       CREATE TABLE IF NOT EXISTS cash_advances (
         id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id VARCHAR(255) NOT NULL,
+        tier_level INTEGER NOT NULL DEFAULT 1,
         amount_borrowed DECIMAL(10, 2) NOT NULL,
         repayment_type TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'active',
+        repaid_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT NOW()
       )
+    `);
+    // Repayment trust progression needs the tier used and completion timestamp.
+    await db.execute(sql`
+      ALTER TABLE cash_advances
+      ADD COLUMN IF NOT EXISTS tier_level INTEGER NOT NULL DEFAULT 1
+    `);
+    await db.execute(sql`
+      ALTER TABLE cash_advances ADD COLUMN IF NOT EXISTS repaid_at TIMESTAMP
     `);
     await db.execute(sql`
       CREATE INDEX IF NOT EXISTS "IDX_cash_advances_user"
@@ -267,6 +277,7 @@ export async function ensureTablesExist() {
         square_invoice_id TEXT,
         square_invoice_url TEXT,
         square_invoice_status TEXT,
+        collected_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
@@ -275,6 +286,7 @@ export async function ensureTablesExist() {
     await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_id TEXT`);
     await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_url TEXT`);
     await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS square_invoice_status TEXT`);
+    await db.execute(sql`ALTER TABLE repayment_schedules ADD COLUMN IF NOT EXISTS collected_at TIMESTAMP`);
     await db.execute(sql`
       CREATE INDEX IF NOT EXISTS "IDX_repayment_schedules_advance"
       ON repayment_schedules (advance_id)

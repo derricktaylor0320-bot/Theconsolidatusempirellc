@@ -23,6 +23,10 @@ export type PocketBoosterTier = {
   features?: string[];
 };
 
+export const POCKET_BOOSTER_REPAYMENTS_TO_UNLOCK = 2;
+export const POCKET_BOOSTER_FIRST_TIER = 1;
+export const POCKET_BOOSTER_MAX_TIER = 4;
+
 export const POCKET_BOOSTER_TIERS: PocketBoosterTier[] = [
   {
     level: 1,
@@ -181,8 +185,8 @@ export const PAY_TO_LEARN_MODULES = [
         title: "Repayment Is Your Credit Story",
         minutes: 8,
         body: [
-          "Inside Pocket Booster, on-time cushion repayment is your internal credit file. It unlocks higher tiers and larger limits.",
-          "Missed repayments shrink access. Autopilot (Full Next Payday, Bi-Weekly, or Custom Split) exists to protect that story.",
+          "Inside Pocket Booster, on-time cushion repayment is your internal trust file. Everyone starts at the $10 Starter Cushion with access up to $100.",
+          "Repay two separate cushions on time at each level and the next tier unlocks automatically. Late repayments do not count toward the two successful cycles.",
           "Treat every scheduled invoice like a non-negotiable bill — ahead of wants.",
         ],
         actionPrompt:
@@ -228,6 +232,120 @@ export function tierAllowsRepayment(
   choice: RepaymentChoice,
 ): boolean {
   return tier.repaymentOptions.includes(choice);
+}
+
+export type PocketBoosterRepaymentCycle = {
+  tierLevel: number;
+  repaidOnTime: boolean;
+};
+
+export type PocketBoosterScheduleForEligibility = {
+  status: string;
+  scheduledDate: Date | string | null;
+  collectedAt: Date | string | null;
+};
+
+export type PocketBoosterEligibility = {
+  highestUnlockedTier: number;
+  progressTier: number;
+  onTimeRepayments: number;
+  requiredRepayments: number;
+  remainingRepayments: number;
+  isMaxTier: boolean;
+  onTimeRepaymentsByTier: Record<number, number>;
+};
+
+function validDate(value: Date | string | null): Date | null {
+  if (value == null) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * A trust-building cycle counts only when every billed installment was
+ * collected no later than its scheduled due date and the entire cushion was
+ * repaid within 30 days.
+ */
+export function isRepaymentCycleOnTime(
+  schedules: PocketBoosterScheduleForEligibility[],
+  cycleStartedAt: Date | string | null,
+): boolean {
+  if (schedules.length === 0) return false;
+  const startedAt = validDate(cycleStartedAt);
+  if (!startedAt) return false;
+  const cycleDeadline = new Date(startedAt);
+  cycleDeadline.setUTCDate(cycleDeadline.getUTCDate() + 30);
+  cycleDeadline.setUTCHours(23, 59, 59, 999);
+
+  return schedules.every((schedule) => {
+    if (schedule.status !== "collected") return false;
+    const dueAt = validDate(schedule.scheduledDate);
+    const collectedAt = validDate(schedule.collectedAt);
+    if (!dueAt || !collectedAt) return false;
+
+    const dueEndOfDay = new Date(dueAt);
+    dueEndOfDay.setUTCHours(23, 59, 59, 999);
+    return (
+      collectedAt.getTime() <= dueEndOfDay.getTime() &&
+      collectedAt.getTime() <= cycleDeadline.getTime()
+    );
+  });
+}
+
+/**
+ * Tier 1 is always the starting point. Each tier unlocks the next only after
+ * two separate on-time cushion repayment cycles at that level.
+ */
+export function calculatePocketBoosterEligibility(
+  cycles: PocketBoosterRepaymentCycle[],
+  grandfatheredTier = POCKET_BOOSTER_FIRST_TIER,
+): PocketBoosterEligibility {
+  const onTimeRepaymentsByTier: Record<number, number> = {};
+  for (let level = POCKET_BOOSTER_FIRST_TIER; level <= POCKET_BOOSTER_MAX_TIER; level++) {
+    onTimeRepaymentsByTier[level] = 0;
+  }
+
+  for (const cycle of cycles) {
+    if (
+      cycle.repaidOnTime &&
+      cycle.tierLevel >= POCKET_BOOSTER_FIRST_TIER &&
+      cycle.tierLevel <= POCKET_BOOSTER_MAX_TIER
+    ) {
+      onTimeRepaymentsByTier[cycle.tierLevel] += 1;
+    }
+  }
+
+  let highestUnlockedTier = Math.min(
+    POCKET_BOOSTER_MAX_TIER,
+    Math.max(POCKET_BOOSTER_FIRST_TIER, Math.trunc(grandfatheredTier)),
+  );
+
+  while (
+    highestUnlockedTier < POCKET_BOOSTER_MAX_TIER &&
+    onTimeRepaymentsByTier[highestUnlockedTier] >=
+      POCKET_BOOSTER_REPAYMENTS_TO_UNLOCK
+  ) {
+    highestUnlockedTier += 1;
+  }
+
+  const isMaxTier = highestUnlockedTier === POCKET_BOOSTER_MAX_TIER;
+  const onTimeRepayments = Math.min(
+    onTimeRepaymentsByTier[highestUnlockedTier],
+    POCKET_BOOSTER_REPAYMENTS_TO_UNLOCK,
+  );
+  const remainingRepayments = isMaxTier
+    ? 0
+    : Math.max(0, POCKET_BOOSTER_REPAYMENTS_TO_UNLOCK - onTimeRepayments);
+
+  return {
+    highestUnlockedTier,
+    progressTier: highestUnlockedTier,
+    onTimeRepayments,
+    requiredRepayments: POCKET_BOOSTER_REPAYMENTS_TO_UNLOCK,
+    remainingRepayments,
+    isMaxTier,
+    onTimeRepaymentsByTier,
+  };
 }
 
 export const activateSubscriptionSchema = z.object({
