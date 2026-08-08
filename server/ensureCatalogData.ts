@@ -713,36 +713,36 @@ const BEDDING_PRODUCTS: {
     priceId: "price_kkcomforterset",
     name: "Khomplete Khemistri Accessories Comforter Set",
     description:
-      'Luxury velvet comforter set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold. Rich chocolate brown. Includes comforter and matching pillow shams. Select your size at checkout: Twin, Full, Queen, or King.',
+      'Luxury velvet comforter set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" in silver. Rich royal blue. Includes comforter and matching pillow shams. Select your size at checkout: Twin, Full, Queen, or King.',
     priceCents: BEDDING_PRICE_COMFORTER_CENTS,
-    meta: { category: "Bedding", productType: "accessory", sortOrder: "50", imageUrl: "/assets/kk_comforter_set.png", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "50", imageUrl: "/assets/kk_bedding_set_blue_silver.jpeg", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
   },
   {
     productId: "prod_kksheetset",
     priceId: "price_kksheetset",
     name: "Khomplete Khemistri Accessories Sheet Set",
     description:
-      'Premium satin sheet set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold. Elegant chocolate brown. Includes fitted sheet, flat sheet, and matching pillowcases. Select your size at checkout: Twin, Full, Queen, or King.',
+      'Premium satin sheet set featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" in silver. Elegant royal blue. Includes fitted sheet, flat sheet, and matching pillowcases. Select your size at checkout: Twin, Full, Queen, or King.',
     priceCents: BEDDING_PRICE_SHEET_CENTS,
-    meta: { category: "Bedding", productType: "accessory", sortOrder: "51", imageUrl: "/assets/kk_sheet_set.png", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "51", imageUrl: "/assets/kk_bedding_set_blue_silver.jpeg", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
   },
   {
     productId: "prod_kkpillowcaseset",
     priceId: "price_kkpillowcaseset",
     name: "Khomplete Khemistri Accessories Pillowcase Set",
     description:
-      'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Select your size at checkout: Twin, Full, Queen, or King.',
+      'Luxury branded pillowcase set — pack of 2. Featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" in silver on rich royal blue. Select your size at checkout: Twin, Full, Queen, or King.',
     priceCents: BEDDING_PRICE_PILLOWCASE_CENTS,
-    meta: { category: "Bedding", productType: "accessory", sortOrder: "52", imageUrl: "/assets/kk_pillowcase_set.png", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "52", imageUrl: "/assets/kk_pillowcase_set_blue_silver.jpeg", fulfillment: "Amazon", sizes: "Twin, Full, Queen, King" },
   },
   {
     productId: "prod_kkbodypillow",
     priceId: "price_kkbodypillow",
     name: "Khomplete Khemistri Accessories Body Pillow",
     description:
-      'Luxury branded body pillow featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" embroidered in gold on rich chocolate brown. Generous 60" x 20" size for full-body comfort.',
+      'Luxury branded body pillow featuring the Khomplete Khemistri Accessories eagle badge and "Sleep and Dream in Luxury" in silver on rich royal blue. Generous 60" x 20" size for full-body comfort.',
     priceCents: BEDDING_PRICE_BODYPILLOW_CENTS,
-    meta: { category: "Bedding", productType: "accessory", sortOrder: "53", imageUrl: "/assets/kk_body_pillow.png", fulfillment: "Amazon", customize: "none" },
+    meta: { category: "Bedding", productType: "accessory", sortOrder: "53", imageUrl: "/assets/kk_body_pillow_blue_silver.jpeg", fulfillment: "Amazon", customize: "none" },
   },
 ];
 
