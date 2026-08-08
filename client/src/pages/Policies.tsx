@@ -96,7 +96,8 @@ export default function Policies() {
 
             <div className="mt-12 text-center">
               <p className="text-muted-foreground text-sm">
-                Questions? Contact us at <a href="mailto:supporttheconsolidatusempire@gmail.com" className="text-primary hover:underline">supporttheconsolidatusempire@gmail.com</a>
+                Questions? Contact us at <a href="mailto:theconsolidatusempire@gmail.com" className="text-primary hover:underline" data-testid="link-policies-email">theconsolidatusempire@gmail.com</a>
+                {" "}or call toll-free <a href="tel:+18445612444" className="text-primary hover:underline" data-testid="link-policies-phone">844-561-2444</a>
               </p>
             </div>
           </div>
