@@ -1592,7 +1592,7 @@ const EXTRA_ACCESSORY_PRODUCTS: {
       sortOrder: "18",
       gender: "Unisex",
       footwearCustomizable: "true",
-      imageUrl: "/assets/kk_signature_crest.png",
+      imageUrl: "/assets/kk_crest_2_high.jpg",
     },
   },
   {
@@ -1705,6 +1705,38 @@ const EXTRA_ACCESSORY_PRODUCTS: {
       gender: "Unisex",
       footwearCustomizable: "true",
       imageUrl: "/assets/kk_canvas_essential_highs.png",
+    },
+  },
+  {
+    productId: "prod_kkclassicwhitehightops",
+    priceId: "price_kkclassicwhitehightops",
+    name: "Classic White High-Tops",
+    description:
+      "Premium white canvas high-top sneakers featuring the Khomplete Khemistri Apparel circular logo. \"Established in 2020\" printed on sole. Clean white design with black logo accent.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "26",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_classic_white_high_tops.jpg",
+    },
+  },
+  {
+    productId: "prod_kkblackgoldhightops",
+    priceId: "price_kkblackgoldhightops",
+    name: "Black & Gold High-Tops",
+    description:
+      "Premium black canvas high-top sneakers featuring the Khomplete Khemistri 5 Swords crest in blue and gold. \"Established in 2020\" on sole. Luxury streetwear design.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "27",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_black_gold_high_tops.jpg",
     },
   },
 ];
