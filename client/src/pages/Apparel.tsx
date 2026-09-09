@@ -44,7 +44,7 @@ export default function Apparel() {
           colors={product.colors}
           soldOutColors={product.soldOutColors}
           scents={product.scents}
-          imageFit={product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_air_nitrogen") || product.imageUrl?.includes("kk_signature_crest") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") ? "contain" : "cover"}
+          imageFit={product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_air_nitrogen") || product.imageUrl?.includes("kk_signature_crest") || product.imageUrl?.includes("kk_monarch_vanguard") || product.imageUrl?.includes("kk_sovereign_runner") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") ? "contain" : "cover"}
         />
       ))}
     </div>

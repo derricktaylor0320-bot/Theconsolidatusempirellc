@@ -100,6 +100,16 @@ export const CREST_2_HIGH_PRODUCT_ID = "prod_kkcrest2high";
 export const CREST_2_HIGH_PRICE_ID = "price_kkcrest2high";
 export const CREST_2_HIGH_NAME = "Signature Crest - 2 High";
 
+export const MONARCH_VANGUARD_PRODUCT_ID = "prod_kkmonarchvanguard";
+export const MONARCH_VANGUARD_PRICE_ID = "price_kkmonarchvanguard";
+export const MONARCH_VANGUARD_NAME = "KKA Monarch Vanguard";
+export const MONARCH_VANGUARD_PRICE_CENTS = 8500;
+
+export const SOVEREIGN_RUNNER_PRODUCT_ID = "prod_kksovereignrunner";
+export const SOVEREIGN_RUNNER_PRICE_ID = "price_kksovereignrunner";
+export const SOVEREIGN_RUNNER_NAME = "KKA Sovereign Runner";
+export const SOVEREIGN_RUNNER_PRICE_CENTS = 7500;
+
 export const FOOTWEAR_PRICE_CENTS = 7500;
 
 export function isAirNitrogenProduct(
@@ -127,4 +137,22 @@ export function isCrest2HighProduct(
   if (priceId === CREST_2_HIGH_PRICE_ID) return true;
   if (!title) return false;
   return /crest[\s-]*2.*high/i.test(title);
+}
+
+export function isMonarchVanguardProduct(
+  priceId?: string | null,
+  title?: string | null,
+): boolean {
+  if (priceId === MONARCH_VANGUARD_PRICE_ID) return true;
+  if (!title) return false;
+  return /monarch\s*vanguard/i.test(title);
+}
+
+export function isSovereignRunnerProduct(
+  priceId?: string | null,
+  title?: string | null,
+): boolean {
+  if (priceId === SOVEREIGN_RUNNER_PRICE_ID) return true;
+  if (!title) return false;
+  return /sovereign\s*runner/i.test(title);
 }

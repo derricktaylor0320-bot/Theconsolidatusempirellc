@@ -1595,6 +1595,38 @@ const EXTRA_ACCESSORY_PRODUCTS: {
       imageUrl: "/assets/kk_signature_crest.png",
     },
   },
+  {
+    productId: "prod_kkmonarchvanguard",
+    priceId: "price_kkmonarchvanguard",
+    name: "KKA Monarch Vanguard",
+    description:
+      "KKA Monarch Vanguard — mid-top basketball silhouette with a sculpted pod midsole and clean all-white finish.\n\nProduct Weight: 1.20 KG\nRubber sole\nNon-marking rubber outsole for traction and durability.\nPerforated toe box provides breathability.\nComfort and impact protection.\nCustom basketball traction pattern ensures grip on any surface.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 8500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "19",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_monarch_vanguard.jpg",
+    },
+  },
+  {
+    productId: "prod_kksovereignrunner",
+    priceId: "price_kksovereignrunner",
+    name: "KKA Sovereign Runner",
+    description:
+      "KKA Sovereign Runner — lightweight mesh runner with a sock-like fit, cage lacing, and responsive cushioning for everyday miles.\n\nProduct Weight: 0.90 KG\nClosure: Lace Up\nFabric: Mesh knit upper with TPU cage\nSole: EVA midsole with rubber outsole\nOccasion: Outdoor, Casual, Walking, Sports\n\nBreathable mesh construction keeps feet cool and dry. Memory foam insole molds to your foot for a tailored fit. Non-marking rubber outsole for traction and durability.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "20",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_sovereign_runner.jpg",
+    },
+  },
 ];
 
 // Scented candle product image. Like the tumbler, the storefront image must be

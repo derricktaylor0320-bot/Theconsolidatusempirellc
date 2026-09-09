@@ -733,7 +733,7 @@ function ProductDetailContent({
           <img
             src={product.imageUrl}
             alt={product.title}
-            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_air_nitrogen") || product.imageUrl?.includes("kk_signature_crest") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") || product.imageUrl?.includes("kk_his_hers_watch") ? "object-contain p-3" : "object-cover"} w-full h-full`}
+            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_air_nitrogen") || product.imageUrl?.includes("kk_signature_crest") || product.imageUrl?.includes("kk_monarch_vanguard") || product.imageUrl?.includes("kk_sovereign_runner") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") || product.imageUrl?.includes("kk_his_hers_watch") ? "object-contain p-3" : "object-cover"} w-full h-full`}
             data-testid="img-product-detail"
           />
           {soldOut && (
