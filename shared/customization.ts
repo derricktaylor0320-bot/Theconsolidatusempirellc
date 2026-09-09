@@ -33,6 +33,7 @@ import {
   isElementsDuoWash,
   parseElementsDuoSelection,
 } from "./elementsDuo";
+import { isFootwearCustomizable, parseFootwearSize } from "./footwear";
 
 // Em dash used by the client to join the choice (color/model) and the logo name.
 const DELIM = " \u2014 ";
@@ -70,6 +71,8 @@ const NON_LOGO_PRODUCT_TYPES = new Set(["poetry", "vintage"]);
 // server-side checkout enforcement agree on which products require a logo.
 export function isDefaultLogoCustomizable(metadata: any): boolean {
   const m = metadata || {};
+  // Customizable footwear requires a brand logo even though it has its own size run.
+  if (isFootwearCustomizable(m)) return true;
   if (m.handleColors || m.caseType || m.sizes) return false;
   // Scented goods (candles, body butters) let the customer pick a scent instead
   // of a brand logo, so they don't get the logo picker.
@@ -88,6 +91,7 @@ export type CustomizationKind =
   | "phoneModel"
   | "logoOption"
   | "size"
+  | "footwear"
   | "color"
   | "colorSoldOut"
   | "scent"
@@ -325,6 +329,14 @@ function checkLogoChoice(
 // Full customization check: the logo/handle/model/size choice PLUS, for products
 // offered in multiple colors, a required in-stock color. The chosen color is
 // appended to the order note so fulfillment knows which color to make.
+function isOwnedCustomDesignUrl(url: unknown): boolean {
+  return (
+    typeof url === "string" &&
+    url.startsWith("/media-files/custom-designs/") &&
+    !url.includes("..")
+  );
+}
+
 export function checkCustomization(
   metadata: any,
   selectedLogo: unknown,
@@ -332,9 +344,13 @@ export function checkCustomization(
   selectedSize?: unknown,
   productName?: unknown,
   selectedScent?: unknown,
+  customDesignUrl?: unknown,
 ): CustomizationCheck {
   const meta = metadata || {};
-  const base = checkLogoChoice(meta, selectedLogo);
+  const footwear = isFootwearCustomizable(meta);
+  const base = footwear
+    ? checkLogoChoice({ ...meta, sizes: undefined }, selectedLogo)
+    : checkLogoChoice(meta, selectedLogo);
 
   // Report a missing/invalid logo first so the shopper fixes one thing at a time.
   if (base.required && !base.ok) return base;
@@ -342,9 +358,24 @@ export function checkCustomization(
   const notes: string[] = base.note ? [base.note] : [];
   let upchargeCents = 0;
 
+  // Custom footwear: gender + US size (Men's 4–14, Women's 5.5–15.5).
+  const footwearRequired = footwear;
+  if (footwearRequired) {
+    const encoded =
+      typeof selectedSize === "string" ? selectedSize.trim() : "";
+    const parsed = parseFootwearSize(encoded);
+    if (!parsed) {
+      return { required: true, kind: "footwear", ok: false };
+    }
+    notes.push(`Size: ${encoded}`);
+    if (isOwnedCustomDesignUrl(customDesignUrl)) {
+      notes.push(`Custom design: ${customDesignUrl}`);
+    }
+  }
+
   // Wearable apparel size (XS–6XL) — layered ON TOP of the logo (separate from
   // bedding's size-only `sizes` metadata). Required for sized garments.
-  const apparelSizes = apparelSizesFor(meta, productName);
+  const apparelSizes = footwearRequired ? [] : apparelSizesFor(meta, productName);
   const sizeRequired = apparelSizes.length > 0;
   if (sizeRequired) {
     const size = typeof selectedSize === "string" ? selectedSize.trim() : "";
@@ -425,6 +456,7 @@ export function checkCustomization(
 
   const required =
     base.required ||
+    footwearRequired ||
     sizeRequired ||
     colorRequired ||
     scentRequired ||
@@ -433,17 +465,19 @@ export function checkCustomization(
   const kind: CustomizationKind =
     base.kind !== "none"
       ? base.kind
-      : sizeRequired
-        ? "size"
-        : colorRequired
-          ? "color"
-          : careBasketRequired
-            ? "careBasket"
-            : duoRequired
-              ? "duo"
-              : scentRequired
-                ? "scent"
-                : "none";
+      : footwearRequired
+        ? "footwear"
+        : sizeRequired
+          ? "size"
+          : colorRequired
+            ? "color"
+            : careBasketRequired
+              ? "careBasket"
+              : duoRequired
+                ? "duo"
+                : scentRequired
+                  ? "scent"
+                  : "none";
   return {
     required,
     kind,
@@ -466,6 +500,8 @@ export function customizationErrorMessage(
       return `Please select a logo variation for "${productName}" before checking out.`;
     case "size":
       return `Please choose a size for "${productName}" before checking out.`;
+    case "footwear":
+      return `Please choose your gender and shoe size, and select one of our brand logos for "${productName}" before checking out.`;
     case "color":
       return `Please choose a color for "${productName}" before checking out.`;
     case "colorSoldOut":
