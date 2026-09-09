@@ -1530,6 +1530,23 @@ const EXTRA_ACCESSORY_PRODUCTS: {
       imageUrl: "/assets/kk_air_genesis.png",
     },
   },
+  {
+    productId: "prod_kkairspectrum",
+    priceId: "price_kkairspectrum",
+    name: "Khomplete Khemistri Apparel Air Spectrum",
+    description:
+      "Khomplete Khemistri Apparel Air Spectrum — mesh sneakers blending contemporary style with unbeatable comfort.\n\nProduct Weight: 0.85 KG\nClosure: Lace Up\nFabric: Mesh\nSole: TPU, EVA\nOccasion: Outdoor, Casual, Walking, Sports\n\nUltimate Style and Comfort: Step onto the track with confidence in our mesh sneakers, blending contemporary style with unbeatable comfort. Crafted with 100% mesh-knit polyester nylon on top, these shoes offer superior breathability and flexibility for a cool and comfortable experience with every step.\n\nInnovative Construction: Featuring a blend of thermoplastic polyurethanes (TPU) and an EVA shock-absorbing layer, our sneakers provide unparalleled support and cushioning, ensuring a comfortable walk or run every time.\n\nTailored Fit: Memory foam insoles mold to the unique contours of your feet for enhanced support and a customized fit. Lace-up closure ensures a secure and adjustable fit for maximum stability during any activity.\n\nStylish Options: Available in sleek black or crisp white detailing. Choose between black or white sole color variants to complete your look.\n\nBreathable Performance: Mesh construction provides optimal breathability, keeping your feet cool and dry even during intense workouts. Deodorant memory foam insoles help ensure freshness with every wear.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nUnisex US sizing — select your size and color at checkout (women: size up about 1.5 from your US women's size).",
+    priceCents: 8900,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "15",
+      gender: "Unisex",
+      sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13",
+      colors: "Black/White, White/White",
+      imageUrl: "/assets/kk_air_spectrum.png",
+    },
+  },
 ];
 
 // Scented candle product image. Like the tumbler, the storefront image must be

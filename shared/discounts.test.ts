@@ -6,6 +6,7 @@ import {
   parseDiscountCode,
 } from "./discounts.ts";
 import { AIR_GENESIS_PRICE_ID, isAirGenesisProduct } from "./airGenesis.ts";
+import { AIR_SPECTRUM_PRICE_ID, isAirSpectrumProduct } from "./airSpectrum.ts";
 
 describe("ReturnVisitor5 discount", () => {
   it("parses ReturnVisitor5 with a fixed five-dollar amount", () => {
@@ -31,5 +32,16 @@ describe("Air Genesis product helpers", () => {
       true,
     );
     assert.equal(isAirGenesisProduct("other", "Some other shoe"), false);
+  });
+});
+
+describe("Air Spectrum product helpers", () => {
+  it("detects Air Spectrum by price id or title", () => {
+    assert.equal(isAirSpectrumProduct(AIR_SPECTRUM_PRICE_ID, null), true);
+    assert.equal(
+      isAirSpectrumProduct("other", "Khomplete Khemistri Apparel Air Spectrum"),
+      true,
+    );
+    assert.equal(isAirSpectrumProduct("other", "Some other shoe"), false);
   });
 });
