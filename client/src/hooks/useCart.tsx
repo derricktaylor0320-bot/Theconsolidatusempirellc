@@ -32,6 +32,8 @@ export interface CartItem {
   selectedColor?: string;
   selectedSize?: string;
   selectedScent?: string;
+  /** Optional uploaded artwork URL for footwear customization. */
+  customDesignUrl?: string;
   /** Optional lighter accessory bundle id from bundle_config.json */
   bundleId?: string;
 }
@@ -47,6 +49,7 @@ interface CartContextValue {
     selectedColor?: string,
     selectedSize?: string,
     selectedScent?: string,
+    customDesignUrl?: string,
   ) => void;
   updateQuantity: (
     priceId: string,
@@ -55,6 +58,7 @@ interface CartContextValue {
     selectedColor?: string,
     selectedSize?: string,
     selectedScent?: string,
+    customDesignUrl?: string,
   ) => void;
   /**
    * Apply (or clear) a lighter accessory bundle on every Premium Lighter
@@ -77,8 +81,9 @@ function lineKey(
   selectedColor?: string,
   selectedSize?: string,
   selectedScent?: string,
+  customDesignUrl?: string,
 ) {
-  return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}__${selectedSize || ""}__${selectedScent || ""}`;
+  return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}__${selectedSize || ""}__${selectedScent || ""}__${customDesignUrl || ""}`;
 }
 
 /** Strip a previously baked-in bundle upcharge so we can re-apply cleanly. */
@@ -135,13 +140,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     (item: Omit<CartItem, "quantity">, quantity = 1) => {
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) => {
-        const key = lineKey(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent);
+        const key = lineKey(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent, item.customDesignUrl);
         const existing = prev.find(
-          (i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) === key,
+          (i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) === key,
         );
         if (existing) {
           return prev.map((i) =>
-            lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) === key
+            lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) === key
               ? { ...i, quantity: Math.min(MAX_QTY, i.quantity + qty) }
               : i,
           );
@@ -153,10 +158,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const removeItem = useCallback(
-    (priceId: string, selectedLogo?: string, selectedColor?: string, selectedSize?: string, selectedScent?: string) => {
-      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent);
+    (priceId: string, selectedLogo?: string, selectedColor?: string, selectedSize?: string, selectedScent?: string, customDesignUrl?: string) => {
+      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent, customDesignUrl);
       setItems((prev) =>
-        prev.filter((i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) !== key),
+        prev.filter((i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) !== key),
       );
     },
     [],
@@ -170,12 +175,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       selectedColor?: string,
       selectedSize?: string,
       selectedScent?: string,
+      customDesignUrl?: string,
     ) => {
-      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent);
+      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent, customDesignUrl);
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) =>
         prev.map((i) =>
-          lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent) === key
+          lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) === key
             ? { ...i, quantity: qty }
             : i,
         ),

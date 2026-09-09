@@ -1,0 +1,130 @@
+/** Customizable footwear — sizes, disclaimers, and product identifiers. */
+
+export const FOOTWEAR_CUSTOMIZABLE_META = "true";
+
+/** Men's US sizes 4–14 (whole sizes). */
+export const MENS_FOOTWEAR_SIZES = [
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+] as const;
+
+/** Women's US sizes 5.5–15.5 (half sizes). */
+export const WOMENS_FOOTWEAR_SIZES = [
+  "5.5",
+  "6",
+  "6.5",
+  "7",
+  "7.5",
+  "8",
+  "8.5",
+  "9",
+  "9.5",
+  "10",
+  "10.5",
+  "11",
+  "11.5",
+  "12",
+  "12.5",
+  "13",
+  "13.5",
+  "14",
+  "14.5",
+  "15",
+  "15.5",
+] as const;
+
+export type FootwearGender = "Men" | "Women";
+
+export const FOOTWEAR_GENDERS: FootwearGender[] = ["Men", "Women"];
+
+export function footwearSizesForGender(gender: FootwearGender): readonly string[] {
+  return gender === "Men" ? MENS_FOOTWEAR_SIZES : WOMENS_FOOTWEAR_SIZES;
+}
+
+/** Encoded size sent to checkout, e.g. "Men's 10" or "Women's 8.5". */
+export function encodeFootwearSize(gender: FootwearGender, size: string): string {
+  return `${gender}'s ${size}`;
+}
+
+export function parseFootwearSize(
+  encoded: string,
+): { gender: FootwearGender; size: string } | null {
+  const trimmed = encoded.trim();
+  for (const gender of FOOTWEAR_GENDERS) {
+    const prefix = `${gender}'s `;
+    if (trimmed.startsWith(prefix)) {
+      const size = trimmed.slice(prefix.length).trim();
+      if (footwearSizesForGender(gender).includes(size)) {
+        return { gender, size };
+      }
+    }
+  }
+  return null;
+}
+
+export function isFootwearCustomizable(metadata: unknown): boolean {
+  const m = metadata as Record<string, unknown> | null | undefined;
+  if (!m) return false;
+  if (String(m.footwearCustomizable || "").toLowerCase() === FOOTWEAR_CUSTOMIZABLE_META) {
+    return true;
+  }
+  return String(m.category || "").toLowerCase() === "footwear";
+}
+
+export const FOOTWEAR_CUSTOMIZATION_DISCLAIMER =
+  "All shoes and sneakers are fully customizable. You may upload your own logo or design to inspire your pair — however, you must still select one of our Khomplete Khemistri brand logos below to complete your order.";
+
+export const FOOTWEAR_LEAD_TIME_NOTE =
+  "Custom footwear is made to order. Please allow 7–14 days for customization after your order is completed before your pair ships.";
+
+// ——— Product identifiers ———
+
+export const AIR_NITROGEN_PRODUCT_ID = "prod_kkairnitrogen";
+export const AIR_NITROGEN_PRICE_ID = "price_kkairnitrogen";
+export const AIR_NITROGEN_NAME = "Khomplete Khemistri Apparel Air Nitrogen";
+
+export const CREST_1_LOW_PRODUCT_ID = "prod_kkcrest1low";
+export const CREST_1_LOW_PRICE_ID = "price_kkcrest1low";
+export const CREST_1_LOW_NAME = "K. K. A. Signature Crest-1 Low";
+
+export const CREST_2_HIGH_PRODUCT_ID = "prod_kkcrest2high";
+export const CREST_2_HIGH_PRICE_ID = "price_kkcrest2high";
+export const CREST_2_HIGH_NAME = "Signature Crest - 2 High";
+
+export const FOOTWEAR_PRICE_CENTS = 7500;
+
+export function isAirNitrogenProduct(
+  priceId?: string | null,
+  title?: string | null,
+): boolean {
+  if (priceId === AIR_NITROGEN_PRICE_ID) return true;
+  if (!title) return false;
+  return title.trim().toLowerCase().includes("air nitrogen");
+}
+
+export function isCrest1LowProduct(
+  priceId?: string | null,
+  title?: string | null,
+): boolean {
+  if (priceId === CREST_1_LOW_PRICE_ID) return true;
+  if (!title) return false;
+  return /crest[\s-]*1.*low/i.test(title);
+}
+
+export function isCrest2HighProduct(
+  priceId?: string | null,
+  title?: string | null,
+): boolean {
+  if (priceId === CREST_2_HIGH_PRICE_ID) return true;
+  if (!title) return false;
+  return /crest[\s-]*2.*high/i.test(title);
+}

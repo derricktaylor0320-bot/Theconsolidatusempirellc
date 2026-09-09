@@ -56,6 +56,8 @@ import { BODY_BUTTER_IMAGE, resolveStorefrontImageUrl } from "@shared/productIma
 import { trackViewItem } from "@/lib/analytics";
 import { isAirGenesisProduct } from "@shared/airGenesis";
 import AirGenesisEmailCapture from "@/components/AirGenesisEmailCapture";
+import FootwearCustomizer from "@/components/FootwearCustomizer";
+import { isFootwearCustomizable } from "@shared/footwear";
 
 const MAX_QTY = 99;
 
@@ -214,6 +216,7 @@ function ProductDetailContent({
   const supplementInfo = getSupplementInfo(product.title);
   const isDeodorant = isElementsDeodorantProduct(product.priceId, product.title);
   const isAirGenesis = isAirGenesisProduct(product.priceId, product.title);
+  const needsFootwear = isFootwearCustomizable({ category: product.category });
   const isBodyButter = isElementsBodyButterProduct(product.priceId, product.title);
   const hasTieredPricing = isDeodorant || isBodyButter;
 
@@ -416,6 +419,7 @@ function ProductDetailContent({
 
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [customDesignUrl, setCustomDesignUrl] = useState("");
   const [selectedApparelSize, setSelectedApparelSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedScent, setSelectedScent] = useState("");
@@ -443,11 +447,21 @@ function ProductDetailContent({
 
   const handleAddToCart = () => {
     if (!product.priceId || soldOut || comingSoon) return;
-    if (needsLogo && !selectedLogo) {
+    if (needsFootwear) {
+      if (!selectedSize) {
+        setErrorMessage("Please select your gender and shoe size.");
+        return;
+      }
+      if (!selectedLogo) {
+        setErrorMessage("Please select one of our brand logos to complete your order.");
+        return;
+      }
+    }
+    if (!needsFootwear && needsLogo && !selectedLogo) {
       setErrorMessage("Please select a logo variation.");
       return;
     }
-    if (needsSize && !selectedSize) {
+    if (!needsFootwear && needsSize && !selectedSize) {
       setErrorMessage("Please select a size.");
       return;
     }
@@ -509,10 +523,11 @@ function ProductDetailContent({
         image: cartImage,
         category: product.category,
         unitPrice: effectiveUnitPrice,
-        selectedLogo: needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
+        selectedLogo: needsFootwear || needsLogo ? selectedLogo : needsSize ? selectedSize : undefined,
         selectedColor: needsColor ? selectedColor : undefined,
-        selectedSize: needsApparelSize ? selectedApparelSize : undefined,
+        selectedSize: needsFootwear ? selectedSize : needsApparelSize ? selectedApparelSize : undefined,
         selectedScent: cartScent,
+        customDesignUrl: needsFootwear && customDesignUrl ? customDesignUrl : undefined,
       },
       quantity,
     );
@@ -520,6 +535,9 @@ function ProductDetailContent({
     setErrorMessage("");
     setAdded(true);
     setQuantity(1);
+    if (needsFootwear) {
+      setCustomDesignUrl("");
+    }
     setTimeout(() => setAdded(false), 1800);
   };
 
@@ -715,7 +733,7 @@ function ProductDetailContent({
           <img
             src={product.imageUrl}
             alt={product.title}
-            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") || product.imageUrl?.includes("kk_his_hers_watch") ? "object-contain p-3" : "object-cover"} w-full h-full`}
+            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_air_nitrogen") || product.imageUrl?.includes("kk_signature_crest") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") || product.imageUrl?.includes("kk_his_hers_watch") ? "object-contain p-3" : "object-cover"} w-full h-full`}
             data-testid="img-product-detail"
           />
           {soldOut && (
@@ -1157,7 +1175,26 @@ function ProductDetailContent({
                   )}
                 </div>
               )}
-              {needsLogo && (
+              {needsFootwear && (
+                <FootwearCustomizer
+                  soldOut={soldOut}
+                  selectedLogo={selectedLogo}
+                  onLogoChange={(logo) => {
+                    setSelectedLogo(logo);
+                    setErrorMessage("");
+                  }}
+                  selectedSize={selectedSize}
+                  onSizeChange={(size) => {
+                    setSelectedSize(size);
+                    setErrorMessage("");
+                  }}
+                  customDesignUrl={customDesignUrl}
+                  onCustomDesignChange={setCustomDesignUrl}
+                  onError={setErrorMessage}
+                />
+              )}
+
+              {!needsFootwear && needsLogo && (
                 <div className="space-y-3">
                   <p
                     className="text-sm text-muted-foreground leading-relaxed"
@@ -1277,7 +1314,7 @@ function ProductDetailContent({
                 </div>
               )}
 
-              {needsSize && (
+              {!needsFootwear && needsSize && (
                 <div className="space-y-3">
                   <p
                     className="text-sm text-muted-foreground leading-relaxed"
@@ -1416,7 +1453,7 @@ function ProductDetailContent({
 
               <Button
                 onClick={handleAddToCart}
-                disabled={!product.priceId || soldOut || (needsLogo && !selectedLogo) || (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor))) || (needsWash && !selectedWash) || (needsButterScent && !selectedButterScent) || (needsDeodorantPick && !selectedDeodorant) || (needsBodyOils && (!selectedBodyOil1 || !selectedBodyOil2)) || (needsScent && !selectedScent)}
+                disabled={!product.priceId || soldOut || (needsFootwear && (!selectedLogo || !selectedSize)) || (!needsFootwear && needsLogo && !selectedLogo) || (!needsFootwear && needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) || (needsColor && (!selectedColor || isColorSoldOut(selectedColor))) || (needsWash && !selectedWash) || (needsButterScent && !selectedButterScent) || (needsDeodorantPick && !selectedDeodorant) || (needsBodyOils && (!selectedBodyOil1 || !selectedBodyOil2)) || (needsScent && !selectedScent)}
                 className={`w-full transition-colors uppercase tracking-wider font-display text-sm h-12 disabled:opacity-50 ${
                   soldOut
                     ? "bg-gray-400 text-white cursor-not-allowed"
@@ -1426,7 +1463,7 @@ function ProductDetailContent({
                 }`}
                 data-testid="button-detail-add"
               >
-                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsLogo && !selectedLogo ? "Select a Logo" : (needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : needsWash && !selectedWash ? "Select a Wash" : needsButterScent && !selectedButterScent ? "Select Body Butter" : needsDeodorantPick && !selectedDeodorant ? "Select Deodorant" : needsBodyOils && (!selectedBodyOil1 || !selectedBodyOil2) ? "Select Body Oils" : needsScent && !selectedScent ? `Select a ${scentNounTitle}` : "Add to Cart"}
+                {soldOut ? "Sold Out" : added ? "Added \u2713" : needsFootwear && !selectedSize ? "Select a Size" : needsFootwear && !selectedLogo ? "Select a Brand Logo" : !needsFootwear && needsLogo && !selectedLogo ? "Select a Logo" : (!needsFootwear && needsSize && !selectedSize) || (needsApparelSize && !selectedApparelSize) ? "Select a Size" : needsColor && !selectedColor ? "Select a Color" : needsWash && !selectedWash ? "Select a Wash" : needsButterScent && !selectedButterScent ? "Select Body Butter" : needsDeodorantPick && !selectedDeodorant ? "Select Deodorant" : needsBodyOils && (!selectedBodyOil1 || !selectedBodyOil2) ? "Select Body Oils" : needsScent && !selectedScent ? `Select a ${scentNounTitle}` : "Add to Cart"}
               </Button>
 
               {errorMessage && (

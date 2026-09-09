@@ -1519,14 +1519,14 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     priceId: "price_kkairgenesis",
     name: "Khomplete Khemistri Apparel Air Genesis",
     description:
-      "Drop 1 — Khomplete Khemistri Apparel Air Genesis. Chemistry-inspired mid-top sneakers with microfiber leather, mesh side panels, and a visible Air Cushion heel unit.\n\nProduct Weight: 1.10 KG\nClosure: Lace Up\nFabric: Microfiber\nSole: Air Cushion, PU, Rubber\nOccasion: Casual, Outdoor, Shopping, Travel\n\nRubber sole and microfiber leather.\nNon-marking rubber outsole for traction and durability.\nPerforated toe box provides breathability.\nComfort and impact protection.\nCustom basketball traction pattern ensures grip on any surface.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nUnisex US sizing — select your size at checkout (women: size up about 1.5 from your US women's size).",
+      "Drop 1 — Khomplete Khemistri Apparel Air Genesis. Chemistry-inspired mid-top sneakers with microfiber leather, mesh side panels, and a visible Air Cushion heel unit.\n\nProduct Weight: 1.10 KG\nClosure: Lace Up\nFabric: Microfiber\nSole: Air Cushion, PU, Rubber\nOccasion: Casual, Outdoor, Shopping, Travel\n\nRubber sole and microfiber leather.\nNon-marking rubber outsole for traction and durability.\nPerforated toe box provides breathability.\nComfort and impact protection.\nCustom basketball traction pattern ensures grip on any surface.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nFully customizable — upload your own design inspiration and select one of our brand logos. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
     priceCents: 8999,
     meta: {
       category: "Footwear",
       productType: "apparel",
       sortOrder: "14",
       gender: "Unisex",
-      sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13",
+      footwearCustomizable: "true",
       imageUrl: "/assets/kk_air_genesis.png",
     },
   },
@@ -1535,16 +1535,64 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     priceId: "price_kkairspectrum",
     name: "Khomplete Khemistri Apparel Air Spectrum",
     description:
-      "Khomplete Khemistri Apparel Air Spectrum — mesh sneakers blending contemporary style with unbeatable comfort.\n\nProduct Weight: 0.85 KG\nClosure: Lace Up\nFabric: Mesh\nSole: TPU, EVA\nOccasion: Outdoor, Casual, Walking, Sports\n\nUltimate Style and Comfort: Step onto the track with confidence in our mesh sneakers, blending contemporary style with unbeatable comfort. Crafted with 100% mesh-knit polyester nylon on top, these shoes offer superior breathability and flexibility for a cool and comfortable experience with every step.\n\nInnovative Construction: Featuring a blend of thermoplastic polyurethanes (TPU) and an EVA shock-absorbing layer, our sneakers provide unparalleled support and cushioning, ensuring a comfortable walk or run every time.\n\nTailored Fit: Memory foam insoles mold to the unique contours of your feet for enhanced support and a customized fit. Lace-up closure ensures a secure and adjustable fit for maximum stability during any activity.\n\nStylish Options: Available in sleek black or crisp white detailing. Choose between black or white sole color variants to complete your look.\n\nBreathable Performance: Mesh construction provides optimal breathability, keeping your feet cool and dry even during intense workouts. Deodorant memory foam insoles help ensure freshness with every wear.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nUnisex US sizing — select your size and color at checkout (women: size up about 1.5 from your US women's size).",
+      "Khomplete Khemistri Apparel Air Spectrum — mesh sneakers blending contemporary style with unbeatable comfort.\n\nProduct Weight: 0.85 KG\nClosure: Lace Up\nFabric: Mesh\nSole: TPU, EVA\nOccasion: Outdoor, Casual, Walking, Sports\n\nUltimate Style and Comfort: Step onto the track with confidence in our mesh sneakers, blending contemporary style with unbeatable comfort. Crafted with 100% mesh-knit polyester nylon on top, these shoes offer superior breathability and flexibility for a cool and comfortable experience with every step.\n\nInnovative Construction: Featuring a blend of thermoplastic polyurethanes (TPU) and an EVA shock-absorbing layer, our sneakers provide unparalleled support and cushioning, ensuring a comfortable walk or run every time.\n\nTailored Fit: Memory foam insoles mold to the unique contours of your feet for enhanced support and a customized fit. Lace-up closure ensures a secure and adjustable fit for maximum stability during any activity.\n\nStylish Options: Available in sleek black or crisp white detailing. Choose between black or white sole color variants to complete your look.\n\nBreathable Performance: Mesh construction provides optimal breathability, keeping your feet cool and dry even during intense workouts. Deodorant memory foam insoles help ensure freshness with every wear.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nFully customizable — upload your own design inspiration and select one of our brand logos. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
     priceCents: 8900,
     meta: {
       category: "Footwear",
       productType: "apparel",
       sortOrder: "15",
       gender: "Unisex",
-      sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13",
+      footwearCustomizable: "true",
       colors: "Black/White, White/White",
       imageUrl: "/assets/kk_air_spectrum.png",
+    },
+  },
+  {
+    productId: "prod_kkairnitrogen",
+    priceId: "price_kkairnitrogen",
+    name: "Khomplete Khemistri Apparel Air Nitrogen",
+    description:
+      "Khomplete Khemistri Apparel Air Nitrogen — mesh with leather accents and a rubber outsole.\n\nSynthetic upper features airy mesh for lightweight comfort and durability. Bringing beach life to the city, the prominent TPU arch draws inspiration from a whale's tail and adds structure, while the iconic TPU fingers on the sides nod to palm trees and ocean waves. Padded, low-top collar looks sleek and feels great. Reinforced toe tip for added durability.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "16",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_air_nitrogen.jpg",
+    },
+  },
+  {
+    productId: "prod_kkcrest1low",
+    priceId: "price_kkcrest1low",
+    name: "K. K. A. Signature Crest-1 Low",
+    description:
+      "K. K. A. Signature Crest-1 Low — classic low-top basketball silhouette in premium white leather with the signature Khomplete Khemistri crest. Perforated toe box for ventilation, padded collar, and durable rubber outsole.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "17",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_signature_crest.png",
+    },
+  },
+  {
+    productId: "prod_kkcrest2high",
+    priceId: "price_kkcrest2high",
+    name: "Signature Crest - 2 High",
+    description:
+      "Signature Crest - 2 High — high-top basketball silhouette in premium white leather with the signature Khomplete Khemistri crest and ankle strap. Perforated toe box for ventilation, padded high collar, and durable rubber outsole.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "18",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_signature_crest.png",
     },
   },
 ];

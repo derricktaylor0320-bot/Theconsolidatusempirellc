@@ -37,6 +37,11 @@ import {
 } from "@shared/elementsBodyButter";
 import type { ProductVariant } from "@/lib/productVariants";
 import { Minus, Plus, PenLine } from "lucide-react";
+import {
+  FOOTWEAR_CUSTOMIZATION_DISCLAIMER,
+  FOOTWEAR_LEAD_TIME_NOTE,
+  isFootwearCustomizable,
+} from "@shared/footwear";
 
 const MAX_QTY = 99;
 
@@ -79,6 +84,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
     imageFit === "contain" || autoContain ? "object-contain p-2" : "object-cover";
   const { addItem } = useCart();
   const usesCaseType = !!caseType && caseType.trim().length > 0;
+  const needsFootwear = isFootwearCustomizable({ category });
   const logoChoices = logoOptions
     ? logoOptions.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -478,6 +484,26 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                 caseType={caseType as string}
               />
             </>
+          ) : needsFootwear && priceId ? (
+            <div className="w-full mt-1 space-y-3">
+              <p
+                className="text-xs text-secondary-foreground/80 leading-relaxed rounded-lg border border-primary/20 bg-primary/5 p-3"
+                data-testid={`text-footwear-disclaimer-${title.toLowerCase().replace(/\s+/g, '-')}`}
+              >
+                {FOOTWEAR_CUSTOMIZATION_DISCLAIMER}
+              </p>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                {FOOTWEAR_LEAD_TIME_NOTE}
+              </p>
+              <Link href={`/product/${priceId}`} className="w-full block">
+                <Button
+                  className="w-full uppercase tracking-wider font-display text-sm h-10 bg-black text-white hover:bg-primary hover:text-primary-foreground"
+                  data-testid={`button-customize-footwear-${title.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  Customize &amp; Order
+                </Button>
+              </Link>
+            </div>
           ) : (
             <>
               {needsLogo && (

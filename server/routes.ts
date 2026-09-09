@@ -186,6 +186,31 @@ function isOwnedReviewPhotoUrl(url: unknown): url is string {
   );
 }
 
+// Footwear custom design uploads — optional customer artwork for shoe orders.
+const CUSTOM_DESIGN_DIR = path.join(MEDIA_DIR, "custom-designs");
+try {
+  fs.mkdirSync(CUSTOM_DESIGN_DIR, { recursive: true });
+} catch (err) {
+  console.error("Failed to create CUSTOM_DESIGN_DIR:", err);
+}
+const customDesignUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, CUSTOM_DESIGN_DIR),
+    filename: (_req, file, cb) => {
+      const ext = ALLOWED_AVATAR_TYPES.get(file.mimetype) || ".bin";
+      cb(null, `${randomUUID()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_AVATAR_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Please upload a JPG, PNG, WebP, or GIF image."));
+    }
+  },
+});
+
 const mediaUpload = multer({
   storage: multer.diskStorage({
     destination: (_req, _file, cb) => cb(null, MEDIA_DIR),
@@ -506,6 +531,30 @@ export async function registerRoutes(
     }
   });
 
+  // Shoppers: upload an optional custom logo/design for footwear customization.
+  app.post(
+    "/api/footwear/custom-design",
+    (req, res, next) => {
+      customDesignUpload.single("design")(req, res, (err: any) => {
+        if (err) {
+          const message =
+            err.code === "LIMIT_FILE_SIZE"
+              ? "Image is too large (max 5 MB)."
+              : err.message || "Upload failed";
+          return res.status(400).json({ error: message });
+        }
+        next();
+      });
+    },
+    async (req, res) => {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ error: "No image was uploaded" });
+      }
+      res.status(201).json({ url: `/media-files/custom-designs/${file.filename}` });
+    },
+  );
+
   // Signed-in customers: upload a product photo for a review (up to 3 per
   // review, enforced on the review submit). Returns a site-hosted URL.
   app.post(
@@ -807,7 +856,7 @@ export async function registerRoutes(
           error: `"${(priceRow.product_name as string) || productName || "This item"}" is coming soon.`,
         });
       }
-      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor, req.body?.selectedSize, priceRow.product_name, req.body?.selectedScent);
+      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor, req.body?.selectedSize, priceRow.product_name, req.body?.selectedScent, req.body?.customDesignUrl);
       if (check.required && !check.ok) {
         return res.status(400).json({
           error: customizationErrorMessage(
@@ -1110,7 +1159,7 @@ export async function registerRoutes(
             error: `"${priceRow.product_name || "One of your items"}" is coming soon.`,
           });
         }
-        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor, item?.selectedSize, priceRow.product_name, item?.selectedScent);
+        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor, item?.selectedSize, priceRow.product_name, item?.selectedScent, item?.customDesignUrl);
         if (check.required && !check.ok) {
           return res.status(400).json({
             error: customizationErrorMessage(check.kind, priceRow.product_name),
