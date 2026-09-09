@@ -5,7 +5,7 @@ import { getStorefrontProductsDetailed } from "./storefrontProducts";
 // Every item this sync creates in Square carries a variation SKU starting with
 // this prefix. That namespace is how we recognize "our" mirrored items on later
 // runs (to update/remove them) while NEVER touching items the owner created by
-// hand in Square (e.g. the in-person hot dog menu).
+// hand in Square (e.g. the in-person hot dog menu and flea market Elements).
 const SKU_PREFIX = "KKWEB-";
 
 const SQUARE_NAME_MAX = 512;

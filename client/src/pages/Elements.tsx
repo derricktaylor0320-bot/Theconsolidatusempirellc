@@ -17,7 +17,13 @@ import {
   elementsDuoSeparateDollars,
   isElementsDuoProduct,
 } from "@shared/elementsDuo";
+import {
+  FLEA_MARKET_ELEMENTS_LINES,
+  fleaMarketSquareSummary,
+} from "@shared/inPersonSales";
 import { groupProductVariants } from "@/lib/productVariants";
+import { Card, CardContent } from "@/components/ui/card";
+import { Store } from "lucide-react";
 
 export default function Elements() {
   const { data: products, isLoading: loadingElements } = useQuery({
@@ -145,6 +151,49 @@ export default function Elements() {
             ))}
           </div>
         )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mt-16 max-w-3xl mx-auto"
+        >
+          <Card className="border-primary/40" data-testid="card-flea-market">
+            <CardContent className="p-8">
+              <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
+                <span className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/15 text-primary border border-primary/40 shrink-0">
+                  <Store className="w-7 h-7" />
+                </span>
+                <div>
+                  <h2 className="font-display text-2xl font-bold uppercase tracking-tight">
+                    Local Flea Markets
+                  </h2>
+                  <p className="text-muted-foreground mt-1">
+                    {fleaMarketSquareSummary()}
+                  </p>
+                </div>
+              </div>
+              <ul className="grid gap-3 sm:grid-cols-3">
+                {FLEA_MARKET_ELEMENTS_LINES.map((line) => (
+                  <li
+                    key={line.name}
+                    className="rounded-lg border border-border/50 px-4 py-3 text-sm"
+                    data-testid={`text-flea-market-${line.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  >
+                    <p className="font-medium text-foreground">{line.name}</p>
+                    <p className="text-muted-foreground mt-1">{line.detail}</p>
+                    <p className="text-primary font-medium mt-2">{line.pricing}</p>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted-foreground text-center mt-6">
+                Online orders on this site checkout with Stripe. In-person flea market
+                and hot dog sales use Square.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         <p className="text-xs text-muted-foreground max-w-3xl mx-auto text-center mt-16">
           These statements have not been evaluated by the Food and Drug

@@ -11,7 +11,7 @@ The Consolidatus Empire LLC is a premium e-commerce platform featuring multiple 
 - **Interim Railway URL:** https://khomplete-khemistri-apparel.up.railway.app (works until the custom domain verifies)
 - **Env:** Set `APP_URL=https://tceholdings.org` (or `PUBLIC_URL`) on Railway once the domain is live so checkout redirects, password-reset emails, review links, and Open Graph tags use the custom domain
 - **Analytics:** Set `GA_MEASUREMENT_ID=G-XXXXXXXXXX` on Railway (your GA4 measurement ID from Google Analytics → Admin → Data Streams). The storefront loads GA4 after cookie consent and tracks `view_item`, `begin_checkout`, and `purchase` for Stripe checkout. Test in GA4 Realtime and DebugView (`?ga_debug=1` on any page URL).
-- **Payments:** Website sales use **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`). **Square** stays for in-person operations (Premium Choice Hot Dogs cart) and Pocket Booster repayment invoices (`SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`).
+- **Payments:** Website sales use **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`). **Square** stays for in-person operations — Premium Choice Hot Dogs, local flea market Elements (deodorant, whipped body butters, 3-in-1 wash), and Pocket Booster repayment invoices (`SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`).
 - **Services:**
   - `poetic-balance` — the web app, deployed from GitHub repo `derricktaylor0320-bot/Theconsolidatusempirellc` (branch `main`)
   - `Postgres` — database holding all migrated store data (Stripe-synced catalog + app tables)
@@ -138,7 +138,7 @@ The application uses two database schemas:
   - Environment-based configuration via `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY`
   - Catalog schema tables (`stripe.products`, `stripe.prices`) populated by `ensureCatalogData()`
   - Stripe Checkout sessions with state-based sales tax
-- **Square:** In-person Premium Choice Hot Dogs + Pocket Booster repayment invoices only
+- **Square:** In-person sales only — Premium Choice Hot Dogs, local flea market Elements (deodorant, body butters, 3-in-1 wash), and Pocket Booster repayment invoices
   - `SQUARE_ACCESS_TOKEN` / `SQUARE_LOCATION_ID`
   - Website catalog is no longer mirrored into Square on boot
 

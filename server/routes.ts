@@ -260,8 +260,8 @@ export async function registerRoutes(
   // Ensure the catalog facts (product rows, prices, metadata) hold in whatever
   // DB this server is connected to — dev now, Railway prod on deploy. This is
   // the authoritative source of the storefront's product list. Website checkout
-  // runs through Stripe; Square is reserved for in-person operations (e.g.
-  // Premium Choice Hot Dogs) and Pocket Booster repayment invoices.
+  // runs through Stripe; Square is reserved for in-person operations (hot dogs,
+  // flea market Elements, Pocket Booster invoices).
   ensureCatalogData().catch(err => console.error('ensureCatalogData failed:', err));
   
   // Serve uploaded media files (read-only). express.static honors HTTP range
@@ -1419,7 +1419,8 @@ export async function registerRoutes(
   });
 
   // Protected: legacy manual sync into Square Item Library. Website checkout no
-  // longer uses Square — keep Square for in-person operations (e.g. hot dogs).
+  // longer uses Square — keep Square Item Library for in-person menus only
+  // (hot dogs, flea market Elements). Owner-managed in the Square dashboard.
   app.post("/api/admin/square/sync-catalog", requireOwner, async (req, res) => {
     try {
       if (!squareConfigured()) {
