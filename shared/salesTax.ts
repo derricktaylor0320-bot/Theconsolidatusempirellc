@@ -1,7 +1,7 @@
 // State-based sales tax for checkout. The buyer picks the state their order
-// ships to BEFORE we create the Square-hosted checkout (Square only collects
-// the address during its own checkout page — too late to add tax), and the
-// server adds an order-level percentage tax so Square computes and charges it.
+// ships to BEFORE we create the Stripe Checkout session (Stripe collects the
+// address during its own checkout page — too late to add tax), and the server
+// adds a sales-tax line item so Stripe charges it.
 //
 // Rates are the state-level sales tax rates (no local/county add-ons). The
 // canonical list lives here so the client estimate and the server-authoritative

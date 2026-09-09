@@ -40,9 +40,8 @@ async function initCatalogSchema() {
 
   try {
     // Ensure the product catalog tables exist. This only creates the database
-    // schema the storefront reads from — it does NOT connect to any Stripe
-    // account, sync from Stripe, or handle any payments. Payments run entirely
-    // through Square, and the catalog is populated by ensureCatalogData().
+    // schema the storefront reads from. Website checkout runs through Stripe;
+    // the catalog is populated by ensureCatalogData().
     console.log('Initializing catalog schema...');
     await runMigrations({
       databaseUrl,

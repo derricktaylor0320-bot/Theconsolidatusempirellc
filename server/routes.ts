@@ -1,10 +1,15 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
-import { createSquareOrderPaymentLink, retrieveSquareOrder } from "./squareClient";
+import { retrieveSquareOrder } from "./squareClient";
 import { stateTaxInfo } from "@shared/salesTax";
 import { getStorefrontProducts, dedupeByName } from "./storefrontProducts";
 import { catalogStorage } from "./catalogStorage";
 import { syncStorefrontToSquare, squareConfigured } from "./squareCatalogSync";
+import {
+  createStripeCheckoutSession,
+  retrieveStripeCheckoutOrder,
+} from "./stripeCheckout";
+import { getStripePublishableKey, stripeConfigured } from "./stripeClient";
 import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
 import { trackingUrlFor } from "@shared/shipping";
 import { resolvePublicSiteUrl } from "@shared/site";
@@ -239,33 +244,25 @@ export async function registerRoutes(
     res.json({ gaMeasurementId });
   });
 
+  // Stripe publishable key for any client-side Stripe.js usage.
+  app.get("/api/stripe/config", async (_req, res) => {
+    try {
+      if (!stripeConfigured()) {
+        return res.status(503).json({ error: "Stripe is not configured." });
+      }
+      const publishableKey = await getStripePublishableKey();
+      res.json({ publishableKey });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get Stripe config" });
+    }
+  });
+
   // Ensure the catalog facts (product rows, prices, metadata) hold in whatever
   // DB this server is connected to — dev now, Railway prod on deploy. This is
-  // the authoritative source of the storefront's product list; there is no
-  // Stripe account involved anymore.
-  ensureCatalogData()
-    .catch(err => console.error('ensureCatalogData failed:', err))
-    .finally(() => {
-      // Mirror the storefront catalog into Square's Item Library so the
-      // owner sees every website product in Square. Non-blocking and fully
-      // guarded: skipped when Square isn't configured, and failures never
-      // affect startup. Idempotent, so re-running on each boot is safe.
-      // Production-only: dev and prod share one Square account but can hold
-      // different product sets, so letting both auto-sync would ping-pong
-      // (each boot deleting the other's items). Production is the authority;
-      // dev can still sync on demand via /api/admin/square/sync-catalog.
-      if (squareConfigured() && process.env.NODE_ENV === 'production') {
-        syncStorefrontToSquare()
-          .then(r =>
-            console.log(
-              `Square catalog sync: ${r.created} created, ${r.updated} updated, ${r.archived} removed${r.pruned ? '' : ' (prune skipped)'} (${r.total} products).`,
-            ),
-          )
-          .catch(err =>
-            console.error('Square catalog sync failed:', err?.message || err),
-          );
-      }
-    });
+  // the authoritative source of the storefront's product list. Website checkout
+  // runs through Stripe; Square is reserved for in-person operations (e.g.
+  // Premium Choice Hot Dogs) and Pocket Booster repayment invoices.
+  ensureCatalogData().catch(err => console.error('ensureCatalogData failed:', err));
   
   // Serve uploaded media files (read-only). express.static honors HTTP range
   // requests, so video/audio scrubbing works. Registered before the SPA/vite
@@ -743,8 +740,8 @@ export async function registerRoutes(
   });
 
   // Resolves the buyer's ship-to state (collected on OUR site before checkout,
-  // since Square only asks for the address on its own hosted page — too late to
-  // add tax) into a Square order-level percentage tax. The rate comes from the
+  // since Stripe Checkout collects the address on its own hosted page — too late
+  // to add tax) into a percentage sales-tax line item. The rate comes from the
   // shared state table — server-authoritative, never a client-sent amount.
   // Returns { error } when the state is missing/unknown; tax is undefined for
   // the five no-sales-tax states.
@@ -766,9 +763,15 @@ export async function registerRoutes(
     };
   }
 
-  // Create checkout session (Square-hosted checkout)
+  // Create checkout session (Stripe Checkout)
   app.post("/api/create-checkout-session", async (req, res) => {
     try {
+      if (!stripeConfigured()) {
+        return res.status(503).json({
+          error: "Stripe is not configured (STRIPE_SECRET_KEY / STRIPE_PUBLISHABLE_KEY).",
+        });
+      }
+
       const { priceId, productName, selectedLogo } = req.body;
 
       const taxResult = orderTaxForState(req.body?.shipToState);
@@ -821,11 +824,7 @@ export async function registerRoutes(
 
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 
-      // Square creates the order behind the payment link and, on a completed
-      // checkout, redirects the buyer back to redirectUrl with the Square
-      // `orderId` appended as a query param. The success page uses that id to
-      // verify payment and record the order — so we never persist anything here.
-      const { url } = await createSquareOrderPaymentLink({
+      const { url } = await createStripeCheckoutSession({
         lineItems: [
           {
             name: (priceRow.product_name as string) || productName || "Order",
@@ -834,8 +833,14 @@ export async function registerRoutes(
             note: check.note,
           },
         ],
-        tax: taxResult.tax,
-        redirectUrl: `${baseUrl}/checkout/success`,
+        tax: taxResult.tax
+          ? {
+              name: taxResult.tax.name,
+              percentage: Number(taxResult.tax.percentage),
+            }
+          : undefined,
+        successUrl: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${baseUrl}/checkout/cancel`,
       });
 
       res.json({ url });
@@ -845,9 +850,15 @@ export async function registerRoutes(
     }
   });
 
-  // Create custom checkout session for logo customization (Square-hosted checkout)
+  // Create custom checkout session for logo customization (Stripe Checkout)
   app.post("/api/create-custom-checkout", async (req, res) => {
     try {
+      if (!stripeConfigured()) {
+        return res.status(503).json({
+          error: "Stripe is not configured (STRIPE_SECRET_KEY / STRIPE_PUBLISHABLE_KEY).",
+        });
+      }
+
       const { logoId, logoName, garmentType, garmentId, placements, placementDescription, quantity } = req.body;
 
       if (!logoId || !garmentId) {
@@ -942,9 +953,7 @@ export async function registerRoutes(
 
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 
-      // See note in /api/create-checkout: Square appends the order id on the
-      // redirect, and the success page verifies + records it. Nothing persisted here.
-      const { url } = await createSquareOrderPaymentLink({
+      const { url } = await createStripeCheckoutSession({
         lineItems: [
           {
             name: lineName,
@@ -953,8 +962,14 @@ export async function registerRoutes(
             note: lineNote,
           },
         ],
-        tax: taxResult.tax,
-        redirectUrl: `${baseUrl}/checkout/success`,
+        tax: taxResult.tax
+          ? {
+              name: taxResult.tax.name,
+              percentage: Number(taxResult.tax.percentage),
+            }
+          : undefined,
+        successUrl: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${baseUrl}/checkout/cancel`,
       });
 
       res.json({ url });
@@ -964,9 +979,15 @@ export async function registerRoutes(
     }
   });
 
-  // Create checkout session for an entire cart (one Square order, many items)
+  // Create checkout session for an entire cart (one Stripe Checkout, many items)
   app.post("/api/create-cart-checkout", async (req, res) => {
     try {
+      if (!stripeConfigured()) {
+        return res.status(503).json({
+          error: "Stripe is not configured (STRIPE_SECRET_KEY / STRIPE_PUBLISHABLE_KEY).",
+        });
+      }
+
       const { items } = req.body;
 
       if (!Array.isArray(items) || items.length === 0) {
@@ -1132,20 +1153,26 @@ export async function registerRoutes(
 
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
 
-      // We do NOT persist an order here. Square creates the order behind the
-      // payment link and, on a completed checkout, redirects back with the
-      // Square `orderId` appended to redirectUrl. The success page uses that id
-      // to verify payment and record the order — so abandoned/cancelled
-      // checkouts never create a phantom order.
-      const { url } = await createSquareOrderPaymentLink({
+      const successUrl = appliedDiscount
+        ? `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&discount=${encodeURIComponent(appliedDiscount.code)}`
+        : `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
+
+      const { url } = await createStripeCheckoutSession({
         lineItems,
-        tax: taxResult.tax,
-        discount: appliedDiscount
-          ? { name: appliedDiscount.name, percentage: appliedDiscount.percentage }
+        tax: taxResult.tax
+          ? {
+              name: taxResult.tax.name,
+              percentage: Number(taxResult.tax.percentage),
+            }
           : undefined,
-        redirectUrl: appliedDiscount
-          ? `${baseUrl}/checkout/success?discount=${encodeURIComponent(appliedDiscount.code)}`
-          : `${baseUrl}/checkout/success`,
+        discount: appliedDiscount
+          ? {
+              name: appliedDiscount.name,
+              percentage: Number(appliedDiscount.percentage),
+            }
+          : undefined,
+        successUrl,
+        cancelUrl: `${baseUrl}/checkout/cancel`,
       });
 
       res.json({ url });
@@ -1156,9 +1183,9 @@ export async function registerRoutes(
   });
 
   // Confirm a checkout when the buyer returns to the success page. We look the
-  // order up in Square (the source of truth), verify it was actually paid, and
-  // only then record it and return the purchased items for the receipt. A bare
-  // redirect is never enough to mark something paid.
+  // session up in Stripe (the source of truth), verify it was actually paid, and
+  // only then record it and return the purchased items for the receipt. Legacy
+  // Square order ids are still accepted for older checkouts.
   app.post("/api/orders/confirm", async (req, res) => {
     try {
       const ref =
@@ -1167,7 +1194,81 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Missing order reference." });
       }
 
-      // Already recorded (e.g. the buyer refreshed) — return what we have.
+      const isStripeSession = ref.startsWith("cs_");
+
+      if (isStripeSession) {
+        const existing = await storage.getOrderByStripeSessionId(ref);
+        if (existing && existing.status === "paid") {
+          return res.json(existing);
+        }
+
+        const stripeOrder = await retrieveStripeCheckoutOrder(ref);
+        if (!stripeOrder) {
+          return res.status(404).json({ error: "Order not found." });
+        }
+
+        if (!stripeOrder.isPaid) {
+          return res.json({
+            status: "pending",
+            stripeSessionId: stripeOrder.sessionId,
+            items: stripeOrder.items,
+            totalCents: stripeOrder.totalCents,
+          });
+        }
+
+        const recorded = await storage.recordPaidOrder({
+          stripeSessionId: stripeOrder.sessionId,
+          items: stripeOrder.items,
+          totalCents: stripeOrder.totalCents,
+          customerEmail: stripeOrder.buyerEmail,
+          customerName: stripeOrder.buyerName,
+          shippingAddress: stripeOrder.shippingAddress,
+        });
+
+        const discountCode = parseDiscountCode(req.body?.discountCode);
+        const user = req.user as User | undefined;
+        if (
+          user &&
+          discountCode?.code === DISCOUNT_CODES.PHOTO_REVIEW &&
+          (await storage.hasUnusedPhotoReviewDiscount(user.id))
+        ) {
+          try {
+            await storage.recordDiscountRedemption({
+              userId: user.id,
+              code: discountCode.code,
+              squareOrderId: null,
+            });
+          } catch (redeemError) {
+            console.error("Failed to record discount redemption:", redeemError);
+          }
+        }
+
+        if (stripeOrder.buyerEmail) {
+          try {
+            const receipt = buildOrderReceiptEmail({
+              items: stripeOrder.items,
+              totalCents: stripeOrder.totalCents,
+              orderRef: stripeOrder.sessionId,
+            });
+            await sendEmail({
+              to: stripeOrder.buyerEmail,
+              subject: receipt.subject,
+              html: receipt.html,
+              text: receipt.text,
+            });
+          } catch (emailError) {
+            console.error("Failed to send order receipt email:", emailError);
+          }
+        } else {
+          console.warn(
+            `[orders] No buyer email found for Stripe session ${stripeOrder.sessionId}; skipping receipt email.`,
+          );
+        }
+
+        return res.json(recorded);
+      }
+
+      // Legacy Square checkout confirmation (older orders only).
       const existing = await storage.getOrderBySquareId(ref);
       if (existing && existing.status === "paid") {
         return res.json(existing);
@@ -1179,8 +1280,6 @@ export async function registerRoutes(
       }
 
       if (!squareOrder.isPaid) {
-        // Payment not (yet) confirmed by Square. Show the items but make it
-        // clear this isn't a recorded sale, and never persist it.
         return res.json({
           status: "pending",
           squareOrderId: squareOrder.orderId,
@@ -1198,7 +1297,6 @@ export async function registerRoutes(
         shippingAddress: squareOrder.shippingAddress,
       });
 
-      // Redeem one-time photo-review discount after payment is confirmed.
       const discountCode = parseDiscountCode(req.body?.discountCode);
       const user = req.user as User | undefined;
       if (
@@ -1217,10 +1315,6 @@ export async function registerRoutes(
         }
       }
 
-      // Send the buyer an itemized receipt. This runs only on the first
-      // confirmation (a refresh hits the early "already paid" return above), so
-      // we don't spam the buyer. Best-effort: never fail the request if the
-      // email can't be sent — the order is already recorded.
       if (squareOrder.buyerEmail) {
         try {
           const receipt = buildOrderReceiptEmail({
@@ -1324,11 +1418,8 @@ export async function registerRoutes(
     }
   });
 
-  // Protected: mirror every storefront product into the owner's Square Item
-  // Library (one-way: website -> Square). Idempotent and safe to re-run; only
-  // touches items this sync created (SKU prefix KKWEB-), never the owner's
-  // hand-made Square items. Owner-gated since it writes to the live Square
-  // account.
+  // Protected: legacy manual sync into Square Item Library. Website checkout no
+  // longer uses Square — keep Square for in-person operations (e.g. hot dogs).
   app.post("/api/admin/square/sync-catalog", requireOwner, async (req, res) => {
     try {
       if (!squareConfigured()) {

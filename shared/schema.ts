@@ -29,10 +29,11 @@ export interface OrderItem {
 }
 
 // Paid orders captured at checkout. We do NOT persist anything when the buyer
-// is sent to Square; only once they return AND Square confirms the order is
-// paid do we record it (keyed by the Square order id). This means abandoned or
-// cancelled checkouts never create a row. `status` is kept for forward
-// flexibility but persisted rows are always "paid".
+// is sent to Stripe Checkout; only once they return AND Stripe confirms the
+// session is paid do we record it (keyed by the Stripe session id). Legacy
+// Square-backed rows remain keyed by square_order_id. Abandoned or cancelled
+// checkouts never create a row. `status` is kept for forward flexibility but
+// persisted rows are always "paid".
 export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   status: text("status").notNull().default("pending"), // 'pending' | 'paid'
@@ -40,10 +41,11 @@ export const orders = pgTable("orders", {
   fulfillmentStatus: text("fulfillment_status").notNull().default("unfulfilled"), // 'unfulfilled' | 'fulfilled'
   items: jsonb("items").$type<OrderItem[]>().notNull(),
   totalCents: integer("total_cents").notNull(),
+  stripeSessionId: text("stripe_session_id").unique(),
   squareOrderId: text("square_order_id").unique(),
-  // Buyer contact + ship-to details captured from Square at checkout. The owner
-  // needs the address to place the order with the fulfilling company (Amazon,
-  // Etsy, etc.), and the email to send the shipping/tracking notification.
+  // Buyer contact + ship-to details captured at checkout. The owner needs the
+  // address to place the order with the fulfilling company (Amazon, Etsy, etc.),
+  // and the email to send the shipping/tracking notification.
   customerEmail: text("customer_email"),
   customerName: text("customer_name"),
   shippingAddress: text("shipping_address"),

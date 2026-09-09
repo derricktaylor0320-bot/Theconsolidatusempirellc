@@ -227,7 +227,14 @@ export default function Orders() {
                         >
                           {formatDate(order.createdAt)}
                         </p>
-                        {order.squareOrderId ? (
+                        {order.stripeSessionId ? (
+                          <p
+                            className="text-xs text-muted-foreground/70 font-mono mt-1"
+                            data-testid={`text-order-stripe-id-${order.id}`}
+                          >
+                            Stripe ID: {order.stripeSessionId}
+                          </p>
+                        ) : order.squareOrderId ? (
                           <p
                             className="text-xs text-muted-foreground/70 font-mono mt-1"
                             data-testid={`text-order-square-id-${order.id}`}
