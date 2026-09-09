@@ -11,7 +11,8 @@ export interface CheckoutLineItem {
 
 export interface CheckoutDiscount {
   name: string;
-  percentage: number;
+  percentage?: number;
+  fixedAmountCents?: number;
 }
 
 export interface CheckoutTax {
@@ -46,6 +47,53 @@ function applyPercentDiscount(
     ...item,
     amountCents: Math.max(0, Math.round(item.amountCents * factor)),
   }));
+}
+
+/** Spread a fixed discount across line items (Stripe requires non-negative unit amounts). */
+function applyFixedDiscount(
+  items: CheckoutLineItem[],
+  discountCents: number,
+): CheckoutLineItem[] {
+  if (discountCents <= 0) return items;
+  const subtotal = lineSubtotalCents(items);
+  if (subtotal <= 0) return items;
+
+  let remaining = Math.min(discountCents, subtotal - 50);
+  const result = items.map((item) => ({ ...item }));
+
+  for (let i = result.length - 1; i >= 0 && remaining > 0; i--) {
+    const item = result[i];
+    const qty = Math.max(1, item.quantity);
+    const lineTotal = item.amountCents * qty;
+    if (lineTotal <= 50) continue;
+
+    const lineDiscount = Math.min(
+      remaining,
+      lineTotal - 50,
+      Math.round((lineTotal / subtotal) * discountCents),
+    );
+    if (lineDiscount <= 0) continue;
+
+    const perUnit = Math.floor(lineDiscount / qty);
+    if (perUnit <= 0) continue;
+
+    item.amountCents = Math.max(50, item.amountCents - perUnit);
+    remaining -= perUnit * qty;
+  }
+
+  if (remaining > 0) {
+    for (let i = result.length - 1; i >= 0 && remaining > 0; i--) {
+      const item = result[i];
+      const qty = Math.max(1, item.quantity);
+      const maxReduction = item.amountCents - 50;
+      if (maxReduction <= 0) continue;
+      const perUnit = Math.min(maxReduction, Math.ceil(remaining / qty));
+      item.amountCents -= perUnit;
+      remaining -= perUnit * qty;
+    }
+  }
+
+  return result;
 }
 
 function toStripeLineItems(
@@ -95,9 +143,11 @@ export async function createStripeCheckoutSession(input: {
 }): Promise<{ url: string; sessionId: string }> {
   const stripe = await getUncachableStripeClient();
 
-  const discountedItems = input.discount
-    ? applyPercentDiscount(input.lineItems, input.discount.percentage)
-    : input.lineItems;
+  const discountedItems = input.discount?.fixedAmountCents
+    ? applyFixedDiscount(input.lineItems, input.discount.fixedAmountCents)
+    : input.discount?.percentage
+      ? applyPercentDiscount(input.lineItems, input.discount.percentage)
+      : input.lineItems;
 
   const stripeLineItems = toStripeLineItems(discountedItems);
 

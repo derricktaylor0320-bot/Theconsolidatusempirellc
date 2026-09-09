@@ -75,7 +75,7 @@ function productImageFit(product: StorefrontProduct) {
     "kk_custom_logo_bikini",
     "kk_custom_logo_jeans",
     "kk_custom_logo_shorts",
-    "kk_sneaker",
+    "kk_air_genesis",
   ];
 
   return containImages.some((name) => product.imageUrl.includes(name))

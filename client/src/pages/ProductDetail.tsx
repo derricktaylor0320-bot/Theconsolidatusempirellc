@@ -54,6 +54,8 @@ import {
 } from "@shared/elementsDuo";
 import { BODY_BUTTER_IMAGE, resolveStorefrontImageUrl } from "@shared/productImages";
 import { trackViewItem } from "@/lib/analytics";
+import { isAirGenesisProduct } from "@shared/airGenesis";
+import AirGenesisEmailCapture from "@/components/AirGenesisEmailCapture";
 
 const MAX_QTY = 99;
 
@@ -211,6 +213,7 @@ function ProductDetailContent({
   const comingSoon = !!product.comingSoon;
   const supplementInfo = getSupplementInfo(product.title);
   const isDeodorant = isElementsDeodorantProduct(product.priceId, product.title);
+  const isAirGenesis = isAirGenesisProduct(product.priceId, product.title);
   const isBodyButter = isElementsBodyButterProduct(product.priceId, product.title);
   const hasTieredPricing = isDeodorant || isBodyButter;
 
@@ -712,7 +715,7 @@ function ProductDetailContent({
           <img
             src={product.imageUrl}
             alt={product.title}
-            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") || product.imageUrl?.includes("kk_his_hers_watch") ? "object-contain p-3" : "object-cover"} w-full h-full`}
+            className={`${product.productType === "vintage" || product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") || product.imageUrl?.includes("kk_his_hers_watch") ? "object-contain p-3" : "object-cover"} w-full h-full`}
             data-testid="img-product-detail"
           />
           {soldOut && (
@@ -806,6 +809,10 @@ function ProductDetailContent({
             >
               {product.description}
             </p>
+          )}
+
+          {isAirGenesis && (
+            <AirGenesisEmailCapture showRepeatVisitorModal />
           )}
 
           {showDuoUpsell && duoProduct?.priceId && (
