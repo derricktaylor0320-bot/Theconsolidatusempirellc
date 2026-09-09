@@ -149,6 +149,7 @@ export default function Cart() {
             selectedColor: i.selectedColor,
             selectedSize: i.selectedSize,
             selectedScent: i.selectedScent,
+            customDesignUrl: i.customDesignUrl,
             bundleId: i.bundleId,
           })),
         }),
@@ -251,7 +252,7 @@ export default function Cart() {
                         </h3>
                         <button
                           onClick={() =>
-                            removeItem(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent)
+                            removeItem(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent, item.customDesignUrl)
                           }
                           className="text-muted-foreground hover:text-red-500 shrink-0"
                           data-testid={`button-remove-${slug}`}
@@ -282,6 +283,14 @@ export default function Cart() {
                           data-testid={`text-cart-size-${slug}`}
                         >
                           Size: {item.selectedSize}
+                        </p>
+                      )}
+                      {item.customDesignUrl && (
+                        <p
+                          className="text-xs text-muted-foreground mt-1"
+                          data-testid={`text-cart-custom-design-${slug}`}
+                        >
+                          Custom design uploaded
                         </p>
                       )}
                       {careBasketSelection && (
@@ -387,6 +396,7 @@ export default function Cart() {
                                 item.selectedColor,
                                 item.selectedSize,
                                 item.selectedScent,
+                                item.customDesignUrl,
                               )
                             }
                             disabled={item.quantity <= 1}
@@ -413,6 +423,7 @@ export default function Cart() {
                                 item.selectedColor,
                                 item.selectedSize,
                                 item.selectedScent,
+                                item.customDesignUrl,
                               )
                             }
                             data-testid={`button-increase-${slug}`}

@@ -5,6 +5,10 @@ import BrandSectionBanner from "@/components/BrandSectionBanner";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
+import {
+  FOOTWEAR_CUSTOMIZATION_DISCLAIMER,
+  FOOTWEAR_LEAD_TIME_NOTE,
+} from "@shared/footwear";
 
 export default function Apparel() {
   const { data: products, isLoading } = useQuery({
@@ -40,7 +44,7 @@ export default function Apparel() {
           colors={product.colors}
           soldOutColors={product.soldOutColors}
           scents={product.scents}
-          imageFit={product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") ? "contain" : "cover"}
+          imageFit={product.imageUrl?.includes("kk_sneaker") || product.imageUrl?.includes("kk_air_genesis") || product.imageUrl?.includes("kk_air_spectrum") || product.imageUrl?.includes("kk_air_nitrogen") || product.imageUrl?.includes("kk_signature_crest") || product.imageUrl?.includes("kk_custom_logo_jeans") || product.imageUrl?.includes("kk_custom_logo_shorts") || product.imageUrl?.includes("kk_custom_logo_bikini") || product.imageUrl?.includes("kk_branded_logo_lighter") ? "contain" : "cover"}
         />
       ))}
     </div>
@@ -149,6 +153,24 @@ export default function Apparel() {
             )}
           </div>
         )}
+
+        {/* Footwear Customization */}
+        <div className="max-w-4xl mx-auto bg-primary/5 p-8 md:p-12 rounded-xl border border-primary/20 mb-12">
+          <h3 className="text-2xl font-display font-bold uppercase tracking-wide text-primary mb-6 text-center">
+            Footwear Customization
+          </h3>
+          <div className="space-y-4 text-secondary-foreground/80 leading-relaxed">
+            <p data-testid="text-footwear-disclaimer-apparel">
+              {FOOTWEAR_CUSTOMIZATION_DISCLAIMER}
+            </p>
+            <p data-testid="text-footwear-lead-time-apparel">
+              {FOOTWEAR_LEAD_TIME_NOTE}
+            </p>
+            <p>
+              <span className="font-bold text-primary">Sizing:</span> Men&apos;s US 4–14 and Women&apos;s US 5.5–15.5.
+            </p>
+          </div>
+        </div>
 
         {/* Pricing Disclaimers Section */}
         <div className="max-w-4xl mx-auto bg-muted/30 p-8 md:p-12 rounded-xl border border-primary/10">
