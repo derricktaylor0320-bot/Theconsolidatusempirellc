@@ -9,6 +9,7 @@ import {
   FOOTWEAR_CUSTOMIZATION_DISCLAIMER,
   FOOTWEAR_LEAD_TIME_NOTE,
 } from "@shared/footwear";
+import shoewearLineBanner from "@assets/generated_images/kk_shoewear_apparel_line_banner.png";
 
 export default function Apparel() {
   const { data: products, isLoading } = useQuery({
@@ -19,10 +20,13 @@ export default function Apparel() {
     (p: any) => p.category !== 'Sleepwear' && p.category !== 'Intimates'
   );
   
+  const footwearProducts = allProducts.filter((p: any) => p.category === "Footwear");
   const mensProducts = allProducts.filter((p: any) => p.gender === 'Men');
   const womensProducts = allProducts.filter((p: any) => p.gender === 'Women');
   const kidsProducts = allProducts.filter((p: any) => p.gender === 'Kids');
-  const unisexProducts = allProducts.filter((p: any) => !p.gender || p.gender === 'Unisex');
+  const unisexProducts = allProducts.filter(
+    (p: any) => (!p.gender || p.gender === 'Unisex') && p.category !== "Footwear",
+  );
 
   const renderProductGrid = (productList: any[]) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
@@ -151,26 +155,47 @@ export default function Apparel() {
                 </div>
               </section>
             )}
+
+            {footwearProducts.length > 0 && (
+              <section>
+                <div className="border-t border-primary/20 pt-12">
+                  <BrandSectionBanner
+                    imageSrc={shoewearLineBanner}
+                    imageAlt="Introducing our Shoewear Apparel Line — Khomplete Khemistri Footwear"
+                    caption="Customizable sneakers, runners, and boots — upload your design, pick your logo, and step out in Khomplete Khemistri."
+                  />
+                  <h2
+                    className="font-display text-3xl font-bold uppercase tracking-wider text-center mb-8 text-primary"
+                    data-testid="section-shoewear"
+                  >
+                    Shoewear Apparel Line
+                  </h2>
+                  <p className="text-center text-muted-foreground mb-8">
+                    Fully customizable footwear for men and women
+                  </p>
+                  {renderProductGrid(footwearProducts)}
+
+                  <div className="max-w-4xl mx-auto mt-12 bg-primary/5 p-8 md:p-12 rounded-xl border border-primary/20">
+                    <h3 className="text-2xl font-display font-bold uppercase tracking-wide text-primary mb-6 text-center">
+                      Footwear Customization
+                    </h3>
+                    <div className="space-y-4 text-secondary-foreground/80 leading-relaxed">
+                      <p data-testid="text-footwear-disclaimer-apparel">
+                        {FOOTWEAR_CUSTOMIZATION_DISCLAIMER}
+                      </p>
+                      <p data-testid="text-footwear-lead-time-apparel">
+                        {FOOTWEAR_LEAD_TIME_NOTE}
+                      </p>
+                      <p>
+                        <span className="font-bold text-primary">Sizing:</span> Men&apos;s US 4–14 and Women&apos;s US 5.5–15.5.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
           </div>
         )}
-
-        {/* Footwear Customization */}
-        <div className="max-w-4xl mx-auto bg-primary/5 p-8 md:p-12 rounded-xl border border-primary/20 mb-12">
-          <h3 className="text-2xl font-display font-bold uppercase tracking-wide text-primary mb-6 text-center">
-            Footwear Customization
-          </h3>
-          <div className="space-y-4 text-secondary-foreground/80 leading-relaxed">
-            <p data-testid="text-footwear-disclaimer-apparel">
-              {FOOTWEAR_CUSTOMIZATION_DISCLAIMER}
-            </p>
-            <p data-testid="text-footwear-lead-time-apparel">
-              {FOOTWEAR_LEAD_TIME_NOTE}
-            </p>
-            <p>
-              <span className="font-bold text-primary">Sizing:</span> Men&apos;s US 4–14 and Women&apos;s US 5.5–15.5.
-            </p>
-          </div>
-        </div>
 
         {/* Pricing Disclaimers Section */}
         <div className="max-w-4xl mx-auto bg-muted/30 p-8 md:p-12 rounded-xl border border-primary/10">
