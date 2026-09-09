@@ -135,6 +135,16 @@ export const CANVAS_ESSENTIAL_HIGHS_PRICE_ID = "price_kkcanvasessentialhighs";
 export const CANVAS_ESSENTIAL_HIGHS_NAME = "KKA Canvas Essential Highs";
 export const CANVAS_ESSENTIAL_HIGHS_PRICE_CENTS = 4799;
 
+export const CLASSIC_WHITE_HIGH_TOPS_PRODUCT_ID = "prod_kkclassicwhitehightops";
+export const CLASSIC_WHITE_HIGH_TOPS_PRICE_ID = "price_kkclassicwhitehightops";
+export const CLASSIC_WHITE_HIGH_TOPS_NAME = "Classic White High-Tops";
+export const CLASSIC_WHITE_HIGH_TOPS_PRICE_CENTS = 7500;
+
+export const BLACK_GOLD_HIGH_TOPS_PRODUCT_ID = "prod_kkblackgoldhightops";
+export const BLACK_GOLD_HIGH_TOPS_PRICE_ID = "price_kkblackgoldhightops";
+export const BLACK_GOLD_HIGH_TOPS_NAME = "Black & Gold High-Tops";
+export const BLACK_GOLD_HIGH_TOPS_PRICE_CENTS = 7500;
+
 export const FOOTWEAR_PRICE_CENTS = 7500;
 
 export function isAirNitrogenProduct(
