@@ -30,6 +30,8 @@ export const LEGACY_BROWN_BEDDING_IMAGE_PATHS: Record<string, string> = {
 export const HIS_HERS_WATCH_IMAGE = "/assets/kk_his_hers_watch_set.jpg";
 export const BEARD_GROOMING_SET_IMAGE = "/assets/kk_beard_grooming_set.jpg";
 export const LUXURY_SPA_BASKET_IMAGE = "/assets/scented_candles_branded.png";
+export const MONARCH_VANGUARD_IMAGE = "/assets/kk_monarch_vanguard.jpg";
+export const SOVEREIGN_RUNNER_IMAGE = "/assets/kk_sovereign_runner.jpg";
 
 /** Retired gold watch image paths (replaced by silver His & Hers artwork). */
 export const LEGACY_WATCH_IMAGE_PATHS: Record<string, string> = {
@@ -51,6 +53,8 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
   { pattern: /his & hers watch/i, imageUrl: HIS_HERS_WATCH_IMAGE },
   { pattern: /full beard grooming set/i, imageUrl: BEARD_GROOMING_SET_IMAGE },
   { pattern: /luxury spa gift basket|aqua elegante.*spa/i, imageUrl: LUXURY_SPA_BASKET_IMAGE },
+  { pattern: /monarch\s*vanguard/i, imageUrl: MONARCH_VANGUARD_IMAGE },
+  { pattern: /sovereign\s*runner/i, imageUrl: SOVEREIGN_RUNNER_IMAGE },
   { pattern: /96 count eco laundry sheets/i, imageUrl: ECO_LAUNDRY_SHEETS_96_IMAGE },
   { pattern: /eco laundry sheets/i, imageUrl: ECO_LAUNDRY_SHEETS_32_IMAGE },
   {

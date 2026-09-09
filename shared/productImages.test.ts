@@ -10,6 +10,8 @@ import {
   HIS_HERS_WATCH_IMAGE,
   BEARD_GROOMING_SET_IMAGE,
   LUXURY_SPA_BASKET_IMAGE,
+  MONARCH_VANGUARD_IMAGE,
+  SOVEREIGN_RUNNER_IMAGE,
   resolveStorefrontImageUrl,
 } from "./productImages";
 import { SPA_BASKET_LINE_NAME } from "./luxurySpaBaskets";
@@ -123,6 +125,17 @@ describe("resolveStorefrontImageUrl", () => {
     assert.equal(
       resolveStorefrontImageUrl("", "96 Count Eco Laundry Sheets"),
       ECO_LAUNDRY_SHEETS_96_IMAGE,
+    );
+  });
+
+  it("infers Monarch Vanguard and Sovereign Runner artwork from title", () => {
+    assert.equal(
+      resolveStorefrontImageUrl("", "KKA Monarch Vanguard"),
+      MONARCH_VANGUARD_IMAGE,
+    );
+    assert.equal(
+      resolveStorefrontImageUrl("", "KKA Sovereign Runner"),
+      SOVEREIGN_RUNNER_IMAGE,
     );
   });
 });
