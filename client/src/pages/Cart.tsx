@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -14,6 +14,7 @@ import ShipStateTaxSummary, { useShipToState } from "@/components/ShipStateTaxSu
 import BundleUpsell from "@/components/BundleUpsell";
 import { getBundleById } from "@shared/bundlePricing";
 import { DISCOUNT_CODES, parseDiscountCode } from "@shared/discounts";
+import { readReturnVisitorDiscountEmail } from "@/hooks/useSiteVisits";
 import {
   elementsCareBasketSavingsDollars,
   isElementsCareBasketProduct,
@@ -67,9 +68,23 @@ export default function Cart() {
     enabled: isAuthenticated,
   });
 
+  const returnVisitorEmail = readReturnVisitorDiscountEmail();
+
+  useEffect(() => {
+    if (returnVisitorEmail && !appliedCode) {
+      setAppliedCode(DISCOUNT_CODES.RETURN_VISITOR);
+      setDiscountInput(DISCOUNT_CODES.RETURN_VISITOR);
+      setDiscountMessage("Return Visitor — $5 off will be applied at checkout.");
+    }
+  }, [returnVisitorEmail, appliedCode]);
+
   const appliedDef = parseDiscountCode(appliedCode);
   const discountPercent = appliedDef?.percent || 0;
-  const discountAmount = total * (discountPercent / 100);
+  const fixedDiscountDollars = (appliedDef?.fixedAmountCents || 0) / 100;
+  const discountAmount =
+    fixedDiscountDollars > 0
+      ? Math.min(fixedDiscountDollars, total)
+      : total * (discountPercent / 100);
   const discountedSubtotal = Math.max(0, total - discountAmount);
 
   const handleApplyDiscount = () => {
@@ -77,19 +92,30 @@ export default function Cart() {
     const parsed = parseDiscountCode(discountInput);
     if (!parsed) {
       setAppliedCode("");
-      setDiscountMessage("That code isn't recognized. Try Discount10% or Discount15%.");
+      setDiscountMessage(
+        "That code isn't recognized. Try Discount10%, Discount15%, or ReturnVisitor5.",
+      );
       return;
     }
-    if (!isAuthenticated) {
+    if (parsed.requiresAuth && !isAuthenticated) {
       setAppliedCode("");
       setDiscountMessage("Please sign in to apply a discount code.");
       return;
     }
-    const status = eligibility?.codes?.[parsed.code];
-    if (status && !status.eligible) {
+    if (parsed.requiresSubscriberEmail && !returnVisitorEmail) {
       setAppliedCode("");
-      setDiscountMessage(status.description);
+      setDiscountMessage(
+        "Join the Air Genesis email list on the product page to unlock ReturnVisitor5.",
+      );
       return;
+    }
+    if (parsed.requiresAuth) {
+      const status = eligibility?.codes?.[parsed.code];
+      if (status && !status.eligible) {
+        setAppliedCode("");
+        setDiscountMessage(status.description);
+        return;
+      }
     }
     setAppliedCode(parsed.code);
     setDiscountInput(parsed.code);
@@ -112,6 +138,10 @@ export default function Cart() {
         body: JSON.stringify({
           shipToState,
           discountCode: appliedCode || undefined,
+          discountEmail:
+            appliedCode === DISCOUNT_CODES.RETURN_VISITOR
+              ? returnVisitorEmail || undefined
+              : undefined,
           items: items.map((i) => ({
             priceId: i.priceId,
             quantity: i.quantity,
@@ -446,7 +476,7 @@ export default function Cart() {
                       id="discount-code"
                       value={discountInput}
                       onChange={(e) => setDiscountInput(e.target.value)}
-                      placeholder="Discount10% or Discount15%"
+                      placeholder="Discount10%, Discount15%, or ReturnVisitor5"
                       className="flex-1"
                       data-testid="input-discount-code"
                     />
@@ -479,6 +509,9 @@ export default function Cart() {
                         Sign in
                       </Link>{" "}
                       to use {DISCOUNT_CODES.PHOTO_REVIEW} or {DISCOUNT_CODES.FREQUENT_SHOPPER}.
+                      {returnVisitorEmail
+                        ? ` ${DISCOUNT_CODES.RETURN_VISITOR} is ready with your subscribed email.`
+                        : ` ${DISCOUNT_CODES.RETURN_VISITOR} unlocks after you join the Air Genesis email list.`}
                     </p>
                   )}
                   {isAuthenticated && eligibility && (

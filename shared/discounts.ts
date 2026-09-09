@@ -6,10 +6,13 @@
 // Discount15% — ongoing 15% off once a customer has completed purchases on
 //   three separate visits (three paid orders). Each checkout visit counts as
 //   one purchase regardless of how many items were in the cart.
+// ReturnVisitor5 — $5 off for repeat site visitors who join the email list
+//   (no account sign-in required; verified by subscriber email at checkout).
 
 export const DISCOUNT_CODES = {
   PHOTO_REVIEW: "Discount10%",
   FREQUENT_SHOPPER: "Discount15%",
+  RETURN_VISITOR: "ReturnVisitor5",
 } as const;
 
 export type DiscountCode =
@@ -17,8 +20,11 @@ export type DiscountCode =
 
 export interface DiscountDefinition {
   code: DiscountCode;
-  percent: number;
+  percent?: number;
+  fixedAmountCents?: number;
   label: string;
+  requiresAuth?: boolean;
+  requiresSubscriberEmail?: boolean;
 }
 
 export const DISCOUNT_DEFINITIONS: Record<DiscountCode, DiscountDefinition> = {
@@ -26,13 +32,24 @@ export const DISCOUNT_DEFINITIONS: Record<DiscountCode, DiscountDefinition> = {
     code: DISCOUNT_CODES.PHOTO_REVIEW,
     percent: 10,
     label: "Photo Review — 10% off",
+    requiresAuth: true,
   },
   [DISCOUNT_CODES.FREQUENT_SHOPPER]: {
     code: DISCOUNT_CODES.FREQUENT_SHOPPER,
     percent: 15,
     label: "Frequent Shopper — 15% off",
+    requiresAuth: true,
+  },
+  [DISCOUNT_CODES.RETURN_VISITOR]: {
+    code: DISCOUNT_CODES.RETURN_VISITOR,
+    fixedAmountCents: 500,
+    label: "Return Visitor — $5 off",
+    requiresSubscriberEmail: true,
   },
 };
+
+/** Fixed dollar amount removed at checkout for ReturnVisitor5. */
+export const RETURN_VISITOR_DISCOUNT_CENTS = 500;
 
 /** Normalize a typed code (trim; preserve the DiscountNN% casing customers see). */
 export function normalizeDiscountCode(raw: unknown): string {

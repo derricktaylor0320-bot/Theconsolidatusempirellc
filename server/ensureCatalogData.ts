@@ -388,6 +388,11 @@ const RETIRED_PRODUCT_NAMES = [
   // Custom logo/picture mugs + delivery cost too much to make a profit on.
   "Coffee Mug",
   "Matte Black Mug",
+  // Replaced by Khomplete Khemistri Apparel Air Genesis (single Drop 1 colorway).
+  "Khomplete Khemistri Sneakers \u2014 Grey/Silver",
+  "Khomplete Khemistri Sneakers \u2014 Sand/Gold",
+  "Khomplete Khemistri Sneakers \u2014 Black/Red",
+  "Khomplete Khemistri Sneakers \u2014 White/Silver",
   // Not selling — pulled from storefront; can be re-added later.
   "Personalized Coffee Cup Sleeve",
   // Replaced by The Clean People Laundry Detergent Sheets (32 / 96 / 192 count).
@@ -1510,40 +1515,20 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     },
   },
   {
-    productId: "prod_kksneakergrey",
-    priceId: "price_kksneakergrey",
-    name: "Khomplete Khemistri Sneakers \u2014 Grey/Silver",
+    productId: "prod_kkairgenesis",
+    priceId: "price_kkairgenesis",
+    name: "Khomplete Khemistri Apparel Air Genesis",
     description:
-      "Premium Khomplete Khemistri athletic sneakers in a cool grey colorway with a lace-anchored Khomplete Khemistri Apparel crest badge in polished silver. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7000,
-    meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_grey.jpg" },
-  },
-  {
-    productId: "prod_kksneakersand",
-    priceId: "price_kksneakersand",
-    name: "Khomplete Khemistri Sneakers \u2014 Sand/Gold",
-    description:
-      "Premium Khomplete Khemistri athletic sneakers in a warm sand/tan colorway with a lace-anchored Khomplete Khemistri Apparel crest badge in gold. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7000,
-    meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_sand.jpg" },
-  },
-  {
-    productId: "prod_kksneakerblack",
-    priceId: "price_kksneakerblack",
-    name: "Khomplete Khemistri Sneakers \u2014 Black/Red",
-    description:
-      "Premium Khomplete Khemistri athletic sneakers in a black colorway with red accents and a lace-anchored Khomplete Khemistri Apparel crest badge in red. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7000,
-    meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_black.jpg" },
-  },
-  {
-    productId: "prod_kksneakerwhite",
-    priceId: "price_kksneakerwhite",
-    name: "Khomplete Khemistri Sneakers \u2014 White/Silver",
-    description:
-      "Premium Khomplete Khemistri athletic sneakers in a clean white colorway with a lace-anchored Khomplete Khemistri Apparel crest badge in polished silver. Breathable mesh upper, cushioned air sole, and a clean unisex fit. Unisex US sizing \u2014 select your size at checkout (women: size up about 1.5 from your US women's size).",
-    priceCents: 7000,
-    meta: { category: "Footwear", productType: "apparel", sortOrder: "14", gender: "Unisex", sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13", imageUrl: "/assets/kk_sneaker_white.jpg" },
+      "Drop 1 — Khomplete Khemistri Apparel Air Genesis. Chemistry-inspired mid-top sneakers with microfiber leather, mesh side panels, and a visible Air Cushion heel unit.\n\nProduct Weight: 1.10 KG\nClosure: Lace Up\nFabric: Microfiber\nSole: Air Cushion, PU, Rubber\nOccasion: Casual, Outdoor, Shopping, Travel\n\nRubber sole and microfiber leather.\nNon-marking rubber outsole for traction and durability.\nPerforated toe box provides breathability.\nComfort and impact protection.\nCustom basketball traction pattern ensures grip on any surface.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nUnisex US sizing — select your size at checkout (women: size up about 1.5 from your US women's size).",
+    priceCents: 8999,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "14",
+      gender: "Unisex",
+      sizes: "US 5, US 6, US 7, US 8, US 9, US 10, US 11, US 12, US 13",
+      imageUrl: "/assets/kk_air_genesis.png",
+    },
   },
 ];
 

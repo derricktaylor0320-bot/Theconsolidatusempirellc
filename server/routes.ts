@@ -1003,46 +1003,77 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Too many items in your cart." });
       }
 
-      // Optional discount code (Discount10% / Discount15%). Eligibility is
-      // always checked server-side against the signed-in account.
+      // Optional discount code (Discount10% / Discount15% / ReturnVisitor5).
+      // Eligibility is always checked server-side.
       let appliedDiscount:
-        | { name: string; percentage: string; code: string; userId: string }
+        | {
+            name: string;
+            percentage?: string;
+            fixedAmountCents?: number;
+            code: string;
+            userId?: string;
+          }
         | undefined;
       const requestedCode = parseDiscountCode(req.body?.discountCode);
       if (req.body?.discountCode && !requestedCode) {
         return res.status(400).json({
-          error: "That discount code isn't recognized. Try Discount10% or Discount15%.",
+          error:
+            "That discount code isn't recognized. Try Discount10%, Discount15%, or ReturnVisitor5.",
         });
       }
       if (requestedCode) {
-        const user = req.user as User | undefined;
-        if (!user) {
-          return res.status(401).json({
-            error: "Please sign in to apply a discount code.",
-          });
-        }
-        if (requestedCode.code === DISCOUNT_CODES.PHOTO_REVIEW) {
-          const eligible = await storage.hasUnusedPhotoReviewDiscount(user.id);
-          if (!eligible) {
+        if (requestedCode.requiresAuth) {
+          const user = req.user as User | undefined;
+          if (!user) {
+            return res.status(401).json({
+              error: "Please sign in to apply a discount code.",
+            });
+          }
+          if (requestedCode.code === DISCOUNT_CODES.PHOTO_REVIEW) {
+            const eligible = await storage.hasUnusedPhotoReviewDiscount(user.id);
+            if (!eligible) {
+              return res.status(400).json({
+                error:
+                  "Discount10% is for customers who uploaded photos with a review and haven't used the code yet.",
+              });
+            }
+          } else if (requestedCode.code === DISCOUNT_CODES.FREQUENT_SHOPPER) {
+            const paidOrders = await storage.countPaidOrdersByEmail(user.email);
+            if (paidOrders < FREQUENT_SHOPPER_MIN_ORDERS) {
+              return res.status(400).json({
+                error: `Discount15% unlocks after ${FREQUENT_SHOPPER_MIN_ORDERS} completed purchase visits. You currently have ${paidOrders}.`,
+              });
+            }
+          }
+          appliedDiscount = {
+            name: requestedCode.code,
+            percentage: String(requestedCode.percent),
+            code: requestedCode.code,
+            userId: user.id,
+          };
+        } else if (requestedCode.requiresSubscriberEmail) {
+          const discountEmail =
+            typeof req.body?.discountEmail === "string"
+              ? req.body.discountEmail.trim().toLowerCase()
+              : "";
+          if (!discountEmail) {
+            return res.status(400).json({
+              error: "Enter the email you used to join the Drop 1 list to apply ReturnVisitor5.",
+            });
+          }
+          const subscriber = await storage.getSubscriberByEmail(discountEmail);
+          if (!subscriber) {
             return res.status(400).json({
               error:
-                "Discount10% is for customers who uploaded photos with a review and haven't used the code yet.",
+                "ReturnVisitor5 is for email subscribers. Join the Air Genesis list first, then checkout with the same email.",
             });
           }
-        } else if (requestedCode.code === DISCOUNT_CODES.FREQUENT_SHOPPER) {
-          const paidOrders = await storage.countPaidOrdersByEmail(user.email);
-          if (paidOrders < FREQUENT_SHOPPER_MIN_ORDERS) {
-            return res.status(400).json({
-              error: `Discount15% unlocks after ${FREQUENT_SHOPPER_MIN_ORDERS} completed purchase visits. You currently have ${paidOrders}.`,
-            });
-          }
+          appliedDiscount = {
+            name: requestedCode.code,
+            fixedAmountCents: requestedCode.fixedAmountCents,
+            code: requestedCode.code,
+          };
         }
-        appliedDiscount = {
-          name: requestedCode.code,
-          percentage: String(requestedCode.percent),
-          code: requestedCode.code,
-          userId: user.id,
-        };
       }
 
       const lineItems: { name: string; quantity: number; amountCents: number; note?: string }[] = [];
@@ -1168,7 +1199,10 @@ export async function registerRoutes(
         discount: appliedDiscount
           ? {
               name: appliedDiscount.name,
-              percentage: Number(appliedDiscount.percentage),
+              percentage: appliedDiscount.percentage
+                ? Number(appliedDiscount.percentage)
+                : undefined,
+              fixedAmountCents: appliedDiscount.fixedAmountCents,
             }
           : undefined,
         successUrl,

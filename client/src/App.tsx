@@ -42,6 +42,7 @@ import FootballTeams from "@/pages/FootballTeams";
 import FuelPerks from "@/pages/FuelPerks";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import SiteVisitTracker from "@/components/SiteVisitTracker";
 
 function Router() {
   return (
@@ -98,6 +99,7 @@ function App() {
         <CompassNavigationProvider>
           <TooltipProvider>
             <GoogleAnalytics />
+            <SiteVisitTracker />
             <CookieConsentBanner />
             <Toaster />
             <Router />
