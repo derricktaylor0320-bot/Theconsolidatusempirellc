@@ -1627,6 +1627,86 @@ const EXTRA_ACCESSORY_PRODUCTS: {
       imageUrl: "/assets/kk_sovereign_runner.jpg",
     },
   },
+  {
+    productId: "prod_kkclassicleatherfoundation",
+    priceId: "price_kkclassicleatherfoundation",
+    name: "KKA Classic Leather Foundation",
+    description:
+      "KKA Classic Leather Foundation — premium platform low-top sneakers in clean white faux leather with mesh lining and a sculpted EVA sole.\n\nProduct Weight: 1.10 KG\nClosure: Lace Up\nFabric: Microfiber\nSole: EVA\nOccasion: Casual, Outdoor, Shopping, Travel\n\nPremium Construction: Crafted with a faux leather upper and mesh lining, these shoes boast a combination of durability and breathability, ensuring longevity and comfort.\nComfortable Support: Featuring soft EVA padded insoles, these shoes offer plush cushioning, making every step a comfortable experience, ideal for prolonged wear.\nSuperior Traction: The reinforced EVA outsole provides exceptional traction, offering reliable grip on various surfaces, from smooth pavements to rugged terrain, enhancing stability and confidence.\nExceptional Durability: Engineered with reinforced EVA outsoles, these shoes are built to withstand daily wear and tear, ensuring longevity and resilience even with frequent use.\nVersatile Lifestyle Design: With a design tailored for everyday wear, these shoes effortlessly blend style and functionality, making them suitable for a wide range of occasions, whether casual outings or formal events.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 5599,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "21",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_classic_leather_foundation.png",
+    },
+  },
+  {
+    productId: "prod_kktundrachukka",
+    priceId: "price_kktundrachukka",
+    name: "KKA Tundra Chukka",
+    description:
+      "KKA Tundra Chukka — rugged lace-up chukka boot with a microfiber upper, padded collar, and durable EVA outsole for everyday outdoor wear.\n\nProduct Weight: 1.10 KG\nClosure: Lace Up\nFabric: Microfiber\nSole: EVA\nOccasion: Casual, Outdoor, Shopping, Travel\n\nPremium Construction: Crafted with a faux leather upper and mesh lining, these shoes boast a combination of durability and breathability, ensuring longevity and comfort.\nComfortable Support: Featuring soft EVA padded insoles, these shoes offer plush cushioning, making every step a comfortable experience, ideal for prolonged wear.\nSuperior Traction: The reinforced EVA outsole provides exceptional traction, offering reliable grip on various surfaces, from smooth pavements to rugged terrain, enhancing stability and confidence.\nExceptional Durability: Engineered with reinforced EVA outsoles, these shoes are built to withstand daily wear and tear, ensuring longevity and resilience even with frequent use.\nVersatile Lifestyle Design: With a design tailored for everyday wear, these shoes effortlessly blend style and functionality, making them suitable for a wide range of occasions, whether casual outings or formal events.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "22",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_tundra_chukka.jpg",
+    },
+  },
+  {
+    productId: "prod_kktundrafurchukka",
+    priceId: "price_kktundrafurchukka",
+    name: "KKA Tundra Fur Chukka Boot",
+    description:
+      "KKA Tundra Fur Chukka Boot — trendy unisex snow chukka boots with a microfiber leather upper, plush faux fur lining, and a rugged rubber outsole built for winter.\n\nProduct Weight: 1.30 KG\nFabric: Microfiber Leather\nSole Material: Rubber\nLining: Faux Fur\nClosure: Lace Up\nGender: Unisex\n\nTrendy Unisex Snow Chukka Boots: Elevate your winter wardrobe with these stylish chukka boots. Designed for both men and women, they showcase a casual yet fashionable look, perfect for any occasion.\nCozy and Comfortable Winter Wear: Crafted with high-quality materials, these boots feature a luxurious faux fur lining and insole, ensuring your feet stay warm and snug against the cold. The thermal insulated design adds extra warmth, making them ideal for chilly weather.\nDurable and Powerful Traction: Built to last, these boots boast a robust rubber outsole. Their snow-resistant quality ensures durability, while the outsole provides unmatched resistance and traction on various terrains, ensuring stability in winter conditions.\nSafe, Lightweight, and Non-Slip: Experience the perfect blend of lightweight design and advanced safety. The anti-slip soles offer superior grip, enhancing mobility and safety across diverse terrains, making them a practical choice for winter adventures.\nVersatile and Fashionable Footwear: These waterproof chukka boots are not only practical but also fashionable. Their versatile style shines in any setting and pairs effortlessly with any outfit, establishing them as the perfect everyday winter boots for style-conscious individuals.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 7500,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "23",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_tundra_fur_chukka.jpg",
+    },
+  },
+  {
+    productId: "prod_kkcanvasessentiallows",
+    priceId: "price_kkcanvasessentiallows",
+    name: "KKA Canvas Essential Lows",
+    description:
+      "KKA Canvas Essential Lows — classic low-top canvas sneakers in clean white with a rubber toe cap and durable rubber outsole.\n\nClosure: Lace Up\nFabric: Canvas\nSole: Rubber\nOccasion: Casual, Outdoor, Shopping, Travel\n\nEveryday Essential: A timeless low-top silhouette with a breathable canvas upper, perfect for casual outings, travel, and everyday wear.\nComfortable Fit: Padded insole and lace-up closure provide a secure, comfortable fit for all-day wear.\nDurable Construction: Reinforced rubber toe cap and sturdy rubber outsole deliver lasting durability and reliable traction.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 4799,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "24",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_canvas_essential_lows.jpg",
+    },
+  },
+  {
+    productId: "prod_kkcanvasessentialhighs",
+    priceId: "price_kkcanvasessentialhighs",
+    name: "KKA Canvas Essential Highs",
+    description:
+      "KKA Canvas Essential Highs — high-top canvas sneakers in black with the signature Khomplete Khemistri crest and gold branding.\n\nClosure: Lace Up\nFabric: Canvas\nSole: Rubber\nOccasion: Casual, Outdoor, Shopping, Travel\n\nBold Brand Style: High-top canvas upper featuring the KHOMPLETE KREATIVE APPAREL crest, crossed swords emblem, and gold EST. 2020 detailing.\nComfortable Fit: Padded collar and lace-up closure provide ankle support and a secure fit for everyday wear.\nDurable Construction: Sturdy rubber outsole with reinforced toe delivers lasting durability and reliable traction.\n\nCare instructions: Do not bleach; Do not dryclean; Do not iron.\n\nFully customizable — upload your own logo or design inspiration and select one of our Khomplete Khemistri brand logos to complete your order. Men's sizes 4–14, Women's sizes 5.5–15.5. Customization takes 7–14 days before shipping once your order is completed.",
+    priceCents: 4799,
+    meta: {
+      category: "Footwear",
+      productType: "apparel",
+      sortOrder: "25",
+      gender: "Unisex",
+      footwearCustomizable: "true",
+      imageUrl: "/assets/kk_canvas_essential_highs.png",
+    },
+  },
 ];
 
 // Scented candle product image. Like the tumbler, the storefront image must be

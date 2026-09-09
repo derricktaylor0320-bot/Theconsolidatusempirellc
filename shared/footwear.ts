@@ -110,6 +110,31 @@ export const SOVEREIGN_RUNNER_PRICE_ID = "price_kksovereignrunner";
 export const SOVEREIGN_RUNNER_NAME = "KKA Sovereign Runner";
 export const SOVEREIGN_RUNNER_PRICE_CENTS = 7500;
 
+export const CLASSIC_LEATHER_FOUNDATION_PRODUCT_ID = "prod_kkclassicleatherfoundation";
+export const CLASSIC_LEATHER_FOUNDATION_PRICE_ID = "price_kkclassicleatherfoundation";
+export const CLASSIC_LEATHER_FOUNDATION_NAME = "KKA Classic Leather Foundation";
+export const CLASSIC_LEATHER_FOUNDATION_PRICE_CENTS = 5599;
+
+export const TUNDRA_CHUKKA_PRODUCT_ID = "prod_kktundrachukka";
+export const TUNDRA_CHUKKA_PRICE_ID = "price_kktundrachukka";
+export const TUNDRA_CHUKKA_NAME = "KKA Tundra Chukka";
+export const TUNDRA_CHUKKA_PRICE_CENTS = 7500;
+
+export const TUNDRA_FUR_CHUKKA_PRODUCT_ID = "prod_kktundrafurchukka";
+export const TUNDRA_FUR_CHUKKA_PRICE_ID = "price_kktundrafurchukka";
+export const TUNDRA_FUR_CHUKKA_NAME = "KKA Tundra Fur Chukka Boot";
+export const TUNDRA_FUR_CHUKKA_PRICE_CENTS = 7500;
+
+export const CANVAS_ESSENTIAL_LOWS_PRODUCT_ID = "prod_kkcanvasessentiallows";
+export const CANVAS_ESSENTIAL_LOWS_PRICE_ID = "price_kkcanvasessentiallows";
+export const CANVAS_ESSENTIAL_LOWS_NAME = "KKA Canvas Essential Lows";
+export const CANVAS_ESSENTIAL_LOWS_PRICE_CENTS = 4799;
+
+export const CANVAS_ESSENTIAL_HIGHS_PRODUCT_ID = "prod_kkcanvasessentialhighs";
+export const CANVAS_ESSENTIAL_HIGHS_PRICE_ID = "price_kkcanvasessentialhighs";
+export const CANVAS_ESSENTIAL_HIGHS_NAME = "KKA Canvas Essential Highs";
+export const CANVAS_ESSENTIAL_HIGHS_PRICE_CENTS = 4799;
+
 export const FOOTWEAR_PRICE_CENTS = 7500;
 
 export function isAirNitrogenProduct(
