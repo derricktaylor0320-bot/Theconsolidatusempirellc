@@ -40,10 +40,10 @@ export default function CheckoutSuccess() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    // After a completed checkout, Square redirects here with the order id in
-    // `orderId`. We pass that to the server to verify payment and fetch the
-    // purchased items. (`ref` is kept as a fallback in case it's ever set.)
-    const ref = params.get("orderId") || params.get("ref");
+    // After a completed checkout, Stripe redirects here with the session id in
+    // `session_id`. We pass that to the server to verify payment and fetch the
+    // purchased items. Legacy Square checkouts may still use `orderId` or `ref`.
+    const ref = params.get("session_id") || params.get("orderId") || params.get("ref");
     if (!ref) {
       setLoading(false);
       return;
@@ -99,7 +99,7 @@ export default function CheckoutSuccess() {
 
   function refFromUrl(): string | null {
     const params = new URLSearchParams(window.location.search);
-    return params.get("orderId") || params.get("ref");
+    return params.get("session_id") || params.get("orderId") || params.get("ref");
   }
 
   return (
@@ -130,7 +130,7 @@ export default function CheckoutSuccess() {
             data-testid="text-success-message"
           >
             {order && order.status !== "paid"
-              ? "We're still confirming your payment with Square. If it went through, you'll receive a confirmation email shortly."
+              ? "We're still confirming your payment with Stripe. If it went through, you'll receive a confirmation email shortly."
               : "Thank you for your purchase! Your order has been placed successfully."}
           </p>
 

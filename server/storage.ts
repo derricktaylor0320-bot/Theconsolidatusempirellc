@@ -31,9 +31,11 @@ export interface IStorage {
     tracking?: { carrier?: string | null; trackingNumber?: string | null },
   ): Promise<{ order: Order; transitionedToFulfilled: boolean } | undefined>;
   getOrderBySquareId(squareOrderId: string): Promise<Order | undefined>;
+  getOrderByStripeSessionId(stripeSessionId: string): Promise<Order | undefined>;
   getOrderById(id: string): Promise<Order | undefined>;
   recordPaidOrder(order: {
-    squareOrderId: string;
+    stripeSessionId?: string | null;
+    squareOrderId?: string | null;
     items: OrderItem[];
     totalCents: number;
     customerEmail?: string | null;
@@ -235,24 +237,65 @@ export class DatabaseStorage implements IStorage {
     return order || undefined;
   }
 
+  async getOrderByStripeSessionId(
+    stripeSessionId: string,
+  ): Promise<Order | undefined> {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.stripeSessionId, stripeSessionId));
+    return order || undefined;
+  }
+
   async getOrderById(id: string): Promise<Order | undefined> {
     const [order] = await db.select().from(orders).where(eq(orders.id, id));
     return order || undefined;
   }
 
   async recordPaidOrder(input: {
-    squareOrderId: string;
+    stripeSessionId?: string | null;
+    squareOrderId?: string | null;
     items: OrderItem[];
     totalCents: number;
     customerEmail?: string | null;
     customerName?: string | null;
     shippingAddress?: string | null;
   }): Promise<Order> {
-    // Idempotent: if the buyer refreshes the success page we update the same
-    // row (keyed by the Square order id) instead of inserting a duplicate.
     const customerEmail = input.customerEmail ?? null;
     const customerName = input.customerName ?? null;
     const shippingAddress = input.shippingAddress ?? null;
+
+    if (input.stripeSessionId) {
+      const [order] = await db
+        .insert(orders)
+        .values({
+          status: "paid",
+          items: input.items,
+          totalCents: input.totalCents,
+          stripeSessionId: input.stripeSessionId,
+          customerEmail,
+          customerName,
+          shippingAddress,
+        })
+        .onConflictDoUpdate({
+          target: orders.stripeSessionId,
+          set: {
+            status: "paid",
+            items: input.items,
+            totalCents: input.totalCents,
+            customerEmail,
+            customerName,
+            shippingAddress,
+          },
+        })
+        .returning();
+      return order;
+    }
+
+    if (!input.squareOrderId) {
+      throw new Error("recordPaidOrder requires stripeSessionId or squareOrderId");
+    }
+
     const [order] = await db
       .insert(orders)
       .values({

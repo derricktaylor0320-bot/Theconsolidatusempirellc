@@ -104,8 +104,8 @@ export async function ensureTablesExist() {
       ON password_reset_tokens (user_id)
     `);
 
-    // Paid orders captured at checkout (only recorded after Square confirms
-    // payment on the buyer's return).
+    // Paid orders captured at checkout (only recorded after Stripe confirms
+    // payment on the buyer's return). Legacy Square rows keep square_order_id.
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS orders (
         id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -113,6 +113,7 @@ export async function ensureTablesExist() {
         fulfillment_status TEXT NOT NULL DEFAULT 'unfulfilled',
         items JSONB NOT NULL,
         total_cents INTEGER NOT NULL,
+        stripe_session_id TEXT,
         square_order_id TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       )
@@ -131,8 +132,13 @@ export async function ensureTablesExist() {
     await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS carrier TEXT`);
     await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_number TEXT`);
     await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipped_at TIMESTAMP`);
-    // One stored order per Square order id (lets us upsert idempotently when a
-    // buyer refreshes the success page).
+    await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS stripe_session_id TEXT`);
+    // One stored order per Stripe session id (lets us upsert idempotently when a
+    // buyer refreshes the success page). Legacy Square rows use square_order_id.
+    await db.execute(sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS "IDX_orders_stripe_session_id"
+      ON orders (stripe_session_id)
+    `);
     await db.execute(sql`
       CREATE UNIQUE INDEX IF NOT EXISTS "IDX_orders_square_order_id"
       ON orders (square_order_id)

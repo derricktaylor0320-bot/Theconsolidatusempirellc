@@ -276,8 +276,8 @@ export default function HotDogs() {
               </h3>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Premium Choice Hot Dogs is getting ready to serve. Card payments
-                accepted in person for fast, seamless checkout. Stay tuned for
-                launch details and locations.
+                are accepted in person through Square for fast, seamless checkout.
+                Stay tuned for launch details and locations.
               </p>
             </div>
           </div>
