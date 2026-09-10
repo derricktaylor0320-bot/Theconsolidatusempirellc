@@ -14,7 +14,7 @@ import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } fro
 import { trackingUrlFor } from "@shared/shipping";
 import { resolvePublicSiteUrl } from "@shared/site";
 import { resolveStorefrontImageUrl } from "@shared/productImages";
-import { ensureCatalogData } from "./ensureCatalogData";
+import { CATALOG_SYNC_VERSION, ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
 import { setupAuth, requireAuth, requireOwner, toPublicUser } from "./auth";
 import { registerPocketBoosterRoutes } from "./pocketBooster";
@@ -703,6 +703,29 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error checking discount eligibility:", error);
       res.status(500).json({ error: "Failed to check discount eligibility" });
+    }
+  });
+
+  // Lightweight catalog sync diagnostics (footwear count, legacy sneaker retirement).
+  app.get("/api/catalog-health", async (_req, res) => {
+    try {
+      const products = await getStorefrontProducts();
+      const footwear = products.filter((p) => p.category === "Footwear");
+      const legacySneakers = products.filter((p) =>
+        p.title.includes("Khomplete Khemistri Sneakers"),
+      );
+      res.json({
+        catalogSyncVersion: CATALOG_SYNC_VERSION,
+        footwearCount: footwear.length,
+        legacySneakerCount: legacySneakers.length,
+        gitSha:
+          process.env.RAILWAY_GIT_COMMIT_SHA?.trim() ||
+          process.env.GITHUB_SHA?.trim() ||
+          null,
+      });
+    } catch (error) {
+      console.error("Error fetching catalog health:", error);
+      res.status(500).json({ error: "Failed to fetch catalog health" });
     }
   });
 
