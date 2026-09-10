@@ -2283,12 +2283,15 @@ export async function ensureCatalogData() {
     const acct: any = await db.execute(
       sql`SELECT _account_id FROM stripe.products WHERE _account_id IS NOT NULL LIMIT 1`,
     );
-    const accountId = acct?.rows?.[0]?._account_id as string | undefined;
-    if (!accountId) {
+    // Railway prod rows sometimes have a null `_account_id` even though the
+    // catalog is populated. A hard early-return here used to skip BOTH new SKU
+    // inserts and the retirement pass — leaving legacy sneakers visible forever.
+    const accountId =
+      (acct?.rows?.[0]?._account_id as string | undefined) ?? "acct_kk_catalog";
+    if (!acct?.rows?.[0]?._account_id) {
       console.warn(
-        "ensureCatalogData: no _account_id found; skipped synthetic catalog inserts (bedding/body-butter imagery already synced above).",
+        "ensureCatalogData: no _account_id on existing rows; using fallback for synthetic catalog inserts.",
       );
-      return;
     }
 
     const created = Math.floor(Date.now() / 1000);
