@@ -2046,6 +2046,9 @@ const CUTOFF_BOTTOMS_IMAGE_MARKERS = [
   "1765114167490_1765212687857",
 ];
 
+/** Bumped when catalog boot-sync logic changes; exposed via /api/catalog-health. */
+export const CATALOG_SYNC_VERSION = 3;
+
 export async function ensureCatalogData() {
   try {
     // 1) Deduplicate ALL products that exist twice. Past reseeds created ~45
@@ -2418,6 +2421,72 @@ export async function ensureCatalogData() {
     } catch (err) {
       console.error(
         "ensureCatalogData: critical Accessories SKU ensure failed:",
+        err,
+      );
+    }
+
+    // 4c) Shoewear Apparel Line — run immediately after floor mats. On Railway
+    //     prod the generic EXTRA_ACCESSORY loop at the end of this routine was
+    //     not reliably inserting the 14 footwear SKUs or retiring the four
+    //     legacy sneaker colorways; customers only saw the two old Stripe
+    //     high-tops. Per-item try/catch mirrors step 4b.
+    const legacySneakerNames = RETIRED_PRODUCT_NAMES.filter((n) =>
+      n.includes("Khomplete Khemistri Sneakers"),
+    );
+    try {
+      const footwearSkus = EXTRA_ACCESSORY_PRODUCTS.filter(
+        (p) => p.meta.category === "Footwear",
+      );
+      for (const shoe of footwearSkus) {
+        try {
+          await ensureSyntheticProduct({
+            accountId,
+            productId: shoe.productId,
+            priceId: shoe.priceId,
+            name: shoe.name,
+            description: shoe.description,
+            priceCents: shoe.priceCents,
+            meta: shoe.meta,
+            created,
+          });
+        } catch (err) {
+          console.error(
+            `ensureCatalogData: failed ensuring footwear "${shoe.name}":`,
+            err,
+          );
+        }
+      }
+      console.log(
+        `ensureCatalogData: ensured ${footwearSkus.length} Shoewear Apparel SKUs (critical early pass).`,
+      );
+
+      if (legacySneakerNames.length > 0) {
+        const legacyNameList = sql.join(
+          legacySneakerNames.map((n) => sql`${n}`),
+          sql`, `,
+        );
+        await db.execute(sql`
+          UPDATE stripe.products
+          SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+              _updated_at = now()
+          WHERE name IN (${legacyNameList}) AND active = true
+        `);
+        await db.execute(sql`
+          UPDATE stripe.prices
+          SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+              _updated_at = now()
+          WHERE active = true
+            AND product IN (
+              SELECT id FROM stripe.products WHERE name IN (${legacyNameList})
+            )
+        `);
+        console.log(
+          "ensureCatalogData: retired legacy Khomplete Khemistri Sneakers colorways (critical early pass).",
+        );
+      }
+    } catch (err) {
+      console.error(
+        "ensureCatalogData: critical footwear SKU ensure failed:",
         err,
       );
     }
