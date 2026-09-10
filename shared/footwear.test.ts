@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { checkCustomization } from "./customization";
 import {
+  DEFAULT_FOOTWEAR_PLACEMENTS,
   encodeFootwearSize,
+  formatFootwearPlacementNote,
+  normalizeFootwearPlacements,
   parseFootwearSize,
   FOOTWEAR_CUSTOMIZABLE_META,
 } from "./footwear";
@@ -51,9 +54,62 @@ test("footwear requires brand logo and size", () => {
     "Air Nitrogen",
     undefined,
     "/media-files/custom-designs/test.png",
+    DEFAULT_FOOTWEAR_PLACEMENTS,
   );
   assert.equal(withRealLogo.ok, true);
   assert.match(withRealLogo.note || "", /Logo: Gold 3D Emblem/);
   assert.match(withRealLogo.note || "", /Size: Women's 9/);
   assert.match(withRealLogo.note || "", /Custom design:/);
+  assert.match(withRealLogo.note || "", /Placement: Tongue, Side Panel/);
+  assert.equal(withRealLogo.upchargeCents, 300);
+});
+
+test("footwear requires at least one valid placement", () => {
+  const missing = checkCustomization(
+    FOOTWEAR_META,
+    "Gold 3D Emblem",
+    undefined,
+    "Men's 10",
+    "Air Nitrogen",
+  );
+  assert.equal(missing.ok, false);
+
+  const invalid = checkCustomization(
+    FOOTWEAR_META,
+    "Gold 3D Emblem",
+    undefined,
+    "Men's 10",
+    "Air Nitrogen",
+    undefined,
+    undefined,
+    ["invalid"],
+  );
+  assert.equal(invalid.ok, false);
+});
+
+test("footwear placement helpers normalize all-over as exclusive", () => {
+  assert.deepEqual(normalizeFootwearPlacements(["tongue", "side"]), ["tongue", "side"]);
+  assert.deepEqual(
+    normalizeFootwearPlacements(["all-over", "tongue"]),
+    ["all-over"],
+  );
+  assert.equal(
+    formatFootwearPlacementNote(["heel", "back"]),
+    "Placement: Heel, Back",
+  );
+});
+
+test("logo-customizable apparel accepts optional custom design upload", () => {
+  const apparelMeta = { productType: "apparel", category: "Accessories" };
+  const ok = checkCustomization(
+    apparelMeta,
+    "Gold 3D Emblem",
+    undefined,
+    "M",
+    "Custom Tee",
+    undefined,
+    "/media-files/custom-designs/shirt.png",
+  );
+  assert.equal(ok.ok, true);
+  assert.match(ok.note || "", /Custom design:/);
 });

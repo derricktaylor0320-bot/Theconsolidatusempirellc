@@ -25,6 +25,7 @@ import {
   isElementsDuoProduct,
   parseElementsDuoSelection,
 } from "@shared/elementsDuo";
+import { footwearPlacementLabel, type FootwearPlacementId } from "@shared/footwear";
 import {
   deodorantPricingLabel,
   deodorantTotalDollars,
@@ -150,6 +151,7 @@ export default function Cart() {
             selectedSize: i.selectedSize,
             selectedScent: i.selectedScent,
             customDesignUrl: i.customDesignUrl,
+            selectedPlacements: i.selectedPlacements,
             bundleId: i.bundleId,
           })),
         }),
@@ -252,7 +254,7 @@ export default function Cart() {
                         </h3>
                         <button
                           onClick={() =>
-                            removeItem(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent, item.customDesignUrl)
+                            removeItem(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent, item.customDesignUrl, item.selectedPlacements)
                           }
                           className="text-muted-foreground hover:text-red-500 shrink-0"
                           data-testid={`button-remove-${slug}`}
@@ -291,6 +293,14 @@ export default function Cart() {
                           data-testid={`text-cart-custom-design-${slug}`}
                         >
                           Custom design uploaded
+                        </p>
+                      )}
+                      {item.selectedPlacements && item.selectedPlacements.length > 0 && (
+                        <p
+                          className="text-xs text-muted-foreground mt-1"
+                          data-testid={`text-cart-placement-${slug}`}
+                        >
+                          Placement: {item.selectedPlacements.map((p) => footwearPlacementLabel(p as FootwearPlacementId)).join(", ")}
                         </p>
                       )}
                       {careBasketSelection && (
@@ -397,6 +407,7 @@ export default function Cart() {
                                 item.selectedSize,
                                 item.selectedScent,
                                 item.customDesignUrl,
+                                item.selectedPlacements,
                               )
                             }
                             disabled={item.quantity <= 1}
@@ -424,6 +435,7 @@ export default function Cart() {
                                 item.selectedSize,
                                 item.selectedScent,
                                 item.customDesignUrl,
+                                item.selectedPlacements,
                               )
                             }
                             data-testid={`button-increase-${slug}`}

@@ -1,14 +1,21 @@
-import { useMemo, useRef, useState } from "react";
-import { Upload, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import CustomDesignUpload from "@/components/CustomDesignUpload";
 import LogoPickerTile from "@/components/LogoPickerTile";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { allLogos, LOGO_SECTIONS, logoIdByAlt, logoSectionGroups } from "@/lib/logoCatalog";
+import { placementSurchargeDollars } from "@shared/customization";
 import {
   encodeFootwearSize,
+  FOOTWEAR_ALL_OVER_PLACEMENT,
   FOOTWEAR_CUSTOMIZATION_DISCLAIMER,
   FOOTWEAR_GENDERS,
   FOOTWEAR_LEAD_TIME_NOTE,
+  FOOTWEAR_PLACEMENT_OPTIONS,
+  footwearPlacementLabel,
   footwearSizesForGender,
   type FootwearGender,
+  type FootwearPlacementId,
 } from "@shared/footwear";
 
 interface FootwearCustomizerProps {
@@ -19,6 +26,8 @@ interface FootwearCustomizerProps {
   onSizeChange: (size: string) => void;
   customDesignUrl: string;
   onCustomDesignChange: (url: string) => void;
+  selectedPlacements: FootwearPlacementId[];
+  onPlacementsChange: (placements: FootwearPlacementId[]) => void;
   onError: (message: string) => void;
 }
 
@@ -30,13 +39,13 @@ export default function FootwearCustomizer({
   onSizeChange,
   customDesignUrl,
   onCustomDesignChange,
+  selectedPlacements,
+  onPlacementsChange,
   onError,
 }: FootwearCustomizerProps) {
   const [gender, setGender] = useState<FootwearGender>("Men");
   const [sizeValue, setSizeValue] = useState("");
   const [logoCollection, setLogoCollection] = useState("All");
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const sizeOptions = useMemo(() => footwearSizesForGender(gender), [gender]);
   const logoCollectionTabs = useMemo(
@@ -56,27 +65,20 @@ export default function FootwearCustomizer({
     onSizeChange(next ? encodeFootwearSize(gender, next) : "");
   };
 
-  const handleUpload = async (file: File) => {
-    setUploading(true);
-    onError("");
-    try {
-      const form = new FormData();
-      form.append("design", file);
-      const res = await fetch("/api/footwear/custom-design", {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
-      onCustomDesignChange(data.url);
-    } catch (err) {
-      onError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
+  const handlePlacementChange = (placementId: FootwearPlacementId, checked: boolean) => {
+    if (placementId === FOOTWEAR_ALL_OVER_PLACEMENT) {
+      onPlacementsChange(checked ? [FOOTWEAR_ALL_OVER_PLACEMENT] : ["tongue", "side"]);
+      return;
     }
+
+    const withoutAllOver = selectedPlacements.filter((p) => p !== FOOTWEAR_ALL_OVER_PLACEMENT);
+    if (checked) {
+      onPlacementsChange([...withoutAllOver, placementId]);
+      return;
+    }
+
+    const next = withoutAllOver.filter((p) => p !== placementId);
+    onPlacementsChange(next.length > 0 ? next : ["tongue", "side"]);
   };
 
   return (
@@ -154,59 +156,60 @@ export default function FootwearCustomizer({
         </p>
       </div>
 
-      <div className="space-y-2" data-testid="picker-footwear-custom-design">
+      <CustomDesignUpload
+        customDesignUrl={customDesignUrl}
+        onCustomDesignChange={onCustomDesignChange}
+        onError={onError}
+        soldOut={soldOut}
+        testIdPrefix="footwear-custom-design"
+      />
+
+      <div className="space-y-3" data-testid="picker-footwear-placement">
         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          Upload your logo or design (optional)
+          Choose where your design appears
         </p>
         <p className="text-xs text-muted-foreground">
-          Share your artwork so our team can incorporate your vision. You must still select one of our brand logos below.
+          By default your logo prints on the tongue and side panel. Select all over for a full-shoe print, or add heel and back placements.
         </p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleUpload(file);
-            e.target.value = "";
-          }}
-        />
-        {customDesignUrl ? (
-          <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-muted/20 p-3">
-            <img
-              src={customDesignUrl}
-              alt="Your uploaded design"
-              className="h-16 w-16 rounded object-contain bg-white"
-              data-testid="img-footwear-custom-design"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">Design uploaded</p>
-              <p className="text-xs text-muted-foreground">Ready for customization</p>
-            </div>
-            <button
-              type="button"
-              disabled={soldOut}
-              onClick={() => onCustomDesignChange("")}
-              className="rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
-              aria-label="Remove uploaded design"
-              data-testid="button-remove-custom-design"
+        <div className="space-y-2">
+          {FOOTWEAR_PLACEMENT_OPTIONS.map((placement) => (
+            <div
+              key={placement.id}
+              className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
+                selectedPlacements.includes(placement.id)
+                  ? "border-primary bg-primary/5"
+                  : "border-border"
+              }`}
             >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            disabled={soldOut || uploading}
-            onClick={() => fileInputRef.current?.click()}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/30 px-4 py-6 text-sm text-muted-foreground transition-colors hover:border-primary/60 hover:bg-primary/5 disabled:opacity-50"
-            data-testid="button-upload-custom-design"
-          >
-            <Upload className="h-4 w-4" />
-            {uploading ? "Uploading…" : "Upload your logo or design"}
-          </button>
+              <Checkbox
+                id={`footwear-placement-${placement.id}`}
+                checked={selectedPlacements.includes(placement.id)}
+                disabled={soldOut}
+                onCheckedChange={(checked) =>
+                  handlePlacementChange(placement.id, checked === true)
+                }
+                data-testid={`checkbox-footwear-placement-${placement.id}`}
+              />
+              <Label
+                htmlFor={`footwear-placement-${placement.id}`}
+                className="flex-grow cursor-pointer text-sm font-medium"
+              >
+                {placement.name}
+              </Label>
+            </div>
+          ))}
+        </div>
+        {selectedPlacements.length > 1 && !selectedPlacements.includes(FOOTWEAR_ALL_OVER_PLACEMENT) && (
+          <p className="text-xs text-muted-foreground" data-testid="text-footwear-placement-fee">
+            +${placementSurchargeDollars(selectedPlacements.length).toFixed(0)} multiple-placement fee
+          </p>
         )}
+        <p className="text-sm" data-testid="text-footwear-placement-selection">
+          <span className="text-muted-foreground">Selected: </span>
+          <span className="font-medium">
+            {selectedPlacements.map(footwearPlacementLabel).join(", ")}
+          </span>
+        </p>
       </div>
 
       <div className="space-y-3" data-testid="picker-footwear-logo">
