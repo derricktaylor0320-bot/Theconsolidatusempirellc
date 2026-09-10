@@ -13,7 +13,7 @@ import { useCart } from "@/hooks/useCart";
 import { useRecentlyViewed, readRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { allLogos, LOGO_SECTIONS, logoSectionGroups, logoIdByAlt, recommendedLogoIdsForColor } from "@/lib/logoCatalog";
 import LogoPickerTile from "@/components/LogoPickerTile";
-import { sizeUpchargeDollars } from "@shared/customization";
+import { placementSurchargeDollars, sizeUpchargeDollars } from "@shared/customization";
 import { getSupplementInfo } from "@shared/supplementBenefits";
 import {
   deodorantPricingLabel,
@@ -56,8 +56,13 @@ import { BODY_BUTTER_IMAGE, resolveStorefrontImageUrl } from "@shared/productIma
 import { trackViewItem } from "@/lib/analytics";
 import { isAirGenesisProduct } from "@shared/airGenesis";
 import AirGenesisEmailCapture from "@/components/AirGenesisEmailCapture";
+import CustomDesignUpload from "@/components/CustomDesignUpload";
 import FootwearCustomizer from "@/components/FootwearCustomizer";
-import { isFootwearCustomizable } from "@shared/footwear";
+import {
+  DEFAULT_FOOTWEAR_PLACEMENTS,
+  isFootwearCustomizable,
+  type FootwearPlacementId,
+} from "@shared/footwear";
 
 const MAX_QTY = 99;
 
@@ -420,6 +425,9 @@ function ProductDetailContent({
   const [selectedLogo, setSelectedLogo] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [customDesignUrl, setCustomDesignUrl] = useState("");
+  const [selectedPlacements, setSelectedPlacements] = useState<FootwearPlacementId[]>(
+    [...DEFAULT_FOOTWEAR_PLACEMENTS],
+  );
   const [selectedApparelSize, setSelectedApparelSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedScent, setSelectedScent] = useState("");
@@ -429,7 +437,10 @@ function ProductDetailContent({
   const [selectedBodyOil2, setSelectedBodyOil2] = useState("");
   const [selectedWash, setSelectedWash] = useState("");
   const sizeUpcharge = needsApparelSize ? sizeUpchargeDollars(selectedApparelSize) : 0;
-  const effectiveUnitPrice = price + sizeUpcharge;
+  const placementUpcharge = needsFootwear
+    ? placementSurchargeDollars(selectedPlacements.length)
+    : 0;
+  const effectiveUnitPrice = price + sizeUpcharge + placementUpcharge;
   const recommendedIds = useMemo(
     () => (selectedColor ? recommendedLogoIdsForColor(selectedColor).slice(0, 12) : []),
     [selectedColor],
@@ -527,7 +538,8 @@ function ProductDetailContent({
         selectedColor: needsColor ? selectedColor : undefined,
         selectedSize: needsFootwear ? selectedSize : needsApparelSize ? selectedApparelSize : undefined,
         selectedScent: cartScent,
-        customDesignUrl: needsFootwear && customDesignUrl ? customDesignUrl : undefined,
+        customDesignUrl: customDesignUrl || undefined,
+        selectedPlacements: needsFootwear ? selectedPlacements : undefined,
       },
       quantity,
     );
@@ -536,6 +548,9 @@ function ProductDetailContent({
     setAdded(true);
     setQuantity(1);
     if (needsFootwear) {
+      setCustomDesignUrl("");
+      setSelectedPlacements([...DEFAULT_FOOTWEAR_PLACEMENTS]);
+    } else if (needsLogo) {
       setCustomDesignUrl("");
     }
     setTimeout(() => setAdded(false), 1800);
@@ -1190,6 +1205,8 @@ function ProductDetailContent({
                   }}
                   customDesignUrl={customDesignUrl}
                   onCustomDesignChange={setCustomDesignUrl}
+                  selectedPlacements={selectedPlacements}
+                  onPlacementsChange={setSelectedPlacements}
                   onError={setErrorMessage}
                 />
               )}
@@ -1200,8 +1217,15 @@ function ProductDetailContent({
                     className="text-sm text-muted-foreground leading-relaxed"
                     data-testid="text-detail-custom-note"
                   >
-                    Note: All items are custom branded. Pick the logo you want from the full Branded Logo Collection below to complete your order.
+                    Note: All items are custom branded. Upload your own design if you like, pick the logo you want from the full Branded Logo Collection below, and complete your order.
                   </p>
+                  <CustomDesignUpload
+                    customDesignUrl={customDesignUrl}
+                    onCustomDesignChange={setCustomDesignUrl}
+                    onError={setErrorMessage}
+                    soldOut={soldOut}
+                    testIdPrefix="apparel-custom-design"
+                  />
                   {selectedColor && recommendedIds.length > 0 && (
                     <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3" data-testid="picker-detail-recommended">
                       <p className="text-xs font-medium uppercase tracking-widest text-primary">

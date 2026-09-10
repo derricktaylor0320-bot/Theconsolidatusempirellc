@@ -32,8 +32,10 @@ export interface CartItem {
   selectedColor?: string;
   selectedSize?: string;
   selectedScent?: string;
-  /** Optional uploaded artwork URL for footwear customization. */
+  /** Optional uploaded artwork URL for logo-customizable products. */
   customDesignUrl?: string;
+  /** Footwear print locations (e.g. tongue, side, all-over). */
+  selectedPlacements?: string[];
   /** Optional lighter accessory bundle id from bundle_config.json */
   bundleId?: string;
 }
@@ -50,6 +52,7 @@ interface CartContextValue {
     selectedSize?: string,
     selectedScent?: string,
     customDesignUrl?: string,
+    selectedPlacements?: string[],
   ) => void;
   updateQuantity: (
     priceId: string,
@@ -59,6 +62,7 @@ interface CartContextValue {
     selectedSize?: string,
     selectedScent?: string,
     customDesignUrl?: string,
+    selectedPlacements?: string[],
   ) => void;
   /**
    * Apply (or clear) a lighter accessory bundle on every Premium Lighter
@@ -82,8 +86,12 @@ function lineKey(
   selectedSize?: string,
   selectedScent?: string,
   customDesignUrl?: string,
+  selectedPlacements?: string[],
 ) {
-  return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}__${selectedSize || ""}__${selectedScent || ""}__${customDesignUrl || ""}`;
+  const placementKey = selectedPlacements?.length
+    ? selectedPlacements.slice().sort().join("|")
+    : "";
+  return `${priceId}__${selectedLogo || ""}__${selectedColor || ""}__${selectedSize || ""}__${selectedScent || ""}__${customDesignUrl || ""}__${placementKey}`;
 }
 
 /** Strip a previously baked-in bundle upcharge so we can re-apply cleanly. */
@@ -140,13 +148,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     (item: Omit<CartItem, "quantity">, quantity = 1) => {
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) => {
-        const key = lineKey(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent, item.customDesignUrl);
+        const key = lineKey(item.priceId, item.selectedLogo, item.selectedColor, item.selectedSize, item.selectedScent, item.customDesignUrl, item.selectedPlacements);
         const existing = prev.find(
-          (i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) === key,
+          (i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl, i.selectedPlacements) === key,
         );
         if (existing) {
           return prev.map((i) =>
-            lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) === key
+            lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl, i.selectedPlacements) === key
               ? { ...i, quantity: Math.min(MAX_QTY, i.quantity + qty) }
               : i,
           );
@@ -158,10 +166,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const removeItem = useCallback(
-    (priceId: string, selectedLogo?: string, selectedColor?: string, selectedSize?: string, selectedScent?: string, customDesignUrl?: string) => {
-      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent, customDesignUrl);
+    (priceId: string, selectedLogo?: string, selectedColor?: string, selectedSize?: string, selectedScent?: string, customDesignUrl?: string, selectedPlacements?: string[]) => {
+      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent, customDesignUrl, selectedPlacements);
       setItems((prev) =>
-        prev.filter((i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) !== key),
+        prev.filter((i) => lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl, i.selectedPlacements) !== key),
       );
     },
     [],
@@ -176,12 +184,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       selectedSize?: string,
       selectedScent?: string,
       customDesignUrl?: string,
+      selectedPlacements?: string[],
     ) => {
-      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent, customDesignUrl);
+      const key = lineKey(priceId, selectedLogo, selectedColor, selectedSize, selectedScent, customDesignUrl, selectedPlacements);
       const qty = Math.max(1, Math.min(MAX_QTY, Math.round(quantity)));
       setItems((prev) =>
         prev.map((i) =>
-          lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl) === key
+          lineKey(i.priceId, i.selectedLogo, i.selectedColor, i.selectedSize, i.selectedScent, i.customDesignUrl, i.selectedPlacements) === key
             ? { ...i, quantity: qty }
             : i,
         ),

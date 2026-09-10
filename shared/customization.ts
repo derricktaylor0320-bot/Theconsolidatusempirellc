@@ -33,7 +33,12 @@ import {
   isElementsDuoWash,
   parseElementsDuoSelection,
 } from "./elementsDuo";
-import { isFootwearCustomizable, parseFootwearSize } from "./footwear";
+import {
+  formatFootwearPlacementNote,
+  isFootwearCustomizable,
+  normalizeFootwearPlacements,
+  parseFootwearSize,
+} from "./footwear";
 
 // Em dash used by the client to join the choice (color/model) and the logo name.
 const DELIM = " \u2014 ";
@@ -345,6 +350,7 @@ export function checkCustomization(
   productName?: unknown,
   selectedScent?: unknown,
   customDesignUrl?: unknown,
+  selectedPlacements?: unknown,
 ): CustomizationCheck {
   const meta = metadata || {};
   const footwear = isFootwearCustomizable(meta);
@@ -367,10 +373,25 @@ export function checkCustomization(
     if (!parsed) {
       return { required: true, kind: "footwear", ok: false };
     }
+    const placements = normalizeFootwearPlacements(selectedPlacements);
+    if (!placements) {
+      return { required: true, kind: "footwear", ok: false };
+    }
     notes.push(`Size: ${encoded}`);
+    notes.push(formatFootwearPlacementNote(placements));
+    upchargeCents += placementSurchargeCents(placements.length);
     if (isOwnedCustomDesignUrl(customDesignUrl)) {
       notes.push(`Custom design: ${customDesignUrl}`);
     }
+  }
+
+  // Logo-customizable apparel (shirts, etc.): optional uploaded artwork.
+  if (
+    !footwearRequired &&
+    isDefaultLogoCustomizable(meta) &&
+    isOwnedCustomDesignUrl(customDesignUrl)
+  ) {
+    notes.push(`Custom design: ${customDesignUrl}`);
   }
 
   // Wearable apparel size (XS–6XL) — layered ON TOP of the logo (separate from

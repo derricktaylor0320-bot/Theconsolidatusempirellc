@@ -81,10 +81,60 @@ export function isFootwearCustomizable(metadata: unknown): boolean {
 }
 
 export const FOOTWEAR_CUSTOMIZATION_DISCLAIMER =
-  "All shoes and sneakers are fully customizable. You may upload your own logo or design to inspire your pair — however, you must still select one of our Khomplete Khemistri brand logos below to complete your order.";
+  "All shoes and sneakers are fully customizable. Upload your own logo or design, choose where it appears (tongue, side, heel, back, or all over), and select one of our Khomplete Khemistri brand logos to complete your order.";
 
 export const FOOTWEAR_LEAD_TIME_NOTE =
   "Custom footwear is made to order. Please allow 7–14 days for customization after your order is completed before your pair ships.";
+
+/** Where a logo or uploaded design can appear on customizable footwear. */
+export const FOOTWEAR_PLACEMENT_OPTIONS = [
+  { id: "tongue", name: "Tongue" },
+  { id: "side", name: "Side Panel" },
+  { id: "heel", name: "Heel" },
+  { id: "back", name: "Back" },
+  { id: "all-over", name: "All Over" },
+] as const;
+
+export type FootwearPlacementId = (typeof FOOTWEAR_PLACEMENT_OPTIONS)[number]["id"];
+
+export const FOOTWEAR_ALL_OVER_PLACEMENT: FootwearPlacementId = "all-over";
+
+/** Included by default on every footwear order unless the shopper changes it. */
+export const DEFAULT_FOOTWEAR_PLACEMENTS: FootwearPlacementId[] = ["tongue", "side"];
+
+const FOOTWEAR_PLACEMENT_ID_SET = new Set<string>(
+  FOOTWEAR_PLACEMENT_OPTIONS.map((p) => p.id),
+);
+
+export function isFootwearPlacementId(value: unknown): value is FootwearPlacementId {
+  return typeof value === "string" && FOOTWEAR_PLACEMENT_ID_SET.has(value);
+}
+
+/** Normalize shopper selections: unique, valid ids, at least one placement. */
+export function normalizeFootwearPlacements(
+  placements: unknown,
+): FootwearPlacementId[] | null {
+  if (!Array.isArray(placements) || placements.length === 0) return null;
+  const unique: FootwearPlacementId[] = [];
+  for (const raw of placements) {
+    if (!isFootwearPlacementId(raw) || unique.includes(raw)) continue;
+    unique.push(raw);
+  }
+  if (unique.length === 0) return null;
+  if (unique.includes(FOOTWEAR_ALL_OVER_PLACEMENT)) {
+    return [FOOTWEAR_ALL_OVER_PLACEMENT];
+  }
+  return unique;
+}
+
+export function footwearPlacementLabel(id: FootwearPlacementId): string {
+  return FOOTWEAR_PLACEMENT_OPTIONS.find((p) => p.id === id)?.name || id;
+}
+
+export function formatFootwearPlacementNote(placements: FootwearPlacementId[]): string {
+  const labels = placements.map(footwearPlacementLabel);
+  return `Placement: ${labels.join(", ")}`;
+}
 
 // ——— Product identifiers ———
 

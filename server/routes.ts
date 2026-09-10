@@ -531,7 +531,7 @@ export async function registerRoutes(
     }
   });
 
-  // Shoppers: upload an optional custom logo/design for footwear customization.
+  // Shoppers: upload an optional custom logo/design for footwear and apparel customization.
   app.post(
     "/api/footwear/custom-design",
     (req, res, next) => {
@@ -879,7 +879,7 @@ export async function registerRoutes(
           error: `"${(priceRow.product_name as string) || productName || "This item"}" is coming soon.`,
         });
       }
-      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor, req.body?.selectedSize, priceRow.product_name, req.body?.selectedScent, req.body?.customDesignUrl);
+      const check = checkCustomization(productMetadata, selectedLogo, req.body?.selectedColor, req.body?.selectedSize, priceRow.product_name, req.body?.selectedScent, req.body?.customDesignUrl, req.body?.selectedPlacements);
       if (check.required && !check.ok) {
         return res.status(400).json({
           error: customizationErrorMessage(
@@ -1182,7 +1182,7 @@ export async function registerRoutes(
             error: `"${priceRow.product_name || "One of your items"}" is coming soon.`,
           });
         }
-        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor, item?.selectedSize, priceRow.product_name, item?.selectedScent, item?.customDesignUrl);
+        const check = checkCustomization(productMetadata, item?.selectedLogo, item?.selectedColor, item?.selectedSize, priceRow.product_name, item?.selectedScent, item?.customDesignUrl, item?.selectedPlacements);
         if (check.required && !check.ok) {
           return res.status(400).json({
             error: customizationErrorMessage(check.kind, priceRow.product_name),
