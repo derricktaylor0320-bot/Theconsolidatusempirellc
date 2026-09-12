@@ -96,7 +96,11 @@ export default function Policies() {
 
             <div className="mt-12 text-center">
               <p className="text-muted-foreground text-sm">
-                Questions? Contact us at <a href="mailto:supporttheconsolidatusempire@gmail.com" className="text-primary hover:underline">supporttheconsolidatusempire@gmail.com</a>
+                Questions? Contact us at{" "}
+                <a href="mailto:theconsolidatusempirellc@gmail.com" className="text-primary hover:underline">theconsolidatusempirellc@gmail.com</a>
+                {" "}or call{" "}
+                <a href="tel:+18445612444" className="text-primary hover:underline">844-561-2444</a>
+                {" "}(toll free). Hours: 10 AM – 6 PM ET. Our toll-free line is available 24 hours a day, but there is no guarantee you will reach us after 6:00 PM Eastern Time.
               </p>
             </div>
           </div>

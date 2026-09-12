@@ -49,7 +49,26 @@ export default function Footer() {
           <div>
             <h4 className="font-display font-semibold mb-4 uppercase tracking-wider">Support</h4>
             <ul className="space-y-2 text-sm text-secondary-foreground/70">
-              <li><a href="mailto:supporttheconsolidatusempire@gmail.com" className="hover:text-primary transition-colors">Contact Us</a></li>
+              <li>
+                <span className="font-medium text-secondary-foreground">Contact Us</span>
+                <ul className="mt-2 space-y-2">
+                  <li>
+                    <a href="mailto:theconsolidatusempirellc@gmail.com" className="hover:text-primary transition-colors break-all">
+                      theconsolidatusempirellc@gmail.com
+                    </a>
+                  </li>
+                  <li>
+                    <a href="tel:+18445612444" className="hover:text-primary transition-colors">
+                      844-561-2444
+                    </a>
+                    <span className="text-secondary-foreground/50"> (Toll Free)</span>
+                  </li>
+                  <li>Hours: 10 AM – 6 PM ET</li>
+                  <li className="text-xs text-secondary-foreground/50 leading-relaxed">
+                    Our toll-free line is available 24 hours a day, but there is no guarantee you will reach us after 6:00 PM Eastern Time.
+                  </li>
+                </ul>
+              </li>
               <li><Link href="/policies" className="hover:text-primary transition-colors">Shipping & Policies</Link></li>
             </ul>
           </div>
