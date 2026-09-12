@@ -1447,6 +1447,21 @@ const EXTRA_ACCESSORY_PRODUCTS: {
     },
   },
   {
+    productId: "prod_kkcarfloormats",
+    priceId: "price_kkcarfloormats",
+    name: "Custom Car Floor Mats",
+    description:
+      "Personalized custom car floor mats (rug-style) featuring your choice of any Khomplete Khemistri logo from our full catalog. All-weather mats custom-branded for your vehicle. One flat $60 price includes your custom logo and shipping — no extra charges at checkout. SELECT YOUR LOGO at checkout.",
+    priceCents: 6000,
+    meta: {
+      category: "Accessories",
+      productType: "accessory",
+      sortOrder: "31",
+      gender: "Unisex",
+      imageUrl: "/assets/kk_custom_car_floor_mats.png",
+    },
+  },
+  {
     productId: "prod_kkdrawstringbackpack",
     priceId: "price_kkdrawstringbackpack",
     name: "Personalized Drawstring Backpack",
@@ -3864,7 +3879,7 @@ export async function ensureCatalogData() {
         AND product IN (SELECT id FROM stripe.products WHERE active = false)
     `);
 
-    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($60 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), Personalized Custom Logo Shorts ($25, Amazon-fulfilled, 31 colors, S–3XL), Personalized Custom Logo Bikini ($25, Amazon-fulfilled women's Swimwear, 4 colors, M–5XL), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
+    console.log("ensureCatalogData: ensured Branded Tumblers in 3 sizes (20 oz $34.99 / 30 oz $39.99 / 40 oz $45, Amazon-fulfilled, free shipping), Personalized Duffle Bag ($43.95, Amazon-fulfilled, 5 colors + logo), Custom Car Floor Mats ($60 flat, custom logo + shipping included), phone cases ($30, model + logo), Branded Logo Fitted Hat ($40, color + logo), Men's Softshell Jacket + Women's Softshell Jacket ($60 each, Amazon S–3XL multi-color), Personalized Custom Logo Jeans ($57.48 = Amazon $39.99 + $7.49 ship + $10 margin, 10 colors, waist×inseam sizes), Personalized Custom Logo Shorts ($25, Amazon-fulfilled, 31 colors, S–3XL), Personalized Custom Logo Bikini ($25, Amazon-fulfilled women's Swimwear, 4 colors, M–5XL), the 10-design Vintage Baltimore collection ($30 graphic tees), and consolidated bedding (Comforter Set $99 + Sheet Set $80, size selector); removed retired products (Kids Sippy Cup + baby line + old vintage placeholders + Branded Tote Bag + Cosmetic Bag + Coffee Mug); archived leftover prices on inactive products; hid cut-off Bottoms fabric-crest placeholders; jeans category Jeans with studio photos.");
   } catch (err) {
     console.error("ensureCatalogData failed:", err);
   }
