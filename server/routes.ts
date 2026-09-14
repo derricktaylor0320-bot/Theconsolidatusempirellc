@@ -1450,6 +1450,56 @@ export async function registerRoutes(
     }
   });
 
+  // Contact form with SMS consent
+  const contactConsentSchema = z.object({
+    name: z.string().trim().min(1, "Please enter your name"),
+    email: z.string().email("Please enter a valid email address"),
+    phone: z.string().trim().min(7, "Please enter a valid phone number"),
+    message: z.string().trim().min(1, "Please enter a message"),
+    smsConsent: z.literal(true, {
+      errorMap: () => ({ message: "SMS consent is required" }),
+    }),
+  });
+
+  app.post("/api/contact-consent", async (req, res) => {
+    try {
+      const result = contactConsentSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: result.error.errors[0].message });
+      }
+
+      const { name, email, phone, message } = result.data;
+      const ownerEmail =
+        process.env.CONTACT_FORM_TO ||
+        "supporttheconsolidatusempire@gmail.com";
+
+      const html = `
+        <h2>New contact form submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p><strong>SMS consent:</strong> Yes — user consented to text messages from +1-844-561-2444</p>
+      `;
+
+      await sendEmail({
+        to: ownerEmail,
+        subject: `Contact form: ${name}`,
+        html,
+        text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}\nSMS consent: Yes`,
+      });
+
+      res.status(201).json({
+        message:
+          "Thank you. We received your message and SMS consent. Our team will follow up soon.",
+      });
+    } catch (error) {
+      console.error("Error submitting contact consent form:", error);
+      res.status(500).json({ error: "Failed to submit form. Please try again." });
+    }
+  });
+
   // Email subscription endpoint
   const subscribeSchema = z.object({
     email: z.string().email("Please enter a valid email address"),

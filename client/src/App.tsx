@@ -40,6 +40,7 @@ import Orders from "@/pages/Orders";
 import Profile from "@/pages/Profile";
 import FootballTeams from "@/pages/FootballTeams";
 import FuelPerks from "@/pages/FuelPerks";
+import ContactConsent from "@/pages/ContactConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
@@ -68,6 +69,7 @@ function Router() {
       <Route path="/consolidated-expense-relief" component={ExpenseRelief} />
       <Route path="/invest" component={Invest} />
       <Route path="/fuel-perks" component={FuelPerks} />
+      <Route path="/contact" component={ContactConsent} />
       <Route path="/apparel" component={Apparel} />
       <Route path="/football-teams" component={FootballTeams} />
       <Route path="/feminine" component={Feminine} />
