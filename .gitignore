@@ -1,5 +1,7 @@
 node_modules
 dist
+.build
+fr2p-club-dist
 .DS_Store
 server/public
 vite.config.ts.*

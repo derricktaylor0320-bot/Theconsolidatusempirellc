@@ -1,41 +1,30 @@
-import { Link } from "wouter";
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import EmbedAuthBanner from "@/components/EmbedAuthBanner";
-import { useEmbedSso } from "@/hooks/useEmbedSso";
+import { Loader2 } from "lucide-react";
 
-const FR2P_ORIGIN = "https://fr2p-club-production.up.railway.app";
-
+/**
+ * Hub entry point for The FR2P Club. The full club app is self-hosted at
+ * /fr2p/embed (no external Railway iframe). Use a full page navigation so the
+ * hub SPA router does not swallow the embed path.
+ */
 export default function FR2P() {
-  const src = useEmbedSso(FR2P_ORIGIN, FR2P_ORIGIN);
+  useEffect(() => {
+    window.location.replace("/fr2p/embed/");
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="flex-grow flex flex-col h-[calc(100vh-80px)]">
-        <EmbedAuthBanner appName="The FR2P Club" />
-        <div className="bg-secondary text-secondary-foreground py-4 text-center">
-          <h1 className="font-display text-xl md:text-2xl font-bold uppercase tracking-wider text-primary">
-            The FR2P Club
+      <main className="flex-grow flex items-center justify-center px-4 py-16">
+        <div className="text-center space-y-3" data-testid="fr2p-redirecting">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+          <h1 className="font-display text-xl font-bold uppercase tracking-wider text-primary">
+            Opening The FR2P Club
           </h1>
-          <p className="mt-2 text-xs md:text-sm text-secondary-foreground/70">
-            Pocket Booster&apos;s eight program tabs (S1–S8) live on{" "}
-            <Link
-              href="/pocket-booster#program-codes"
-              className="text-primary underline underline-offset-2 hover:text-primary/80"
-              data-testid="link-fr2p-pathway"
-            >
-              Pocket Booster
-            </Link>
-            .
+          <p className="text-sm text-muted-foreground">
+            Taking you to the Financial Roadway 2 Prosperity experience…
           </p>
-        </div>
-        <div className="flex-grow w-full relative">
-          <iframe
-            src={src}
-            title="The FR2P Club"
-            className="absolute inset-0 w-full h-full border-0"
-            data-testid="iframe-fr2p"
-          />
         </div>
       </main>
       <Footer />
