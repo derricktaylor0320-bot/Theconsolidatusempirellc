@@ -22,6 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import type { CustomerFeedback } from "@shared/schema";
+import GoogleSearchSetupCard, {
+  type GoogleSetupInfo,
+} from "@/components/GoogleSearchSetupCard";
 
 type BackOfficeOverview = {
   greeting: string;
@@ -57,6 +60,7 @@ type BackOfficeOverview = {
     createdAt: string | null;
   }>;
   recentFeedback: CustomerFeedback[];
+  google: GoogleSetupInfo;
 };
 
 function formatMoney(cents: number) {
@@ -354,7 +358,9 @@ export default function BackOffice() {
                 </Card>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-2">
+              {data?.google && <GoogleSearchSetupCard google={data.google} />}
+
+              <div className="grid gap-6 lg:grid-cols-2 mt-8">
                 <Card>
                   <CardHeader>
                     <CardTitle>Recent Buyers</CardTitle>

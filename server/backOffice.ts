@@ -4,6 +4,7 @@ import { EMPIRE_APPS, recordPageViewSchema, submitFeedbackSchema, updateFeedback
 import { requireOwner } from "./auth";
 import { storage } from "./storage";
 import { RateLimiter } from "./rateLimit";
+import { getGoogleSetupStatus } from "./seo";
 
 const pageViewLimiter = new RateLimiter(120, 60_000);
 const feedbackLimiter = new RateLimiter(5, 60_000);
@@ -95,6 +96,7 @@ export function registerBackOfficeRoutes(app: Express): void {
       res.json({
         greeting: `${greetingForHour(new Date().getHours())}, ${displayName}`,
         generatedAt: new Date().toISOString(),
+        google: getGoogleSetupStatus(),
         stats: {
           totalUsers: overview.totalUsers,
           totalSubscribers: overview.totalSubscribers,

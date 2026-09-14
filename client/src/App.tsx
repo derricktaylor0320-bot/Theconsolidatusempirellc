@@ -45,6 +45,8 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
 import EmpirePageAnalytics from "@/components/EmpirePageAnalytics";
+import OrganizationSchema from "@/components/OrganizationSchema";
+import GoogleSiteVerification from "@/components/GoogleSiteVerification";
 
 function Router() {
   return (
@@ -102,6 +104,8 @@ function App() {
         <CompassNavigationProvider>
           <TooltipProvider>
             <GoogleAnalytics />
+            <GoogleSiteVerification />
+            <OrganizationSchema />
             <SiteVisitTracker />
             <EmpirePageAnalytics />
             <CookieConsentBanner />

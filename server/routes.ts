@@ -22,6 +22,7 @@ import { registerLiquidityRoutes } from "./liquidityRouter";
 import { registerExpenseReliefRoutes } from "./expenseRelief";
 import { registerFuelPerksRoutes } from "./fuelPerks";
 import { registerBackOfficeRoutes } from "./backOffice";
+import { getGoogleSetupStatus, registerSeoRoutes } from "./seo";
 import { PROGRAM_PATHWAY, PROGRAM_STAGES } from "@shared/programStages";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION, placementSurchargeDollars } from "@shared/customization";
 import {
@@ -256,6 +257,7 @@ export async function registerRoutes(
   // FR2P Fuel Rewards — standalone sub-brand (static embed + member API)
   registerFuelPerksRoutes(app);
   registerBackOfficeRoutes(app);
+  registerSeoRoutes(app);
 
   // Empire Pathway — S1–S8 Financial Roadway program stage definitions
   app.get("/api/program-stages", (_req, res) => {
@@ -265,10 +267,14 @@ export async function registerRoutes(
     });
   });
 
-  // Public site config (no secrets — GA measurement IDs are public in page source)
+  // Public site config (no secrets — GA / Search Console tokens are public in page source)
   app.get("/api/site-config", (_req, res) => {
-    const gaMeasurementId = process.env.GA_MEASUREMENT_ID?.trim() || null;
-    res.json({ gaMeasurementId });
+    const google = getGoogleSetupStatus();
+    res.json({
+      gaMeasurementId: google.gaMeasurementId,
+      googleSiteVerification: process.env.GOOGLE_SITE_VERIFICATION?.trim() || null,
+      publicSiteUrl: google.publicSiteUrl,
+    });
   });
 
   // Stripe publishable key for any client-side Stripe.js usage.
