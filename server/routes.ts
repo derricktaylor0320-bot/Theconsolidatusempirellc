@@ -21,6 +21,7 @@ import { registerPocketBoosterRoutes } from "./pocketBooster";
 import { registerLiquidityRoutes } from "./liquidityRouter";
 import { registerExpenseReliefRoutes } from "./expenseRelief";
 import { registerFuelPerksRoutes } from "./fuelPerks";
+import { registerFr2pClubEmbed } from "./fr2pClub";
 import { registerBackOfficeRoutes } from "./backOffice";
 import { getGoogleSetupStatus, registerSeoRoutes } from "./seo";
 import { PROGRAM_PATHWAY, PROGRAM_STAGES } from "@shared/programStages";
@@ -256,6 +257,8 @@ export async function registerRoutes(
 
   // FR2P Fuel Rewards — standalone sub-brand (static embed + member API)
   registerFuelPerksRoutes(app);
+  // The FR2P Club — affiliate platform embedded at /fr2p/embed (self-hosted)
+  await registerFr2pClubEmbed(app, httpServer);
   registerBackOfficeRoutes(app);
   registerSeoRoutes(app);
 

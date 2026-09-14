@@ -11,6 +11,7 @@ import About from "@/pages/About";
 import NumberThree from "@/pages/NumberThree";
 import Canvas from "@/pages/Canvas";
 import FR2P from "@/pages/FR2P";
+import Fr2pEmbedHandoff from "@/pages/Fr2pEmbedHandoff";
 import Apparel from "@/pages/Apparel";
 import Feminine from "@/pages/Feminine";
 import Masculine from "@/pages/Masculine";
@@ -64,6 +65,8 @@ function Router() {
       <Route path="/sso-demo" component={SsoDemo} />
       <Route path="/orders" component={Orders} />
       <Route path="/profile" component={Profile} />
+      <Route path="/fr2p/embed/:rest*" component={Fr2pEmbedHandoff} />
+      <Route path="/fr2p/embed" component={Fr2pEmbedHandoff} />
       <Route path="/fr2p" component={FR2P} />
       <Route path="/pathway">
         <Redirect to="/pocket-booster#building-blocks" replace />
