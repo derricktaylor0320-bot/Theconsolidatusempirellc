@@ -565,6 +565,43 @@ export async function ensureTablesExist() {
       ON expense_relief_vault (created_at)
     `);
 
+    // Empire Back Office — anonymous page analytics + customer feedback inbox.
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS page_views (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        path TEXT NOT NULL,
+        visitor_id TEXT NOT NULL,
+        referrer TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_page_views_path_created"
+      ON page_views (path, created_at DESC)
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_page_views_visitor_created"
+      ON page_views (visitor_id, created_at DESC)
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS customer_feedback (
+        id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        email TEXT,
+        message TEXT NOT NULL,
+        interest_area TEXT,
+        source_path TEXT,
+        status TEXT NOT NULL DEFAULT 'new',
+        owner_notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS "IDX_customer_feedback_status_created"
+      ON customer_feedback (status, created_at DESC)
+    `);
+
     console.log("Database tables verified/created");
   } catch (error) {
     console.error("Error ensuring tables exist:", error);

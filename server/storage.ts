@@ -1,4 +1,5 @@
-import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems, type Review, reviews, discountRedemptions } from "@shared/schema";
+import { type Product, type InsertProduct, products, type Subscriber, type InsertSubscriber, subscribers, type User, type InsertUser, users, type PasswordResetToken, type InsertPasswordResetToken, passwordResetTokens, type Order, type OrderItem, type FulfillmentStatus, orders, type MediaItem, mediaItems, type Review, reviews, discountRedemptions, type CustomerFeedback, customerFeedback, pageViews, userSubscriptions, expenseReliefMemberships, userInvestments } from "@shared/schema";
+import type { FeedbackStatus } from "@shared/backOffice";
 import { DISCOUNT_CODES } from "@shared/discounts";
 
 // Review row joined with the reviewer's current profile photo + location.
@@ -103,6 +104,47 @@ export interface IStorage {
     code: string;
     squareOrderId?: string | null;
   }): Promise<void>;
+
+  // Empire Back Office
+  recordPageView(input: {
+    path: string;
+    visitorId: string;
+    referrer?: string | null;
+  }): Promise<void>;
+  getBackOfficeOverview(): Promise<{
+    totalUsers: number;
+    totalSubscribers: number;
+    totalOrders: number;
+    totalRevenueCents: number;
+    uniqueVisitors7d: number;
+    pageViews7d: number;
+    pageViews30d: number;
+    pendingFeedback: number;
+    pocketBoosterMembers: number;
+    expenseReliefMembers: number;
+    activeInvestors: number;
+    topDestinations: Array<{ path: string; views: number }>;
+    recentBuyers: Array<{
+      id: string;
+      customerEmail: string | null;
+      customerName: string | null;
+      totalCents: number;
+      createdAt: Date | null;
+    }>;
+    recentFeedback: CustomerFeedback[];
+  }>;
+  submitFeedback(input: {
+    message: string;
+    email?: string | null;
+    interestArea?: string | null;
+    sourcePath?: string | null;
+  }): Promise<CustomerFeedback>;
+  getAllFeedback(limit?: number): Promise<CustomerFeedback[]>;
+  updateFeedbackStatus(
+    id: string,
+    status: FeedbackStatus,
+    ownerNotes?: string | null,
+  ): Promise<CustomerFeedback | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -631,6 +673,156 @@ export class DatabaseStorage implements IStorage {
       code: input.code,
       squareOrderId: input.squareOrderId ?? null,
     });
+  }
+
+  async recordPageView(input: {
+    path: string;
+    visitorId: string;
+    referrer?: string | null;
+  }): Promise<void> {
+    await db.insert(pageViews).values({
+      path: input.path,
+      visitorId: input.visitorId,
+      referrer: input.referrer ?? null,
+    });
+  }
+
+  async getBackOfficeOverview() {
+    const sevenDaysAgo = sql`NOW() - INTERVAL '7 days'`;
+    const thirtyDaysAgo = sql`NOW() - INTERVAL '30 days'`;
+
+    const [usersCount] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(users);
+    const [subscribersCount] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(subscribers);
+    const [ordersAgg] = await db
+      .select({
+        count: sql<number>`count(*)::int`,
+        revenue: sql<number>`COALESCE(SUM(total_cents), 0)::int`,
+      })
+      .from(orders)
+      .where(eq(orders.status, "paid"));
+    const [views7d] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(pageViews)
+      .where(sql`${pageViews.createdAt} >= ${sevenDaysAgo}`);
+    const [views30d] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(pageViews)
+      .where(sql`${pageViews.createdAt} >= ${thirtyDaysAgo}`);
+    const [unique7d] = await db
+      .select({ count: sql<number>`count(DISTINCT visitor_id)::int` })
+      .from(pageViews)
+      .where(sql`${pageViews.createdAt} >= ${sevenDaysAgo}`);
+    const [pendingFeedback] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(customerFeedback)
+      .where(eq(customerFeedback.status, "new"));
+    const [pbMembers] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(userSubscriptions)
+      .where(eq(userSubscriptions.subscriptionStatus, "active"));
+    const [erMembers] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(expenseReliefMemberships)
+      .where(eq(expenseReliefMemberships.subscriptionStatus, "active"));
+    const [investors] = await db
+      .select({ count: sql<number>`count(DISTINCT user_id)::int` })
+      .from(userInvestments)
+      .where(eq(userInvestments.status, "ACTIVE"));
+
+    const topDestinations = await db
+      .select({
+        path: pageViews.path,
+        views: sql<number>`count(*)::int`,
+      })
+      .from(pageViews)
+      .where(sql`${pageViews.createdAt} >= ${sevenDaysAgo}`)
+      .groupBy(pageViews.path)
+      .orderBy(sql`count(*) DESC`)
+      .limit(12);
+
+    const recentBuyers = await db
+      .select({
+        id: orders.id,
+        customerEmail: orders.customerEmail,
+        customerName: orders.customerName,
+        totalCents: orders.totalCents,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .where(eq(orders.status, "paid"))
+      .orderBy(desc(orders.createdAt))
+      .limit(8);
+
+    const recentFeedback = await db
+      .select()
+      .from(customerFeedback)
+      .orderBy(desc(customerFeedback.createdAt))
+      .limit(10);
+
+    return {
+      totalUsers: usersCount?.count ?? 0,
+      totalSubscribers: subscribersCount?.count ?? 0,
+      totalOrders: ordersAgg?.count ?? 0,
+      totalRevenueCents: ordersAgg?.revenue ?? 0,
+      uniqueVisitors7d: unique7d?.count ?? 0,
+      pageViews7d: views7d?.count ?? 0,
+      pageViews30d: views30d?.count ?? 0,
+      pendingFeedback: pendingFeedback?.count ?? 0,
+      pocketBoosterMembers: pbMembers?.count ?? 0,
+      expenseReliefMembers: erMembers?.count ?? 0,
+      activeInvestors: investors?.count ?? 0,
+      topDestinations,
+      recentBuyers,
+      recentFeedback,
+    };
+  }
+
+  async submitFeedback(input: {
+    message: string;
+    email?: string | null;
+    interestArea?: string | null;
+    sourcePath?: string | null;
+  }): Promise<CustomerFeedback> {
+    const [row] = await db
+      .insert(customerFeedback)
+      .values({
+        message: input.message,
+        email: input.email?.trim() || null,
+        interestArea: input.interestArea?.trim() || null,
+        sourcePath: input.sourcePath?.trim() || null,
+        status: "new",
+      })
+      .returning();
+    return row;
+  }
+
+  async getAllFeedback(limit = 50): Promise<CustomerFeedback[]> {
+    return await db
+      .select()
+      .from(customerFeedback)
+      .orderBy(desc(customerFeedback.createdAt))
+      .limit(limit);
+  }
+
+  async updateFeedbackStatus(
+    id: string,
+    status: FeedbackStatus,
+    ownerNotes?: string | null,
+  ): Promise<CustomerFeedback | undefined> {
+    const [row] = await db
+      .update(customerFeedback)
+      .set({
+        status,
+        ownerNotes: ownerNotes?.trim() || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(customerFeedback.id, id))
+      .returning();
+    return row || undefined;
   }
 }
 

@@ -111,6 +111,13 @@ export default function Navbar() {
                       Orders
                     </Link>
                   </DropdownMenuItem>
+                  {user?.isOwner && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/back-office" data-testid="link-menu-back-office">
+                        Empire Back Office
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onClick={handleLogout}
                     data-testid="button-logout"

@@ -21,6 +21,7 @@ import { registerPocketBoosterRoutes } from "./pocketBooster";
 import { registerLiquidityRoutes } from "./liquidityRouter";
 import { registerExpenseReliefRoutes } from "./expenseRelief";
 import { registerFuelPerksRoutes } from "./fuelPerks";
+import { registerBackOfficeRoutes } from "./backOffice";
 import { PROGRAM_PATHWAY, PROGRAM_STAGES } from "@shared/programStages";
 import { checkCustomization, customizationErrorMessage, isDefaultLogoCustomizable, apparelSizesFor, scentsFor, FULL_LOGO_CATALOG_OPTION, placementSurchargeDollars } from "@shared/customization";
 import {
@@ -254,6 +255,7 @@ export async function registerRoutes(
 
   // FR2P Fuel Rewards — standalone sub-brand (static embed + member API)
   registerFuelPerksRoutes(app);
+  registerBackOfficeRoutes(app);
 
   // Empire Pathway — S1–S8 Financial Roadway program stage definitions
   app.get("/api/program-stages", (_req, res) => {
@@ -1623,8 +1625,8 @@ export async function registerRoutes(
     }
   });
 
-  // Get all subscribers (for admin use)
-  app.get("/api/subscribers", async (req, res) => {
+  // Owner-only subscriber list (email list for marketing / interest tracking).
+  app.get("/api/subscribers", requireOwner, async (req, res) => {
     try {
       const subscribers = await storage.getAllSubscribers();
       res.json(subscribers);
