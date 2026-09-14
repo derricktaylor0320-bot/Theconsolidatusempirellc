@@ -16,9 +16,13 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Loader2, MessageSquare } from "lucide-react";
-
-const SMS_CONSENT_TEXT =
-  "The Consolidatus Empire LLC would like your consent to send text message communications from +1-844-561-2444 in response to your questions or to provide information related to your relationship with us.";
+import {
+  SITE_DOMAIN,
+  SITE_SUPPORT_EMAIL,
+  SITE_SUPPORT_PHONE,
+  SITE_SUPPORT_PHONE_TEL,
+  SITE_SMS_CONSENT_TEXT,
+} from "@shared/site";
 
 export default function ContactConsent() {
   const { toast } = useToast();
@@ -94,6 +98,28 @@ export default function ContactConsent() {
               <p className="mt-3 text-muted-foreground">
                 Share your details and consent to receive text message
                 communications from The Consolidatus Empire LLC.
+              </p>
+              <p className="mt-4 text-sm text-muted-foreground">
+                <a
+                  href={`https://${SITE_DOMAIN}`}
+                  className="text-primary hover:underline"
+                >
+                  {SITE_DOMAIN}
+                </a>
+                {" · "}
+                <a
+                  href={`mailto:${SITE_SUPPORT_EMAIL}`}
+                  className="text-primary hover:underline"
+                >
+                  {SITE_SUPPORT_EMAIL}
+                </a>
+                {" · "}
+                <a
+                  href={`tel:${SITE_SUPPORT_PHONE_TEL}`}
+                  className="text-primary hover:underline"
+                >
+                  {SITE_SUPPORT_PHONE}
+                </a>
               </p>
             </div>
 
@@ -201,7 +227,7 @@ export default function ContactConsent() {
 
                     <div className="rounded-md border border-primary/20 bg-muted/30 p-4">
                       <p className="text-sm leading-relaxed text-muted-foreground">
-                        {SMS_CONSENT_TEXT}
+                        {SITE_SMS_CONSENT_TEXT}
                       </p>
                       <div className="mt-4 flex items-start gap-3">
                         <Checkbox

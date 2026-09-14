@@ -12,7 +12,7 @@ import {
 import { getStripePublishableKey, stripeConfigured } from "./stripeClient";
 import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
 import { trackingUrlFor } from "@shared/shipping";
-import { resolvePublicSiteUrl } from "@shared/site";
+import { resolvePublicSiteUrl, SITE_SUPPORT_EMAIL, SITE_SUPPORT_PHONE, SITE_SMS_CONSENT_TEXT } from "@shared/site";
 import { resolveStorefrontImageUrl } from "@shared/productImages";
 import { CATALOG_SYNC_VERSION, ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
@@ -1469,9 +1469,7 @@ export async function registerRoutes(
       }
 
       const { name, email, phone, message } = result.data;
-      const ownerEmail =
-        process.env.CONTACT_FORM_TO ||
-        "supporttheconsolidatusempire@gmail.com";
+      const ownerEmail = process.env.CONTACT_FORM_TO || SITE_SUPPORT_EMAIL;
 
       const html = `
         <h2>New contact form submission</h2>
@@ -1480,7 +1478,7 @@ export async function registerRoutes(
         <p><strong>Phone:</strong> ${phone}</p>
         <p><strong>Message:</strong></p>
         <p>${message.replace(/\n/g, "<br>")}</p>
-        <p><strong>SMS consent:</strong> Yes — user consented to text messages from +1-844-561-2444</p>
+        <p><strong>SMS consent:</strong> Yes — user consented to text messages from ${SITE_SUPPORT_PHONE}</p>
       `;
 
       await sendEmail({

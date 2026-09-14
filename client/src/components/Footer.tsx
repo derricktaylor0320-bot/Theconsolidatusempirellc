@@ -1,6 +1,12 @@
 import { Link } from "wouter";
 import { Instagram, Twitter, Facebook } from "lucide-react";
 import logo from "@assets/brand/consolidatus_empire_crest_blue_silver.jpg";
+import {
+  SITE_DOMAIN,
+  SITE_SUPPORT_EMAIL,
+  SITE_SUPPORT_PHONE,
+  SITE_SUPPORT_PHONE_TEL,
+} from "@shared/site";
 
 export default function Footer() {
   return (
@@ -49,7 +55,22 @@ export default function Footer() {
           <div>
             <h4 className="font-display font-semibold mb-4 uppercase tracking-wider">Support</h4>
             <ul className="space-y-2 text-sm text-secondary-foreground/70">
-              <li><a href="mailto:supporttheconsolidatusempire@gmail.com" className="hover:text-primary transition-colors">Contact Us</a></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+              <li>
+                <a href={`mailto:${SITE_SUPPORT_EMAIL}`} className="hover:text-primary transition-colors">
+                  {SITE_SUPPORT_EMAIL}
+                </a>
+              </li>
+              <li>
+                <a href={`tel:${SITE_SUPPORT_PHONE_TEL}`} className="hover:text-primary transition-colors">
+                  {SITE_SUPPORT_PHONE}
+                </a>
+              </li>
+              <li>
+                <a href={`https://${SITE_DOMAIN}`} className="hover:text-primary transition-colors">
+                  {SITE_DOMAIN}
+                </a>
+              </li>
               <li><Link href="/policies" className="hover:text-primary transition-colors">Shipping & Policies</Link></li>
             </ul>
           </div>
