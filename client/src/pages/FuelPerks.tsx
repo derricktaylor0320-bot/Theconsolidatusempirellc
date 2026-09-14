@@ -12,7 +12,7 @@ export default function FuelPerks() {
           </h1>
           <p className="mt-2 text-xs md:text-sm text-secondary-foreground/70">
             A standalone fuel rewards sub-brand under The Consolidatus Empire LLC
-            &amp; The FR2P Club — $29.99/mo member savings and affiliate tools.
+            &amp; The FR2P Club — plans from $19.99/mo with Fleet Pro at $29.99/mo most popular.
           </p>
         </div>
         <div className="flex-grow w-full relative">

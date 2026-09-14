@@ -143,7 +143,7 @@ const DIRECTORY_ITEMS: DirectoryItem[] = [
     href: "/fuel-perks",
     title: "FR2P Fuel Rewards",
     description:
-      "Community fuel pool savings, QR magnets, and $29.99/mo member back office.",
+      "Community fuel pool savings, QR magnets, and member plans from $19.99–$39.99/mo.",
     Icon: Fuel,
   },
 ];
