@@ -609,3 +609,31 @@ export const expenseReliefVault = pgTable("expense_relief_vault", {
 });
 
 export type ExpenseReliefVault = typeof expenseReliefVault.$inferSelect;
+
+// ---------------------------------------------------------------------------
+// Empire Back Office — page analytics + customer feedback
+// ---------------------------------------------------------------------------
+
+export const pageViews = pgTable("page_views", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  path: text("path").notNull(),
+  visitorId: text("visitor_id").notNull(),
+  referrer: text("referrer"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type PageView = typeof pageViews.$inferSelect;
+
+export const customerFeedback = pgTable("customer_feedback", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email"),
+  message: text("message").notNull(),
+  interestArea: text("interest_area"),
+  sourcePath: text("source_path"),
+  status: text("status").notNull().default("new"), // new | in_progress | resolved
+  ownerNotes: text("owner_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type CustomerFeedback = typeof customerFeedback.$inferSelect;

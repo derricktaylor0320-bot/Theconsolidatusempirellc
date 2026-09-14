@@ -89,6 +89,16 @@ export const requireAuth: RequestHandler = (req, res, next) => {
 // signed-in user" — the pre-existing behavior — so the owner is never locked
 // out of their own store, but we warn once so they know to lock it down.
 let warnedOwnerAllowlistMissing = false;
+export function isOwnerEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const allowlist = (process.env.OWNER_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (allowlist.length === 0) return true;
+  return allowlist.includes(email.toLowerCase());
+}
+
 export const requireOwner: RequestHandler = (req, res, next) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     return res.status(401).json({ error: "Not authenticated" });
@@ -256,7 +266,11 @@ export function setupAuth(app: Express) {
   // Current signed-in identity (or 401 when signed out).
   app.get("/api/auth/user", (req, res) => {
     if (req.isAuthenticated() && req.user) {
-      return res.json(toPublicUser(req.user as User));
+      const user = req.user as User;
+      return res.json({
+        ...toPublicUser(user),
+        isOwner: isOwnerEmail(user.email),
+      });
     }
     res.status(401).json({ error: "Not authenticated" });
   });

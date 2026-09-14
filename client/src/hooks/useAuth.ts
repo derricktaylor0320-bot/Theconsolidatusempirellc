@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PublicUser } from "@shared/schema";
 
+export type AuthUser = PublicUser & { isOwner?: boolean };
+
 export function useAuth() {
-  const { data, isLoading, error } = useQuery<PublicUser | null>({
+  const { data, isLoading, error } = useQuery<AuthUser | null>({
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       const res = await fetch("/api/auth/user", { credentials: "include" });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to load user");
-      return (await res.json()) as PublicUser;
+      return (await res.json()) as AuthUser;
     },
     retry: false,
     staleTime: 1000 * 60,

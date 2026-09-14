@@ -21,6 +21,7 @@ import PocketBooster from "@/pages/PocketBooster";
 import ExpenseRelief from "@/pages/ExpenseRelief";
 import Invest from "@/pages/Invest";
 import Hub from "@/pages/Hub";
+import BackOffice from "@/pages/BackOffice";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import CheckoutCancel from "@/pages/CheckoutCancel";
 import LogoCustomizer from "@/pages/LogoCustomizer";
@@ -44,6 +45,9 @@ import ContactConsent from "@/pages/ContactConsent";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
+import EmpirePageAnalytics from "@/components/EmpirePageAnalytics";
+import OrganizationSchema from "@/components/OrganizationSchema";
+import GoogleSiteVerification from "@/components/GoogleSiteVerification";
 
 function Router() {
   return (
@@ -54,6 +58,7 @@ function Router() {
       <Route path="/canvas" component={Canvas} />
       <Route path="/customize/:logoId" component={LogoCustomizer} />
       <Route path="/hub" component={Hub} />
+      <Route path="/back-office" component={BackOffice} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/sso-demo" component={SsoDemo} />
@@ -101,7 +106,10 @@ function App() {
         <CompassNavigationProvider>
           <TooltipProvider>
             <GoogleAnalytics />
+            <GoogleSiteVerification />
+            <OrganizationSchema />
             <SiteVisitTracker />
+            <EmpirePageAnalytics />
             <CookieConsentBanner />
             <Toaster />
             <Router />

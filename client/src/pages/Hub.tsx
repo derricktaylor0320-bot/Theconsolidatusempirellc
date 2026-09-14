@@ -7,8 +7,9 @@ import EmpireDirectory from "@/components/EmpireDirectory";
 import EmpireNavigationGrid from "@/components/EmpireNavigationGrid";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, CheckCircle2 } from "lucide-react";
+import { LogIn, CheckCircle2, LayoutDashboard } from "lucide-react";
 import { getSiteLinkNumber, SITE_LINKS } from "@/lib/siteNavigation";
+import CustomerFeedbackForm from "@/components/CustomerFeedbackForm";
 
 export default function Hub() {
   const [, setLocation] = useLocation();
@@ -41,21 +42,34 @@ export default function Hub() {
           </p>
 
           {!isLoading && (
-            <div className="mb-8 flex justify-center">
+            <div className="mb-8 flex flex-col items-center gap-3">
               {isAuthenticated ? (
-                <div
-                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm"
-                  data-testid="status-hub-signed-in"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-primary" />
-                  <span>
-                    Signed in as{" "}
-                    <span className="font-semibold text-primary">
-                      {user?.displayName || user?.email}
-                    </span>{" "}
-                    — your session carries across the hub
-                  </span>
-                </div>
+                <>
+                  <div
+                    className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm"
+                    data-testid="status-hub-signed-in"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-primary" />
+                    <span>
+                      Signed in as{" "}
+                      <span className="font-semibold text-primary">
+                        {user?.displayName || user?.email}
+                      </span>{" "}
+                      — your session carries across the hub
+                    </span>
+                  </div>
+                  {user?.isOwner && (
+                    <Button
+                      size="sm"
+                      onClick={() => setLocation("/back-office")}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 uppercase tracking-wider font-display gap-2"
+                      data-testid="button-hub-back-office"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      Open Empire Back Office
+                    </Button>
+                  )}
+                </>
               ) : (
                 <div
                   className="inline-flex flex-col sm:flex-row items-center gap-3 rounded-xl border border-primary/20 bg-background/60 px-5 py-3"
@@ -118,6 +132,20 @@ export default function Hub() {
             numbered buttons above for direct access, or open the detailed
             directory cards for descriptions of each section.
           </p>
+
+          <section
+            className="mx-auto mt-10 max-w-2xl text-left"
+            aria-labelledby="hub-feedback-title"
+            data-testid="section-hub-feedback"
+          >
+            <h2
+              id="hub-feedback-title"
+              className="mb-4 text-center font-display text-xl font-bold uppercase tracking-wide text-primary"
+            >
+              Customer Voice
+            </h2>
+            <CustomerFeedbackForm />
+          </section>
         </div>
       </main>
       <Footer />
