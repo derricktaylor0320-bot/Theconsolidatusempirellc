@@ -10,11 +10,28 @@
         header { padding: 2rem; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.3); }
         h1 { color: var(--accent); margin-bottom: 0.5rem; }
         .hero { max-width: 800px; margin: 3rem auto; padding: 2rem; text-align: center; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(212,175,55,0.2); }
-        .price-tag { font-size: 2.5rem; color: var(--accent); font-weight: bold; margin: 1.5rem 0; }
+        .price-tag { font-size: 2rem; color: var(--accent); font-weight: bold; margin: 1.5rem 0; }
         .btn { background: var(--accent); color: var(--primary); padding: 1rem 2rem; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s; }
         .btn:hover { background: #f3c644; }
         .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; max-width: 900px; margin: 3rem auto; padding: 0 1rem; }
         .card { background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--accent); }
+        .plans { max-width: 1000px; margin: 0 auto 3rem; padding: 0 1rem; }
+        .plans h2 { text-align: center; color: var(--accent); margin-bottom: 0.5rem; }
+        .plans .subtitle { text-align: center; color: rgba(255,255,255,0.75); margin-bottom: 2rem; }
+        .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
+        .tier-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.25); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s; }
+        .tier-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .tier-card.featured { border-color: var(--accent); box-shadow: 0 0 24px rgba(212,175,55,0.15); }
+        .tier-card h3 { color: var(--accent); margin: 0 0 0.5rem; }
+        .tier-price { font-size: 2rem; font-weight: bold; margin: 0.5rem 0; }
+        .tier-price span { font-size: 0.95rem; color: rgba(255,255,255,0.7); font-weight: normal; }
+        .tier-best { font-size: 0.85rem; color: rgba(255,255,255,0.65); margin-bottom: 1rem; min-height: 2.5rem; }
+        .tier-card ul { list-style: none; padding: 0; margin: 0 0 1.25rem; flex-grow: 1; }
+        .tier-card li { padding: 0.35rem 0; font-size: 0.9rem; color: rgba(255,255,255,0.85); }
+        .tier-card li::before { content: "✓ "; color: var(--accent); }
+        .tier-btn { width: 100%; padding: 0.75rem; font-size: 1rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; background: var(--accent); color: var(--primary); }
+        .tier-btn:hover { background: #f3c644; }
+        .badge { display: inline-block; background: rgba(212,175,55,0.2); color: var(--accent); font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 12px; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
@@ -26,9 +43,18 @@
     <div class="hero">
         <h2>Stop Letting High Gas Prices Drain Your Wallet</h2>
         <p>Leverage community buying power and turn your everyday commute into cash-back savings and residual affiliate income.</p>
-        <div class="price-tag">$29.99<span style="font-size:1rem; color:white;">/month recurring</span></div>
-        <button class="btn" onclick="openSignupModal()">Join The Exclusive Circle</button>
+        <div class="price-tag">Plans from $19.99<span style="font-size:1rem; color:white;">/month</span></div>
+        <p style="color: rgba(255,255,255,0.75); margin-bottom: 1.5rem;">Three tiers — Fleet Pro at $29.99/mo is our most popular plan.</p>
+        <a href="#plans" class="btn">Choose Your Plan</a>
     </div>
+
+    <section id="plans" class="plans">
+        <h2>Membership Plans</h2>
+        <p class="subtitle">Pick the tier that fits your drive. Higher plans unlock deeper per-gallon savings.</p>
+        <div class="tier-grid" id="tierGrid">
+            <p style="text-align:center; grid-column: 1 / -1;">Loading plans…</p>
+        </div>
+    </section>
 
     <div class="features">
         <div class="card">
@@ -46,20 +72,20 @@
     </div>
 
     <script>
-        function openSignupModal() {
-            const email = prompt("Enter your email address to join The FR2P Club Fuel Program ($29.99/mo):");
+        function openSignupModal(tierId, tierName, monthlyFee) {
+            const email = prompt(`Enter your email to join ${tierName} ($${monthlyFee.toFixed(2)}/mo):`);
             if (!email) return;
             const name = prompt("Enter your full name:");
 
             fetch('api/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email })
+                body: JSON.stringify({ name, email, tierId })
             })
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    alert(`Welcome! Your Member ID is: ${data.data.memberId}\nRedirecting to your back office...`);
+                    alert(`Welcome to ${data.data.tier}!\nYour Member ID is: ${data.data.memberId}\nRedirecting to your back office...`);
                     window.location.href = `dashboard.html?id=${data.data.memberId}`;
                 } else {
                     alert('Error: ' + data.error);
@@ -67,6 +93,34 @@
             })
             .catch(err => console.error(err));
         }
+
+        function renderTiers(tiers) {
+            const grid = document.getElementById('tierGrid');
+            grid.innerHTML = tiers.map((tier) => `
+                <article class="tier-card${tier.mostPopular ? ' featured' : ''}">
+                    ${tier.mostPopular ? '<span class="badge">Most Popular</span>' : ''}
+                    <h3>${tier.name}</h3>
+                    <div class="tier-price">$${tier.monthlyFee.toFixed(2)}<span>/mo</span></div>
+                    <p class="tier-best">${tier.bestFor}</p>
+                    <ul>
+                        <li>${tier.centsPerGallon}¢ off per gallon</li>
+                        ${tier.perks.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    <button class="tier-btn" onclick="openSignupModal('${tier.id}', '${tier.name}', ${tier.monthlyFee})">
+                        Join ${tier.name.split(' ')[0]}
+                    </button>
+                </article>
+            `).join('');
+        }
+
+        fetch('api/config')
+            .then(res => res.json())
+            .then(data => renderTiers(data.tiers))
+            .catch(err => {
+                console.error(err);
+                document.getElementById('tierGrid').innerHTML =
+                    '<p style="text-align:center; grid-column: 1 / -1;">Unable to load plans. Please refresh.</p>';
+            });
     </script>
 </body>
 </html>

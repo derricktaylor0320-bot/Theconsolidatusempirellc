@@ -1,7 +1,13 @@
 import express, { type Express, type Router } from "express";
 import path from "path";
+import {
+  FUEL_PERKS_TIERS,
+  formatFuelPerksTierLabel,
+  getDefaultFuelPerksTier,
+  getFuelPerksTierById,
+} from "@shared/fuelPerks";
 
-const membersDB = new Map<string, Record<string, string>>();
+const membersDB = new Map<string, Record<string, string | number>>();
 
 function createFuelPerksRouter(): Router {
   const router = express.Router();
@@ -9,10 +15,15 @@ function createFuelPerksRouter(): Router {
 
   router.use(express.json());
 
+  router.get("/api/config", (_req, res) => {
+    res.json({ tiers: FUEL_PERKS_TIERS });
+  });
+
   router.post("/api/subscribe", (req, res) => {
-    const { name, email, phone } = req.body ?? {};
+    const { name, email, phone, tierId } = req.body ?? {};
     if (!email) return res.status(400).json({ error: "Email is required." });
 
+    const tier = getFuelPerksTierById(tierId) ?? getDefaultFuelPerksTier();
     const memberId =
       "FR2P-" + Math.random().toString(36).substring(2, 8).toUpperCase();
     const affiliateLink = `https://tceholdings.org/fuel/ref?code=${memberId}`;
@@ -22,7 +33,10 @@ function createFuelPerksRouter(): Router {
       name: name || "Valued Member",
       email,
       phone: phone || "",
-      tier: "Standard Fuel Member ($29.99/mo)",
+      tierId: tier.id,
+      tier: formatFuelPerksTierLabel(tier),
+      monthlyFee: tier.monthlyFee,
+      centsPerGallon: tier.centsPerGallon,
       status: "Active",
       joinedDate: new Date().toISOString(),
       affiliateLink,
@@ -39,11 +53,15 @@ function createFuelPerksRouter(): Router {
 
   router.get("/api/member/:id", (req, res) => {
     const member = membersDB.get(req.params.id);
+    const fallbackTier = getDefaultFuelPerksTier();
     if (!member) {
       return res.json({
         memberId: req.params.id,
         name: "Derrick Taylor",
-        tier: "Standard Fuel Member ($29.99/mo)",
+        tierId: fallbackTier.id,
+        tier: formatFuelPerksTierLabel(fallbackTier),
+        monthlyFee: fallbackTier.monthlyFee,
+        centsPerGallon: fallbackTier.centsPerGallon,
         affiliateLink: `https://tceholdings.org/fuel/ref?code=${req.params.id}`,
         qrCodeApiUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://tceholdings.org/fuel/ref?code=${req.params.id}`,
       });
