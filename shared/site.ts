@@ -13,6 +13,11 @@ export const SITE_BRAND = "The Consolidatus Empire LLC";
 export const SITE_HOLDINGS_NAME = "The Consolidatus Empire Holdings";
 export const SITE_DOMAIN = "tceholdings.org";
 export const SITE_URL = `https://${SITE_DOMAIN}`;
+export const SITE_SUPPORT_EMAIL = "theconsolidatusempirellc@gmail.com";
+export const SITE_SUPPORT_PHONE = "+1-844-561-2444";
+export const SITE_SUPPORT_PHONE_TEL = "18445612444";
+
+export const SITE_SMS_CONSENT_TEXT = `${SITE_BRAND} would like your consent to send text message communications from ${SITE_SUPPORT_PHONE} in response to your questions or to provide information related to your relationship with us.`;
 
 /**
  * Resolve the configured public origin for absolute links (emails, OG, redirects).

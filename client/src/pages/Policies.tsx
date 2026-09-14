@@ -1,6 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Package, Clock, Mail, AlertCircle } from "lucide-react";
+import {
+  SITE_SUPPORT_EMAIL,
+  SITE_SUPPORT_PHONE,
+  SITE_SUPPORT_PHONE_TEL,
+} from "@shared/site";
 
 export default function Policies() {
   return (
@@ -96,7 +101,14 @@ export default function Policies() {
 
             <div className="mt-12 text-center">
               <p className="text-muted-foreground text-sm">
-                Questions? Contact us at <a href="mailto:supporttheconsolidatusempire@gmail.com" className="text-primary hover:underline">supporttheconsolidatusempire@gmail.com</a>
+                Questions? Contact us at{" "}
+                <a href={`mailto:${SITE_SUPPORT_EMAIL}`} className="text-primary hover:underline">
+                  {SITE_SUPPORT_EMAIL}
+                </a>{" "}
+                or call{" "}
+                <a href={`tel:${SITE_SUPPORT_PHONE_TEL}`} className="text-primary hover:underline">
+                  {SITE_SUPPORT_PHONE}
+                </a>
               </p>
             </div>
           </div>
