@@ -4,42 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketing Assets | FR2P Fuel Rewards</title>
-    <style>
-        :root { --primary: #0A192F; --accent: #D4AF37; --light: #F8F9FA; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--primary); color: white; padding: 2rem; }
-        .container { max-width: 900px; margin: 0 auto; }
-        h1 { color: var(--accent); }
-        .asset-card { background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2); margin-top: 1.5rem; }
-        .btn { background: var(--accent); color: var(--primary); padding: 0.6rem 1.2rem; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 1rem; }
-        .nav-links { margin-bottom: 1.5rem; }
-        .nav-links a { color: var(--accent); text-decoration: none; margin-right: 1.5rem; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="css/fuel-rewards.css">
 </head>
 <body>
-    <div class="container">
-        <div class="nav-links">
-            <a href="dashboard.html">🏠 Dashboard</a>
-            <a href="assets.html">🧲 Marketing Assets &amp; Magnet Templates</a>
-            <a href="./">🚪 Exit Portal</a>
-        </div>
-
+    <header class="site-header">
         <h1>Marketing Asset &amp; Magnet Toolkit</h1>
-        <p>Download pre-formatted templates, copy layout text for Canva or Adobe Express, and deploy your physical magnets.</p>
+        <p>Templates and copy for Canva, Adobe Express, GotPrint, and VistaPrint</p>
+    </header>
 
-        <div class="asset-card">
-            <h3>🧲 Car &amp; Station Magnetic Billboard Layout (4x6 / 5x7)</h3>
+    <nav class="site-nav">
+        <a href="index.html">Program Overview</a>
+        <a href="marketing.html">Marketing Back Office</a>
+        <a href="dashboard.html">Member Dashboard</a>
+        <a href="assets.html" class="active">Asset Templates</a>
+    </nav>
+
+    <div class="container">
+        <p>Download pre-formatted templates, copy layout text for Canva or Adobe Express, and deploy your physical magnets.
+        Get your dynamic QR code from your <a href="dashboard.html">Member Dashboard</a> first.</p>
+
+        <div class="asset-card marketing-card" id="fuel-business-card">
+            <h4>🧲 Fuel Rewards Business Card</h4>
             <p><strong>Headline:</strong> TIRED OF HIGH GAS PRICES?</p>
             <p><strong>Sub-text:</strong> Turn Every Gallon Into Savings. Scan to unlock community fuel rewards.</p>
-            <p><em>Instructions:</em> Open Canva or Adobe Express, create a 4x6 magnetic layout, paste your dynamic QR code from your dashboard, and print through your preferred vendor.</p>
-            <a href="https://www.canva.com" target="_blank" class="btn">Open Canva Template Builder</a>
+            <p><em>Instructions:</em> Open Canva or Adobe Express, create a standard business card layout, paste your dynamic QR code from your dashboard, and print through GotPrint or VistaPrint.</p>
+            <a href="https://www.canva.com" target="_blank" rel="noopener" class="btn secondary">Open Canva Template Builder</a>
         </div>
 
-        <div class="asset-card">
-            <h3>📬 Community Postcard Handout Template</h3>
+        <div class="asset-card marketing-card" id="fuel-postcard">
+            <h4>📬 Fuel Savings Postcard (4×6)</h4>
             <p>Designed for local gas station counters, community boards, or hand-to-hand networking.</p>
             <p><strong>Back Copy:</strong> "At the cost of every crisis, someone profits. Stop letting oil companies win—join our community-backed fuel pool inside The FR2P Club."</p>
-            <a href="https://www.adobe.com/express/" target="_blank" class="btn">Open Adobe Express Template</a>
+            <p><em>Print note:</em> Order at GotPrint.com — postcards starting at $49 for a professional run.</p>
+            <a href="https://www.gotprint.com" target="_blank" rel="noopener" class="btn secondary">Order at GotPrint.com</a>
         </div>
+
+        <div class="asset-card marketing-card" id="pump-qr-flyer">
+            <h4>⛽ Gas Pump QR Sign</h4>
+            <p><strong>Headline:</strong> SAVE ON EVERY GALLON</p>
+            <p><strong>Sub-text:</strong> Scan while you pump — join The FR2P Club Fuel Rewards and start saving today.</p>
+            <p><em>Instructions:</em> Print on weather-resistant material. Ask the station manager for permission before placing on pumps. Position at eye level where drivers stand while filling up.</p>
+            <a href="https://www.adobe.com/express/" target="_blank" rel="noopener" class="btn secondary">Open Adobe Express Template</a>
+        </div>
+
+        <div class="asset-card marketing-card" id="car-magnet-guide">
+            <h4>🚗 Car Magnet &amp; Mobile Marketing (4×6 / 5×7)</h4>
+            <p><strong>Headline:</strong> TIRED OF HIGH GAS PRICES?</p>
+            <p><strong>Sub-text:</strong> Turn Every Gallon Into Savings. Scan to unlock community fuel rewards.</p>
+            <p><em>Instructions:</em> Create a 4×6 or 5×7 magnetic layout in Canva, paste your dynamic QR code from your dashboard, and order through VistaPrint (bulk) or a local sign shop. Use weather-resistant magnetic signs rated for outdoor use.</p>
+            <a href="https://www.vistaprint.com" target="_blank" rel="noopener" class="btn secondary">Order at VistaPrint.com</a>
+        </div>
+
+        <section class="card" style="margin-top:2rem">
+            <h3>📍 Gas Station Partnership Playbook</h3>
+            <ol style="font-size:0.9rem;color:rgba(255,255,255,0.75)">
+                <li>Visit a local gas station and ask to speak with the manager or business owner.</li>
+                <li>Explain that your QR code helps their customers save money on fuel — it's a value-add for their pumps.</li>
+                <li>Offer a small sign or sticker with your QR code for the pump area.</li>
+                <li>While someone is filling up, they scan your code, sign up for Fuel Rewards, and start saving.</li>
+                <li>Repeat at multiple stations in your area to build a local network of referral points.</li>
+            </ol>
+        </section>
     </div>
+
+    <script>
+        const hash = window.location.hash.replace('#', '');
+        if (hash) {
+            const el = document.getElementById(hash);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>

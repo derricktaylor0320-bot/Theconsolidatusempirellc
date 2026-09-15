@@ -4,6 +4,7 @@
   "description": "Standalone Fuel Rewards Sub-Brand for The Consolidatus Empire LLC / The FR2P Club",
   "main": "server.js",
   "scripts": {
+    "prestart": "node -e \"try{require('./programConfig')}catch(e){console.error('Run: npx tsx ../scripts/sync-fuel-perks-config.mjs');process.exit(1)}\"",
     "start": "node server.js"
   },
   "dependencies": {

@@ -3,46 +3,21 @@ const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
+const programConfig = require('./programConfig');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const FUEL_PERKS_TIERS = [
-    {
-        id: 'starter',
-        name: 'Road Starter',
-        monthlyFee: 19.99,
-        centsPerGallon: 5,
-        bestFor: 'Light drivers getting started',
-        perks: ['5¢/gal savings', 'Member QR code', 'Referral link'],
-    },
-    {
-        id: 'pro',
-        name: 'Fleet Pro',
-        monthlyFee: 29.99,
-        centsPerGallon: 8,
-        bestFor: 'Daily commuters — most popular',
-        mostPopular: true,
-        perks: ['8¢/gal savings', 'Member QR code', 'Referral tracking'],
-    },
-    {
-        id: 'elite',
-        name: 'Premium Elite',
-        monthlyFee: 39.99,
-        centsPerGallon: 12,
-        bestFor: 'Maximum savings & affiliate growth',
-        perks: ['12¢/gal savings', 'Magnet & asset kit', 'FR2P cross-promo boosts', 'Affiliate downline tools'],
-    },
-];
-
 function getTierById(id) {
-    return FUEL_PERKS_TIERS.find((tier) => tier.id === id);
+    return programConfig.tiers.find((tier) => tier.id === id);
 }
 
 function getDefaultTier() {
-    return getTierById('pro') || FUEL_PERKS_TIERS[1];
+    return getTierById('pro') || programConfig.paidTiers[1];
 }
 
 function formatTierLabel(tier) {
+    if (!tier.isPaidTier) return `${tier.name} (Included with FR2P)`;
     return `${tier.name} ($${tier.monthlyFee.toFixed(2)}/mo)`;
 }
 
@@ -53,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const membersDB = new Map();
 
 app.get('/api/config', (_req, res) => {
-    res.json({ tiers: FUEL_PERKS_TIERS });
+    res.json(programConfig);
 });
 
 app.post('/api/subscribe', (req, res) => {
@@ -61,6 +36,12 @@ app.post('/api/subscribe', (req, res) => {
     if (!email) return res.status(400).json({ error: 'Email is required.' });
 
     const tier = getTierById(tierId) || getDefaultTier();
+    if (!tier.isPaidTier) {
+        return res.status(400).json({
+            error: 'Member Access is included with FR2P Club membership. Choose a paid tier to subscribe.',
+        });
+    }
+
     const memberId = 'FR2P-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     const affiliateLink = `https://tceholdings.org/fuel/ref?code=${memberId}`;
 
@@ -73,14 +54,19 @@ app.post('/api/subscribe', (req, res) => {
         tier: formatTierLabel(tier),
         monthlyFee: tier.monthlyFee,
         centsPerGallon: tier.centsPerGallon,
+        potentialCommissionLabel: tier.potentialCommissionLabel,
         status: 'Active',
         joinedDate: new Date().toISOString(),
         affiliateLink,
-        qrCodeApiUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(affiliateLink)}`
+        qrCodeApiUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(affiliateLink)}`,
     };
 
     membersDB.set(memberId, newMember);
-    res.json({ success: true, message: 'Successfully enrolled in The FR2P Club Fuel Program!', data: newMember });
+    res.json({
+        success: true,
+        message: 'Successfully enrolled in The FR2P Club Fuel Program!',
+        data: newMember,
+    });
 });
 
 app.get('/api/member/:id', (req, res) => {
@@ -94,8 +80,9 @@ app.get('/api/member/:id', (req, res) => {
             tier: formatTierLabel(fallbackTier),
             monthlyFee: fallbackTier.monthlyFee,
             centsPerGallon: fallbackTier.centsPerGallon,
+            potentialCommissionLabel: fallbackTier.potentialCommissionLabel,
             affiliateLink: `https://tceholdings.org/fuel/ref?code=${req.params.id}`,
-            qrCodeApiUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://tceholdings.org/fuel/ref?code=${req.params.id}`
+            qrCodeApiUrl: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://tceholdings.org/fuel/ref?code=${req.params.id}`,
         });
     }
     res.json(member);

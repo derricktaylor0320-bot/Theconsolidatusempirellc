@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Back Office | FR2P Fuel Rewards</title>
+    <link rel="stylesheet" href="css/fuel-rewards.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>Marketing Back Office</h1>
+        <p>The FR2P Club Fuel Rewards — Save at the Pump. Earn While You Drive.</p>
+    </header>
+
+    <nav class="site-nav">
+        <a href="index.html">Program Overview</a>
+        <a href="marketing.html" class="active">Marketing Back Office</a>
+        <a href="dashboard.html">Member Dashboard</a>
+        <a href="assets.html">Asset Templates</a>
+    </nav>
+
+    <div class="container">
+        <section class="card" style="border-color:rgba(251,146,60,0.3);background:rgba(249,115,22,0.1)">
+            <p style="margin:0;color:#fed7aa">
+                <strong>Fuel Rewards Marketing Back Office</strong> — Your standalone command center
+                for business cards, postcards, HiHello digital cards, QR sharing, and print vendor recommendations.
+                Enter your info once, customize every material, and start marketing at gas stations and on the road.
+            </p>
+            <p style="font-size:0.8rem;color:rgba(254,215,170,0.75);margin:0.75rem 0 0">
+                Pro ($29.99/mo) and Elite Premium ($39.99/mo) include full Marketing Back Office access.
+                <a href="index.html">View tier breakdown →</a>
+            </p>
+        </section>
+
+        <section class="card form-panel">
+            <h3>✏️ Your Marketing Info</h3>
+            <p style="font-size:0.85rem">Enter your details once — use them when customizing templates and sharing your referral link.</p>
+            <label for="mktName">Full Name</label>
+            <input type="text" id="mktName" placeholder="Your name">
+            <label for="mktPhone">Phone Number</label>
+            <input type="tel" id="mktPhone" placeholder="(555) 123-4567">
+            <label for="mktLink">Fuel Rewards Referral Link</label>
+            <input type="url" id="mktLink" placeholder="https://tceholdings.org/fuel/ref?code=YOUR-ID">
+            <label for="mktRole">Title / Role</label>
+            <input type="text" id="mktRole" value="Fuel Rewards Partner">
+            <button type="button" class="btn" onclick="saveMarketingInfo()">Save Info Locally</button>
+        </section>
+
+        <div id="marketingMaterials"><p>Loading marketing materials…</p></div>
+
+        <section class="card">
+            <h3>📱 HiHello — Digital Business Card App</h3>
+            <p>Download HiHello on your phone, enter your name, role, phone number, and Fuel Rewards referral link,
+            then share your QR code via text, email, Bluetooth, WhatsApp, or any app.</p>
+            <div class="link-row">
+                <a id="hiHelloAppStore" href="https://apps.apple.com/us/app/hihello-digital-business-card/id1453874447" target="_blank" rel="noopener" class="link-pill store">📱 Apple App Store (iPhone)</a>
+                <a id="hiHelloGooglePlay" href="https://play.google.com/store/apps/details?id=me.hihello.mobile" target="_blank" rel="noopener" class="link-pill play">📱 Google Play Store (Android)</a>
+            </div>
+        </section>
+
+        <section class="card">
+            <h3>🔗 Recommended Print Partners</h3>
+            <div class="two-col">
+                <div class="marketing-card">
+                    <h4>GotPrint.com — Best for Postcards</h4>
+                    <p>Postcards starting at <strong>$49</strong>. Ideal for single-run fuel savings campaigns and direct mail.</p>
+                    <a href="https://www.gotprint.com" target="_blank" rel="noopener" class="btn secondary">Visit GotPrint.com →</a>
+                </div>
+                <div class="marketing-card">
+                    <h4>VistaPrint — Best for Bulk Orders</h4>
+                    <p>Better for <strong>bulk business cards, car magnets, and large quantity runs</strong> — use when you need 100+ pieces.</p>
+                    <a href="https://www.vistaprint.com" target="_blank" rel="noopener" class="btn secondary">Visit VistaPrint.com →</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function esc(str) {
+            const d = document.createElement('div');
+            d.textContent = str ?? '';
+            return d.innerHTML;
+        }
+
+        function saveMarketingInfo() {
+            const data = {
+                name: document.getElementById('mktName').value,
+                phone: document.getElementById('mktPhone').value,
+                link: document.getElementById('mktLink').value,
+                role: document.getElementById('mktRole').value,
+            };
+            localStorage.setItem('fuelRewardsMarketing', JSON.stringify(data));
+            alert('Marketing info saved on this device.');
+        }
+
+        function loadMarketingInfo() {
+            try {
+                const data = JSON.parse(localStorage.getItem('fuelRewardsMarketing') || '{}');
+                if (data.name) document.getElementById('mktName').value = data.name;
+                if (data.phone) document.getElementById('mktPhone').value = data.phone;
+                if (data.link) document.getElementById('mktLink').value = data.link;
+                if (data.role) document.getElementById('mktRole').value = data.role;
+            } catch (_) {}
+        }
+
+        fetch('api/config')
+            .then((res) => res.json())
+            .then((config) => {
+                document.getElementById('marketingMaterials').innerHTML = config.marketingMaterials
+                    .map((m) => `
+                        <div class="marketing-card" id="${esc(m.id)}">
+                            <div class="category">${esc(m.category)}</div>
+                            <h4>${esc(m.title)}</h4>
+                            <p>${esc(m.description)}</p>
+                            <p style="font-size:0.8rem;color:rgba(255,255,255,0.55)"><em>${esc(m.printNote)}</em></p>
+                            <a href="assets.html#${esc(m.id)}" class="btn secondary">View Template Guide →</a>
+                        </div>`)
+                    .join('');
+
+                const hash = window.location.hash.replace('#', '');
+                if (hash) {
+                    const el = document.getElementById(hash);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
+        loadMarketingInfo();
+    </script>
+</body>
+</html>

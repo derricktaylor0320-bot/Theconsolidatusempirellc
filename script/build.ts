@@ -39,6 +39,9 @@ async function buildAll() {
   const { execSync } = await import("node:child_process");
   execSync("node scripts/build-fr2p-club.mjs", { stdio: "inherit" });
 
+  console.log("syncing Fuel Rewards standalone config...");
+  execSync("npx tsx scripts/sync-fuel-perks-config.mjs", { stdio: "inherit" });
+
   console.log("building client...");
   await viteBuild();
 

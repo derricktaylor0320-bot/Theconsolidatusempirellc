@@ -1,9 +1,9 @@
 import express, { type Express, type Router } from "express";
 import path from "path";
 import {
-  FUEL_PERKS_TIERS,
   formatFuelPerksTierLabel,
   getDefaultFuelPerksTier,
+  getFuelPerksProgramConfig,
   getFuelPerksTierById,
 } from "@shared/fuelPerks";
 
@@ -16,7 +16,7 @@ function createFuelPerksRouter(): Router {
   router.use(express.json());
 
   router.get("/api/config", (_req, res) => {
-    res.json({ tiers: FUEL_PERKS_TIERS });
+    res.json(getFuelPerksProgramConfig());
   });
 
   router.post("/api/subscribe", (req, res) => {
