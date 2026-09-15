@@ -3,124 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FR2P Fuel Rewards | The FR2P Club</title>
-    <style>
-        :root { --primary: #0A192F; --accent: #D4AF37; --light: #F8F9FA; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--primary); color: white; }
-        header { padding: 2rem; text-align: center; border-bottom: 1px solid rgba(212, 175, 55, 0.3); }
-        h1 { color: var(--accent); margin-bottom: 0.5rem; }
-        .hero { max-width: 800px; margin: 3rem auto; padding: 2rem; text-align: center; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(212,175,55,0.2); }
-        .price-tag { font-size: 2rem; color: var(--accent); font-weight: bold; margin: 1.5rem 0; }
-        .btn { background: var(--accent); color: var(--primary); padding: 1rem 2rem; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s; }
-        .btn:hover { background: #f3c644; }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; max-width: 900px; margin: 3rem auto; padding: 0 1rem; }
-        .card { background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--accent); }
-        .plans { max-width: 1000px; margin: 0 auto 3rem; padding: 0 1rem; }
-        .plans h2 { text-align: center; color: var(--accent); margin-bottom: 0.5rem; }
-        .plans .subtitle { text-align: center; color: rgba(255,255,255,0.75); margin-bottom: 2rem; }
-        .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
-        .tier-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.25); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s; }
-        .tier-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .tier-card.featured { border-color: var(--accent); box-shadow: 0 0 24px rgba(212,175,55,0.15); }
-        .tier-card h3 { color: var(--accent); margin: 0 0 0.5rem; }
-        .tier-price { font-size: 2rem; font-weight: bold; margin: 0.5rem 0; }
-        .tier-price span { font-size: 0.95rem; color: rgba(255,255,255,0.7); font-weight: normal; }
-        .tier-best { font-size: 0.85rem; color: rgba(255,255,255,0.65); margin-bottom: 1rem; min-height: 2.5rem; }
-        .tier-card ul { list-style: none; padding: 0; margin: 0 0 1.25rem; flex-grow: 1; }
-        .tier-card li { padding: 0.35rem 0; font-size: 0.9rem; color: rgba(255,255,255,0.85); }
-        .tier-card li::before { content: "✓ "; color: var(--accent); }
-        .tier-btn { width: 100%; padding: 0.75rem; font-size: 1rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; background: var(--accent); color: var(--primary); }
-        .tier-btn:hover { background: #f3c644; }
-        .badge { display: inline-block; background: rgba(212,175,55,0.2); color: var(--accent); font-size: 0.75rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 12px; margin-bottom: 0.5rem; }
-    </style>
+    <title id="pageTitle">The FR2P Club Fuel Rewards</title>
+    <link rel="stylesheet" href="css/fuel-rewards.css">
 </head>
 <body>
-    <header>
-        <h1>FR2P Fuel Rewards</h1>
+    <header class="site-header">
+        <h1 id="heroTitle">The FR2P Club Fuel Rewards</h1>
         <p>A Standalone Initiative Powered by The Consolidatus Empire LLC &amp; The FR2P Club</p>
     </header>
 
-    <div class="hero">
-        <h2>Stop Letting High Gas Prices Drain Your Wallet</h2>
-        <p>Leverage community buying power and turn your everyday commute into cash-back savings and residual affiliate income.</p>
-        <div class="price-tag">Plans from $19.99<span style="font-size:1rem; color:white;">/month</span></div>
-        <p style="color: rgba(255,255,255,0.75); margin-bottom: 1.5rem;">Three tiers — Fleet Pro at $29.99/mo is our most popular plan.</p>
-        <a href="#plans" class="btn">Choose Your Plan</a>
-    </div>
+    <nav class="site-nav">
+        <a href="index.html" class="active">Program Overview</a>
+        <a href="marketing.html">Marketing Back Office</a>
+        <a href="dashboard.html">Member Dashboard</a>
+        <a href="assets.html">Asset Templates</a>
+    </nav>
 
-    <section id="plans" class="plans">
-        <h2>Membership Plans</h2>
-        <p class="subtitle">Pick the tier that fits your drive. Higher plans unlock deeper per-gallon savings.</p>
-        <div class="tier-grid" id="tierGrid">
-            <p style="text-align:center; grid-column: 1 / -1;">Loading plans…</p>
-        </div>
-    </section>
+    <div class="container">
+        <section class="hero">
+            <span class="hero-badge" id="heroBadge">Affiliate Marketing Program</span>
+            <p class="tagline" id="heroTagline">Save at the Pump. Earn While You Drive.</p>
+            <p class="intro">
+                The FR2P Club Fuel Rewards is an affiliate marketing program — not crowdfunding or an investment.
+                Share your referral link, market locally with QR codes and print materials, and build
+                <strong>potential recurring</strong> income when people join through you.
+                Subscription payments are processed by Stripe; potential commissions come from the platform revenue pool, not anyone's personal pocket.
+            </p>
+            <div class="tab-bar">
+                <button type="button" class="tab-btn active" data-section="overview" onclick="setSection('overview')">Program Overview &amp; Tiers</button>
+                <button type="button" class="tab-btn" data-section="marketing" onclick="setSection('marketing')">Marketing Back Office</button>
+            </div>
+        </section>
 
-    <div class="features">
-        <div class="card">
-            <h3>⛽ Community Fuel Pool</h3>
-            <p>Direct subsidies and cash-back rewards engineered to offset rising pump prices automatically.</p>
-        </div>
-        <div class="card">
-            <h3>🧲 QR Car &amp; Station Magnets</h3>
-            <p>Deploy physical magnets at local stations or your vehicle to capture scans and build your downline effortlessly.</p>
-        </div>
-        <div class="card">
-            <h3>💼 Digital Business Suite</h3>
-            <p>Get your own standalone back-office, automated QR code generator, and digital business cards instantly.</p>
-        </div>
-    </div>
+        <div id="overviewSection">
+            <section class="card">
+                <h3>⛽ What Is The FR2P Club Fuel Rewards?</h3>
+                <p>
+                    Fuel Rewards is a <strong>standalone affiliate program</strong> that also lives inside
+                    The FR2P Club ecosystem. It is built for people who want to help others save money at the gas pump while
+                    building their own income stream through referrals and local marketing.
+                </p>
+                <p>
+                    As a Fuel Rewards partner, you get access to fuel savings benefits for yourself and everyone you refer.
+                    You also get the tools to market locally — business cards, postcards, QR codes, car magnets, and gas pump
+                    signage — so you can turn everyday moments into income opportunities.
+                </p>
+                <div class="feature-grid" id="featureCards"></div>
+            </section>
 
-    <script>
-        function openSignupModal(tierId, tierName, monthlyFee) {
-            const email = prompt(`Enter your email to join ${tierName} ($${monthlyFee.toFixed(2)}/mo):`);
-            if (!email) return;
-            const name = prompt("Enter your full name:");
+            <section class="card" style="border-color:rgba(56,189,248,0.3)">
+                <h3>🛡️ How The Program Works — Transparent Breakdown</h3>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.5)" id="programType"></p>
+                <div class="two-col" style="margin-top:1rem">
+                    <div>
+                        <p style="color:#ffd700;font-weight:700;font-size:0.75rem;text-transform:uppercase">What This Is</p>
+                        <p style="font-size:0.85rem">
+                            Fuel Rewards is an <strong>affiliate marketing program</strong>. You share your personal
+                            referral link, help people save on fuel, and may earn <strong>potential recurring</strong> commissions
+                            when people you refer maintain active paid subscriptions. This is <strong>not crowdfunding</strong> —
+                            you are not investing in a company or buying shares.
+                        </p>
+                    </div>
+                    <div>
+                        <p style="color:#ffd700;font-weight:700;font-size:0.75rem;text-transform:uppercase">What This Is Not</p>
+                        <ul style="font-size:0.85rem;padding-left:1.25rem">
+                            <li>Not a guaranteed income opportunity</li>
+                            <li>Not crowdfunding or an investment product</li>
+                            <li>Commissions are not paid from anyone's personal pocket</li>
+                            <li>Results vary — your effort and referral activity determine outcomes</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="background:rgba(255,255,255,0.05);border-radius:0.75rem;padding:1rem;margin-top:1rem;border:1px solid rgba(255,255,255,0.1)">
+                    <p style="color:white;font-weight:700;margin:0 0 0.75rem">💳 How Money Flows — Subscriptions &amp; Potential Payouts</p>
+                    <ol class="steps-list" id="moneyFlowSteps"></ol>
+                </div>
+                <button type="button" class="feature-card" style="width:100%;margin-top:1rem" onclick="openGuide('community-fuel-pool')">
+                    <strong>Community Fuel Pool — How Commissions Get Paid</strong>
+                    <span id="stripeRole"></span>
+                    <em>Tap to learn →</em>
+                </button>
+                <p class="disclaimer">
+                    Disclaimer: All commission figures and percentages shown on this page are illustrative examples of potential recurring earnings only.
+                    No specific income is guaranteed. Past results do not predict future performance.
+                </p>
+            </section>
 
-            fetch('api/subscribe', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, tierId })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    alert(`Welcome to ${data.data.tier}!\nYour Member ID is: ${data.data.memberId}\nRedirecting to your back office...`);
-                    window.location.href = `dashboard.html?id=${data.data.memberId}`;
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(err => console.error(err));
-        }
+            <section class="card">
+                <h3>📈 How You May Build Potential Recurring Income</h3>
+                <div class="income-steps" id="incomeSteps"></div>
+                <div style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:0.75rem;padding:1rem;margin-top:1.5rem">
+                    <p style="color:#ffd700;font-weight:600;margin:0 0 0.5rem">📍 Gas Station Partnership Playbook</p>
+                    <ol style="font-size:0.8rem;color:rgba(255,255,255,0.7);padding-left:1.25rem" id="stationPlaybook"></ol>
+                </div>
+            </section>
 
-        function renderTiers(tiers) {
-            const grid = document.getElementById('tierGrid');
-            grid.innerHTML = tiers.map((tier) => `
-                <article class="tier-card${tier.mostPopular ? ' featured' : ''}">
-                    ${tier.mostPopular ? '<span class="badge">Most Popular</span>' : ''}
-                    <h3>${tier.name}</h3>
-                    <div class="tier-price">$${tier.monthlyFee.toFixed(2)}<span>/mo</span></div>
-                    <p class="tier-best">${tier.bestFor}</p>
-                    <ul>
-                        <li>${tier.centsPerGallon}¢ off per gallon</li>
-                        ${tier.perks.map(p => `<li>${p}</li>`).join('')}
-                    </ul>
-                    <button class="tier-btn" onclick="openSignupModal('${tier.id}', '${tier.name}', ${tier.monthlyFee})">
-                        Join ${tier.name.split(' ')[0]}
+            <section class="card">
+                <h3>⬆️ Three Paid Tiers — How Each One Is Different</h3>
+                <p style="font-size:0.9rem;color:rgba(255,255,255,0.6)">
+                    When you subscribe, here's exactly how each tier differs — including potential recurring commission share and expected growth potential.
+                </p>
+                <div class="paid-tier-grid" id="paidTierDiffs" style="margin-top:1rem"></div>
+            </section>
+
+            <section class="card">
+                <h3>🖨️ Marketing Back Office &amp; Marketing Tools</h3>
+                <p>Included with Pro ($29.99/mo) and Elite Premium ($39.99/mo) — your command center for growing your Fuel Rewards business.</p>
+                <div class="feature-grid">
+                    <button type="button" class="feature-card" onclick="openGuide('print-materials')">
+                        <strong>Print Materials</strong>
+                        <span>Business cards, postcards, gas pump QR signs, and car magnet templates.</span>
+                        <em>Tap to see how it works →</em>
                     </button>
-                </article>
-            `).join('');
-        }
+                    <button type="button" class="feature-card" onclick="openGuide('digital-business-suite')">
+                        <strong>HiHello Digital Card</strong>
+                        <span>Free app for iPhone and Android — share your referral QR anywhere.</span>
+                        <em>Tap to see how it works →</em>
+                    </button>
+                    <button type="button" class="feature-card" onclick="openGuide('print-materials')">
+                        <strong>GotPrint.com</strong>
+                        <span>Order professional postcards starting at $49.</span>
+                        <em>Tap to see how it works →</em>
+                    </button>
+                    <button type="button" class="feature-card" onclick="openGuide('car-magnets')">
+                        <strong>VistaPrint</strong>
+                        <span>Best for bulk business cards, car magnets, and large quantity runs.</span>
+                        <em>Tap to see how it works →</em>
+                    </button>
+                </div>
+                <div class="link-row">
+                    <a id="hiHelloAppStore" href="#" target="_blank" rel="noopener" class="link-pill store">📱 Apple App Store</a>
+                    <a id="hiHelloGooglePlay" href="#" target="_blank" rel="noopener" class="link-pill play">📱 Google Play Store</a>
+                    <a id="gotPrintLink" href="#" target="_blank" rel="noopener" class="link-pill">GotPrint.com →</a>
+                    <a id="vistaPrintLink" href="#" target="_blank" rel="noopener" class="link-pill">VistaPrint.com →</a>
+                </div>
+            </section>
 
-        fetch('api/config')
-            .then(res => res.json())
-            .then(data => renderTiers(data.tiers))
-            .catch(err => {
-                console.error(err);
-                document.getElementById('tierGrid').innerHTML =
-                    '<p style="text-align:center; grid-column: 1 / -1;">Unable to load plans. Please refresh.</p>';
-            });
-    </script>
+            <section>
+                <h2 style="color:white;margin-bottom:0.25rem">Choose Your Tier — Monthly &amp; Annual Breakdown</h2>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;margin-bottom:0.5rem">
+                    Three paid tiers ($19.99 · $29.99 · $39.99) plus free Member Access with FR2P. Each card shows monthly benefits, annual utilization, and potential recurring commission rates.
+                </p>
+                <p style="color:#ffd700;font-size:0.8rem;font-weight:600;margin-bottom:1.5rem">
+                    Potential recurring commission rates increase with each tier — illustrative examples only, not guaranteed.
+                </p>
+                <div class="tier-grid" id="tierGrid">
+                    <p class="text-center">Loading program tiers…</p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3>👥 Tier Comparison — Monthly, Annual &amp; Potential Recurring Commissions</h3>
+                <div class="compare-wrap" id="comparisonTable"></div>
+                <p class="disclaimer">
+                    *Member Access is free with active FR2P membership. Commission percentages are illustrative potential recurring shares only — not guaranteed.
+                    Paid tiers bill monthly through Stripe. Cancel anytime.
+                </p>
+            </section>
+
+            <section class="card">
+                <h3>ℹ️ How Each Feature Works — Tap to Learn</h3>
+                <div class="feature-grid" id="guideGrid"></div>
+            </section>
+
+            <div class="text-center" style="margin-top:2rem">
+                <a href="marketing.html" class="btn">Open Marketing Back Office →</a>
+            </div>
+        </div>
+
+        <div id="marketingSection" class="hidden">
+            <section class="card" style="border-color:rgba(251,146,60,0.3);background:rgba(249,115,22,0.1)">
+                <p style="margin:0;color:#fed7aa">
+                    <strong>Fuel Rewards Marketing Back Office</strong> — Your standalone command center
+                    for business cards, postcards, HiHello digital cards, QR sharing, and print vendor recommendations.
+                </p>
+                <p style="font-size:0.8rem;color:rgba(254,215,170,0.75);margin:0.5rem 0 0">
+                    Pro ($29.99/mo) and Elite Premium ($39.99/mo) include full Marketing Back Office access.
+                </p>
+            </section>
+
+            <section class="card form-panel">
+                <h3>✏️ Your Marketing Info</h3>
+                <p style="font-size:0.85rem">Enter your details once — use them when customizing templates and sharing your referral link.</p>
+                <label for="mktName">Full Name</label>
+                <input type="text" id="mktName" placeholder="Your name">
+                <label for="mktPhone">Phone Number</label>
+                <input type="tel" id="mktPhone" placeholder="(555) 123-4567">
+                <label for="mktLink">Fuel Rewards Referral Link</label>
+                <input type="url" id="mktLink" placeholder="https://tceholdings.org/fuel/ref?code=YOUR-ID">
+                <label for="mktRole">Title / Role</label>
+                <input type="text" id="mktRole" value="Fuel Rewards Partner">
+            </section>
+
+            <div id="marketingMaterials"></div>
+
+            <section class="card">
+                <h3>🔗 Recommended Print Partners</h3>
+                <div class="two-col">
+                    <div class="marketing-card">
+                        <h4>GotPrint.com — Best for Postcards</h4>
+                        <p>Postcards starting at <strong>$49</strong>. Ideal for single-run fuel savings campaigns and direct mail.</p>
+                        <a href="https://www.gotprint.com" target="_blank" rel="noopener" class="btn secondary">Visit GotPrint.com →</a>
+                    </div>
+                    <div class="marketing-card">
+                        <h4>VistaPrint — Best for Bulk Orders</h4>
+                        <p>Better for <strong>bulk business cards, car magnets, and large quantity runs</strong> — use when you need 100+ pieces.</p>
+                        <a href="https://www.vistaprint.com" target="_blank" rel="noopener" class="btn secondary">Visit VistaPrint.com →</a>
+                    </div>
+                </div>
+            </section>
+
+            <div class="text-center">
+                <button type="button" class="btn secondary" onclick="setSection('overview')">← Back to Program Overview</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="guideModal">
+        <div class="modal">
+            <button type="button" class="modal-close" onclick="closeGuide()" aria-label="Close">×</button>
+            <h3 id="modalTitle"></h3>
+            <p class="subtitle" id="modalSubtitle"></p>
+            <ol class="steps-list" id="modalSteps"></ol>
+            <div class="pro-tip hidden" id="modalProTip"></div>
+            <div class="link-row" id="modalLinks"></div>
+        </div>
+    </div>
+
+    <script src="js/fuel-rewards-app.js"></script>
 </body>
 </html>
