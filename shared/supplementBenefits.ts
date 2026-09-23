@@ -73,13 +73,154 @@ const SUPPLEMENTS: { match: RegExp; info: SupplementInfo }[] = [
     },
   },
   {
-    // Match gel before the generic sea-moss capsule entry so the 16 oz jar
-    // gets gel-specific copy on the product detail page.
+    match: /healthy\s*heart\s*sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Healthy Heart Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend crafted with intention to support cardiovascular wellness, circulation, and natural energy — nourishment for body, mind, and vitality.",
+      benefits: [
+        {
+          label: "Heart Health",
+          text: "Supports heart health as part of a daily wellness ritual focused on whole-body balance.",
+        },
+        {
+          label: "Circulation",
+          text: "Formulated to support healthy circulation and the flow of nutrients throughout the body.",
+        },
+        {
+          label: "Natural Energy",
+          text: "Mineral-rich sea moss helps support sustained energy without relying on stimulants.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
+    match: /cell\s*defender\s*sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Cell Defender Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend formulated to promote cellular wellness and long-term vitality — crafted to serve a deeper purpose in supporting your health.",
+      benefits: [
+        {
+          label: "Cellular Wellness",
+          text: "Promotes cellular wellness with a mineral-dense blend of vitamins and trace elements from wildcrafted sea moss.",
+        },
+        {
+          label: "Long-Term Vitality",
+          text: "Supports long-term vitality as part of a consistent daily wellness practice.",
+        },
+        {
+          label: "Holistic Nourishment",
+          text: "Rich in iodine, iron, and calcium to nourish the body at a foundational level.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
+    match: /iron\s*goddess\s*sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Iron Goddess Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend with non-heme iron support — crafted for women and anyone seeking plant-based mineral nourishment for whole-body wellness.",
+      benefits: [
+        {
+          label: "Non-Heme Iron Support",
+          text: "Provides non-heme iron from sea moss to support the body's natural iron needs as part of a balanced diet.",
+        },
+        {
+          label: "Mineral Density",
+          text: "Packed with 92 trace minerals including iron, iodine, and zinc for comprehensive body support.",
+        },
+        {
+          label: "Daily Ritual",
+          text: "Easy to stir into smoothies, tea, or recipes as intentional daily nourishment.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
+    match: /immune\s*booster\s*sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Immune Booster Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend formulated to improve respiratory function and help clear mucus — supporting your body's natural defenses and breathing wellness.",
+      benefits: [
+        {
+          label: "Respiratory Support",
+          text: "Formulated to improve respiratory function and support clear, comfortable breathing.",
+        },
+        {
+          label: "Mucus Relief",
+          text: "The gel's mucilage properties help soothe and clear mucus as part of a holistic wellness routine.",
+        },
+        {
+          label: "Immune Wellness",
+          text: "Vitamins, minerals, and plant compounds in sea moss support everyday immune defenses.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
+    match: /fulton\s*gregory\s*detox\s*sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Fulton Gregory Detox Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend crafted to aid cleansing, clarity, and revitalization during fasting and detoxing — intentional nourishment for a deeper reset.",
+      benefits: [
+        {
+          label: "Cleansing Support",
+          text: "Aids in cleansing the body as part of a fasting or detox wellness protocol.",
+        },
+        {
+          label: "Mental Clarity",
+          text: "Supports clarity and focus during periods of intentional detox and renewal.",
+        },
+        {
+          label: "Revitalization",
+          text: "Helps revitalize the body with mineral-rich nourishment during fasting and detox routines.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
+    match: /peaceful\s*moon\s*cycle.*sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Peaceful Moon Cycle Women's Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend formulated for women's hormonal balance, mood wellness, and menstrual comfort — crafted with intention for the feminine wellness journey.",
+      benefits: [
+        {
+          label: "Hormonal Balance",
+          text: "Supports women's hormonal balance as part of a daily holistic wellness practice.",
+        },
+        {
+          label: "Mood Wellness",
+          text: "Mineral-rich sea moss nourishes the body to support mood stability and emotional wellness.",
+        },
+        {
+          label: "Menstrual Comfort",
+          text: "Formulated to support menstrual comfort and ease during your cycle.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
+    // Fallback for any other sea moss gel listing.
     match: /sea\s*moss\s*gel/i,
     info: {
       intro:
-        "Wildcrafted Irish sea moss gel is a ready-to-use 16 oz jar rich in vitamins and minerals (including iodine, iron, and calcium). Stir into smoothies, tea, or recipes to support thyroid health, digestion, immunity, and radiant skin.",
+        "Wildcrafted Irish sea moss gel is a holistic 16 oz jar rich in vitamins and minerals (including iodine, iron, and calcium). Each blend is crafted with intention to serve a deeper purpose in supporting your health — stir into smoothies, tea, or recipes as part of your daily wellness ritual.",
       benefits: [
+        {
+          label: "Holistic Wellness",
+          text: "Crafted with intention to nourish body, mind, and vitality — not merely as a supplement but as purposeful daily nourishment.",
+        },
         {
           label: "Thyroid Support",
           text: "Natural iodine from sea moss helps the thyroid produce hormones that regulate metabolism, energy, and body temperature.",
@@ -91,14 +232,6 @@ const SUPPLEMENTS: { match: RegExp; info: SupplementInfo }[] = [
         {
           label: "Immune Wellness",
           text: "Vitamins, minerals, and plant compounds in sea moss support everyday immune defenses and overall vitality.",
-        },
-        {
-          label: "Skin, Hair & Nails",
-          text: "Regular use can nourish skin from within — supporting elasticity, a healthy glow, and stronger hair and nails.",
-        },
-        {
-          label: "Everyday Convenience",
-          text: "Shelf-stable until opened; freeze for longer storage. Easy to add to smoothies, teas, desserts, soups, and sauces.",
         },
       ],
       note:

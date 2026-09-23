@@ -49,6 +49,13 @@ import {
   laundryDetergentSheetsName,
   laundryDetergentSheetsPackLabel,
 } from "@shared/homeCareLaundry";
+import {
+  LEGACY_SEA_MOSS_GEL_NAME,
+  SEA_MOSS_GEL_IMAGE,
+  SEA_MOSS_GEL_PRICE_CENTS,
+  SEA_MOSS_GELS,
+  seaMossGelDescription,
+} from "@shared/elementsSeaMossGels";
 
 // Catalog facts that must be true in whatever database this server is connected
 // to. The synced `stripe.products` / `stripe.prices` tables are the durable
@@ -387,6 +394,10 @@ const RETIRED_PRODUCT_NAMES = [
   "Cosmetic Bag",
   // Custom logo/picture mugs + delivery cost too much to make a profit on.
   "Coffee Mug",
+  // Replaced by six holistic Khomplete Khemistri Elements sea moss gel SKUs
+  // (Healthy Heart, Cell Defender, Iron Goddess, Immune Booster, Fulton Gregory
+  // Detox, Peaceful Moon Cycle) at $45 each — no Amazon flavor picker.
+  LEGACY_SEA_MOSS_GEL_NAME,
   "Matte Black Mug",
   // Replaced by Khomplete Khemistri Apparel Air Genesis (single Drop 1 colorway).
   "Khomplete Khemistri Sneakers \u2014 Grey/Silver",
@@ -1183,32 +1194,20 @@ const ELEMENTS_PRODUCTS: {
     priceCents: ELEMENTS_PRICE_CENTS,
     meta: { category: "Elements", productType: "elements", sortOrder: "116", imageUrl: "/assets/kk_elements_coffee_forrest_decaf.jpg", customize: "none" },
   },
-  {
-    // Amazon-fulfilled EverSmith Organics wildcrafted Irish sea moss gel
-    // (https://a.co/d/08Z8ALjC, ASIN B08CG43RGC). Not logo-branded —
-    // third-party jar with 9 flavor varieties. Flat retail $40 for the
-    // 16 oz jar (~$10 over the Amazon one-time price of $29.99).
-    productId: "prod_kkelemsseamossgel",
-    priceId: "price_kkelemsseamossgel",
-    name: "Sea Moss Gel",
-    description:
-      "Wildcrafted Irish Sea Moss Gel — Made in the USA from St. Lucia sea moss. Shelf-stable 16 oz jar packed with vitamins and minerals to support immunity, gut health, skin, and overall wellness. Add to smoothies, tea, or recipes. SELECT YOUR FLAVOR at checkout. Amazon-fulfilled. Available in 9 flavors: Apple Cinnamon, Elderberry, Lemon Ginger, Mango Pineapple, Mixed Berry, Pineapple, Raspberry, Strawberry, and Unflavored.",
-    priceCents: 4000,
+  ...SEA_MOSS_GELS.map((gel) => ({
+    productId: gel.productId,
+    priceId: gel.priceId,
+    name: gel.name,
+    description: seaMossGelDescription(gel),
+    priceCents: SEA_MOSS_GEL_PRICE_CENTS,
     meta: {
       category: "Elements",
       productType: "elements",
-      sortOrder: "117",
-      imageUrl: "/assets/kk_elements_sea_moss_gel.jpg",
+      sortOrder: gel.sortOrder,
+      imageUrl: SEA_MOSS_GEL_IMAGE,
       customize: "none",
-      fulfillment: "Amazon",
-      amazonLink: "https://a.co/d/08Z8ALjC",
-      scented: "true",
-      scentOptions:
-        "Apple Cinnamon, Elderberry, Lemon Ginger, Mango Pineapple, Mixed Berry, Pineapple, Raspberry, Strawberry, Unflavored",
-      cost: "29.99",
-      profitMargin: "10.01",
     },
-  },
+  })),
   {
     productId: "prod_kkelemsnaturalspringwater",
     priceId: "price_kkelemsnaturalspringwater",
@@ -1218,7 +1217,7 @@ const ELEMENTS_PRODUCTS: {
     meta: {
       category: "Elements",
       productType: "elements",
-      sortOrder: "118",
+      sortOrder: "123",
       imageUrl: "/assets/kk_elements_natural_spring_water.png",
       customize: "none",
       comingSoon: "true",
@@ -1247,7 +1246,7 @@ const BODY_WASH_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "119",
+      sortOrder: "124",
       imageUrl: "/assets/kk_elements_body_wash_cocoa_shea.png",
       customize: "none",
       gender: "Unisex",
@@ -1263,7 +1262,7 @@ const BODY_WASH_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "120",
+      sortOrder: "125",
       imageUrl: "/assets/kk_elements_body_wash_island_tranquility.png",
       customize: "none",
       gender: "Unisex",
@@ -1279,7 +1278,7 @@ const BODY_WASH_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "121",
+      sortOrder: "126",
       imageUrl: "/assets/kk_elements_body_wash_cocoa_mango.png",
       customize: "none",
       gender: "Unisex",
@@ -1306,7 +1305,7 @@ const DEODORANT_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "122",
+      sortOrder: "127",
       imageUrl: "/assets/kk_elements_deodorant_sandalwood_teakwood.png",
       customize: "none",
       gender: "Unisex",
@@ -1323,7 +1322,7 @@ const DEODORANT_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "123",
+      sortOrder: "128",
       imageUrl: "/assets/kk_elements_deodorant_lavender.png",
       customize: "none",
       gender: "Unisex",
