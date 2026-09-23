@@ -19,12 +19,21 @@ export interface SeaMossGelSku {
 
 export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
   {
+    id: "original",
+    productId: "prod_kkelemsseamossgeloriginal",
+    priceId: "price_kkelemsseamossgeloriginal",
+    name: "Original Sea Moss Gel",
+    benefit:
+      "Handcrafted in a traditional herbal apothecary for healthy energy levels and mineral support.",
+    sortOrder: "117",
+  },
+  {
     id: "healthy-heart",
     productId: "prod_kkelemsseamossgelheart",
     priceId: "price_kkelemsseamossgelheart",
     name: "Healthy Heart Sea Moss Gel",
     benefit: "Supports heart health, circulation, and energy.",
-    sortOrder: "117",
+    sortOrder: "118",
   },
   {
     id: "cell-defender",
@@ -32,7 +41,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     priceId: "price_kkelemsseamossgelcell",
     name: "Cell Defender Sea Moss Gel",
     benefit: "Promotes cellular wellness and long-term vitality.",
-    sortOrder: "118",
+    sortOrder: "119",
   },
   {
     id: "iron-goddess",
@@ -40,7 +49,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     priceId: "price_kkelemsseamossgeliron",
     name: "Iron Goddess Sea Moss Gel",
     benefit: "Non-heme iron supplement for body support.",
-    sortOrder: "119",
+    sortOrder: "120",
   },
   {
     id: "immune-booster",
@@ -48,7 +57,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     priceId: "price_kkelemsseamossgelimmune",
     name: "Immune Booster Sea Moss Gel",
     benefit: "Improves respiratory function and helps clear mucus.",
-    sortOrder: "120",
+    sortOrder: "121",
   },
   {
     id: "fulton-gregory-detox",
@@ -57,7 +66,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     name: "Fulton Gregory Detox Sea Moss Gel",
     benefit:
       "Aids in cleansing, clarity, and revitalizing during fasting and detoxing.",
-    sortOrder: "121",
+    sortOrder: "122",
   },
   {
     id: "peaceful-moon-cycle",
@@ -66,7 +75,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     name: "Peaceful Moon Cycle Women's Sea Moss Gel",
     benefit:
       "Supports women's hormonal balance, mood wellness, and menstrual comfort.",
-    sortOrder: "122",
+    sortOrder: "123",
   },
 ] as const;
 
@@ -74,6 +83,9 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
 export const LEGACY_SEA_MOSS_GEL_NAME = "Sea Moss Gel";
 
 export function seaMossGelDescription(gel: SeaMossGelSku): string {
+  if (gel.id === "original") {
+    return `Khomplete Khemistri Elements ${gel.name} — a 16 oz wildcrafted Irish sea moss gel, ${gel.benefit.charAt(0).toLowerCase()}${gel.benefit.slice(1)} Stir into smoothies, tea, or recipes for everyday mineral-rich nourishment.`;
+  }
   return `Khomplete Khemistri Elements ${gel.name} — a holistic 16 oz wildcrafted Irish sea moss gel crafted with intention to support your health on a deeper level. ${gel.benefit} ${SEA_MOSS_GEL_HOLISTIC_NOTE} Add to smoothies, tea, or recipes as part of your daily wellness ritual.`;
 }
 

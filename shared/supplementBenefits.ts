@@ -73,6 +73,33 @@ const SUPPLEMENTS: { match: RegExp; info: SupplementInfo }[] = [
     },
   },
   {
+    match: /original\s*sea\s*moss\s*gel/i,
+    info: {
+      intro:
+        "Original Sea Moss Gel is a 16 oz wildcrafted Irish sea moss gel handcrafted in a traditional herbal apothecary — the foundational blend for healthy energy levels and everyday mineral support.",
+      benefits: [
+        {
+          label: "Apothecary Craftsmanship",
+          text: "Handcrafted in a traditional herbal apothecary using time-honored preparation methods for a pure, mineral-rich gel.",
+        },
+        {
+          label: "Healthy Energy Levels",
+          text: "Supports healthy energy levels with naturally occurring iodine, iron, and B-vitamins from wildcrafted sea moss.",
+        },
+        {
+          label: "Mineral Support",
+          text: "Packed with 92 trace minerals including iodine, iron, calcium, and zinc for comprehensive daily body support.",
+        },
+        {
+          label: "Everyday Nourishment",
+          text: "Easy to stir into smoothies, tea, or recipes as mineral-rich nourishment for your daily wellness routine.",
+        },
+      ],
+      note:
+        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+    },
+  },
+  {
     match: /healthy\s*heart\s*sea\s*moss\s*gel/i,
     info: {
       intro:

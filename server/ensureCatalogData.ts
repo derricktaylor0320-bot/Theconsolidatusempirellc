@@ -1217,7 +1217,7 @@ const ELEMENTS_PRODUCTS: {
     meta: {
       category: "Elements",
       productType: "elements",
-      sortOrder: "123",
+      sortOrder: "124",
       imageUrl: "/assets/kk_elements_natural_spring_water.png",
       customize: "none",
       comingSoon: "true",
@@ -1246,7 +1246,7 @@ const BODY_WASH_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "124",
+      sortOrder: "125",
       imageUrl: "/assets/kk_elements_body_wash_cocoa_shea.png",
       customize: "none",
       gender: "Unisex",
@@ -1262,7 +1262,7 @@ const BODY_WASH_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "125",
+      sortOrder: "126",
       imageUrl: "/assets/kk_elements_body_wash_island_tranquility.png",
       customize: "none",
       gender: "Unisex",
@@ -1278,7 +1278,7 @@ const BODY_WASH_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "126",
+      sortOrder: "127",
       imageUrl: "/assets/kk_elements_body_wash_cocoa_mango.png",
       customize: "none",
       gender: "Unisex",
@@ -1305,7 +1305,7 @@ const DEODORANT_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "127",
+      sortOrder: "128",
       imageUrl: "/assets/kk_elements_deodorant_sandalwood_teakwood.png",
       customize: "none",
       gender: "Unisex",
@@ -1322,7 +1322,7 @@ const DEODORANT_PRODUCTS: {
     meta: {
       category: "Body Care",
       productType: "elements",
-      sortOrder: "128",
+      sortOrder: "129",
       imageUrl: "/assets/kk_elements_deodorant_lavender.png",
       customize: "none",
       gender: "Unisex",
