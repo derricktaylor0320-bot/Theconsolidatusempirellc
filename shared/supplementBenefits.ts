@@ -1,3 +1,9 @@
+import {
+  SEA_MOSS_GEL_CRAFT_NOTE,
+  SEA_MOSS_GEL_HERITAGE_TAGLINE,
+  SEA_MOSS_GELS,
+} from "./elementsSeaMossGels";
+
 export interface SupplementBenefit {
   label: string;
   text: string;
@@ -8,6 +14,95 @@ export interface SupplementInfo {
   benefits: SupplementBenefit[];
   note?: string;
   heading?: string;
+}
+
+const SEA_MOSS_FDA_NOTE =
+  "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.";
+
+const SEA_MOSS_SHARED_BENEFITS: SupplementBenefit[] = [
+  { label: "Enhances Immunity", text: "Supports everyday immune defenses as part of a holistic wellness routine." },
+  { label: "Reduces Inflammation", text: "Mineral-rich sea moss helps support the body's natural inflammatory balance." },
+  { label: "Increases Hydration", text: "Gel-form sea moss helps nourish the body with moisture-supporting minerals." },
+];
+
+function seaMossGelIntro(name: string, benefit: string): string {
+  return `${name} is a 16 oz wildcrafted Irish sea moss gel. ${benefit} ${SEA_MOSS_GEL_HERITAGE_TAGLINE}. ${SEA_MOSS_GEL_CRAFT_NOTE}.`;
+}
+
+function seaMossGelSupplementEntries(): { match: RegExp; info: SupplementInfo }[] {
+  const byId: Record<
+    string,
+    { match: RegExp; uniqueBenefits: SupplementBenefit[] }
+  > = {
+    original: {
+      match: /original\s*sea\s*moss\s*gel/i,
+      uniqueBenefits: [
+        { label: "Boosts Energy & Vitality", text: "Supports healthy energy levels with naturally occurring iodine, iron, and B-vitamins from wildcrafted sea moss." },
+        { label: "Supports Joint & Bone Health", text: "Mineral-dense nourishment including calcium and magnesium to support joint and bone wellness." },
+        { label: "Clears Excess Mucus", text: "The gel's mucilage properties help soothe and clear excess mucus as part of a daily wellness ritual." },
+      ],
+    },
+    "healthy-heart": {
+      match: /healthy\s*heart\s*sea\s*moss\s*gel/i,
+      uniqueBenefits: [
+        { label: "Supports Heart Function", text: "Crafted with intention to support cardiovascular wellness as part of a daily ritual." },
+        { label: "Boosts Circulation", text: "Formulated to support healthy circulation and the flow of nutrients throughout the body." },
+        { label: "Increases Energy & Vitality", text: "Mineral-rich sea moss helps support sustained energy without relying on stimulants." },
+      ],
+    },
+    "cell-defender": {
+      match: /cell\s*defender\s*sea\s*moss\s*gel/i,
+      uniqueBenefits: [
+        { label: "Enhances Wellness at a Cellular Level", text: "Promotes cellular wellness with a mineral-dense blend of vitamins and trace elements." },
+        { label: "Encourages Healthy Antioxidant Levels & Detoxification", text: "Supports the body's natural antioxidant and detoxification pathways." },
+        { label: "Fights Against Malignant Cell Growth", text: "Formulated as part of a holistic defense strategy for long-term vitality." },
+      ],
+    },
+    "iron-goddess": {
+      match: /iron\s*goddess\s*sea\s*moss\s*gel/i,
+      uniqueBenefits: [
+        { label: "Non-Heme Iron Support", text: "Provides non-heme iron from sea moss to support the body's natural iron needs as part of a balanced diet." },
+        { label: "Mineral Density", text: "Packed with 92 trace minerals including iron, iodine, and zinc for comprehensive body support." },
+        { label: "Whole-Body Nourishment", text: "Crafted for women and anyone seeking plant-based mineral nourishment for daily wellness." },
+      ],
+    },
+    "immune-booster": {
+      match: /immune\s*booster\s*sea\s*moss\s*gel/i,
+      uniqueBenefits: [
+        { label: "Improves Respiratory Function", text: "Formulated to improve respiratory function and support clear, comfortable breathing." },
+        { label: "Decreases Histamine Response", text: "Supports allergy wellness by helping the body manage histamine response naturally." },
+        { label: "Clears Excess Mucus", text: "The gel's mucilage properties help soothe and clear mucus as part of a holistic wellness routine." },
+      ],
+    },
+    "fulton-gregory-detox": {
+      match: /fulton\s*gregory\s*detox\s*sea\s*moss\s*gel/i,
+      uniqueBenefits: [
+        { label: "Cleansing Support", text: "Aids in cleansing the body as part of a fasting or detox wellness protocol." },
+        { label: "Mental Clarity", text: "Supports clarity and focus during periods of intentional detox and renewal." },
+        { label: "Revitalization", text: "Helps revitalize the body with mineral-rich nourishment during fasting and detox routines." },
+      ],
+    },
+    "peaceful-moon-cycle": {
+      match: /peaceful\s*moon\s*cycle.*sea\s*moss\s*gel/i,
+      uniqueBenefits: [
+        { label: "Supports Healthy Hormone Balance", text: "Formulated to support women's hormonal balance as part of a daily holistic wellness practice." },
+        { label: "Promotes Emotional Ease", text: "Mineral-rich sea moss nourishes the body to support mood stability and emotional wellness." },
+        { label: "Reduces Cramping & Bloating", text: "Crafted to support menstrual comfort and ease during your cycle." },
+      ],
+    },
+  };
+
+  return SEA_MOSS_GELS.map((gel) => {
+    const entry = byId[gel.id];
+    return {
+      match: entry.match,
+      info: {
+        intro: seaMossGelIntro(gel.name, gel.benefit),
+        benefits: [...entry.uniqueBenefits, ...SEA_MOSS_SHARED_BENEFITS],
+        note: SEA_MOSS_FDA_NOTE,
+      },
+    };
+  });
 }
 
 const DEODORANT_DISCLAIMER =
@@ -72,171 +167,7 @@ const SUPPLEMENTS: { match: RegExp; info: SupplementInfo }[] = [
       ],
     },
   },
-  {
-    match: /original\s*sea\s*moss\s*gel/i,
-    info: {
-      intro:
-        "Original Sea Moss Gel is a 16 oz wildcrafted Irish sea moss gel handcrafted in a traditional herbal apothecary — the foundational blend for healthy energy levels and everyday mineral support.",
-      benefits: [
-        {
-          label: "Apothecary Craftsmanship",
-          text: "Handcrafted in a traditional herbal apothecary using time-honored preparation methods for a pure, mineral-rich gel.",
-        },
-        {
-          label: "Healthy Energy Levels",
-          text: "Supports healthy energy levels with naturally occurring iodine, iron, and B-vitamins from wildcrafted sea moss.",
-        },
-        {
-          label: "Mineral Support",
-          text: "Packed with 92 trace minerals including iodine, iron, calcium, and zinc for comprehensive daily body support.",
-        },
-        {
-          label: "Everyday Nourishment",
-          text: "Easy to stir into smoothies, tea, or recipes as mineral-rich nourishment for your daily wellness routine.",
-        },
-      ],
-      note:
-        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
-    },
-  },
-  {
-    match: /healthy\s*heart\s*sea\s*moss\s*gel/i,
-    info: {
-      intro:
-        "Healthy Heart Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend crafted with intention to support cardiovascular wellness, circulation, and natural energy — nourishment for body, mind, and vitality.",
-      benefits: [
-        {
-          label: "Heart Health",
-          text: "Supports heart health as part of a daily wellness ritual focused on whole-body balance.",
-        },
-        {
-          label: "Circulation",
-          text: "Formulated to support healthy circulation and the flow of nutrients throughout the body.",
-        },
-        {
-          label: "Natural Energy",
-          text: "Mineral-rich sea moss helps support sustained energy without relying on stimulants.",
-        },
-      ],
-      note:
-        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
-    },
-  },
-  {
-    match: /cell\s*defender\s*sea\s*moss\s*gel/i,
-    info: {
-      intro:
-        "Cell Defender Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend formulated to promote cellular wellness and long-term vitality — crafted to serve a deeper purpose in supporting your health.",
-      benefits: [
-        {
-          label: "Cellular Wellness",
-          text: "Promotes cellular wellness with a mineral-dense blend of vitamins and trace elements from wildcrafted sea moss.",
-        },
-        {
-          label: "Long-Term Vitality",
-          text: "Supports long-term vitality as part of a consistent daily wellness practice.",
-        },
-        {
-          label: "Holistic Nourishment",
-          text: "Rich in iodine, iron, and calcium to nourish the body at a foundational level.",
-        },
-      ],
-      note:
-        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
-    },
-  },
-  {
-    match: /iron\s*goddess\s*sea\s*moss\s*gel/i,
-    info: {
-      intro:
-        "Iron Goddess Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend with non-heme iron support — crafted for women and anyone seeking plant-based mineral nourishment for whole-body wellness.",
-      benefits: [
-        {
-          label: "Non-Heme Iron Support",
-          text: "Provides non-heme iron from sea moss to support the body's natural iron needs as part of a balanced diet.",
-        },
-        {
-          label: "Mineral Density",
-          text: "Packed with 92 trace minerals including iron, iodine, and zinc for comprehensive body support.",
-        },
-        {
-          label: "Daily Ritual",
-          text: "Easy to stir into smoothies, tea, or recipes as intentional daily nourishment.",
-        },
-      ],
-      note:
-        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
-    },
-  },
-  {
-    match: /immune\s*booster\s*sea\s*moss\s*gel/i,
-    info: {
-      intro:
-        "Immune Booster Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend formulated to improve respiratory function and help clear mucus — supporting your body's natural defenses and breathing wellness.",
-      benefits: [
-        {
-          label: "Respiratory Support",
-          text: "Formulated to improve respiratory function and support clear, comfortable breathing.",
-        },
-        {
-          label: "Mucus Relief",
-          text: "The gel's mucilage properties help soothe and clear mucus as part of a holistic wellness routine.",
-        },
-        {
-          label: "Immune Wellness",
-          text: "Vitamins, minerals, and plant compounds in sea moss support everyday immune defenses.",
-        },
-      ],
-      note:
-        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
-    },
-  },
-  {
-    match: /fulton\s*gregory\s*detox\s*sea\s*moss\s*gel/i,
-    info: {
-      intro:
-        "Fulton Gregory Detox Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend crafted to aid cleansing, clarity, and revitalization during fasting and detoxing — intentional nourishment for a deeper reset.",
-      benefits: [
-        {
-          label: "Cleansing Support",
-          text: "Aids in cleansing the body as part of a fasting or detox wellness protocol.",
-        },
-        {
-          label: "Mental Clarity",
-          text: "Supports clarity and focus during periods of intentional detox and renewal.",
-        },
-        {
-          label: "Revitalization",
-          text: "Helps revitalize the body with mineral-rich nourishment during fasting and detox routines.",
-        },
-      ],
-      note:
-        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
-    },
-  },
-  {
-    match: /peaceful\s*moon\s*cycle.*sea\s*moss\s*gel/i,
-    info: {
-      intro:
-        "Peaceful Moon Cycle Women's Sea Moss Gel is a holistic 16 oz wildcrafted Irish sea moss blend formulated for women's hormonal balance, mood wellness, and menstrual comfort — crafted with intention for the feminine wellness journey.",
-      benefits: [
-        {
-          label: "Hormonal Balance",
-          text: "Supports women's hormonal balance as part of a daily holistic wellness practice.",
-        },
-        {
-          label: "Mood Wellness",
-          text: "Mineral-rich sea moss nourishes the body to support mood stability and emotional wellness.",
-        },
-        {
-          label: "Menstrual Comfort",
-          text: "Formulated to support menstrual comfort and ease during your cycle.",
-        },
-      ],
-      note:
-        "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
-    },
-  },
+  ...seaMossGelSupplementEntries(),
   {
     // Fallback for any other sea moss gel listing.
     match: /sea\s*moss\s*gel/i,
