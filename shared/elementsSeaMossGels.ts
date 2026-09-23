@@ -31,7 +31,9 @@ export const SEA_MOSS_GEL_IMAGES = {
   original: "/attached_assets/sea-moss-gels/original.jpg",
   healthyHeart: "/attached_assets/sea-moss-gels/healthy-heart.jpg",
   cellDefender: "/attached_assets/sea-moss-gels/cell-defender.jpg",
+  ironGoddess: "/attached_assets/sea-moss-gels/iron-goddess.jpg",
   immuneBooster: "/attached_assets/sea-moss-gels/immune-booster.jpg",
+  fultonGregoryDetox: "/attached_assets/sea-moss-gels/fulton-gregory-detox.jpg",
   peacefulMoon: "/attached_assets/sea-moss-gels/peaceful-moon-womens.jpg",
 } as const;
 
@@ -77,7 +79,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     benefit: "Non-heme iron supplement for body support.",
     tagline:
       "Delicious Superfood Formula Handcrafted in a Traditional Herbal Apothecary for Non-Heme Iron Support & Whole-Body Mineral Nourishment",
-    imageUrl: SEA_MOSS_GEL_IMAGE,
+    imageUrl: SEA_MOSS_GEL_IMAGES.ironGoddess,
     sortOrder: "120",
   },
   {
@@ -99,7 +101,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     benefit: "Aids in cleansing, clarity, and revitalizing during fasting and detoxing.",
     tagline:
       "Delicious Superfood Formula Handcrafted in a Traditional Herbal Apothecary for Cleansing, Clarity & Revitalization During Fasting and Detoxing",
-    imageUrl: SEA_MOSS_GEL_IMAGE,
+    imageUrl: SEA_MOSS_GEL_IMAGES.fultonGregoryDetox,
     sortOrder: "122",
   },
   {

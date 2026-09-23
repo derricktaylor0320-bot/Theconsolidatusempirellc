@@ -22,18 +22,18 @@ test("seven sea moss gel SKUs are defined", () => {
   assert.ok(names.includes("Peaceful Moon Cycle Women's Sea Moss Gel"));
 });
 
-test("five sea moss gels use uploaded jar photos", () => {
+test("all seven sea moss gels use uploaded jar photos", () => {
   const withPhotos = SEA_MOSS_GELS.filter((g) =>
     g.imageUrl.startsWith("/attached_assets/sea-moss-gels/"),
   );
-  assert.equal(withPhotos.length, 5);
+  assert.equal(withPhotos.length, 7);
   assert.equal(
-    SEA_MOSS_GELS.find((g) => g.id === "original")?.imageUrl,
-    SEA_MOSS_GEL_IMAGES.original,
+    SEA_MOSS_GELS.find((g) => g.id === "iron-goddess")?.imageUrl,
+    SEA_MOSS_GEL_IMAGES.ironGoddess,
   );
   assert.equal(
-    SEA_MOSS_GELS.find((g) => g.id === "healthy-heart")?.imageUrl,
-    SEA_MOSS_GEL_IMAGES.healthyHeart,
+    SEA_MOSS_GELS.find((g) => g.id === "fulton-gregory-detox")?.imageUrl,
+    SEA_MOSS_GEL_IMAGES.fultonGregoryDetox,
   );
 });
 
