@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   LEGACY_SEA_MOSS_GEL_NAME,
+  SEA_MOSS_GEL_HERITAGE_TAGLINE,
+  SEA_MOSS_GEL_IMAGES,
   SEA_MOSS_GEL_PRICE_CENTS,
   SEA_MOSS_GELS,
   isSeaMossGelProduct,
@@ -20,20 +22,32 @@ test("seven sea moss gel SKUs are defined", () => {
   assert.ok(names.includes("Peaceful Moon Cycle Women's Sea Moss Gel"));
 });
 
-test("original sea moss gel mentions apothecary craftsmanship", () => {
+test("five sea moss gels use uploaded jar photos", () => {
+  const withPhotos = SEA_MOSS_GELS.filter((g) =>
+    g.imageUrl.startsWith("/attached_assets/sea-moss-gels/"),
+  );
+  assert.equal(withPhotos.length, 5);
+  assert.equal(
+    SEA_MOSS_GELS.find((g) => g.id === "original")?.imageUrl,
+    SEA_MOSS_GEL_IMAGES.original,
+  );
+  assert.equal(
+    SEA_MOSS_GELS.find((g) => g.id === "healthy-heart")?.imageUrl,
+    SEA_MOSS_GEL_IMAGES.healthyHeart,
+  );
+});
+
+test("sea moss gel descriptions use jar label taglines", () => {
   const original = SEA_MOSS_GELS.find((g) => g.id === "original");
   assert.ok(original);
   const desc = seaMossGelDescription(original!);
-  assert.match(desc, /traditional herbal apothecary/i);
-  assert.match(desc, /energy levels and mineral support/i);
-});
+  assert.match(desc, /Traditional Herbal Apothecary/i);
+  assert.match(desc, /Healthy Energy Levels & Mineral Support/i);
+  assert.match(desc, new RegExp(SEA_MOSS_GEL_HERITAGE_TAGLINE, "i"));
 
-test("holistic sea moss gel descriptions mention wellness intent", () => {
   const heart = SEA_MOSS_GELS.find((g) => g.id === "healthy-heart");
   assert.ok(heart);
-  const desc = seaMossGelDescription(heart!);
-  assert.match(desc, /holistic/i);
-  assert.match(desc, /heart health, circulation, and energy/i);
+  assert.match(seaMossGelDescription(heart!), /Improved Heart Health/i);
 });
 
 test("isSeaMossGelProduct matches priceId and title", () => {

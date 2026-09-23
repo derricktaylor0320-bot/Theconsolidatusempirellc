@@ -7,6 +7,7 @@ import {
   ECO_LAUNDRY_SHEETS_96_IMAGE,
   MACHINE_CLEANER_TABLETS_IMAGE,
 } from "./homeCareLaundry";
+import { SEA_MOSS_GELS } from "./elementsSeaMossGels";
 export const BEDDING_COMFORTER_IMAGE = "/assets/kk_bedding_set_blue_silver.jpeg";
 export const BEDDING_SHEET_IMAGE = "/assets/kk_bedding_set_blue_silver.jpeg";
 export const BEDDING_PILLOWCASE_IMAGE = "/assets/kk_pillowcase_set_blue_silver.jpeg";
@@ -61,6 +62,10 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
     pattern: /washing machine tablets|machine cleaner tablets/i,
     imageUrl: MACHINE_CLEANER_TABLETS_IMAGE,
   },
+  ...SEA_MOSS_GELS.map((gel) => ({
+    pattern: new RegExp(gel.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"),
+    imageUrl: gel.imageUrl,
+  })),
 ];
 
 function isBlueSilverArtwork(path: string): boolean {
