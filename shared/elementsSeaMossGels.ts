@@ -81,6 +81,8 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
 
 /** Legacy Amazon flavor-picker SKU — retired in favor of the holistic line. */
 export const LEGACY_SEA_MOSS_GEL_NAME = "Sea Moss Gel";
+export const LEGACY_SEA_MOSS_GEL_PRODUCT_ID = "prod_kkelemsseamossgel";
+export const LEGACY_SEA_MOSS_GEL_PRICE_ID = "price_kkelemsseamossgel";
 
 export function seaMossGelDescription(gel: SeaMossGelSku): string {
   if (gel.id === "original") {

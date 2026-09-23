@@ -725,10 +725,18 @@ export async function registerRoutes(
       const legacySneakers = products.filter((p) =>
         p.title.includes("Khomplete Khemistri Sneakers"),
       );
+      const seaMossGels = products.filter((p) =>
+        /sea moss gel/i.test(p.title || ""),
+      );
+      const legacySeaMossGel = seaMossGels.filter(
+        (p) => p.title === "Sea Moss Gel",
+      );
       res.json({
         catalogSyncVersion: CATALOG_SYNC_VERSION,
         footwearCount: footwear.length,
         legacySneakerCount: legacySneakers.length,
+        seaMossGelCount: seaMossGels.length,
+        legacySeaMossGelActive: legacySeaMossGel.length > 0,
         gitSha:
           process.env.RAILWAY_GIT_COMMIT_SHA?.trim() ||
           process.env.GITHUB_SHA?.trim() ||
@@ -743,6 +751,7 @@ export async function registerRoutes(
   // Get all products from the store's own catalog
   app.get("/api/products", async (req, res) => {
     try {
+      res.setHeader("Cache-Control", "no-store");
       res.json(await getStorefrontProducts());
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -759,6 +768,7 @@ export async function registerRoutes(
   // Get products by type (e.g. apparel, accessory, elements)
   app.get("/api/products/type/:type", async (req, res) => {
     try {
+      res.setHeader("Cache-Control", "no-store");
       const { type } = req.params;
 
       let rows: any[] = [];

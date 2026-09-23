@@ -51,6 +51,8 @@ import {
 } from "@shared/homeCareLaundry";
 import {
   LEGACY_SEA_MOSS_GEL_NAME,
+  LEGACY_SEA_MOSS_GEL_PRICE_ID,
+  LEGACY_SEA_MOSS_GEL_PRODUCT_ID,
   SEA_MOSS_GEL_IMAGE,
   SEA_MOSS_GEL_PRICE_CENTS,
   SEA_MOSS_GELS,
@@ -2046,7 +2048,7 @@ const CUTOFF_BOTTOMS_IMAGE_MARKERS = [
 ];
 
 /** Bumped when catalog boot-sync logic changes; exposed via /api/catalog-health. */
-export const CATALOG_SYNC_VERSION = 3;
+export const CATALOG_SYNC_VERSION = 4;
 
 export async function ensureCatalogData() {
   try {
@@ -2399,6 +2401,57 @@ export async function ensureCatalogData() {
       });
       console.log(
         "ensureCatalogData: ensured Elements Duo ($22 — 3-in-1 wash + body butter, save $8).",
+      );
+
+      // Holistic sea moss gels — critical early pass. The generic Elements loop
+      // at the end of this routine was not reliably updating Railway prod after
+      // merge (legacy $40 Amazon flavor-picker stayed live). Retire by id + name
+      // and ensure all seven $45 SKUs here so a later failure cannot skip them.
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND (
+            name = ${LEGACY_SEA_MOSS_GEL_NAME}
+            OR id = ${LEGACY_SEA_MOSS_GEL_PRODUCT_ID}
+          )
+      `);
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+            _updated_at = now()
+        WHERE active = true
+          AND (
+            id = ${LEGACY_SEA_MOSS_GEL_PRICE_ID}
+            OR product IN (
+              SELECT id FROM stripe.products
+              WHERE name = ${LEGACY_SEA_MOSS_GEL_NAME}
+                 OR id = ${LEGACY_SEA_MOSS_GEL_PRODUCT_ID}
+            )
+          )
+      `);
+
+      for (const gel of SEA_MOSS_GELS) {
+        await ensureSyntheticProduct({
+          accountId,
+          productId: gel.productId,
+          priceId: gel.priceId,
+          name: gel.name,
+          description: seaMossGelDescription(gel),
+          priceCents: SEA_MOSS_GEL_PRICE_CENTS,
+          meta: {
+            category: "Elements",
+            productType: "elements",
+            sortOrder: gel.sortOrder,
+            imageUrl: SEA_MOSS_GEL_IMAGE,
+            customize: "none",
+          },
+          created,
+        });
+      }
+      console.log(
+        `ensureCatalogData: ensured ${SEA_MOSS_GELS.length} holistic sea moss gel SKUs ($45 each); retired legacy Amazon flavor-picker.`,
       );
 
       await db.execute(sql`

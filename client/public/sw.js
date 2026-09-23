@@ -1,4 +1,4 @@
-const CACHE_NAME = "tce-empire-v1";
+const CACHE_NAME = "tce-empire-v2";
 const APP_SHELL = [
   "/",
   "/hub",
