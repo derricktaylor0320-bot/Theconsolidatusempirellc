@@ -52,7 +52,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     productId: "prod_kkelemsseamossgelheart",
     priceId: "price_kkelemsseamossgelheart",
     name: "Healthy Heart Sea Moss Gel",
-    benefit: "Improved heart health, circulation, and energy.",
+    benefit: "Supports heart health, circulation, and energy.",
     tagline:
       "Delicious Superfood Formula Handcrafted In a Traditional Herbal Apothecary for Improved Heart Health",
     imageUrl: SEA_MOSS_GEL_IMAGES.healthyHeart,
@@ -63,7 +63,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     productId: "prod_kkelemsseamossgelcell",
     priceId: "price_kkelemsseamossgelcell",
     name: "Cell Defender Sea Moss Gel",
-    benefit: "Whole-body defense, cellular wellness, and long-term vitality.",
+    benefit: "Promotes cellular wellness and long-term vitality.",
     tagline:
       "Delicious Superfood Formula Handcrafted in a Traditional Herbal Apothecary for Whole-Body Defense, Cellular Wellness & Long-Term Vitality",
     imageUrl: SEA_MOSS_GEL_IMAGES.cellDefender,
@@ -74,7 +74,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     productId: "prod_kkelemsseamossgeliron",
     priceId: "price_kkelemsseamossgeliron",
     name: "Iron Goddess Sea Moss Gel",
-    benefit: "Non-heme iron and plant-based mineral nourishment.",
+    benefit: "Non-heme iron supplement for body support.",
     tagline:
       "Delicious Superfood Formula Handcrafted in a Traditional Herbal Apothecary for Non-Heme Iron Support & Whole-Body Mineral Nourishment",
     imageUrl: SEA_MOSS_GEL_IMAGE,
@@ -85,7 +85,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     productId: "prod_kkelemsseamossgelimmune",
     priceId: "price_kkelemsseamossgelimmune",
     name: "Immune Booster Sea Moss Gel",
-    benefit: "Improved immune defense and allergy support.",
+    benefit: "Improves respiratory function and helps clear mucus.",
     tagline:
       "Delicious Superfood Formula Handcrafted In a Traditional Herbal Apothecary for Improved Immune Defense & Allergy Support",
     imageUrl: SEA_MOSS_GEL_IMAGES.immuneBooster,
@@ -96,7 +96,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     productId: "prod_kkelemsseamossgeldetox",
     priceId: "price_kkelemsseamossgeldetox",
     name: "Fulton Gregory Detox Sea Moss Gel",
-    benefit: "Cleansing, clarity, and revitalization during fasting and detoxing.",
+    benefit: "Aids in cleansing, clarity, and revitalizing during fasting and detoxing.",
     tagline:
       "Delicious Superfood Formula Handcrafted in a Traditional Herbal Apothecary for Cleansing, Clarity & Revitalization During Fasting and Detoxing",
     imageUrl: SEA_MOSS_GEL_IMAGE,
@@ -107,7 +107,7 @@ export const SEA_MOSS_GELS: readonly SeaMossGelSku[] = [
     productId: "prod_kkelemsseamossgelmoon",
     priceId: "price_kkelemsseamossgelmoon",
     name: "Peaceful Moon Cycle Women's Sea Moss Gel",
-    benefit: "Hormone harmony, womb wellness, and menstrual comfort.",
+    benefit: "Supports women's hormonal balance, mood wellness, and menstrual comfort.",
     tagline:
       "Delicious Superfood Formula Handcrafted in a Traditional Herbal Apothecary for Hormone Harmony, Womb Wellness & Menstrual Comfort",
     imageUrl: SEA_MOSS_GEL_IMAGES.peacefulMoon,
@@ -121,7 +121,7 @@ export const LEGACY_SEA_MOSS_GEL_PRODUCT_ID = "prod_kkelemsseamossgel";
 export const LEGACY_SEA_MOSS_GEL_PRICE_ID = "price_kkelemsseamossgel";
 
 export function seaMossGelDescription(gel: SeaMossGelSku): string {
-  return `Khomplete Khemistri Elements ${gel.name} — a 16 oz wildcrafted Irish sea moss gel. ${gel.tagline} ${SEA_MOSS_GEL_HERITAGE_TAGLINE}. ${SEA_MOSS_GEL_CRAFT_NOTE}. Add to smoothies, tea, or recipes as part of your daily wellness ritual.`;
+  return `Khomplete Khemistri Elements ${gel.name} — a 16 oz wildcrafted Irish sea moss gel. ${gel.benefit} ${SEA_MOSS_GEL_HERITAGE_TAGLINE}. ${SEA_MOSS_GEL_CRAFT_NOTE}. Add to smoothies, tea, or recipes as part of your daily wellness ritual.`;
 }
 
 export function isSeaMossGelProduct(

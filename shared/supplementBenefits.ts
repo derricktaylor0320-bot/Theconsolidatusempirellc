@@ -25,8 +25,8 @@ const SEA_MOSS_SHARED_BENEFITS: SupplementBenefit[] = [
   { label: "Increases Hydration", text: "Gel-form sea moss helps nourish the body with moisture-supporting minerals." },
 ];
 
-function seaMossJarIntro(tagline: string): string {
-  return `${tagline}. ${SEA_MOSS_GEL_HERITAGE_TAGLINE}. ${SEA_MOSS_GEL_CRAFT_NOTE}.`;
+function seaMossGelIntro(name: string, benefit: string): string {
+  return `${name} is a 16 oz wildcrafted Irish sea moss gel. ${benefit} ${SEA_MOSS_GEL_HERITAGE_TAGLINE}. ${SEA_MOSS_GEL_CRAFT_NOTE}.`;
 }
 
 function seaMossGelSupplementEntries(): { match: RegExp; info: SupplementInfo }[] {
@@ -97,7 +97,7 @@ function seaMossGelSupplementEntries(): { match: RegExp; info: SupplementInfo }[
     return {
       match: entry.match,
       info: {
-        intro: seaMossJarIntro(gel.tagline),
+        intro: seaMossGelIntro(gel.name, gel.benefit),
         benefits: [...entry.uniqueBenefits, ...SEA_MOSS_SHARED_BENEFITS],
         note: SEA_MOSS_FDA_NOTE,
       },

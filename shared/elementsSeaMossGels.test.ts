@@ -37,17 +37,28 @@ test("five sea moss gels use uploaded jar photos", () => {
   );
 });
 
-test("sea moss gel descriptions use jar label taglines", () => {
-  const original = SEA_MOSS_GELS.find((g) => g.id === "original");
-  assert.ok(original);
-  const desc = seaMossGelDescription(original!);
-  assert.match(desc, /Traditional Herbal Apothecary/i);
-  assert.match(desc, /Healthy Energy Levels & Mineral Support/i);
-  assert.match(desc, new RegExp(SEA_MOSS_GEL_HERITAGE_TAGLINE, "i"));
-
+test("sea moss gel descriptions use submitted blend copy", () => {
   const heart = SEA_MOSS_GELS.find((g) => g.id === "healthy-heart");
   assert.ok(heart);
-  assert.match(seaMossGelDescription(heart!), /Improved Heart Health/i);
+  assert.match(
+    seaMossGelDescription(heart!),
+    /Supports heart health, circulation, and energy\./,
+  );
+
+  const immune = SEA_MOSS_GELS.find((g) => g.id === "immune-booster");
+  assert.ok(immune);
+  assert.match(
+    seaMossGelDescription(immune!),
+    /Improves respiratory function and helps clear mucus\./,
+  );
+
+  const moon = SEA_MOSS_GELS.find((g) => g.id === "peaceful-moon-cycle");
+  assert.ok(moon);
+  assert.match(
+    seaMossGelDescription(moon!),
+    /Supports women's hormonal balance, mood wellness, and menstrual comfort\./,
+  );
+  assert.match(seaMossGelDescription(moon!), new RegExp(SEA_MOSS_GEL_HERITAGE_TAGLINE, "i"));
 });
 
 test("isSeaMossGelProduct matches priceId and title", () => {
