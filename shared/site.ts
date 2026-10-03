@@ -19,6 +19,17 @@ export const SITE_SUPPORT_PHONE_TEL = "18445612444";
 
 export const SITE_SMS_CONSENT_TEXT = `${SITE_BRAND} would like your consent to send text message communications from ${SITE_SUPPORT_PHONE} in response to your questions or to provide information related to your relationship with us.`;
 
+/** Carrier-required SMS disclosure (STOP/HELP, rates). */
+export const SITE_SMS_CARRIER_DISCLOSURE =
+  "Message and data rates may apply. Message frequency varies. Reply STOP to cancel at any time or HELP for assistance.";
+
+/** Checkbox label fragment — links to legal pages are rendered in the contact form UI. */
+export const SITE_SMS_OPT_IN_CHECKBOX_LABEL = `I agree to receive SMS/text messages from ${SITE_BRAND} at the mobile number I provide. I understand I am not required to consent as a condition of purchase.`;
+
+/** Privacy Policy — mobile opt-in (required for SMS program registration). */
+export const SITE_SMS_MOBILE_OPT_IN_PRIVACY =
+  "Mobile opt-in information and consent for SMS/text messaging will not be shared with or sold to third parties for their marketing or promotional purposes.";
+
 /**
  * Resolve the configured public origin for absolute links (emails, OG, redirects).
  * Returns null when nothing is configured so callers can fall back to the

@@ -43,6 +43,8 @@ import Profile from "@/pages/Profile";
 import FootballTeams from "@/pages/FootballTeams";
 import FuelPerks from "@/pages/FuelPerks";
 import ContactConsent from "@/pages/ContactConsent";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
@@ -78,6 +80,9 @@ function Router() {
       <Route path="/invest" component={Invest} />
       <Route path="/fuel-perks" component={FuelPerks} />
       <Route path="/contact" component={ContactConsent} />
+      <Route path="/sms-opt-in" component={ContactConsent} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={TermsOfService} />
       <Route path="/apparel" component={Apparel} />
       <Route path="/football-teams" component={FootballTeams} />
       <Route path="/feminine" component={Feminine} />

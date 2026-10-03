@@ -16,12 +16,15 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Loader2, MessageSquare } from "lucide-react";
+import { Link } from "wouter";
 import {
   SITE_DOMAIN,
   SITE_SUPPORT_EMAIL,
   SITE_SUPPORT_PHONE,
   SITE_SUPPORT_PHONE_TEL,
+  SITE_SMS_CARRIER_DISCLOSURE,
   SITE_SMS_CONSENT_TEXT,
+  SITE_SMS_OPT_IN_CHECKBOX_LABEL,
 } from "@shared/site";
 
 export default function ContactConsent() {
@@ -96,8 +99,9 @@ export default function ContactConsent() {
                 Contact &amp; Text Consent
               </h1>
               <p className="mt-3 text-muted-foreground">
-                Share your details and consent to receive text message
-                communications from The Consolidatus Empire LLC.
+                This page is publicly available—no account or sign-in required.
+                Share your details and opt in to receive text messages from The
+                Consolidatus Empire LLC.
               </p>
               <p className="mt-4 text-sm text-muted-foreground">
                 <a
@@ -129,7 +133,7 @@ export default function ContactConsent() {
                   Get in Touch
                 </CardTitle>
                 <CardDescription>
-                  Fill out the form below. Message and data rates may apply.
+                  Fill out the form below. Check the SMS consent box to opt in.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -225,9 +229,15 @@ export default function ContactConsent() {
                       />
                     </div>
 
-                    <div className="rounded-md border border-primary/20 bg-muted/30 p-4">
+                    <div
+                      className="rounded-md border border-primary/20 bg-muted/30 p-4"
+                      data-testid="sms-opt-in-disclosure"
+                    >
                       <p className="text-sm leading-relaxed text-muted-foreground">
                         {SITE_SMS_CONSENT_TEXT}
+                      </p>
+                      <p className="mt-3 text-sm font-medium leading-relaxed text-foreground">
+                        {SITE_SMS_CARRIER_DISCLOSURE}
                       </p>
                       <div className="mt-4 flex items-start gap-3">
                         <Checkbox
@@ -243,7 +253,22 @@ export default function ContactConsent() {
                           htmlFor="contact-sms-consent"
                           className="cursor-pointer text-sm font-normal leading-relaxed"
                         >
-                          Yes, I consent
+                          {SITE_SMS_OPT_IN_CHECKBOX_LABEL}{" "}
+                          <Link
+                            href="/privacy"
+                            className="text-primary underline underline-offset-2 hover:text-primary/90"
+                            data-testid="link-sms-privacy-policy"
+                          >
+                            Privacy Policy
+                          </Link>
+                          {" · "}
+                          <Link
+                            href="/terms"
+                            className="text-primary underline underline-offset-2 hover:text-primary/90"
+                            data-testid="link-sms-terms-of-service"
+                          >
+                            Terms of Service
+                          </Link>
                         </Label>
                       </div>
                     </div>

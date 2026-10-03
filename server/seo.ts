@@ -26,6 +26,10 @@ const INDEXABLE_PATHS = [
   "/invest",
   "/fuel-perks",
   "/policies",
+  "/privacy",
+  "/terms",
+  "/contact",
+  "/sms-opt-in",
   "/vip",
 ];
 
