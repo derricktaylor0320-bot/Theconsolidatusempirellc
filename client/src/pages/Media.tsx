@@ -39,32 +39,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { MediaItem } from "@shared/schema";
-
-// Turn an external link into an embeddable player URL where we recognize the
-// platform (YouTube, Vimeo, SoundCloud). Anything else falls back to a native
-// <video>/<audio> element (works for direct file links) or a plain link.
-function getEmbed(url: string): { kind: "iframe"; src: string } | null {
-  const yt = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/,
-  );
-  if (yt) return { kind: "iframe", src: `https://www.youtube.com/embed/${yt[1]}` };
-
-  const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vimeo) return { kind: "iframe", src: `https://player.vimeo.com/video/${vimeo[1]}` };
-
-  if (/soundcloud\.com\//.test(url)) {
-    return {
-      kind: "iframe",
-      src: `https://w.soundcloud.com/player/?url=${encodeURIComponent(
-        url,
-      )}&color=%23d4af37&auto_play=true&hide_related=true&show_comments=false`,
-    };
-  }
-  return null;
-}
+import { getMediaEmbed, isDirectMediaFileUrl } from "@shared/mediaEmbed";
 
 function MediaPlayer({ item }: { item: MediaItem }) {
-  const embed = item.sourceType === "link" ? getEmbed(item.url) : null;
+  const [loadError, setLoadError] = useState(false);
+  const embed = getMediaEmbed(item.url);
 
   if (embed) {
     return (
@@ -78,8 +57,9 @@ function MediaPlayer({ item }: { item: MediaItem }) {
         <iframe
           src={embed.src}
           title={item.title}
-          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
           allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
           className={item.mediaType === "audio" ? "w-full h-40" : "absolute inset-0 w-full h-full"}
           data-testid={`iframe-player-${item.id}`}
         />
@@ -89,25 +69,58 @@ function MediaPlayer({ item }: { item: MediaItem }) {
 
   if (item.mediaType === "audio") {
     return (
-      <audio
-        src={item.url}
-        controls
-        autoPlay
-        className="w-full"
-        data-testid={`audio-player-${item.id}`}
-      />
+      <div className="space-y-3">
+        <audio
+          src={item.url}
+          controls
+          preload="metadata"
+          className="w-full"
+          data-testid={`audio-player-${item.id}`}
+          onError={() => setLoadError(true)}
+        />
+        {loadError && <MediaPlaybackFallback item={item} />}
+      </div>
     );
   }
 
+  const showPageLinkHint =
+    item.sourceType === "link" && !isDirectMediaFileUrl(item.url);
+
   return (
-    <video
-      src={item.url}
-      controls
-      autoPlay
-      playsInline
-      className="w-full max-h-[70vh] rounded-lg bg-black"
-      data-testid={`video-player-${item.id}`}
-    />
+    <div className="space-y-3">
+      {showPageLinkHint && !loadError && (
+        <p className="text-sm text-muted-foreground">
+          This link is not a direct video file. If playback fails, open it in your
+          browser.
+        </p>
+      )}
+      <video
+        src={item.url}
+        controls
+        playsInline
+        preload="metadata"
+        className="w-full max-h-[70vh] min-h-[200px] rounded-lg bg-black"
+        data-testid={`video-player-${item.id}`}
+        onError={() => setLoadError(true)}
+      />
+      {loadError && <MediaPlaybackFallback item={item} />}
+    </div>
+  );
+}
+
+function MediaPlaybackFallback({ item }: { item: MediaItem }) {
+  return (
+    <p className="text-sm text-muted-foreground">
+      Couldn&apos;t play this clip here.{" "}
+      <a
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline underline-offset-2"
+      >
+        Open {item.title}
+      </a>
+    </p>
   );
 }
 
@@ -543,7 +556,10 @@ export default function Media() {
 
       {/* Player */}
       <Dialog open={!!playing} onOpenChange={(o) => !o && setPlaying(null)}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent
+          className="max-w-3xl"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           {playing && (
             <>
               <DialogHeader>
@@ -555,7 +571,7 @@ export default function Media() {
                 )}
               </DialogHeader>
               <div className="mt-2">
-                <MediaPlayer item={playing} />
+                <MediaPlayer key={playing.id} item={playing} />
               </div>
             </>
           )}
