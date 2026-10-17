@@ -6,7 +6,9 @@ import {
   BEDDING_COMFORTER_IMAGE,
   BEDDING_PILLOWCASE_IMAGE,
   BEDDING_SHEET_IMAGE,
-  BODY_WASH_COCOA_SHEA_IMAGE,
+  BODY_WASH_AVOCADO_IMAGE,
+  BODY_WASH_COCOA_MANGO_IMAGE,
+  BODY_WASH_MENS_ENERGIZING_IMAGE,
   LEGACY_BROWN_BEDDING_IMAGE_PATHS,
   LUXURY_SPA_BASKET_IMAGE,
 } from "@shared/productImages";
@@ -411,6 +413,8 @@ const RETIRED_PRODUCT_NAMES = [
   "32 Count Eco Laundry Sheets",
   "64 Count Eco Laundry Sheets",
   "96 Count Eco Laundry Sheets",
+  // Replaced by Avocado Oil 3-in-1; Cocoa Mango still includes shea butter.
+  "Cocoa & Shea Butter",
 ];
 
 // Vintage Baltimore collection ($30 graphic tees). The 10 real designs that
@@ -1238,17 +1242,17 @@ const BODY_WASH_PRODUCTS: {
   meta: Record<string, string>;
 }[] = [
   {
-    productId: "prod_kkelemsbodywashcocoashea",
-    priceId: "price_kkelemsbodywashcocoashea",
-    name: "Cocoa & Shea Butter",
+    productId: "prod_kkelemsbodywashavocado",
+    priceId: "price_kkelemsbodywashavocado",
+    name: "Avocado Oil",
     description:
-      "Khomplete Khemistri Elements Cocoa & Shea Butter — 3-in-1 body wash, shampoo & conditioner (8 oz). Hydrating paraben-free, phthalate-free, and cruelty-free formula with glycerin & vitamin E. Leaves skin feeling soft with cocoa butter, coconut & vanilla scent. $15 per bottle.",
+      "Khomplete Khemistri Elements Avocado Oil — 3-in-1 body wash, shampoo & conditioner (8 oz). Moisturizing paraben-free, phthalate-free, and cruelty-free formula with nourishing avocado oil, glycerin & vitamin E. $15 per bottle.",
     priceCents: 1500,
     meta: {
       category: "Body Care",
       productType: "elements",
       sortOrder: "125",
-      imageUrl: "/assets/kk_elements_body_wash_cocoa_shea.png",
+      imageUrl: BODY_WASH_AVOCADO_IMAGE,
       customize: "none",
       gender: "Unisex",
     },
@@ -1274,7 +1278,7 @@ const BODY_WASH_PRODUCTS: {
     priceId: "price_kkelemsbodywashcocoamango",
     name: "Cocoa Mango",
     description:
-      "Khomplete Khemistri Elements Cocoa Mango — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, cruelty-free, and paraben-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
+      "Khomplete Khemistri Elements Cocoa Mango — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, cruelty-free, and paraben-free with shea butter. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
     priceCents: 1500,
     meta: {
       category: "Body Care",
@@ -1283,6 +1287,22 @@ const BODY_WASH_PRODUCTS: {
       imageUrl: "/assets/kk_elements_body_wash_cocoa_mango.png",
       customize: "none",
       gender: "Unisex",
+    },
+  },
+  {
+    productId: "prod_kkelemsbodywashmensenergizing",
+    priceId: "price_kkelemsbodywashmensenergizing",
+    name: "Men's Energizing Scent",
+    description:
+      "Khomplete Khemistri Complete Chemistry Men's Energizing Scent — men's moisturizing 3-in-1 body wash, shampoo & conditioner (8 oz). Energizing scent, paraben-free and cruelty-free. $15 per bottle.",
+    priceCents: 1500,
+    meta: {
+      category: "Body Care",
+      productType: "elements",
+      sortOrder: "130",
+      imageUrl: BODY_WASH_MENS_ENERGIZING_IMAGE,
+      customize: "none",
+      gender: "Men",
     },
   },
 ];
@@ -1340,7 +1360,7 @@ const ELEMENTS_DUO_META = {
   category: "Body Care",
   productType: "elements",
   sortOrder: "90",
-  imageUrl: BODY_WASH_COCOA_SHEA_IMAGE,
+  imageUrl: BODY_WASH_COCOA_MANGO_IMAGE,
   customize: "none",
   scented: "true",
   scentOptions: BODY_BUTTER_SCENT_OPTIONS,
@@ -1356,7 +1376,7 @@ const ELEMENTS_CARE_BASKET_META = {
   category: "Body Care",
   productType: "elements",
   sortOrder: "89",
-  imageUrl: BODY_WASH_COCOA_SHEA_IMAGE,
+  imageUrl: BODY_WASH_COCOA_MANGO_IMAGE,
   customize: "none",
   scented: "true",
   scentOptions: BODY_BUTTER_SCENT_OPTIONS,
