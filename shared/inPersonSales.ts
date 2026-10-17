@@ -22,7 +22,8 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
   },
   {
     name: "3-in-1 Body Wash, Shampoo & Conditioner",
-    detail: "8 oz bottles — Cocoa & Shea, Island Tranquility, Cocoa Mango",
+    detail:
+      "8 oz bottles — Avocado Oil, Island Tranquility, Cocoa Mango, Men's Energizing Scent",
     pricing: `$${(BODY_WASH_RETAIL_CENTS / 100).toFixed(0)} each`,
   },
 ] as const;

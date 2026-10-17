@@ -2,9 +2,11 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   BODY_BUTTER_IMAGE,
+  BODY_WASH_AVOCADO_IMAGE,
   BODY_WASH_COCOA_MANGO_IMAGE,
   BODY_WASH_COCOA_SHEA_IMAGE,
   BODY_WASH_ISLAND_TRANQUILITY_IMAGE,
+  BODY_WASH_MENS_ENERGIZING_IMAGE,
   BEDDING_COMFORTER_IMAGE,
   BEDDING_PILLOWCASE_IMAGE,
   HIS_HERS_WATCH_IMAGE,
@@ -98,7 +100,7 @@ describe("resolveStorefrontImageUrl", () => {
   it("infers Elements Duo artwork from title when metadata image is empty", () => {
     assert.equal(
       resolveStorefrontImageUrl("", "Elements Duo"),
-      BODY_WASH_COCOA_SHEA_IMAGE,
+      BODY_WASH_COCOA_MANGO_IMAGE,
     );
   });
 
@@ -106,6 +108,14 @@ describe("resolveStorefrontImageUrl", () => {
     assert.equal(
       resolveStorefrontImageUrl("", "Cocoa & Shea Butter"),
       BODY_WASH_COCOA_SHEA_IMAGE,
+    );
+    assert.equal(
+      resolveStorefrontImageUrl("", "Avocado Oil"),
+      BODY_WASH_AVOCADO_IMAGE,
+    );
+    assert.equal(
+      resolveStorefrontImageUrl("", "Men's Energizing Scent"),
+      BODY_WASH_MENS_ENERGIZING_IMAGE,
     );
     assert.equal(
       resolveStorefrontImageUrl("", "Island Tranquility"),

@@ -19,6 +19,10 @@ export const BODY_WASH_ISLAND_TRANQUILITY_IMAGE =
   "/assets/kk_elements_body_wash_island_tranquility.png";
 export const BODY_WASH_COCOA_MANGO_IMAGE =
   "/assets/kk_elements_body_wash_cocoa_mango.png";
+export const BODY_WASH_AVOCADO_IMAGE =
+  "/assets/kk_elements_body_wash_avocado.jpg";
+export const BODY_WASH_MENS_ENERGIZING_IMAGE =
+  "/assets/kk_elements_body_wash_mens_energizing.jpg";
 
 /** Retired chocolate-brown bedding paths (still present on some prod snapshots). */
 export const LEGACY_BROWN_BEDDING_IMAGE_PATHS: Record<string, string> = {
@@ -46,9 +50,14 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
   { pattern: /pillowcase set/i, imageUrl: BEDDING_PILLOWCASE_IMAGE },
   { pattern: /body pillow/i, imageUrl: BEDDING_BODY_PILLOW_IMAGE },
   { pattern: /(?:our exotic|whipped) body butter/i, imageUrl: BODY_BUTTER_IMAGE },
-  { pattern: /elements care basket/i, imageUrl: BODY_WASH_COCOA_SHEA_IMAGE },
-  { pattern: /elements duo/i, imageUrl: BODY_WASH_COCOA_SHEA_IMAGE },
+  { pattern: /elements care basket/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
+  { pattern: /elements duo/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
   { pattern: /cocoa\s*&\s*shea\s*butter/i, imageUrl: BODY_WASH_COCOA_SHEA_IMAGE },
+  { pattern: /avocado\s*oil/i, imageUrl: BODY_WASH_AVOCADO_IMAGE },
+  {
+    pattern: /men'?s\s*energizing\s*scent|complete\s*chemistry.*energizing/i,
+    imageUrl: BODY_WASH_MENS_ENERGIZING_IMAGE,
+  },
   { pattern: /island\s*tranquility/i, imageUrl: BODY_WASH_ISLAND_TRANQUILITY_IMAGE },
   { pattern: /cocoa\s*mango|coco\s*mango/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
   { pattern: /his & hers watch/i, imageUrl: HIS_HERS_WATCH_IMAGE },
