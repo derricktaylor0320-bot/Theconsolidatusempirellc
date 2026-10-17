@@ -6,7 +6,7 @@ import {
   BEDDING_COMFORTER_IMAGE,
   BEDDING_PILLOWCASE_IMAGE,
   BEDDING_SHEET_IMAGE,
-  BODY_WASH_COCOA_SHEA_IMAGE,
+  BODY_WASH_DEFAULT_IMAGE,
   LEGACY_BROWN_BEDDING_IMAGE_PATHS,
   LUXURY_SPA_BASKET_IMAGE,
 } from "@shared/productImages";
@@ -1238,33 +1238,33 @@ const BODY_WASH_PRODUCTS: {
   meta: Record<string, string>;
 }[] = [
   {
-    productId: "prod_kkelemsbodywashcocoashea",
-    priceId: "price_kkelemsbodywashcocoashea",
-    name: "Cocoa & Shea Butter",
+    productId: "prod_kkelemsbodywashisland",
+    priceId: "price_kkelemsbodywashisland",
+    name: "Island Tranquility",
     description:
-      "Khomplete Khemistri Elements Cocoa & Shea Butter — 3-in-1 body wash, shampoo & conditioner (8 oz). Hydrating paraben-free, phthalate-free, and cruelty-free formula with glycerin & vitamin E. Leaves skin feeling soft with cocoa butter, coconut & vanilla scent. $15 per bottle.",
+      "Khomplete Khemistri Elements Island Tranquility — 3-in-1 body wash, shampoo & conditioner (8 oz). Kiwi, guava & lemongrass scent. 100% vegan, paraben-free, sulfate-free, and cruelty-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
     priceCents: 1500,
     meta: {
       category: "Body Care",
       productType: "elements",
       sortOrder: "125",
-      imageUrl: "/assets/kk_elements_body_wash_cocoa_shea.png",
+      imageUrl: "/assets/kk_elements_body_wash_island_tranquility.png",
       customize: "none",
       gender: "Unisex",
     },
   },
   {
-    productId: "prod_kkelemsbodywashisland",
-    priceId: "price_kkelemsbodywashisland",
-    name: "Island Tranquility",
+    productId: "prod_kkelemsbodywashavocado",
+    priceId: "price_kkelemsbodywashavocado",
+    name: "100% Avocado Oil",
     description:
-      "Khomplete Khemistri Elements Island Tranquility — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, paraben-free, sulfate-free, and cruelty-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
+      "Khomplete Khemistri Elements 100% Avocado Oil — 3-in-1 body wash, shampoo & conditioner (8 oz). Nourishing avocado oil formula, paraben-free and cruelty-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
     priceCents: 1500,
     meta: {
       category: "Body Care",
       productType: "elements",
       sortOrder: "126",
-      imageUrl: "/assets/kk_elements_body_wash_island_tranquility.png",
+      imageUrl: "/assets/kk_elements_body_wash_avocado_oil.png",
       customize: "none",
       gender: "Unisex",
     },
@@ -1274,7 +1274,7 @@ const BODY_WASH_PRODUCTS: {
     priceId: "price_kkelemsbodywashcocoamango",
     name: "Cocoa Mango",
     description:
-      "Khomplete Khemistri Elements Cocoa Mango — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, cruelty-free, and paraben-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
+      "Khomplete Khemistri Elements Cocoa Mango — 3-in-1 body wash, shampoo & conditioner (8 oz). Coconut & mango scent. 100% vegan, cruelty-free, and paraben-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
     priceCents: 1500,
     meta: {
       category: "Body Care",
@@ -1283,6 +1283,22 @@ const BODY_WASH_PRODUCTS: {
       imageUrl: "/assets/kk_elements_body_wash_cocoa_mango.png",
       customize: "none",
       gender: "Unisex",
+    },
+  },
+  {
+    productId: "prod_kkelemsbodywashmens",
+    priceId: "price_kkelemsbodywashmens",
+    name: "Men's Moisturizing Energizing Scent",
+    description:
+      "Khomplete Khemistri Elements Men's Moisturizing Energizing Scent — 3-in-1 body wash, shampoo & conditioner (8 oz). Bright citrus and root-botanical notes. Paraben-free and cruelty-free. $15 per bottle.",
+    priceCents: 1500,
+    meta: {
+      category: "Body Care",
+      productType: "elements",
+      sortOrder: "128",
+      imageUrl: "/assets/kk_elements_body_wash_mens_energizing.png",
+      customize: "none",
+      gender: "Men's",
     },
   },
 ];
@@ -1340,7 +1356,7 @@ const ELEMENTS_DUO_META = {
   category: "Body Care",
   productType: "elements",
   sortOrder: "90",
-  imageUrl: BODY_WASH_COCOA_SHEA_IMAGE,
+  imageUrl: BODY_WASH_DEFAULT_IMAGE,
   customize: "none",
   scented: "true",
   scentOptions: BODY_BUTTER_SCENT_OPTIONS,
@@ -1356,7 +1372,7 @@ const ELEMENTS_CARE_BASKET_META = {
   category: "Body Care",
   productType: "elements",
   sortOrder: "89",
-  imageUrl: BODY_WASH_COCOA_SHEA_IMAGE,
+  imageUrl: BODY_WASH_DEFAULT_IMAGE,
   customize: "none",
   scented: "true",
   scentOptions: BODY_BUTTER_SCENT_OPTIONS,
@@ -2357,6 +2373,20 @@ export async function ensureCatalogData() {
       console.log(
         `ensureCatalogData: ensured ${BODY_WASH_PRODUCTS.length} Elements 3-in-1 body wash SKUs ($15 each).`,
       );
+
+      await db.execute(sql`
+        UPDATE stripe.products
+        SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+            active = false
+        WHERE id = 'prod_kkelemsbodywashcocoashea'
+           OR name = 'Cocoa & Shea Butter'
+      `);
+      await db.execute(sql`
+        UPDATE stripe.prices
+        SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+            active = false
+        WHERE id = 'price_kkelemsbodywashcocoashea'
+      `);
 
       for (const deodorant of DEODORANT_PRODUCTS) {
         await ensureSyntheticProduct({

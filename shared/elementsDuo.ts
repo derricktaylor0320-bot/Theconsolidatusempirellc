@@ -29,9 +29,10 @@ export const ELEMENTS_DUO_SAVINGS_CENTS =
 export const ELEMENTS_DUO_DELIM = " \u2014 ";
 
 export const ELEMENTS_DUO_WASH_OPTIONS = [
-  "Cocoa & Shea Butter",
   "Island Tranquility",
+  "100% Avocado Oil",
   "Cocoa Mango",
+  "Men's Moisturizing Energizing Scent",
 ] as const;
 
 export type ElementsDuoWash = (typeof ELEMENTS_DUO_WASH_OPTIONS)[number];

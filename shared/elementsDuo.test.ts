@@ -65,16 +65,20 @@ test("identifies the Duo SKU by price id or exact title", () => {
 });
 
 test("wash and butter title helpers match the standalone SKUs", () => {
-  assert.equal(isElementsBodyWashTitle("Cocoa & Shea Butter"), true);
   assert.equal(isElementsBodyWashTitle("Island Tranquility"), true);
+  assert.equal(isElementsBodyWashTitle("100% Avocado Oil"), true);
   assert.equal(isElementsBodyWashTitle("Cocoa Mango"), true);
+  assert.equal(
+    isElementsBodyWashTitle("Men's Moisturizing Energizing Scent"),
+    true,
+  );
   assert.equal(isElementsBodyWashTitle(BODY_BUTTER_LEGACY_NAME), false);
   assert.equal(isElementsBodyButterTitle(BODY_BUTTER_LEGACY_NAME), true);
   assert.equal(isElementsBodyButterTitle(BODY_BUTTER_LINE_NAME), true);
   assert.equal(isElementsBodyButterTitle("Cocoa Mango"), false);
   assert.equal(isElementsDuoWash("Cocoa Mango"), true);
   assert.equal(isElementsDuoWash("Lavender"), false);
-  assert.equal(ELEMENTS_DUO_WASH_OPTIONS.length, 3);
+  assert.equal(ELEMENTS_DUO_WASH_OPTIONS.length, 4);
 });
 
 test("order note names both items for fulfillment", () => {

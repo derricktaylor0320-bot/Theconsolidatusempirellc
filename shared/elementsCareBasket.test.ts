@@ -88,7 +88,7 @@ test("option validators match the standalone SKUs", () => {
   assert.equal(isCareBasketDeodorant("Rose"), false);
   assert.equal(isCareBasketBodyOil(CARE_BASKET_BODY_OIL_OPTIONS[0]), true);
   assert.equal(isCareBasketBodyOil("Unknown"), false);
-  assert.equal(ELEMENTS_DUO_WASH_OPTIONS.length, 3);
+  assert.equal(ELEMENTS_DUO_WASH_OPTIONS.length, 4);
   assert.equal(CARE_BASKET_DEODORANT_OPTIONS.length, 2);
   assert.equal(CARE_BASKET_BODY_OIL_OPTIONS.length, 19);
 });
