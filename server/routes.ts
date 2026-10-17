@@ -312,6 +312,11 @@ export async function registerRoutes(
         res.setHeader("X-Content-Type-Options", "nosniff");
       },
     }),
+    // Never fall through to the SPA catch-all for missing uploads — returning
+    // index.html breaks <video>/<audio> players with a silent failure.
+    (_req, res) => {
+      res.status(404).type("text/plain").send("Not found");
+    },
   );
 
   // --- Media gallery API ----------------------------------------------------
