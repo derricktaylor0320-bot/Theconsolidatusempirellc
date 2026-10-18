@@ -107,10 +107,10 @@ export default function Elements() {
                 New bundle
               </p>
               <p className="font-display font-bold uppercase tracking-tight text-lg">
-                Elements Duo — ${elementsDuoPriceDollars().toFixed(2)}
+                Elements Trio — ${elementsDuoPriceDollars().toFixed(2)}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                Any 3-in-1 wash bottle plus a whipped body butter jar. Usually ${elementsDuoSeparateDollars().toFixed(2)}
+                3-in-1 wash (8 oz), whipped body butter (4 oz), and natural deodorant (2.5 oz). Usually ${elementsDuoSeparateDollars().toFixed(2)}
                 separately — save ${elementsDuoSavingsDollars()} when you bundle.
               </p>
             </div>

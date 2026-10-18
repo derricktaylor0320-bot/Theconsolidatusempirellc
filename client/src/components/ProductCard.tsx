@@ -108,10 +108,10 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
   const isCareBasket = isElementsCareBasketProduct(priceId, title);
   const isDeodorant = isElementsDeodorantProduct(priceId, title);
   const isBodyButter = isElementsBodyButterProduct(priceId, title);
-  const needsScent = scentChoices.length > 0 && !isCareBasket;
+  const needsScent = scentChoices.length > 0 && !isCareBasket && !isDuo;
   const needsWash = isDuo || isCareBasket;
-  const needsButterScent = isCareBasket;
-  const needsDeodorantPick = isCareBasket;
+  const needsButterScent = isCareBasket || isDuo;
+  const needsDeodorantPick = isCareBasket || isDuo;
   const needsBodyOils = isCareBasket;
   // Sea moss gel (and similar jar products) reuse the scent picker for flavor
   // varieties — label the UI as "flavor" so checkout copy stays accurate.
@@ -216,7 +216,11 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
           bodyOil2: selectedBodyOil2,
         })
       : isDuo
-        ? encodeElementsDuoSelection(selectedWash, selectedScent)
+        ? encodeElementsDuoSelection(
+            selectedWash,
+            selectedButterScent,
+            selectedDeodorant,
+          )
         : needsScent
           ? selectedScent
           : undefined;
@@ -424,7 +428,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
               className="text-xs text-primary"
               data-testid={`text-duo-savings-${title.toLowerCase().replace(/\s+/g, '-')}`}
             >
-              3-in-1 wash + body butter · save ${duoSavings} vs buying separately
+              3-in-1 wash + body butter + deodorant · save ${duoSavings} vs buying separately
             </p>
           )}
           {isBodyButter && (
@@ -653,7 +657,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-wash-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    Choose your 3-in-1 body wash (shampoo &amp; conditioner) — $15 bottle.
+                    Choose your 3-in-1 body wash (shampoo &amp; conditioner) — $10 bottle.
                   </p>
                   <Select value={selectedWash} onValueChange={(v) => { setSelectedWash(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
@@ -682,7 +686,9 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-butter-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    Choose your whipped body butter scent — included in the basket.
+                    {isCareBasket
+                      ? "Choose your whipped body butter scent — included in the basket."
+                      : "Choose your whipped body butter (4 oz) — $12 jar, included in the Trio."}
                   </p>
                   <Select value={selectedButterScent} onValueChange={(v) => { setSelectedButterScent(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
@@ -714,7 +720,9 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-deodorant-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    Choose your natural deodorant — included in the basket.
+                    {isCareBasket
+                      ? "Choose your natural deodorant — included in the basket."
+                      : "Choose your natural deodorant (2.5 oz) — $12 stick, included in the Trio."}
                   </p>
                   <Select value={selectedDeodorant} onValueChange={(v) => { setSelectedDeodorant(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
@@ -801,11 +809,9 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-scent-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    {isDuo
-                      ? "Choose your whipped body butter scent — $7 in the Duo (usually $15)."
-                      : isBodyButter
-                        ? `Choose your ${scentNoun} — ${bodyButterPricingLabel()}. ${bodyButterBundlePitch()}.`
-                        : `Choose your ${scentNoun} to complete your order.`}
+                    {isBodyButter
+                      ? `Choose your ${scentNoun} — ${bodyButterPricingLabel()}. ${bodyButterBundlePitch()}.`
+                      : `Choose your ${scentNoun} to complete your order.`}
                   </p>
                   <Select value={selectedScent} onValueChange={(v) => { setSelectedScent(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger

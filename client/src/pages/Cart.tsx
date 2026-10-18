@@ -351,6 +351,14 @@ export default function Cart() {
                           >
                             Body butter: {duoSelection.butterScent}
                           </p>
+                          {duoSelection.deodorant && (
+                            <p
+                              className="text-xs text-muted-foreground mt-1"
+                              data-testid={`text-cart-duo-deodorant-${slug}`}
+                            >
+                              Deodorant: {duoSelection.deodorant}
+                            </p>
+                          )}
                         </>
                       )}
                       {item.selectedScent && !duoSelection && !careBasketSelection && (

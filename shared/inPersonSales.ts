@@ -1,6 +1,10 @@
 import { deodorantPricingLabel } from "./elementsDeodorant";
 import { bodyButterPricingLabel } from "./elementsBodyButter";
-import { BODY_WASH_RETAIL_CENTS } from "./elementsDuo";
+import {
+  BODY_WASH_RETAIL_CENTS,
+  elementsDuoSeparateDollars,
+  elementsTrioFleaMarketPriceDollars,
+} from "./elementsDuo";
 
 /** In-person sales channels that run through Square (not Stripe). */
 export const SQUARE_IN_PERSON_CHANNELS = [
@@ -26,11 +30,16 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
       "8 oz bottles — Avocado Oil, Island Tranquility, Cocoa Mango, Men's Energizing Scent",
     pricing: `$${(BODY_WASH_RETAIL_CENTS / 100).toFixed(0)} each`,
   },
+  {
+    name: "Elements Trio Bundle",
+    detail: "3-in-1 wash + whipped body butter + natural deodorant",
+    pricing: `$${elementsTrioFleaMarketPriceDollars().toFixed(0)} at flea markets ($${elementsDuoSeparateDollars().toFixed(0)} separately)`,
+  },
 ] as const;
 
 export function fleaMarketSquareSummary(): string {
   return (
-    "Natural deodorant, whipped body butters, and 3-in-1 body wash are sold " +
-    "in person at local flea markets. Card payments go through Square."
+    "Natural deodorant, whipped body butters, 3-in-1 body wash, and the Elements Trio " +
+    "bundle are sold in person at local flea markets. Card payments go through Square."
   );
 }
