@@ -1,8 +1,8 @@
 /**
  * Elements Duo — 3-in-1 body wash (bottle) + whipped body butter (jar).
  *
- * Individually: $15 wash + $15 butter = $30.
- * Duo price: $15 wash + $7 butter = $22 (save $8).
+ * Individually: $10 wash + $15 butter = $25.
+ * Duo price: $10 wash + $7 butter = $17 (save $8).
  *
  * The customer picks one wash scent and one body-butter scent. Those two
  * choices are joined with an em dash and stored as `selectedScent` so the
@@ -15,7 +15,7 @@ export const ELEMENTS_DUO_PRODUCT_ID = "prod_kkelemsduo";
 export const ELEMENTS_DUO_PRICE_ID = "price_kkelemsduo";
 export const ELEMENTS_DUO_NAME = "Elements Duo";
 
-export const BODY_WASH_RETAIL_CENTS = 1500;
+export const BODY_WASH_RETAIL_CENTS = 1000;
 export const BODY_BUTTER_RETAIL_CENTS = 1500;
 export const BODY_BUTTER_DUO_CENTS = 700;
 export const ELEMENTS_DUO_PRICE_CENTS =

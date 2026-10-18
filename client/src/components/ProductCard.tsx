@@ -653,7 +653,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     className="text-xs text-muted-foreground leading-relaxed"
                     data-testid={`text-wash-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    Choose your 3-in-1 body wash (shampoo &amp; conditioner) — $15 bottle.
+                    Choose your 3-in-1 body wash (shampoo &amp; conditioner) — $10 bottle.
                   </p>
                   <Select value={selectedWash} onValueChange={(v) => { setSelectedWash(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
