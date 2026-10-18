@@ -2,8 +2,8 @@
  * Elements Care Basket — our own store bundle:
  * 1× 3-in-1 body wash, 1× whipped body butter, 1× deodorant, 2× body oil.
  *
- * Individually: $10 + $15 + $12 + $20 = $57.
- * Basket price: $40 (save $17).
+ * Individually: $10 + $12 + $12 + $20 = $54.
+ * Basket price: $40 (save $14).
  *
  * All five scent choices are pipe-delimited in `selectedScent`:
  *   wash|butterScent|deodorant|bodyOil1|bodyOil2
@@ -11,15 +11,17 @@
 
 import { BODY_BUTTER_SCENT_NAMES } from "./elementsBodyButter";
 import { DEODORANT_UNIT_PRICE_CENTS } from "./elementsDeodorant";
-import { BODY_WASH_RETAIL_CENTS, ELEMENTS_DUO_WASH_OPTIONS } from "./elementsDuo";
-
-export { BODY_WASH_RETAIL_CENTS };
+import {
+  BODY_BUTTER_RETAIL_CENTS,
+  BODY_WASH_RETAIL_CENTS,
+  ELEMENTS_DUO_WASH_OPTIONS,
+} from "./elementsDuo";
 
 export const ELEMENTS_CARE_BASKET_PRODUCT_ID = "prod_kkelemscarebasket";
 export const ELEMENTS_CARE_BASKET_PRICE_ID = "price_kkelemscarebasket";
 export const ELEMENTS_CARE_BASKET_NAME = "Elements Care Basket";
 
-export const BODY_BUTTER_RETAIL_CENTS = 1500;
+export { BODY_WASH_RETAIL_CENTS, BODY_BUTTER_RETAIL_CENTS };
 export const BODY_OIL_RETAIL_CENTS = 1000;
 export const BODY_OIL_COUNT = 2;
 

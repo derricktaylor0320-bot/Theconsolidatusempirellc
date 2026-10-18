@@ -29,18 +29,18 @@ import {
 import { BODY_BUTTER_SCENT_NAMES } from "./elementsBodyButter";
 import { ELEMENTS_DUO_WASH_OPTIONS } from "./elementsDuo";
 
-test("Elements Care Basket is $40: $57 separate, save $17", () => {
+test("Elements Care Basket is $40: $54 separate, save $14", () => {
   assert.equal(BODY_WASH_RETAIL_CENTS, 1000);
-  assert.equal(BODY_BUTTER_RETAIL_CENTS, 1500);
+  assert.equal(BODY_BUTTER_RETAIL_CENTS, 1200);
   assert.equal(DEODORANT_UNIT_PRICE_CENTS, 1200);
   assert.equal(BODY_OIL_RETAIL_CENTS, 1000);
   assert.equal(BODY_OIL_COUNT, 2);
-  assert.equal(ELEMENTS_CARE_BASKET_SEPARATE_CENTS, 5700);
+  assert.equal(ELEMENTS_CARE_BASKET_SEPARATE_CENTS, 5400);
   assert.equal(ELEMENTS_CARE_BASKET_PRICE_CENTS, 4000);
-  assert.equal(ELEMENTS_CARE_BASKET_SAVINGS_CENTS, 1700);
+  assert.equal(ELEMENTS_CARE_BASKET_SAVINGS_CENTS, 1400);
   assert.equal(elementsCareBasketPriceDollars(), 40);
-  assert.equal(elementsCareBasketSeparateDollars(), 57);
-  assert.equal(elementsCareBasketSavingsDollars(), 17);
+  assert.equal(elementsCareBasketSeparateDollars(), 54);
+  assert.equal(elementsCareBasketSavingsDollars(), 14);
 });
 
 test("encodes and parses all five basket selections", () => {

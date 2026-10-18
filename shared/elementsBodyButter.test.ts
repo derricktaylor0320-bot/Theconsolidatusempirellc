@@ -25,17 +25,17 @@ describe("elementsBodyButter pricing", () => {
   });
 
   test("larger quantities use the best pack mix", () => {
-    assert.equal(bodyButterTotalCents(4), 5100);
-    assert.equal(bodyButterTotalCents(5), 6600);
-    assert.equal(bodyButterTotalCents(6), 7200);
-    assert.equal(bodyButterTotalCents(7), 8700);
+    assert.equal(bodyButterTotalCents(4), 4200);
+    assert.equal(bodyButterTotalCents(5), 5400);
+    assert.equal(bodyButterTotalCents(6), 6000);
+    assert.equal(bodyButterTotalCents(7), 7200);
   });
 
   test("pricing label, bundle pitch, and product detection", () => {
-    assert.match(bodyButterPricingLabel(), /\$15/);
-    assert.match(bodyButterPricingLabel(), /\$36/);
+    assert.match(bodyButterPricingLabel(), /\$12/);
+    assert.match(bodyButterPricingLabel(), /\$30/);
     assert.match(bodyButterBundlePitch(), /Buy 2, Get 1 50% Off/);
-    assert.match(bodyButterBundlePitch(), /Save \$9/);
+    assert.match(bodyButterBundlePitch(), /Save \$6/);
     assert.equal(
       isElementsBodyButterProduct("price_kkbodybutter"),
       true,

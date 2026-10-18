@@ -43,9 +43,6 @@ import {
   isElementsCareBasketProduct,
 } from "@shared/elementsCareBasket";
 import {
-  BODY_BUTTER_DUO_CENTS,
-  BODY_BUTTER_RETAIL_CENTS,
-  BODY_WASH_RETAIL_CENTS,
   ELEMENTS_DUO_WASH_OPTIONS,
   elementsDuoPriceDollars,
   elementsDuoSavingsDollars,
@@ -378,10 +375,10 @@ function ProductDetailContent({
     : [];
   const isDuo = isElementsDuoProduct(product.priceId, product.title);
   const isCareBasket = isElementsCareBasketProduct(product.priceId, product.title);
-  const needsScent = scentChoices.length > 0 && !isCareBasket;
+  const needsScent = scentChoices.length > 0 && !isCareBasket && !isDuo;
   const needsWash = isDuo || isCareBasket;
-  const needsButterScent = isCareBasket;
-  const needsDeodorantPick = isCareBasket;
+  const needsButterScent = isCareBasket || isDuo;
+  const needsDeodorantPick = isCareBasket || isDuo;
   const needsBodyOils = isCareBasket;
   const showScentNotes = isBodyButter || isDuo || isCareBasket;
   const variantSiblings = useMemo(() => {
@@ -521,7 +518,11 @@ function ProductDetailContent({
           bodyOil2: selectedBodyOil2,
         })
       : isDuo
-        ? encodeElementsDuoSelection(selectedWash, selectedScent)
+        ? encodeElementsDuoSelection(
+            selectedWash,
+            selectedButterScent,
+            selectedDeodorant,
+          )
         : needsScent
           ? selectedScent
           : undefined;
@@ -829,12 +830,12 @@ function ProductDetailContent({
           )}
           {isCareBasket && (
             <p className="text-sm text-primary mb-6" data-testid="text-detail-care-basket-savings">
-              Save ${careBasketSavings} — 3-in-1 wash, body butter, deodorant, and 2 body oils (usually ${careBasketSeparate} separately).
+              Save ${careBasketSavings} — 3-in-1 wash, body butter, deodorant, and 2 body oils (usually ${careBasketSeparate.toFixed(2)} separately).
             </p>
           )}
           {isDuo && (
             <p className="text-sm text-primary mb-6" data-testid="text-detail-duo-savings">
-              Save ${duoSavings} — ${BODY_WASH_RETAIL_CENTS / 100} for the 3-in-1 wash, ${BODY_BUTTER_DUO_CENTS / 100} for the body butter (usually ${BODY_BUTTER_RETAIL_CENTS / 100}).
+              Save ${duoSavings} — wash, body butter, and deodorant bundled for ${elementsDuoPriceDollars().toFixed(2)} (usually ${duoSeparate.toFixed(2)} separately).
             </p>
           )}
 
@@ -861,10 +862,10 @@ function ProductDetailContent({
                   Bundle &amp; save ${duoSavings}
                 </p>
                 <p className="font-display font-semibold uppercase text-sm">
-                  Get the Elements Duo for ${elementsDuoPriceDollars().toFixed(2)}
+                  Get the Elements Trio for ${elementsDuoPriceDollars().toFixed(2)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Pair any 3-in-1 wash with a whipped body butter for ${elementsDuoPriceDollars().toFixed(2)} instead of ${duoSeparate.toFixed(2)}.
+                  3-in-1 wash, whipped body butter, and natural deodorant — ${elementsDuoPriceDollars().toFixed(2)} instead of ${duoSeparate.toFixed(2)}.
                 </p>
               </div>
             </Link>

@@ -158,10 +158,10 @@ export function isBodyButterProductTitle(title?: string | null): boolean {
 }
 
 /** Single whipped body butter jar (4 oz). */
-export const BODY_BUTTER_UNIT_PRICE_CENTS = 1500;
+export const BODY_BUTTER_UNIT_PRICE_CENTS = 1200;
 
-/** Three jars — Buy 2, Get 1 50% Off ($36 total, $12/jar, save $9). */
-export const BODY_BUTTER_TRIPLE_PRICE_CENTS = 3600;
+/** Three jars — Buy 2, Get 1 50% Off ($30 total, $10/jar, save $6). */
+export const BODY_BUTTER_TRIPLE_PRICE_CENTS = 3000;
 
 export const BODY_BUTTER_PRICE_ID = "price_kkbodybutter";
 
@@ -173,7 +173,7 @@ export function isElementsBodyButterProduct(
   return isBodyButterProductTitle(title);
 }
 
-/** Total in cents: $15 each, 3 for $36 (best pack mix per line). */
+/** Total in cents: $12 each, 3 for $30 (best pack mix per line). */
 export function bodyButterTotalCents(quantity: unknown): number {
   let qty = Math.max(1, Math.min(99, Math.round(Number(quantity) || 1)));
   let total = 0;
@@ -195,10 +195,10 @@ export function bodyButterUnitPriceDollars(): number {
 }
 
 export function bodyButterPricingLabel(): string {
-  return "$15 each · 3 for $36";
+  return "$12 each · 3 for $30";
 }
 
 /** Marketing frame for the 3-jar bundle. */
 export function bodyButterBundlePitch(): string {
-  return "Buy 2, Get 1 50% Off — Save $9 Instantly ($12/jar)";
+  return "Buy 2, Get 1 50% Off — Save $6 Instantly ($10/jar)";
 }

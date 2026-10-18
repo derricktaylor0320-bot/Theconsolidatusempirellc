@@ -61,15 +61,17 @@ test("Elements Duo requires a wash and a body butter scent", () => {
     undefined,
     undefined,
     undefined,
-    "Elements Duo",
-    encodeElementsDuoSelection("Island Tranquility", "Forbidden Taste"),
+    "Elements Trio",
+    encodeElementsDuoSelection(
+      "Island Tranquility",
+      "Forbidden Taste",
+      "Lavender",
+    ),
   );
   assert.equal(ok.ok, true);
   assert.equal(ok.kind, "duo");
-  assert.equal(
-    ok.note,
-    "3-in-1 wash: Island Tranquility | Body butter: Forbidden Taste",
-  );
+  assert.match(ok.note || "", /3-in-1 wash: Island Tranquility/);
+  assert.match(ok.note || "", /Deodorant: Lavender/);
 });
 
 test("Elements Duo rejects an unknown wash or butter scent", () => {
@@ -79,7 +81,7 @@ test("Elements Duo rejects an unknown wash or butter scent", () => {
     undefined,
     undefined,
     "Elements Duo",
-    encodeElementsDuoSelection("Fake Wash", "Forbidden Taste"),
+    encodeElementsDuoSelection("Fake Wash", "Forbidden Taste", "Lavender"),
   );
   assert.equal(badWash.ok, false);
 
@@ -89,7 +91,7 @@ test("Elements Duo rejects an unknown wash or butter scent", () => {
     undefined,
     undefined,
     "Elements Duo",
-    encodeElementsDuoSelection("Cocoa Mango", "Not A Scent"),
+    encodeElementsDuoSelection("Cocoa Mango", "Not A Scent", "Lavender"),
   );
   assert.equal(badButter.ok, false);
 });
@@ -141,9 +143,9 @@ test("Elements Care Basket requires all five scent picks", () => {
   assert.match(ok.note || "", /Body oil 2: YSL/);
 });
 
-test("Elements Duo checkout copy asks for both picks", () => {
+test("Elements Trio checkout copy asks for wash, butter, and deodorant", () => {
   assert.match(
-    customizationErrorMessage("duo", "Elements Duo"),
-    /3-in-1 body wash and a body butter scent/,
+    customizationErrorMessage("duo", "Elements Trio"),
+    /body wash, body butter scent, and deodorant/,
   );
 });

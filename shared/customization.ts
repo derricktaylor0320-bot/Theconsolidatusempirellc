@@ -30,6 +30,7 @@ import {
   elementsDuoOrderNote,
   isElementsDuoMetadata,
   isElementsDuoProduct,
+  isElementsDuoDeodorant,
   isElementsDuoWash,
   parseElementsDuoSelection,
 } from "./elementsDuo";
@@ -444,8 +445,8 @@ export function checkCustomization(
     notes.push(elementsCareBasketOrderNote(parsed));
   }
 
-  // Elements Duo: one 3-in-1 wash + one body-butter scent, packed into
-  // selectedScent as "Wash — Butter". Skip the single-scent check below.
+  // Elements Trio: wash + body butter + deodorant in selectedScent as
+  // wash|butter|deodorant. Skip the single-scent check below.
   const duoRequired =
     !careBasketRequired &&
     (isElementsDuoMetadata(meta) ||
@@ -456,7 +457,8 @@ export function checkCustomization(
     if (
       !parsed ||
       !isElementsDuoWash(parsed.wash) ||
-      !butterScents.includes(parsed.butterScent)
+      !butterScents.includes(parsed.butterScent) ||
+      !isElementsDuoDeodorant(parsed.deodorant)
     ) {
       return { required: true, kind: "duo", ok: false };
     }
@@ -530,7 +532,7 @@ export function customizationErrorMessage(
     case "scent":
       return `Please choose a scent for "${productName}" before checking out.`;
     case "duo":
-      return `Please choose a 3-in-1 body wash and a body butter scent for "${productName}" before checking out.`;
+      return `Please choose a 3-in-1 body wash, body butter scent, and deodorant for "${productName}" before checking out.`;
     case "careBasket":
       return `Please choose your wash, body butter, deodorant, and two body oil scents for "${productName}" before checking out.`;
     default:
