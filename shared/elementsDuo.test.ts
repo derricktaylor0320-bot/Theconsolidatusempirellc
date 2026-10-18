@@ -24,15 +24,15 @@ import {
 } from "./elementsDuo";
 import { BODY_BUTTER_LEGACY_NAME, BODY_BUTTER_LINE_NAME } from "./elementsBodyButter";
 
-test("Elements Duo is $22: $15 wash + $7 butter, $8 off $30", () => {
-  assert.equal(BODY_WASH_RETAIL_CENTS, 1500);
+test("Elements Duo is $17: $10 wash + $7 butter, $8 off $25", () => {
+  assert.equal(BODY_WASH_RETAIL_CENTS, 1000);
   assert.equal(BODY_BUTTER_RETAIL_CENTS, 1500);
   assert.equal(BODY_BUTTER_DUO_CENTS, 700);
-  assert.equal(ELEMENTS_DUO_PRICE_CENTS, 2200);
-  assert.equal(ELEMENTS_DUO_SEPARATE_CENTS, 3000);
+  assert.equal(ELEMENTS_DUO_PRICE_CENTS, 1700);
+  assert.equal(ELEMENTS_DUO_SEPARATE_CENTS, 2500);
   assert.equal(ELEMENTS_DUO_SAVINGS_CENTS, 800);
-  assert.equal(elementsDuoPriceDollars(), 22);
-  assert.equal(elementsDuoSeparateDollars(), 30);
+  assert.equal(elementsDuoPriceDollars(), 17);
+  assert.equal(elementsDuoSeparateDollars(), 25);
   assert.equal(elementsDuoSavingsDollars(), 8);
 });
 

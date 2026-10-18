@@ -1230,7 +1230,7 @@ const ELEMENTS_PRODUCTS: {
   },
 ];
 
-// Khomplete Khemistri Elements 3-in-1 body wash (8 oz, $15). Ensured via
+// Khomplete Khemistri Elements 3-in-1 body wash (8 oz, $10). Ensured via
 // ensureSyntheticProduct in the critical SKU block so they cannot be skipped
 // if the generic Elements insert loop exits early.
 const BODY_WASH_PRODUCTS: {
@@ -1246,8 +1246,8 @@ const BODY_WASH_PRODUCTS: {
     priceId: "price_kkelemsbodywashavocado",
     name: "Avocado Oil",
     description:
-      "Khomplete Khemistri Elements Avocado Oil — 3-in-1 body wash, shampoo & conditioner (8 oz). Moisturizing paraben-free, phthalate-free, and cruelty-free formula with nourishing avocado oil, glycerin & vitamin E. $15 per bottle.",
-    priceCents: 1500,
+      "Khomplete Khemistri Elements Avocado Oil — 3-in-1 body wash, shampoo & conditioner (8 oz). Moisturizing paraben-free, phthalate-free, and cruelty-free formula with nourishing avocado oil, glycerin & vitamin E. $10 per bottle.",
+    priceCents: 1000,
     meta: {
       category: "Body Care",
       productType: "elements",
@@ -1262,8 +1262,8 @@ const BODY_WASH_PRODUCTS: {
     priceId: "price_kkelemsbodywashisland",
     name: "Island Tranquility",
     description:
-      "Khomplete Khemistri Elements Island Tranquility — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, paraben-free, sulfate-free, and cruelty-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
-    priceCents: 1500,
+      "Khomplete Khemistri Elements Island Tranquility — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, paraben-free, sulfate-free, and cruelty-free. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $10 per bottle.",
+    priceCents: 1000,
     meta: {
       category: "Body Care",
       productType: "elements",
@@ -1278,8 +1278,8 @@ const BODY_WASH_PRODUCTS: {
     priceId: "price_kkelemsbodywashcocoamango",
     name: "Cocoa Mango",
     description:
-      "Khomplete Khemistri Elements Cocoa Mango — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, cruelty-free, and paraben-free with shea butter. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $15 per bottle.",
-    priceCents: 1500,
+      "Khomplete Khemistri Elements Cocoa Mango — 3-in-1 body wash, shampoo & conditioner (8 oz). 100% vegan, cruelty-free, and paraben-free with shea butter. Moisturizing shampoo, conditioner & body wash for all skin & hair types. $10 per bottle.",
+    priceCents: 1000,
     meta: {
       category: "Body Care",
       productType: "elements",
@@ -1294,8 +1294,8 @@ const BODY_WASH_PRODUCTS: {
     priceId: "price_kkelemsbodywashmensenergizing",
     name: "Men's Energizing Scent",
     description:
-      "Khomplete Khemistri Complete Chemistry Men's Energizing Scent — men's moisturizing 3-in-1 body wash, shampoo & conditioner (8 oz). Energizing scent, paraben-free and cruelty-free. $15 per bottle.",
-    priceCents: 1500,
+      "Khomplete Khemistri Complete Chemistry Men's Energizing Scent — men's moisturizing 3-in-1 body wash, shampoo & conditioner (8 oz). Energizing scent, paraben-free and cruelty-free. $10 per bottle.",
+    priceCents: 1000,
     meta: {
       category: "Body Care",
       productType: "elements",
@@ -1352,10 +1352,10 @@ const DEODORANT_PRODUCTS: {
   },
 ];
 
-// Elements Duo — one 3-in-1 wash bottle ($15) + one whipped body butter jar
-// at the bundle price of $7 ($22 total, $8 off buying them separately at $30).
+// Elements Duo — one 3-in-1 wash bottle ($10) + one whipped body butter jar
+// at the bundle price of $7 ($17 total, $8 off buying them separately at $25).
 const ELEMENTS_DUO_DESCRIPTION =
-  "Khomplete Khemistri Elements Duo — one 8 oz 3-in-1 body wash, shampoo & conditioner bottle plus one 4 oz whipped body butter jar. Pay $15 for the wash and only $7 for the butter ($22 for the set). Save $8 vs buying them separately at $30. Choose your wash and your body butter scent at checkout.";
+  "Khomplete Khemistri Elements Duo — one 8 oz 3-in-1 body wash, shampoo & conditioner bottle plus one 4 oz whipped body butter jar. Pay $10 for the wash and only $7 for the butter ($17 for the set). Save $8 vs buying them separately at $25. Choose your wash and your body butter scent at checkout.";
 const ELEMENTS_DUO_META = {
   category: "Body Care",
   productType: "elements",
@@ -1369,9 +1369,9 @@ const ELEMENTS_DUO_META = {
 };
 
 // Elements Care Basket — our own store bundle: 3-in-1 wash + body butter +
-// deodorant + 2 body oils for $40 ($62 separately, save $22).
+// deodorant + 2 body oils for $40 ($57 separately, save $17).
 const ELEMENTS_CARE_BASKET_DESCRIPTION =
-  "Khomplete Khemistri Elements Care Basket — our own bundle from the store: one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz whipped body butter; one natural deodorant stick; and two fragrance body oils. $40 flat (save $22 vs $62 separately). Choose your wash, body butter, deodorant, and two body oil scents at checkout.";
+  "Khomplete Khemistri Elements Care Basket — our own bundle from the store: one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz whipped body butter; one natural deodorant stick; and two fragrance body oils. $40 flat (save $17 vs $57 separately). Choose your wash, body butter, deodorant, and two body oil scents at checkout.";
 const ELEMENTS_CARE_BASKET_META = {
   category: "Body Care",
   productType: "elements",
@@ -2375,7 +2375,7 @@ export async function ensureCatalogData() {
         });
       }
       console.log(
-        `ensureCatalogData: ensured ${BODY_WASH_PRODUCTS.length} Elements 3-in-1 body wash SKUs ($15 each).`,
+        `ensureCatalogData: ensured ${BODY_WASH_PRODUCTS.length} Elements 3-in-1 body wash SKUs ($10 each).`,
       );
 
       for (const deodorant of DEODORANT_PRODUCTS) {
@@ -2405,7 +2405,7 @@ export async function ensureCatalogData() {
         created,
       });
       console.log(
-        "ensureCatalogData: ensured Elements Care Basket ($40 — wash + butter + deodorant + 2 body oils, save $22).",
+        "ensureCatalogData: ensured Elements Care Basket ($40 — wash + butter + deodorant + 2 body oils, save $17).",
       );
 
       await ensureSyntheticProduct({
@@ -2419,7 +2419,7 @@ export async function ensureCatalogData() {
         created,
       });
       console.log(
-        "ensureCatalogData: ensured Elements Duo ($22 — 3-in-1 wash + body butter, save $8).",
+        "ensureCatalogData: ensured Elements Duo ($17 — 3-in-1 wash + body butter, save $8).",
       );
 
       // Holistic sea moss gels — critical early pass. The generic Elements loop

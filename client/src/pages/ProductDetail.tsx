@@ -43,6 +43,9 @@ import {
   isElementsCareBasketProduct,
 } from "@shared/elementsCareBasket";
 import {
+  BODY_BUTTER_DUO_CENTS,
+  BODY_BUTTER_RETAIL_CENTS,
+  BODY_WASH_RETAIL_CENTS,
   ELEMENTS_DUO_WASH_OPTIONS,
   elementsDuoPriceDollars,
   elementsDuoSavingsDollars,
@@ -826,12 +829,12 @@ function ProductDetailContent({
           )}
           {isCareBasket && (
             <p className="text-sm text-primary mb-6" data-testid="text-detail-care-basket-savings">
-              Save ${careBasketSavings} — 3-in-1 wash, body butter, deodorant, and 2 body oils (usually $62 separately).
+              Save ${careBasketSavings} — 3-in-1 wash, body butter, deodorant, and 2 body oils (usually ${careBasketSeparate} separately).
             </p>
           )}
           {isDuo && (
             <p className="text-sm text-primary mb-6" data-testid="text-detail-duo-savings">
-              Save ${duoSavings} — $15 for the 3-in-1 wash, $7 for the body butter (usually $15).
+              Save ${duoSavings} — ${BODY_WASH_RETAIL_CENTS / 100} for the 3-in-1 wash, ${BODY_BUTTER_DUO_CENTS / 100} for the body butter (usually ${BODY_BUTTER_RETAIL_CENTS / 100}).
             </p>
           )}
 
