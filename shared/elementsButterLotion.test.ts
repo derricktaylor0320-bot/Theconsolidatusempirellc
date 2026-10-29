@@ -8,9 +8,9 @@ import {
   isElementsButterLotionProduct,
 } from "./elementsButterLotion";
 
-test("butter lotion lineup: 3 wash-matched + 5 extra scents", () => {
+test("butter lotion lineup matches 3-in-1 washes (except men's energizing)", () => {
   assert.equal(BUTTER_LOTION_WASH_MATCHED_SCENTS.length, 3);
-  assert.equal(BUTTER_LOTION_SCENT_NAMES.length, 8);
+  assert.equal(BUTTER_LOTION_SCENT_NAMES.length, 3);
 });
 
 test("wash picks suggest the matching lotion scent", () => {
@@ -21,8 +21,8 @@ test("wash picks suggest the matching lotion scent", () => {
 });
 
 test("validates lotion scent names", () => {
-  assert.equal(isButterLotionScent("Vanilla Bliss"), true);
-  assert.equal(isButterLotionScent("Whispering Rose"), true);
+  assert.equal(isButterLotionScent("Cocoa Mango"), true);
+  assert.equal(isButterLotionScent("Vanilla Bliss"), false);
   assert.equal(isButterLotionScent("Forbidden Taste"), false);
 });
 

@@ -3,14 +3,18 @@ export type BodyButterScentCategory =
   | "Men's & Unisex"
   | "Sweet, Gourmand & Provocative";
 
-/** Storefront product line name (4 oz whipped body butter jars). */
-export const BODY_BUTTER_LINE_NAME = "Our Exotic Body Butter Scents";
+/** Storefront product line name (4 oz triple-whipped body butter jars). */
+export const BODY_BUTTER_LINE_NAME = "3-in-1 Triple Butter Base Formula";
+
+/** Scent picker heading on the product page. */
+export const BODY_BUTTER_SCENT_SECTION_NAME = "Our Exotic Body Butter Scents";
 
 export const BODY_BUTTER_TRIPLE_FORMULA_BLURB =
-  "100% triple-butter whipped body butter: mango butter, kokum body butter, and shea butter, with massage oil and sweet almond oil.";
+  "Premium all-natural 3-in-1 triple butter base — cocoa butter, shea butter, and mango butter — with a touch of vitamin E oil and sweet almond oil for a healthy glow.";
 
-/** Legacy catalog name kept for order history and DB migration matching. */
+/** Legacy catalog names kept for order history and DB migration matching. */
 export const BODY_BUTTER_LEGACY_NAME = "Whipped Body Butters";
+export const BODY_BUTTER_LEGACY_LINE_NAME = "Our Exotic Body Butter Scents";
 
 export const BODY_BUTTER_SCENT_CATEGORY_ORDER: readonly BodyButterScentCategory[] = [
   "The Initial 3",
@@ -156,15 +160,13 @@ export function isBodyButterProductTitle(title?: string | null): boolean {
   return (
     normalized === BODY_BUTTER_LINE_NAME.toLowerCase() ||
     normalized === BODY_BUTTER_LEGACY_NAME.toLowerCase() ||
-    /(?:our exotic|whipped) body butter/i.test(title)
+    normalized === BODY_BUTTER_LEGACY_LINE_NAME.toLowerCase() ||
+    /(?:our exotic|whipped|triple butter base)/i.test(title)
   );
 }
 
-/** Single whipped body butter jar (4 oz). */
-export const BODY_BUTTER_UNIT_PRICE_CENTS = 1200;
-
-/** Three jars — Buy 2, Get 1 50% Off ($30 total, $10/jar, save $6). */
-export const BODY_BUTTER_TRIPLE_PRICE_CENTS = 3000;
+/** Single triple-whipped body butter jar (4 oz). */
+export const BODY_BUTTER_UNIT_PRICE_CENTS = 2000;
 
 export const BODY_BUTTER_PRICE_ID = "price_kkbodybutter";
 
@@ -176,17 +178,10 @@ export function isElementsBodyButterProduct(
   return isBodyButterProductTitle(title);
 }
 
-/** Total in cents: $12 each, 3 for $30 (best pack mix per line). */
+/** Total in cents: $20 per jar. */
 export function bodyButterTotalCents(quantity: unknown): number {
-  let qty = Math.max(1, Math.min(99, Math.round(Number(quantity) || 1)));
-  let total = 0;
-
-  const triples = Math.floor(qty / 3);
-  total += triples * BODY_BUTTER_TRIPLE_PRICE_CENTS;
-  qty %= 3;
-
-  total += qty * BODY_BUTTER_UNIT_PRICE_CENTS;
-  return total;
+  const qty = Math.max(1, Math.min(99, Math.round(Number(quantity) || 1)));
+  return qty * BODY_BUTTER_UNIT_PRICE_CENTS;
 }
 
 export function bodyButterTotalDollars(quantity: unknown): number {
@@ -198,10 +193,5 @@ export function bodyButterUnitPriceDollars(): number {
 }
 
 export function bodyButterPricingLabel(): string {
-  return "$12 each · 3 for $30";
-}
-
-/** Marketing frame for the 3-jar bundle. */
-export function bodyButterBundlePitch(): string {
-  return "Buy 2, Get 1 50% Off — Save $6 Instantly ($10/jar)";
+  return "$20 each";
 }

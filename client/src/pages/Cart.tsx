@@ -32,7 +32,6 @@ import {
   isElementsDeodorantProduct,
 } from "@shared/elementsDeodorant";
 import {
-  bodyButterBundlePitch,
   bodyButterPricingLabel,
   bodyButterTotalDollars,
   isElementsBodyButterProduct,
@@ -417,7 +416,7 @@ export default function Cart() {
                         {isDeodorantLine
                           ? deodorantPricingLabel()
                           : isBodyButterLine
-                            ? `${bodyButterPricingLabel()} · ${bodyButterBundlePitch()}`
+                            ? bodyButterPricingLabel()
                             : `$${item.unitPrice.toFixed(2)}`}
                       </p>
                       <div className="flex items-center justify-between mt-3">

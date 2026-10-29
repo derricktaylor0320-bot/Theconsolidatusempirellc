@@ -14,9 +14,13 @@ import {
 } from "@shared/productImages";
 import {
   BODY_BUTTER_LINE_NAME,
+  BODY_BUTTER_LEGACY_LINE_NAME,
   BODY_BUTTER_LEGACY_NAME,
   BODY_BUTTER_SCENT_OPTIONS,
+  BODY_BUTTER_SCENT_SECTION_NAME,
   BODY_BUTTER_TRIPLE_FORMULA_BLURB,
+  BODY_BUTTER_UNIT_PRICE_CENTS,
+  bodyButterUnitPriceDollars,
 } from "@shared/elementsBodyButter";
 import {
   BUTTER_LOTION_LINE_NAME,
@@ -33,16 +37,23 @@ import {
   SPA_BASKET_SCENT_OPTIONS,
 } from "@shared/luxurySpaBaskets";
 import {
+  ELEMENTS_CARE_BASKET_LEGACY_NAME,
   ELEMENTS_CARE_BASKET_NAME,
   ELEMENTS_CARE_BASKET_PRICE_CENTS,
   ELEMENTS_CARE_BASKET_PRICE_ID,
   ELEMENTS_CARE_BASKET_PRODUCT_ID,
+  elementsCareBasketPriceDollars,
+  elementsCareBasketSavingsDollars,
+  elementsCareBasketSeparateDollars,
 } from "@shared/elementsCareBasket";
 import {
   ELEMENTS_DUO_NAME,
   ELEMENTS_DUO_PRICE_CENTS,
   ELEMENTS_DUO_PRICE_ID,
   ELEMENTS_DUO_PRODUCT_ID,
+  elementsDuoPriceDollars,
+  elementsDuoSavingsDollars,
+  elementsDuoSeparateDollars,
 } from "@shared/elementsDuo";
 import {
   ECO_LAUNDRY_SHEETS_PACKS,
@@ -318,10 +329,10 @@ const LAUNDRY_DETERGENT_META_BASE = {
 const BODY_BUTTER_PRODUCT_ID = "prod_kkbodybutter";
 const BODY_BUTTER_PRICE_ID = "price_kkbodybutter";
 const BODY_BUTTER_NAME = BODY_BUTTER_LINE_NAME;
-const BODY_BUTTER_PRICE_CENTS = 1200;
+const BODY_BUTTER_PRICE_CENTS = BODY_BUTTER_UNIT_PRICE_CENTS;
 const BODY_BUTTER_IMAGE_PATH = BODY_BUTTER_IMAGE;
 const BODY_BUTTER_DESCRIPTION =
-  `Luxurious Khomplete Khemistri whipped body butter in a 4 oz jar. ${BODY_BUTTER_TRIPLE_FORMULA_BLURB} Rich, fast-absorbing moisture that leaves skin soft and smooth. Our Exotic Body Butter Scents — choose from 18 provocative fragrances with notes listed on the product page. Collections include Men's & Unisex and Sweet, Gourmand & Provocative. $12 per jar. 3 for $30 — Buy 2, Get 1 50% Off (Save $6 Instantly, $10/jar).`;
+  `Luxurious Khomplete Khemistri ${BODY_BUTTER_LINE_NAME} in a 4 oz jar. ${BODY_BUTTER_TRIPLE_FORMULA_BLURB} Rich, fast-absorbing moisture that leaves skin soft and smooth. ${BODY_BUTTER_SCENT_SECTION_NAME} — choose from 18 provocative fragrances with notes listed on the product page. Collections include Men's & Unisex and Sweet, Gourmand & Provocative. $${bodyButterUnitPriceDollars()} per jar.`;
 const BODY_BUTTER_META = {
   category: "Body Care",
   productType: "accessory",
@@ -335,7 +346,7 @@ const BUTTER_LOTION_NAME = BUTTER_LOTION_LINE_NAME;
 const BUTTER_LOTION_PRICE_CENTS = BUTTER_LOTION_UNIT_PRICE_CENTS;
 const BUTTER_LOTION_IMAGE_PATH = BODY_BUTTER_IMAGE;
 const BUTTER_LOTION_DESCRIPTION =
-  "Khomplete Khemistri Elements Scented Butter Lotion — daily moisturizer with wash-matched scents (Cocoa Mango, Island Tranquility, 100% Avocado Oil) plus Vanilla Bliss, Lavender Chamomile, Eucalyptus Tranquility, Apple Pear, and Whispering Rose. $12 per bottle. Pairs with our triple whipped body butter and 3-in-1 body wash lineup.";
+  "Khomplete Khemistri Elements Scented Butter Lotion — daily moisturizer in scents that match our 3-in-1 body washes (Cocoa Mango, Island Tranquility, and 100% Avocado Oil). $12 per bottle. Pairs with our 3-in-1 Triple Butter Base Formula and 3-in-1 body wash lineup.";
 const BUTTER_LOTION_META = {
   category: "Body Care",
   productType: "accessory",
@@ -1376,10 +1387,9 @@ const DEODORANT_PRODUCTS: {
   },
 ];
 
-// Elements Quad — 3-in-1 wash ($10) + triple body butter ($12) + butter lotion ($12) + deodorant ($12);
-// $42 online ($46 separately, save $4). Flea markets may use $36 in Square.
+// Elements Quad — 3-in-1 wash ($10) + triple body butter ($20) + butter lotion ($12) + deodorant ($12).
 const ELEMENTS_DUO_DESCRIPTION =
-  "Khomplete Khemistri Elements Quad — one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz triple whipped body butter jar; one scented butter lotion; and one natural deodorant stick (2.5 oz). $42 for the set (save $4 vs $46 purchased separately). Choose your wash, body butter scent, butter lotion scent, and deodorant at checkout.";
+  `Khomplete Khemistri Elements Quad — one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz ${BODY_BUTTER_LINE_NAME} jar; one scented butter lotion; and one natural deodorant stick (2.5 oz). $${elementsDuoPriceDollars()} for the set (save $${elementsDuoSavingsDollars()} vs $${elementsDuoSeparateDollars()} purchased separately). Choose your wash, body butter scent, butter lotion scent, and deodorant at checkout.`;
 const ELEMENTS_DUO_META = {
   category: "Body Care",
   productType: "elements",
@@ -1392,10 +1402,9 @@ const ELEMENTS_DUO_META = {
   gender: "Unisex",
 };
 
-// Elements Care Basket — gift basket with all four core Elements body-care lines.
-// $40 ($46 separately, save $6).
+// Core 4 — gift basket with all four core Elements body-care lines.
 const ELEMENTS_CARE_BASKET_DESCRIPTION =
-  "Khomplete Khemistri Elements Care Basket — our gift basket bundles all four core lines: one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz triple whipped body butter; one scented butter lotion; and one natural deodorant stick. $40 flat (save $6 vs $46 separately). Choose your wash, body butter, butter lotion, and deodorant at checkout.";
+  `Khomplete Khemistri ${ELEMENTS_CARE_BASKET_NAME} — our gift basket bundles all four core lines: one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz ${BODY_BUTTER_LINE_NAME}; one scented butter lotion; and one natural deodorant stick. $${elementsCareBasketPriceDollars()} flat (save $${elementsCareBasketSavingsDollars()} vs $${elementsCareBasketSeparateDollars()} separately). Choose your wash, body butter, butter lotion, and deodorant at checkout.`;
 const ELEMENTS_CARE_BASKET_META = {
   category: "Body Care",
   productType: "elements",
@@ -2294,6 +2303,7 @@ export async function ensureCatalogData() {
           id = ${BODY_BUTTER_PRODUCT_ID}
           OR name = ${BODY_BUTTER_NAME}
           OR name = ${BODY_BUTTER_LEGACY_NAME}
+          OR name = ${BODY_BUTTER_LEGACY_LINE_NAME}
         )
     `);
 
@@ -2429,7 +2439,7 @@ export async function ensureCatalogData() {
         created,
       });
       console.log(
-        "ensureCatalogData: ensured Elements Care Basket ($40 — wash + butter + lotion + deodorant, save $6).",
+        `ensureCatalogData: ensured ${ELEMENTS_CARE_BASKET_NAME} ($${elementsCareBasketPriceDollars()} — wash + butter + lotion + deodorant, save $${elementsCareBasketSavingsDollars()}).`,
       );
 
       await ensureSyntheticProduct({
@@ -2443,7 +2453,7 @@ export async function ensureCatalogData() {
         created,
       });
       console.log(
-        "ensureCatalogData: ensured Elements Quad ($42 — wash + butter + lotion + deodorant, save $4).",
+        `ensureCatalogData: ensured Elements Quad ($${elementsDuoPriceDollars()} — wash + butter + lotion + deodorant, save $${elementsDuoSavingsDollars()}).`,
       );
 
       // Holistic sea moss gels — critical early pass. The generic Elements loop
@@ -2781,7 +2791,7 @@ export async function ensureCatalogData() {
       SELECT ${bodyButterProductRaw}::jsonb, ${accountId}, now(), now()
       WHERE NOT EXISTS (
         SELECT 1 FROM stripe.products
-        WHERE name = ${BODY_BUTTER_NAME} OR name = ${BODY_BUTTER_LEGACY_NAME} OR id = ${BODY_BUTTER_PRODUCT_ID}
+        WHERE name = ${BODY_BUTTER_NAME} OR name = ${BODY_BUTTER_LEGACY_NAME} OR name = ${BODY_BUTTER_LEGACY_LINE_NAME} OR id = ${BODY_BUTTER_PRODUCT_ID}
       )
     `);
 
@@ -2817,10 +2827,11 @@ export async function ensureCatalogData() {
           id = ${BODY_BUTTER_PRODUCT_ID}
           OR name = ${BODY_BUTTER_NAME}
           OR name = ${BODY_BUTTER_LEGACY_NAME}
+          OR name = ${BODY_BUTTER_LEGACY_LINE_NAME}
         )
     `);
 
-    // Force the body butter's active price to $12 (self-heals any drift), the
+    // Force the body butter's active price to $20 (self-heals any drift), the
     // same convergence the tumbler uses. Pricing stays server-authoritative.
     await db.execute(sql`
       UPDATE stripe.prices
@@ -2832,8 +2843,9 @@ export async function ensureCatalogData() {
           WHERE active = true
             AND (
               name = ${BODY_BUTTER_NAME}
-              OR name = ${BODY_BUTTER_LEGACY_NAME}
-              OR id = ${BODY_BUTTER_PRODUCT_ID}
+          OR name = ${BODY_BUTTER_LEGACY_NAME}
+          OR name = ${BODY_BUTTER_LEGACY_LINE_NAME}
+          OR id = ${BODY_BUTTER_PRODUCT_ID}
             )
         )
         AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(BODY_BUTTER_PRICE_CENTS)}

@@ -99,7 +99,7 @@ test("Elements Duo rejects an unknown wash or butter scent", () => {
 
 test("Elements Care Basket checkout copy asks for all picks", () => {
   assert.match(
-    customizationErrorMessage("careBasket", "Elements Care Basket"),
+    customizationErrorMessage("careBasket", "Core 4"),
     /wash, body butter, butter lotion, and deodorant/,
   );
 });
@@ -119,7 +119,7 @@ test("Elements Care Basket requires all four scent picks", () => {
     undefined,
     undefined,
     undefined,
-    "Elements Care Basket",
+    "Core 4",
   );
   assert.equal(missing.ok, false);
   assert.equal(missing.kind, "careBasket");
@@ -129,7 +129,7 @@ test("Elements Care Basket requires all four scent picks", () => {
     undefined,
     undefined,
     undefined,
-    "Elements Care Basket",
+    "Core 4",
     encodeElementsCareBasketSelection({
       wash: "Cocoa Mango",
       butterScent: "Forbidden Taste",

@@ -27,16 +27,16 @@ import {
 import { BODY_BUTTER_SCENT_NAMES } from "./elementsBodyButter";
 import { ELEMENTS_DUO_WASH_OPTIONS } from "./elementsDuo";
 
-test("Elements Care Basket is $40: $46 separate, save $6", () => {
+test("Core 4 is $48: $54 separate, save $6", () => {
   assert.equal(BODY_WASH_RETAIL_CENTS, 1000);
-  assert.equal(BODY_BUTTER_RETAIL_CENTS, 1200);
+  assert.equal(BODY_BUTTER_RETAIL_CENTS, 2000);
   assert.equal(BUTTER_LOTION_UNIT_PRICE_CENTS, 1200);
   assert.equal(DEODORANT_UNIT_PRICE_CENTS, 1200);
-  assert.equal(ELEMENTS_CARE_BASKET_SEPARATE_CENTS, 4600);
-  assert.equal(ELEMENTS_CARE_BASKET_PRICE_CENTS, 4000);
+  assert.equal(ELEMENTS_CARE_BASKET_SEPARATE_CENTS, 5400);
+  assert.equal(ELEMENTS_CARE_BASKET_PRICE_CENTS, 4800);
   assert.equal(ELEMENTS_CARE_BASKET_SAVINGS_CENTS, 600);
-  assert.equal(elementsCareBasketPriceDollars(), 40);
-  assert.equal(elementsCareBasketSeparateDollars(), 46);
+  assert.equal(elementsCareBasketPriceDollars(), 48);
+  assert.equal(elementsCareBasketSeparateDollars(), 54);
   assert.equal(elementsCareBasketSavingsDollars(), 6);
 });
 
@@ -84,6 +84,7 @@ test("parse rejects incomplete selections", () => {
 test("identifies the Care Basket SKU by price id or exact title", () => {
   assert.equal(isElementsCareBasketProduct(ELEMENTS_CARE_BASKET_PRICE_ID, "Anything"), true);
   assert.equal(isElementsCareBasketProduct("price_other", ELEMENTS_CARE_BASKET_NAME), true);
+  assert.equal(isElementsCareBasketProduct("price_other", "Core 4 "), true);
   assert.equal(isElementsCareBasketProduct("price_other", "Elements Care Basket "), true);
   assert.equal(isElementsCareBasketProduct("price_other", "Elements Duo"), false);
   assert.equal(isElementsCareBasketMetadata({ elementsCareBasket: "true" }), true);
@@ -95,7 +96,7 @@ test("option validators match the standalone SKUs", () => {
   assert.equal(isCareBasketWash("Lavender"), false);
   assert.equal(isCareBasketButterScent(BODY_BUTTER_SCENT_NAMES[0]), true);
   assert.equal(isCareBasketButterScent("Not A Scent"), false);
-  assert.equal(isCareBasketLotionScent("Vanilla Bliss"), true);
+  assert.equal(isCareBasketLotionScent("Vanilla Bliss"), false);
   assert.equal(isCareBasketLotionScent("Forbidden Taste"), false);
   assert.equal(isCareBasketDeodorant(CARE_BASKET_DEODORANT_OPTIONS[0]), true);
   assert.equal(isCareBasketDeodorant("Rose"), false);

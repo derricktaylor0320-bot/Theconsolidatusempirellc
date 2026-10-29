@@ -2,8 +2,8 @@
  * Elements Quad — 3-in-1 body wash (8 oz) + triple whipped body butter (4 oz) +
  * scented butter lotion + natural deodorant (2.5 oz).
  *
- * Individually: $10 wash + $12 butter + $12 lotion + $12 deodorant = $46.
- * Online bundle: $42 (save $4, ~9% off).
+ * Individually: $10 wash + $20 butter + $12 lotion + $12 deodorant = $54.
+ * Online bundle: $50 (save $4, ~7% off).
  * In-person flea markets may use $36 (see inPersonSales.ts).
  *
  * Wash, body butter, lotion, and deodorant choices are pipe-delimited in
@@ -12,7 +12,10 @@
  * Legacy trio carts (3 parts, no lotion) still parse for older orders.
  */
 
-import { isBodyButterProductTitle } from "./elementsBodyButter";
+import {
+  BODY_BUTTER_UNIT_PRICE_CENTS,
+  isBodyButterProductTitle,
+} from "./elementsBodyButter";
 import { BUTTER_LOTION_UNIT_PRICE_CENTS } from "./elementsButterLotion";
 import { DEODORANT_UNIT_PRICE_CENTS } from "./elementsDeodorant";
 
@@ -24,11 +27,11 @@ export const ELEMENTS_DUO_NAME = "Elements Quad";
 export const ELEMENTS_TRIO_NAME = "Elements Trio";
 
 export const BODY_WASH_RETAIL_CENTS = 1000;
-export const BODY_BUTTER_RETAIL_CENTS = 1200;
-export const ELEMENTS_DUO_PRICE_CENTS = 4200;
+export const BODY_BUTTER_RETAIL_CENTS = BODY_BUTTER_UNIT_PRICE_CENTS;
+export const ELEMENTS_DUO_PRICE_CENTS = 5000;
 export const ELEMENTS_DUO_SEPARATE_CENTS =
   BODY_WASH_RETAIL_CENTS +
-  BODY_BUTTER_RETAIL_CENTS +
+  BODY_BUTTER_UNIT_PRICE_CENTS +
   BUTTER_LOTION_UNIT_PRICE_CENTS +
   DEODORANT_UNIT_PRICE_CENTS;
 export const ELEMENTS_DUO_SAVINGS_CENTS =

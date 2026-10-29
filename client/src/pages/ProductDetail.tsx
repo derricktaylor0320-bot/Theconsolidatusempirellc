@@ -24,7 +24,8 @@ import {
 import {
   BODY_BUTTER_LINE_NAME,
   BODY_BUTTER_SCENT_CATEGORY_ORDER,
-  bodyButterBundlePitch,
+  BODY_BUTTER_SCENT_SECTION_NAME,
+  BODY_BUTTER_TRIPLE_FORMULA_BLURB,
   bodyButterPricingLabel,
   bodyButterScentCategoryLabel,
   bodyButterScentNotes,
@@ -58,7 +59,12 @@ import {
   isElementsBodyWashTitle,
   isElementsDuoProduct,
 } from "@shared/elementsDuo";
-import { BODY_BUTTER_IMAGE, resolveStorefrontImageUrl } from "@shared/productImages";
+import {
+  BODY_BUTTER_IMAGE,
+  BODY_BUTTER_JAR_CLOSED_IMAGE,
+  BODY_BUTTER_JAR_OPEN_IMAGE,
+  resolveStorefrontImageUrl,
+} from "@shared/productImages";
 import { trackViewItem } from "@/lib/analytics";
 import { isAirGenesisProduct } from "@shared/airGenesis";
 import AirGenesisEmailCapture from "@/components/AirGenesisEmailCapture";
@@ -170,11 +176,42 @@ function BodyButterScentGuideSection() {
           {BODY_BUTTER_LINE_NAME}
         </h2>
         <p
+          className="text-secondary-foreground/80 leading-relaxed mb-6"
+          data-testid="text-body-butter-formula"
+        >
+          {BODY_BUTTER_TRIPLE_FORMULA_BLURB} Every jar is a 4 oz triple-whipped body butter with a
+          premium, fast-absorbing finish.
+        </p>
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
+          data-testid="body-butter-product-photos"
+        >
+          <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+            <img
+              src={BODY_BUTTER_JAR_CLOSED_IMAGE}
+              alt={`${BODY_BUTTER_LINE_NAME} — sealed 4 oz jar`}
+              className="object-cover w-full h-full"
+              data-testid="img-body-butter-jar-closed"
+            />
+          </div>
+          <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+            <img
+              src={BODY_BUTTER_JAR_OPEN_IMAGE}
+              alt={`${BODY_BUTTER_LINE_NAME} — open jar showing whipped texture`}
+              className="object-cover w-full h-full"
+              data-testid="img-body-butter-jar-open"
+            />
+          </div>
+        </div>
+        <h3 className="font-display text-xl md:text-2xl font-bold uppercase tracking-wider text-foreground mb-3">
+          {BODY_BUTTER_SCENT_SECTION_NAME}
+        </h3>
+        <p
           className="text-secondary-foreground/80 leading-relaxed mb-8"
           data-testid="text-body-butter-scent-intro"
         >
-          Every jar is a 4 oz whipped body butter. Choose your scent at checkout — each fragrance
-          is listed below with its notes so you know exactly what you are getting.
+          Choose your scent at checkout — each fragrance is listed below with its notes so you know
+          exactly what you are getting.
         </p>
         <div className="space-y-8">
           {BODY_BUTTER_SCENT_CATEGORY_ORDER.map((category) => {
@@ -633,7 +670,7 @@ function ProductDetailContent({
                 className="mt-3 text-sm font-medium uppercase tracking-widest text-muted-foreground"
                 data-testid="text-detail-body-butter-pricing"
               >
-                {bodyButterPricingLabel()} · {bodyButterBundlePitch()}
+                {bodyButterPricingLabel()}
               </p>
             )}
             {product.description && (
@@ -750,8 +787,27 @@ function ProductDetailContent({
               data-testid="img-product-detail"
             />
             <p className="absolute bottom-2 left-2 right-2 rounded bg-black/60 px-2 py-1 text-[10px] uppercase tracking-widest text-white">
-              Wash + triple body butter + butter lotion + deodorant
+              Core 4 — wash, triple body butter, butter lotion + deodorant
             </p>
+          </div>
+        ) : isBodyButter ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" data-testid="body-butter-detail-images">
+            <div className="relative aspect-square overflow-hidden rounded-xl bg-muted shadow-2xl">
+              <img
+                src={BODY_BUTTER_JAR_CLOSED_IMAGE}
+                alt={`${product.title} — sealed jar`}
+                className="object-cover w-full h-full"
+                data-testid="img-product-detail"
+              />
+            </div>
+            <div className="relative aspect-square overflow-hidden rounded-xl bg-muted shadow-2xl">
+              <img
+                src={BODY_BUTTER_JAR_OPEN_IMAGE}
+                alt={`${product.title} — open jar`}
+                className="object-cover w-full h-full"
+                data-testid="img-product-detail-butter-open"
+              />
+            </div>
           </div>
         ) : (
         <div className="relative aspect-square overflow-hidden rounded-xl bg-muted shadow-2xl">
@@ -832,7 +888,7 @@ function ProductDetailContent({
           )}
           {isBodyButter && (
             <p className="text-sm text-primary mb-6" data-testid="text-detail-body-butter-pricing">
-              {bodyButterPricingLabel()} · {bodyButterBundlePitch()}
+              {bodyButterPricingLabel()}
               {quantity > 1 && (
                 <>
                   {" "}

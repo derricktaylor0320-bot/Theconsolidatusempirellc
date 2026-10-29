@@ -36,7 +36,6 @@ import {
   isElementsDeodorantProduct,
 } from "@shared/elementsDeodorant";
 import {
-  bodyButterBundlePitch,
   bodyButterPricingLabel,
   bodyButterTotalCents,
   isElementsBodyButterProduct,
@@ -1269,7 +1268,7 @@ export async function registerRoutes(
           );
         } else if (isBodyButterLine) {
           noteParts.push(
-            `Qty: ${quantity} (${bodyButterPricingLabel()}; ${bodyButterBundlePitch()})`,
+            `Qty: ${quantity} (${bodyButterPricingLabel()})`,
           );
         }
         lineItems.push({
