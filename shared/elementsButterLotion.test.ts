@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { COCOA_SHEA_BUTTER_LINE_NAME } from "./elementsRetired";
 import {
   BUTTER_LOTION_SCENT_NAMES,
   BUTTER_LOTION_WASH_MATCHED_SCENTS,
@@ -22,6 +23,7 @@ test("wash picks suggest the matching lotion scent", () => {
 
 test("validates lotion scent names", () => {
   assert.equal(isButterLotionScent("Cocoa Mango"), true);
+  assert.equal(isButterLotionScent(COCOA_SHEA_BUTTER_LINE_NAME), false);
   assert.equal(isButterLotionScent("Vanilla Bliss"), false);
   assert.equal(isButterLotionScent("Forbidden Taste"), false);
 });

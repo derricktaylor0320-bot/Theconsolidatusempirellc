@@ -29,6 +29,7 @@ import {
   BUTTER_LOTION_SCENT_OPTIONS,
   BUTTER_LOTION_UNIT_PRICE_CENTS,
 } from "@shared/elementsButterLotion";
+import { RETIRED_COCOA_SHEA_PRODUCT_NAMES } from "@shared/elementsRetired";
 import {
   SPA_BASKET_LINE_NAME,
   SPA_BASKET_PRICE_CENTS,
@@ -449,7 +450,7 @@ const RETIRED_PRODUCT_NAMES = [
   "64 Count Eco Laundry Sheets",
   "96 Count Eco Laundry Sheets",
   // Replaced by Avocado Oil 3-in-1; Cocoa Mango still includes shea butter.
-  "Cocoa & Shea Butter",
+  ...RETIRED_COCOA_SHEA_PRODUCT_NAMES,
 ];
 
 // Vintage Baltimore collection ($30 graphic tees). The 10 real designs that
@@ -2100,7 +2101,7 @@ const CUTOFF_BOTTOMS_IMAGE_MARKERS = [
 ];
 
 /** Bumped when catalog boot-sync logic changes; exposed via /api/catalog-health. */
-export const CATALOG_SYNC_VERSION = 4;
+export const CATALOG_SYNC_VERSION = 5;
 
 export async function ensureCatalogData() {
   try {
@@ -2861,6 +2862,21 @@ export async function ensureCatalogData() {
       meta: BUTTER_LOTION_META,
       created,
     });
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(_raw_data, '{description}', ${JSON.stringify(BUTTER_LOTION_DESCRIPTION)}::jsonb, true),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({
+              ...BUTTER_LOTION_META,
+              scentOptions: BUTTER_LOTION_SCENT_OPTIONS,
+            })}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE (name = ${BUTTER_LOTION_NAME} OR id = ${BUTTER_LOTION_PRODUCT_ID}) AND active = true
+    `);
 
     // 6) Custom phone cases ($30, model + logo). Same self-applying pattern as
     //    the cases: create only when absent (no-op in dev where Stripe sync made
@@ -3961,6 +3977,19 @@ export async function ensureCatalogData() {
           SELECT id FROM stripe.products
           WHERE name IN (${sql.join(RETIRED_PRODUCT_NAMES.map((n) => sql`${n}`), sql`, `)})
         )
+    `);
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+          _updated_at = now()
+      WHERE id IN ('prod_kkelemsbodywashcocoashea') AND active = true
+    `);
+    await db.execute(sql`
+      UPDATE stripe.prices
+      SET _raw_data = jsonb_set(_raw_data, '{active}', 'false'::jsonb, true),
+          _updated_at = now()
+      WHERE id IN ('price_kkelemsbodywashcocoashea') AND active = true
     `);
 
     // 8) Clean up leftover active prices on INACTIVE products. Deactivating a

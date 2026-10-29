@@ -4,6 +4,7 @@ import {
   scentsFor,
   FULL_LOGO_CATALOG_OPTION,
 } from "@shared/customization";
+import { isRetiredCocoaSheaStorefrontProduct } from "@shared/elementsRetired";
 import { resolveStorefrontImageUrl } from "@shared/productImages";
 import { catalogStorage } from "./catalogStorage";
 
@@ -97,6 +98,7 @@ export async function getStorefrontProductsDetailed(): Promise<StorefrontProduct
   const productsMap = new Map<string, StorefrontProduct>();
   for (const row of rows) {
     if (((row.product_metadata || {}) as any).hidden === 'true') continue;
+    if (isRetiredCocoaSheaStorefrontProduct(row.product_name)) continue;
     if (!productsMap.has(row.product_id)) {
       const metadata = (row.product_metadata || {}) as any;
       const images = (row.product_images || []) as any[];
