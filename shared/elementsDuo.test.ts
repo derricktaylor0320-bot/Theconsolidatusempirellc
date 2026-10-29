@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { BUTTER_LOTION_UNIT_PRICE_CENTS } from "./elementsButterLotion";
 import { DEODORANT_UNIT_PRICE_CENTS } from "./elementsDeodorant";
 import {
   BODY_BUTTER_RETAIL_CENTS,
@@ -10,12 +11,12 @@ import {
   ELEMENTS_DUO_SAVINGS_CENTS,
   ELEMENTS_DUO_SEPARATE_CENTS,
   ELEMENTS_DUO_WASH_OPTIONS,
-  ELEMENTS_TRIO_FLEA_MARKET_CENTS,
+  ELEMENTS_QUAD_FLEA_MARKET_CENTS,
   elementsDuoOrderNote,
   elementsDuoPriceDollars,
   elementsDuoSavingsDollars,
   elementsDuoSeparateDollars,
-  elementsTrioFleaMarketPriceDollars,
+  elementsQuadFleaMarketPriceDollars,
   encodeElementsDuoSelection,
   isElementsBodyButterTitle,
   isElementsBodyWashTitle,
@@ -27,30 +28,42 @@ import {
 } from "./elementsDuo";
 import { BODY_BUTTER_LEGACY_NAME, BODY_BUTTER_LINE_NAME } from "./elementsBodyButter";
 
-test("Elements Trio is $30: $34 separate, save $4; flea market $28", () => {
+test("Elements Quad is $42: $46 separate, save $4; flea market $36", () => {
   assert.equal(BODY_WASH_RETAIL_CENTS, 1000);
   assert.equal(BODY_BUTTER_RETAIL_CENTS, 1200);
+  assert.equal(BUTTER_LOTION_UNIT_PRICE_CENTS, 1200);
   assert.equal(DEODORANT_UNIT_PRICE_CENTS, 1200);
-  assert.equal(ELEMENTS_DUO_SEPARATE_CENTS, 3400);
-  assert.equal(ELEMENTS_DUO_PRICE_CENTS, 3000);
+  assert.equal(ELEMENTS_DUO_SEPARATE_CENTS, 4600);
+  assert.equal(ELEMENTS_DUO_PRICE_CENTS, 4200);
   assert.equal(ELEMENTS_DUO_SAVINGS_CENTS, 400);
-  assert.equal(ELEMENTS_TRIO_FLEA_MARKET_CENTS, 2800);
-  assert.equal(elementsDuoPriceDollars(), 30);
-  assert.equal(elementsDuoSeparateDollars(), 34);
+  assert.equal(ELEMENTS_QUAD_FLEA_MARKET_CENTS, 3600);
+  assert.equal(elementsDuoPriceDollars(), 42);
+  assert.equal(elementsDuoSeparateDollars(), 46);
   assert.equal(elementsDuoSavingsDollars(), 4);
-  assert.equal(elementsTrioFleaMarketPriceDollars(), 28);
+  assert.equal(elementsQuadFleaMarketPriceDollars(), 36);
 });
 
-test("encodes and parses wash, body butter, and deodorant", () => {
+test("encodes and parses wash, body butter, lotion, and deodorant", () => {
   const encoded = encodeElementsDuoSelection(
     "Island Tranquility",
     "Forbidden Taste",
+    "Island Tranquility",
     "Lavender",
   );
-  assert.equal(encoded, "Island Tranquility|Forbidden Taste|Lavender");
+  assert.equal(encoded, "Island Tranquility|Forbidden Taste|Island Tranquility|Lavender");
   assert.deepEqual(parseElementsDuoSelection(encoded), {
     wash: "Island Tranquility",
     butterScent: "Forbidden Taste",
+    lotionScent: "Island Tranquility",
+    deodorant: "Lavender",
+  });
+});
+
+test("parse accepts legacy trio carts without lotion", () => {
+  assert.deepEqual(parseElementsDuoSelection("Island Tranquility|Forbidden Taste|Lavender"), {
+    wash: "Island Tranquility",
+    butterScent: "Forbidden Taste",
+    lotionScent: "",
     deodorant: "Lavender",
   });
 });
@@ -59,6 +72,7 @@ test("parse accepts legacy em-dash duo carts without deodorant", () => {
   assert.deepEqual(parseElementsDuoSelection("Island Tranquility \u2014 Forbidden Taste"), {
     wash: "Island Tranquility",
     butterScent: "Forbidden Taste",
+    lotionScent: "",
     deodorant: "",
   });
 });
@@ -70,9 +84,10 @@ test("parse rejects missing or incomplete selections", () => {
   assert.equal(parseElementsDuoSelection(undefined), null);
 });
 
-test("identifies the Trio SKU by price id or title", () => {
+test("identifies the Quad SKU by price id or title", () => {
   assert.equal(isElementsDuoProduct(ELEMENTS_DUO_PRICE_ID, "Anything"), true);
   assert.equal(isElementsDuoProduct("price_other", ELEMENTS_DUO_NAME), true);
+  assert.equal(isElementsDuoProduct("price_other", "Elements Quad "), true);
   assert.equal(isElementsDuoProduct("price_other", "Elements Trio "), true);
   assert.equal(isElementsDuoProduct("price_other", "Elements Duo "), true);
   assert.equal(isElementsDuoProduct("price_other", "Cocoa Mango"), false);
@@ -96,8 +111,9 @@ test("order note names every item for fulfillment", () => {
     elementsDuoOrderNote({
       wash: "Cocoa Mango",
       butterScent: "Too Tempting",
+      lotionScent: "Cocoa Mango",
       deodorant: "Sandalwood & Teakwood",
     }),
-    "3-in-1 wash: Cocoa Mango | Body butter: Too Tempting | Deodorant: Sandalwood & Teakwood",
+    "3-in-1 wash: Cocoa Mango | Body butter: Too Tempting | Butter lotion: Cocoa Mango | Deodorant: Sandalwood & Teakwood",
   );
 });

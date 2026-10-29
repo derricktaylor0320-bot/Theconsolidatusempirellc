@@ -1,9 +1,10 @@
 import { deodorantPricingLabel } from "./elementsDeodorant";
 import { bodyButterPricingLabel } from "./elementsBodyButter";
+import { butterLotionPricingLabel } from "./elementsButterLotion";
 import {
   BODY_WASH_RETAIL_CENTS,
   elementsDuoSeparateDollars,
-  elementsTrioFleaMarketPriceDollars,
+  elementsQuadFleaMarketPriceDollars,
 } from "./elementsDuo";
 
 /** In-person sales channels that run through Square (not Stripe). */
@@ -20,9 +21,15 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
     pricing: deodorantPricingLabel(),
   },
   {
-    name: "Whipped Body Butters",
-    detail: "4 oz jars — pick your scent at the table",
+    name: "Triple Whipped Body Butters",
+    detail: "4 oz jars — pick your exotic scent at the table",
     pricing: bodyButterPricingLabel(),
+  },
+  {
+    name: "Scented Butter Lotion",
+    detail:
+      "Wash-matched and stand-alone scents — Cocoa Mango, Island Tranquility, 100% Avocado Oil, and more",
+    pricing: butterLotionPricingLabel(),
   },
   {
     name: "3-in-1 Body Wash, Shampoo & Conditioner",
@@ -31,15 +38,16 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
     pricing: `$${(BODY_WASH_RETAIL_CENTS / 100).toFixed(0)} each`,
   },
   {
-    name: "Elements Trio Bundle",
-    detail: "3-in-1 wash + whipped body butter + natural deodorant",
-    pricing: `$${elementsTrioFleaMarketPriceDollars().toFixed(0)} at flea markets ($${elementsDuoSeparateDollars().toFixed(0)} separately)`,
+    name: "Elements Quad Bundle",
+    detail:
+      "3-in-1 wash + triple body butter + butter lotion + natural deodorant",
+    pricing: `$${elementsQuadFleaMarketPriceDollars().toFixed(0)} at flea markets ($${elementsDuoSeparateDollars().toFixed(0)} separately)`,
   },
 ] as const;
 
 export function fleaMarketSquareSummary(): string {
   return (
-    "Natural deodorant, whipped body butters, 3-in-1 body wash, and the Elements Trio " +
-    "bundle are sold in person at local flea markets. Card payments go through Square."
+    "Natural deodorant, triple whipped body butters, scented butter lotion, 3-in-1 body wash, " +
+    "and the Elements Quad bundle are sold in person at local flea markets. Card payments go through Square."
   );
 }

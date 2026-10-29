@@ -1,15 +1,22 @@
 /**
- * Elements Care Basket — our own store bundle:
- * 1× 3-in-1 body wash, 1× whipped body butter, 1× deodorant, 2× body oil.
+ * Elements Care Basket — our own store bundle (gift basket):
+ * 1× 3-in-1 body wash, 1× triple whipped body butter, 1× scented butter lotion,
+ * 1× natural deodorant.
  *
- * Individually: $10 + $12 + $12 + $20 = $54.
- * Basket price: $40 (save $14).
+ * Individually: $10 + $12 + $12 + $12 = $46.
+ * Basket price: $40 (save $6).
  *
- * All five scent choices are pipe-delimited in `selectedScent`:
- *   wash|butterScent|deodorant|bodyOil1|bodyOil2
+ * Four scent choices are pipe-delimited in `selectedScent`:
+ *   wash|butterScent|lotionScent|deodorant
+ *
+ * Legacy carts with two body oils (5 parts) still parse for fulfillment display.
  */
 
 import { BODY_BUTTER_SCENT_NAMES } from "./elementsBodyButter";
+import {
+  BUTTER_LOTION_UNIT_PRICE_CENTS,
+  isButterLotionScent,
+} from "./elementsButterLotion";
 import { DEODORANT_UNIT_PRICE_CENTS } from "./elementsDeodorant";
 import {
   BODY_BUTTER_RETAIL_CENTS,
@@ -22,15 +29,13 @@ export const ELEMENTS_CARE_BASKET_PRICE_ID = "price_kkelemscarebasket";
 export const ELEMENTS_CARE_BASKET_NAME = "Elements Care Basket";
 
 export { BODY_WASH_RETAIL_CENTS, BODY_BUTTER_RETAIL_CENTS };
-export const BODY_OIL_RETAIL_CENTS = 1000;
-export const BODY_OIL_COUNT = 2;
 
 export const ELEMENTS_CARE_BASKET_PRICE_CENTS = 4000;
 export const ELEMENTS_CARE_BASKET_SEPARATE_CENTS =
   BODY_WASH_RETAIL_CENTS +
   BODY_BUTTER_RETAIL_CENTS +
-  DEODORANT_UNIT_PRICE_CENTS +
-  BODY_OIL_RETAIL_CENTS * BODY_OIL_COUNT;
+  BUTTER_LOTION_UNIT_PRICE_CENTS +
+  DEODORANT_UNIT_PRICE_CENTS;
 export const ELEMENTS_CARE_BASKET_SAVINGS_CENTS =
   ELEMENTS_CARE_BASKET_SEPARATE_CENTS - ELEMENTS_CARE_BASKET_PRICE_CENTS;
 
@@ -43,6 +48,7 @@ export const CARE_BASKET_DEODORANT_OPTIONS = [
 
 export type CareBasketDeodorant = (typeof CARE_BASKET_DEODORANT_OPTIONS)[number];
 
+/** @deprecated Care Basket no longer includes fragrance body oils (legacy orders only). */
 export const CARE_BASKET_BODY_OIL_OPTIONS = [
   "Lady Million",
   "Pink Passion",
@@ -70,9 +76,11 @@ export type CareBasketBodyOil = (typeof CARE_BASKET_BODY_OIL_OPTIONS)[number];
 export interface ElementsCareBasketSelection {
   wash: string;
   butterScent: string;
+  lotionScent: string;
   deodorant: string;
-  bodyOil1: string;
-  bodyOil2: string;
+  /** Present only on legacy 5-part basket carts. */
+  bodyOil1?: string;
+  bodyOil2?: string;
 }
 
 export function elementsCareBasketPriceDollars(): number {
@@ -115,6 +123,10 @@ export function isCareBasketButterScent(value: unknown): value is string {
   );
 }
 
+export function isCareBasketLotionScent(value: unknown): boolean {
+  return isButterLotionScent(value);
+}
+
 export function isCareBasketDeodorant(value: unknown): value is CareBasketDeodorant {
   return (
     typeof value === "string" &&
@@ -122,6 +134,7 @@ export function isCareBasketDeodorant(value: unknown): value is CareBasketDeodor
   );
 }
 
+/** @deprecated Legacy basket body oil picks */
 export function isCareBasketBodyOil(value: unknown): value is CareBasketBodyOil {
   return (
     typeof value === "string" &&
@@ -130,14 +143,13 @@ export function isCareBasketBodyOil(value: unknown): value is CareBasketBodyOil 
 }
 
 export function encodeElementsCareBasketSelection(
-  selection: ElementsCareBasketSelection,
+  selection: Omit<ElementsCareBasketSelection, "bodyOil1" | "bodyOil2">,
 ): string {
   return [
     selection.wash.trim(),
     selection.butterScent.trim(),
+    selection.lotionScent.trim(),
     selection.deodorant.trim(),
-    selection.bodyOil1.trim(),
-    selection.bodyOil2.trim(),
   ].join(ELEMENTS_CARE_BASKET_DELIM);
 }
 
@@ -146,20 +158,40 @@ export function parseElementsCareBasketSelection(
 ): ElementsCareBasketSelection | null {
   if (typeof selected !== "string") return null;
   const parts = selected.split(ELEMENTS_CARE_BASKET_DELIM);
-  if (parts.length !== 5) return null;
-  const [wash, butterScent, deodorant, bodyOil1, bodyOil2] = parts.map((p) => p.trim());
-  if (!wash || !butterScent || !deodorant || !bodyOil1 || !bodyOil2) return null;
-  return { wash, butterScent, deodorant, bodyOil1, bodyOil2 };
+  if (parts.length === 4) {
+    const [wash, butterScent, lotionScent, deodorant] = parts.map((p) => p.trim());
+    if (!wash || !butterScent || !lotionScent || !deodorant) return null;
+    return { wash, butterScent, lotionScent, deodorant };
+  }
+  if (parts.length === 5) {
+    const [wash, butterScent, deodorant, bodyOil1, bodyOil2] = parts.map((p) => p.trim());
+    if (!wash || !butterScent || !deodorant || !bodyOil1 || !bodyOil2) return null;
+    return {
+      wash,
+      butterScent,
+      lotionScent: "",
+      deodorant,
+      bodyOil1,
+      bodyOil2,
+    };
+  }
+  return null;
 }
 
 export function elementsCareBasketOrderNote(
   selection: ElementsCareBasketSelection,
 ): string {
-  return [
+  const parts = [
     `3-in-1 wash: ${selection.wash}`,
     `Body butter: ${selection.butterScent}`,
-    `Deodorant: ${selection.deodorant}`,
-    `Body oil 1: ${selection.bodyOil1}`,
-    `Body oil 2: ${selection.bodyOil2}`,
-  ].join(" | ");
+  ];
+  if (selection.lotionScent) {
+    parts.push(`Butter lotion: ${selection.lotionScent}`);
+  }
+  parts.push(`Deodorant: ${selection.deodorant}`);
+  if (selection.bodyOil1 && selection.bodyOil2) {
+    parts.push(`Body oil 1: ${selection.bodyOil1}`);
+    parts.push(`Body oil 2: ${selection.bodyOil2}`);
+  }
+  return parts.join(" | ");
 }

@@ -16,7 +16,15 @@ import {
   BODY_BUTTER_LINE_NAME,
   BODY_BUTTER_LEGACY_NAME,
   BODY_BUTTER_SCENT_OPTIONS,
+  BODY_BUTTER_TRIPLE_FORMULA_BLURB,
 } from "@shared/elementsBodyButter";
+import {
+  BUTTER_LOTION_LINE_NAME,
+  BUTTER_LOTION_PRICE_ID,
+  BUTTER_LOTION_PRODUCT_ID,
+  BUTTER_LOTION_SCENT_OPTIONS,
+  BUTTER_LOTION_UNIT_PRICE_CENTS,
+} from "@shared/elementsButterLotion";
 import {
   SPA_BASKET_LINE_NAME,
   SPA_BASKET_PRICE_CENTS,
@@ -313,7 +321,7 @@ const BODY_BUTTER_NAME = BODY_BUTTER_LINE_NAME;
 const BODY_BUTTER_PRICE_CENTS = 1200;
 const BODY_BUTTER_IMAGE_PATH = BODY_BUTTER_IMAGE;
 const BODY_BUTTER_DESCRIPTION =
-  "Luxurious Khomplete Khemistri whipped body butter in a 4 oz jar. Rich, fast-absorbing moisture that leaves skin soft and smooth. Our Exotic Body Butter Scents — choose from 18 provocative fragrances with notes listed on the product page. Collections include Men's & Unisex and Sweet, Gourmand & Provocative. $12 per jar. 3 for $30 — Buy 2, Get 1 50% Off (Save $6 Instantly, $10/jar).";
+  `Luxurious Khomplete Khemistri whipped body butter in a 4 oz jar. ${BODY_BUTTER_TRIPLE_FORMULA_BLURB} Rich, fast-absorbing moisture that leaves skin soft and smooth. Our Exotic Body Butter Scents — choose from 18 provocative fragrances with notes listed on the product page. Collections include Men's & Unisex and Sweet, Gourmand & Provocative. $12 per jar. 3 for $30 — Buy 2, Get 1 50% Off (Save $6 Instantly, $10/jar).`;
 const BODY_BUTTER_META = {
   category: "Body Care",
   productType: "accessory",
@@ -321,6 +329,22 @@ const BODY_BUTTER_META = {
   scented: "true",
   scentOptions: BODY_BUTTER_SCENT_OPTIONS,
   imageUrl: BODY_BUTTER_IMAGE_PATH,
+};
+
+const BUTTER_LOTION_NAME = BUTTER_LOTION_LINE_NAME;
+const BUTTER_LOTION_PRICE_CENTS = BUTTER_LOTION_UNIT_PRICE_CENTS;
+const BUTTER_LOTION_IMAGE_PATH = BODY_BUTTER_IMAGE;
+const BUTTER_LOTION_DESCRIPTION =
+  "Khomplete Khemistri Elements Scented Butter Lotion — daily moisturizer with wash-matched scents (Cocoa Mango, Island Tranquility, 100% Avocado Oil) plus Vanilla Bliss, Lavender Chamomile, Eucalyptus Tranquility, Apple Pear, and Whispering Rose. $12 per bottle. Pairs with our triple whipped body butter and 3-in-1 body wash lineup.";
+const BUTTER_LOTION_META = {
+  category: "Body Care",
+  productType: "accessory",
+  customize: "none",
+  scented: "true",
+  scentOptions: BUTTER_LOTION_SCENT_OPTIONS,
+  imageUrl: BUTTER_LOTION_IMAGE_PATH,
+  sortOrder: "128",
+  gender: "Unisex",
 };
 
 // Aqua Elegante luxury spa gift baskets — Amazon-fulfilled curated bath &
@@ -1352,10 +1376,10 @@ const DEODORANT_PRODUCTS: {
   },
 ];
 
-// Elements Trio — 3-in-1 wash ($10) + body butter ($12) + deodorant ($12);
-// $30 online ($34 separately, save $4). Flea markets may use $28 in Square.
+// Elements Quad — 3-in-1 wash ($10) + triple body butter ($12) + butter lotion ($12) + deodorant ($12);
+// $42 online ($46 separately, save $4). Flea markets may use $36 in Square.
 const ELEMENTS_DUO_DESCRIPTION =
-  "Khomplete Khemistri Elements Trio — one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz whipped body butter jar; and one natural deodorant stick (2.5 oz). $30 for the set (save $4 vs $34 purchased separately). Choose your wash, body butter scent, and deodorant at checkout.";
+  "Khomplete Khemistri Elements Quad — one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz triple whipped body butter jar; one scented butter lotion; and one natural deodorant stick (2.5 oz). $42 for the set (save $4 vs $46 purchased separately). Choose your wash, body butter scent, butter lotion scent, and deodorant at checkout.";
 const ELEMENTS_DUO_META = {
   category: "Body Care",
   productType: "elements",
@@ -1368,10 +1392,10 @@ const ELEMENTS_DUO_META = {
   gender: "Unisex",
 };
 
-// Elements Care Basket — our own store bundle: 3-in-1 wash + body butter +
-// deodorant + 2 body oils for $40 ($54 separately, save $14).
+// Elements Care Basket — gift basket with all four core Elements body-care lines.
+// $40 ($46 separately, save $6).
 const ELEMENTS_CARE_BASKET_DESCRIPTION =
-  "Khomplete Khemistri Elements Care Basket — our own bundle from the store: one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz whipped body butter; one natural deodorant stick; and two fragrance body oils. $40 flat (save $14 vs $54 separately). Choose your wash, body butter, deodorant, and two body oil scents at checkout.";
+  "Khomplete Khemistri Elements Care Basket — our gift basket bundles all four core lines: one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz triple whipped body butter; one scented butter lotion; and one natural deodorant stick. $40 flat (save $6 vs $46 separately). Choose your wash, body butter, butter lotion, and deodorant at checkout.";
 const ELEMENTS_CARE_BASKET_META = {
   category: "Body Care",
   productType: "elements",
@@ -2405,7 +2429,7 @@ export async function ensureCatalogData() {
         created,
       });
       console.log(
-        "ensureCatalogData: ensured Elements Care Basket ($40 — wash + butter + deodorant + 2 body oils, save $14).",
+        "ensureCatalogData: ensured Elements Care Basket ($40 — wash + butter + lotion + deodorant, save $6).",
       );
 
       await ensureSyntheticProduct({
@@ -2419,7 +2443,7 @@ export async function ensureCatalogData() {
         created,
       });
       console.log(
-        "ensureCatalogData: ensured Elements Trio ($30 — wash + body butter + deodorant, save $4).",
+        "ensureCatalogData: ensured Elements Quad ($42 — wash + butter + lotion + deodorant, save $4).",
       );
 
       // Holistic sea moss gels — critical early pass. The generic Elements loop
@@ -2814,6 +2838,17 @@ export async function ensureCatalogData() {
         )
         AND (_raw_data->>'unit_amount') IS DISTINCT FROM ${String(BODY_BUTTER_PRICE_CENTS)}
     `);
+
+    await ensureSyntheticProduct({
+      accountId,
+      productId: BUTTER_LOTION_PRODUCT_ID,
+      priceId: BUTTER_LOTION_PRICE_ID,
+      name: BUTTER_LOTION_NAME,
+      description: BUTTER_LOTION_DESCRIPTION,
+      priceCents: BUTTER_LOTION_PRICE_CENTS,
+      meta: BUTTER_LOTION_META,
+      created,
+    });
 
     // 6) Custom phone cases ($30, model + logo). Same self-applying pattern as
     //    the cases: create only when absent (no-op in dev where Stripe sync made

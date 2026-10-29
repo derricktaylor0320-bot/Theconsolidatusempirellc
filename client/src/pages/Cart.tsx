@@ -317,24 +317,36 @@ export default function Cart() {
                           >
                             Body butter: {careBasketSelection.butterScent}
                           </p>
+                          {careBasketSelection.lotionScent && (
+                            <p
+                              className="text-xs text-muted-foreground mt-1"
+                              data-testid={`text-cart-lotion-${slug}`}
+                            >
+                              Butter lotion: {careBasketSelection.lotionScent}
+                            </p>
+                          )}
                           <p
                             className="text-xs text-muted-foreground mt-1"
                             data-testid={`text-cart-deodorant-${slug}`}
                           >
                             Deodorant: {careBasketSelection.deodorant}
                           </p>
-                          <p
-                            className="text-xs text-muted-foreground mt-1"
-                            data-testid={`text-cart-body-oil-1-${slug}`}
-                          >
-                            Body oil 1: {careBasketSelection.bodyOil1}
-                          </p>
-                          <p
-                            className="text-xs text-muted-foreground mt-1"
-                            data-testid={`text-cart-body-oil-2-${slug}`}
-                          >
-                            Body oil 2: {careBasketSelection.bodyOil2}
-                          </p>
+                          {careBasketSelection.bodyOil1 && careBasketSelection.bodyOil2 && (
+                            <>
+                              <p
+                                className="text-xs text-muted-foreground mt-1"
+                                data-testid={`text-cart-body-oil-1-${slug}`}
+                              >
+                                Body oil 1: {careBasketSelection.bodyOil1}
+                              </p>
+                              <p
+                                className="text-xs text-muted-foreground mt-1"
+                                data-testid={`text-cart-body-oil-2-${slug}`}
+                              >
+                                Body oil 2: {careBasketSelection.bodyOil2}
+                              </p>
+                            </>
+                          )}
                         </>
                       )}
                       {duoSelection && (
@@ -351,6 +363,14 @@ export default function Cart() {
                           >
                             Body butter: {duoSelection.butterScent}
                           </p>
+                          {duoSelection.lotionScent && (
+                            <p
+                              className="text-xs text-muted-foreground mt-1"
+                              data-testid={`text-cart-duo-lotion-${slug}`}
+                            >
+                              Butter lotion: {duoSelection.lotionScent}
+                            </p>
+                          )}
                           {duoSelection.deodorant && (
                             <p
                               className="text-xs text-muted-foreground mt-1"

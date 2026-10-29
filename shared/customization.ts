@@ -18,9 +18,9 @@ import { PHONE_MODELS_BY_TYPE } from "./phoneModels";
 import { LOGO_ALT_SET } from "./logoNames";
 import {
   elementsCareBasketOrderNote,
-  isCareBasketBodyOil,
   isCareBasketButterScent,
   isCareBasketDeodorant,
+  isCareBasketLotionScent,
   isCareBasketWash,
   isElementsCareBasketMetadata,
   isElementsCareBasketProduct,
@@ -34,6 +34,7 @@ import {
   isElementsDuoWash,
   parseElementsDuoSelection,
 } from "./elementsDuo";
+import { isButterLotionScent } from "./elementsButterLotion";
 import {
   formatFootwearPlacementNote,
   isFootwearCustomizable,
@@ -423,7 +424,7 @@ export function checkCustomization(
     notes.push(`Color: ${color}`);
   }
 
-  // Elements Care Basket: wash + butter + deodorant + 2 body oils in selectedScent.
+  // Elements Care Basket: wash + butter + lotion + deodorant in selectedScent.
   const careBasketRequired =
     isElementsCareBasketMetadata(meta) ||
     isElementsCareBasketProduct(
@@ -436,17 +437,15 @@ export function checkCustomization(
       !parsed ||
       !isCareBasketWash(parsed.wash) ||
       !isCareBasketButterScent(parsed.butterScent) ||
-      !isCareBasketDeodorant(parsed.deodorant) ||
-      !isCareBasketBodyOil(parsed.bodyOil1) ||
-      !isCareBasketBodyOil(parsed.bodyOil2)
+      !isCareBasketLotionScent(parsed.lotionScent) ||
+      !isCareBasketDeodorant(parsed.deodorant)
     ) {
       return { required: true, kind: "careBasket", ok: false };
     }
     notes.push(elementsCareBasketOrderNote(parsed));
   }
 
-  // Elements Trio: wash + body butter + deodorant in selectedScent as
-  // wash|butter|deodorant. Skip the single-scent check below.
+  // Elements Quad: wash + body butter + lotion + deodorant in selectedScent.
   const duoRequired =
     !careBasketRequired &&
     (isElementsDuoMetadata(meta) ||
@@ -458,6 +457,7 @@ export function checkCustomization(
       !parsed ||
       !isElementsDuoWash(parsed.wash) ||
       !butterScents.includes(parsed.butterScent) ||
+      !isButterLotionScent(parsed.lotionScent) ||
       !isElementsDuoDeodorant(parsed.deodorant)
     ) {
       return { required: true, kind: "duo", ok: false };
@@ -532,9 +532,9 @@ export function customizationErrorMessage(
     case "scent":
       return `Please choose a scent for "${productName}" before checking out.`;
     case "duo":
-      return `Please choose a 3-in-1 body wash, body butter scent, and deodorant for "${productName}" before checking out.`;
+      return `Please choose a 3-in-1 body wash, body butter scent, butter lotion scent, and deodorant for "${productName}" before checking out.`;
     case "careBasket":
-      return `Please choose your wash, body butter, deodorant, and two body oil scents for "${productName}" before checking out.`;
+      return `Please choose your wash, body butter, butter lotion, and deodorant for "${productName}" before checking out.`;
     default:
       return `Please complete your customization for "${productName}" before checking out.`;
   }
