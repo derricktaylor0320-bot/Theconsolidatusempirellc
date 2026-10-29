@@ -33,7 +33,6 @@ import {
   isElementsDeodorantProduct,
 } from "@shared/elementsDeodorant";
 import {
-  bodyButterBundlePitch,
   bodyButterPricingLabel,
   bodyButterScentNotes,
   isElementsBodyButterProduct,
@@ -324,7 +323,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                 )}
                 {isBodyButter && (
                   <span className="mt-1 block text-[10px] font-medium normal-case tracking-normal text-muted-foreground">
-                    {bodyButterPricingLabel()} · {bodyButterBundlePitch()}
+                    {bodyButterPricingLabel()}
                   </span>
                 )}
               </span>
@@ -438,7 +437,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
               className="text-xs text-primary"
               data-testid={`text-body-butter-pricing-${title.toLowerCase().replace(/\s+/g, '-')}`}
             >
-              {bodyButterPricingLabel()} · {bodyButterBundlePitch()}
+              {bodyButterPricingLabel()}
             </p>
           )}
           {hasVariants && (
@@ -698,8 +697,8 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     data-testid={`text-butter-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {isCareBasket
-                      ? "Choose your whipped body butter scent — included in the basket."
-                      : "Choose your triple whipped body butter (4 oz) — $12 jar, included in the Quad."}
+                      ? "Choose your triple-whipped body butter scent — included in the bundle."
+                      : "Choose your 3-in-1 Triple Butter Base Formula (4 oz) — $20 jar, included in the Quad."}
                   </p>
                   <Select value={selectedButterScent} onValueChange={(v) => { setSelectedButterScent(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
@@ -763,7 +762,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     data-testid={`text-lotion-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {isCareBasket
-                      ? "Choose your scented butter lotion — included in the basket. Pick a wash-matched scent or any fragrance below."
+                      ? "Choose your scented butter lotion — included in the bundle. Scents match your 3-in-1 wash (except Men's Energizing)."
                       : "Choose your scented butter lotion — $12 bottle, included in the Quad."}
                   </p>
                   <Select value={selectedLotion} onValueChange={(v) => { setSelectedLotion(v); setErrorMessage(""); }} disabled={soldOut}>
@@ -794,7 +793,7 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     data-testid={`text-scent-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {isBodyButter
-                      ? `Choose your ${scentNoun} — ${bodyButterPricingLabel()}. ${bodyButterBundlePitch()}.`
+                      ? `Choose your ${scentNoun} — ${bodyButterPricingLabel()}.`
                       : `Choose your ${scentNoun} to complete your order.`}
                   </p>
                   <Select value={selectedScent} onValueChange={(v) => { setSelectedScent(v); setErrorMessage(""); }} disabled={soldOut}>

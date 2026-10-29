@@ -12,7 +12,10 @@ export const BEDDING_COMFORTER_IMAGE = "/assets/kk_bedding_set_blue_silver.jpeg"
 export const BEDDING_SHEET_IMAGE = "/assets/kk_bedding_set_blue_silver.jpeg";
 export const BEDDING_PILLOWCASE_IMAGE = "/assets/kk_pillowcase_set_blue_silver.jpeg";
 export const BEDDING_BODY_PILLOW_IMAGE = "/assets/kk_body_pillow_blue_silver.jpeg";
-export const BODY_BUTTER_IMAGE = "/assets/whipped_body_butters_branded.png";
+export const BODY_BUTTER_JAR_CLOSED_IMAGE = "/assets/kk_triple_butter_jar_closed.jpg";
+export const BODY_BUTTER_JAR_OPEN_IMAGE = "/assets/kk_triple_butter_jar_open.jpg";
+/** Primary storefront thumbnail for the body butter line. */
+export const BODY_BUTTER_IMAGE = BODY_BUTTER_JAR_CLOSED_IMAGE;
 export const BODY_WASH_COCOA_SHEA_IMAGE =
   "/assets/kk_elements_body_wash_cocoa_shea.png";
 export const BODY_WASH_ISLAND_TRANQUILITY_IMAGE =
@@ -49,8 +52,11 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
   { pattern: /sheet set/i, imageUrl: BEDDING_SHEET_IMAGE },
   { pattern: /pillowcase set/i, imageUrl: BEDDING_PILLOWCASE_IMAGE },
   { pattern: /body pillow/i, imageUrl: BEDDING_BODY_PILLOW_IMAGE },
-  { pattern: /(?:our exotic|whipped) body butter/i, imageUrl: BODY_BUTTER_IMAGE },
-  { pattern: /elements care basket/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
+  {
+    pattern: /(?:our exotic|whipped|triple butter base)/i,
+    imageUrl: BODY_BUTTER_IMAGE,
+  },
+  { pattern: /(?:core\s*4|elements care basket)/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
   { pattern: /elements (duo|trio|quad)/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
   { pattern: /scented butter lotion/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
   { pattern: /cocoa\s*&\s*shea\s*butter/i, imageUrl: BODY_WASH_COCOA_SHEA_IMAGE },

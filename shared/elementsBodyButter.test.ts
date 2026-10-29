@@ -6,9 +6,7 @@ import {
   BODY_BUTTER_SCENT_CATEGORY_ORDER,
   BODY_BUTTER_SCENT_NAMES,
   BODY_BUTTER_SCENT_OPTIONS,
-  BODY_BUTTER_TRIPLE_PRICE_CENTS,
   BODY_BUTTER_UNIT_PRICE_CENTS,
-  bodyButterBundlePitch,
   bodyButterPricingLabel,
   bodyButterScentCategoryLabel,
   bodyButterScentNotes,
@@ -19,23 +17,18 @@ import {
 } from "./elementsBodyButter";
 
 describe("elementsBodyButter pricing", () => {
-  test("single and triple tiers", () => {
+  test("single jar is $20", () => {
     assert.equal(bodyButterTotalCents(1), BODY_BUTTER_UNIT_PRICE_CENTS);
-    assert.equal(bodyButterTotalCents(3), BODY_BUTTER_TRIPLE_PRICE_CENTS);
+    assert.equal(bodyButterTotalCents(3), 6000);
   });
 
-  test("larger quantities use the best pack mix", () => {
-    assert.equal(bodyButterTotalCents(4), 4200);
-    assert.equal(bodyButterTotalCents(5), 5400);
-    assert.equal(bodyButterTotalCents(6), 6000);
-    assert.equal(bodyButterTotalCents(7), 7200);
+  test("larger quantities scale linearly", () => {
+    assert.equal(bodyButterTotalCents(4), 8000);
+    assert.equal(bodyButterTotalCents(5), 10000);
   });
 
-  test("pricing label, bundle pitch, and product detection", () => {
-    assert.match(bodyButterPricingLabel(), /\$12/);
-    assert.match(bodyButterPricingLabel(), /\$30/);
-    assert.match(bodyButterBundlePitch(), /Buy 2, Get 1 50% Off/);
-    assert.match(bodyButterBundlePitch(), /Save \$6/);
+  test("pricing label and product detection", () => {
+    assert.match(bodyButterPricingLabel(), /\$20/);
     assert.equal(
       isElementsBodyButterProduct("price_kkbodybutter"),
       true,

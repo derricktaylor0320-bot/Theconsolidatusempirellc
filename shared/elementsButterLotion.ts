@@ -1,6 +1,6 @@
 /**
- * Scented butter lotion — lighter daily moisturizer alongside whipped body butter.
- * Three scents match our core 3-in-1 washes; five additional stand-alone fragrances.
+ * Scented butter lotion — lighter daily moisturizer alongside triple-whipped body butter.
+ * Scents match our 3-in-1 body washes (excluding Men's Energizing Scent).
  */
 
 export const BUTTER_LOTION_LINE_NAME = "Scented Butter Lotion";
@@ -14,18 +14,7 @@ export const BUTTER_LOTION_WASH_MATCHED_SCENTS = [
   "100% Avocado Oil",
 ] as const;
 
-export const BUTTER_LOTION_EXTRA_SCENTS = [
-  "Vanilla Bliss",
-  "Lavender Chamomile",
-  "Eucalyptus Tranquility",
-  "Apple Pear",
-  "Whispering Rose",
-] as const;
-
-export const BUTTER_LOTION_SCENT_NAMES = [
-  ...BUTTER_LOTION_WASH_MATCHED_SCENTS,
-  ...BUTTER_LOTION_EXTRA_SCENTS,
-] as const;
+export const BUTTER_LOTION_SCENT_NAMES = [...BUTTER_LOTION_WASH_MATCHED_SCENTS] as const;
 
 export type ButterLotionScent = (typeof BUTTER_LOTION_SCENT_NAMES)[number];
 

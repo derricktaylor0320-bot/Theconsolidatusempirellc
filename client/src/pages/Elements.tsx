@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import elementsHealthSectionArt from "@assets/brand/khomplete_khemistri_elements_health_section.png";
 import {
+  ELEMENTS_CARE_BASKET_NAME,
   elementsCareBasketPriceDollars,
   elementsCareBasketSavingsDollars,
   elementsCareBasketSeparateDollars,
@@ -90,7 +91,7 @@ export default function Elements() {
                 Our store bundle
               </p>
               <p className="font-display font-bold uppercase tracking-tight text-lg">
-                Elements Care Basket — ${elementsCareBasketPriceDollars().toFixed(2)}
+                {ELEMENTS_CARE_BASKET_NAME} — ${elementsCareBasketPriceDollars().toFixed(2)}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 3-in-1 wash, triple body butter, butter lotion, and deodorant. Usually ${elementsCareBasketSeparateDollars().toFixed(2)}

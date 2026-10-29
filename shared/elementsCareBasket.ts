@@ -1,10 +1,10 @@
 /**
- * Elements Care Basket — our own store bundle (gift basket):
- * 1× 3-in-1 body wash, 1× triple whipped body butter, 1× scented butter lotion,
+ * Core 4 — our store bundle (gift basket):
+ * 1× 3-in-1 body wash, 1× triple-whipped body butter, 1× scented butter lotion,
  * 1× natural deodorant.
  *
- * Individually: $10 + $12 + $12 + $12 = $46.
- * Basket price: $40 (save $6).
+ * Individually: $10 + $20 + $12 + $12 = $54.
+ * Bundle price: $48 (save $6).
  *
  * Four scent choices are pipe-delimited in `selectedScent`:
  *   wash|butterScent|lotionScent|deodorant
@@ -18,22 +18,25 @@ import {
   isButterLotionScent,
 } from "./elementsButterLotion";
 import { DEODORANT_UNIT_PRICE_CENTS } from "./elementsDeodorant";
+import { BODY_BUTTER_UNIT_PRICE_CENTS } from "./elementsBodyButter";
 import {
-  BODY_BUTTER_RETAIL_CENTS,
   BODY_WASH_RETAIL_CENTS,
   ELEMENTS_DUO_WASH_OPTIONS,
 } from "./elementsDuo";
 
 export const ELEMENTS_CARE_BASKET_PRODUCT_ID = "prod_kkelemscarebasket";
 export const ELEMENTS_CARE_BASKET_PRICE_ID = "price_kkelemscarebasket";
-export const ELEMENTS_CARE_BASKET_NAME = "Elements Care Basket";
+export const ELEMENTS_CARE_BASKET_NAME = "Core 4";
+/** @deprecated Renamed to Core 4 — kept for legacy orders and DB matching. */
+export const ELEMENTS_CARE_BASKET_LEGACY_NAME = "Elements Care Basket";
 
-export { BODY_WASH_RETAIL_CENTS, BODY_BUTTER_RETAIL_CENTS };
+export { BODY_WASH_RETAIL_CENTS };
+export const BODY_BUTTER_RETAIL_CENTS = BODY_BUTTER_UNIT_PRICE_CENTS;
 
-export const ELEMENTS_CARE_BASKET_PRICE_CENTS = 4000;
+export const ELEMENTS_CARE_BASKET_PRICE_CENTS = 4800;
 export const ELEMENTS_CARE_BASKET_SEPARATE_CENTS =
   BODY_WASH_RETAIL_CENTS +
-  BODY_BUTTER_RETAIL_CENTS +
+  BODY_BUTTER_UNIT_PRICE_CENTS +
   BUTTER_LOTION_UNIT_PRICE_CENTS +
   DEODORANT_UNIT_PRICE_CENTS;
 export const ELEMENTS_CARE_BASKET_SAVINGS_CENTS =
@@ -101,7 +104,10 @@ export function isElementsCareBasketProduct(
 ): boolean {
   if (priceId === ELEMENTS_CARE_BASKET_PRICE_ID) return true;
   if (!title) return false;
-  return /^\s*elements care basket\s*$/i.test(title);
+  return (
+    /^\s*core\s*4\s*$/i.test(title) ||
+    /^\s*elements care basket\s*$/i.test(title)
+  );
 }
 
 export function isElementsCareBasketMetadata(metadata: unknown): boolean {

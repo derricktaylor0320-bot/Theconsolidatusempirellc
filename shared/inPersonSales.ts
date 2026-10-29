@@ -21,14 +21,14 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
     pricing: deodorantPricingLabel(),
   },
   {
-    name: "Triple Whipped Body Butters",
-    detail: "4 oz jars — pick your exotic scent at the table",
+    name: "3-in-1 Triple Butter Base Formula",
+    detail: "4 oz triple-whipped jars — pick your exotic scent at the table",
     pricing: bodyButterPricingLabel(),
   },
   {
     name: "Scented Butter Lotion",
     detail:
-      "Wash-matched and stand-alone scents — Cocoa Mango, Island Tranquility, 100% Avocado Oil, and more",
+      "Scents match our 3-in-1 washes — Cocoa Mango, Island Tranquility, and 100% Avocado Oil",
     pricing: butterLotionPricingLabel(),
   },
   {
