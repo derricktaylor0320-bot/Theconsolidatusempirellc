@@ -14,6 +14,7 @@
 // real logo from the shared catalog allowlist — this prevents model/color-only
 // or arbitrary-text submissions that bypass the "pick a model AND a logo" rule.
 
+import { filterRetiredCocoaSheaScents } from "./elementsRetired";
 import { PHONE_MODELS_BY_TYPE } from "./phoneModels";
 import { LOGO_ALT_SET } from "./logoNames";
 import {
@@ -230,10 +231,12 @@ export function scentsFor(metadata: any): string[] {
   // into the candle / body-butter pickers.
   const custom = String((metadata || {}).scentOptions || "").trim();
   if (custom) {
-    return custom
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    return filterRetiredCocoaSheaScents(
+      custom
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
   }
   return [...SCENTS];
 }

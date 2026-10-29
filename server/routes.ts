@@ -13,6 +13,7 @@ import { getStripePublishableKey, stripeConfigured } from "./stripeClient";
 import { sendEmail, buildOrderReceiptEmail, buildShippingNotificationEmail } from "./email";
 import { trackingUrlFor } from "@shared/shipping";
 import { resolvePublicSiteUrl, SITE_SUPPORT_EMAIL, SITE_SUPPORT_PHONE, SITE_SMS_CONSENT_TEXT } from "@shared/site";
+import { isRetiredCocoaSheaStorefrontProduct } from "@shared/elementsRetired";
 import { resolveStorefrontImageUrl } from "@shared/productImages";
 import { CATALOG_SYNC_VERSION, ensureCatalogData } from "./ensureCatalogData";
 import { storage } from "./storage";
@@ -735,12 +736,16 @@ export async function registerRoutes(
       const legacySeaMossGel = seaMossGels.filter(
         (p) => p.title === "Sea Moss Gel",
       );
+      const legacyCocoaShea = products.filter((p) =>
+        isRetiredCocoaSheaStorefrontProduct(p.title),
+      );
       res.json({
         catalogSyncVersion: CATALOG_SYNC_VERSION,
         footwearCount: footwear.length,
         legacySneakerCount: legacySneakers.length,
         seaMossGelCount: seaMossGels.length,
         legacySeaMossGelActive: legacySeaMossGel.length > 0,
+        legacyCocoaSheaActive: legacyCocoaShea.length > 0,
         gitSha:
           process.env.RAILWAY_GIT_COMMIT_SHA?.trim() ||
           process.env.GITHUB_SHA?.trim() ||
@@ -789,6 +794,7 @@ export async function registerRoutes(
       const productsMap = new Map();
       for (const row of rows) {
         if (((row.product_metadata || {}) as any).hidden === 'true') continue;
+        if (isRetiredCocoaSheaStorefrontProduct(row.product_name)) continue;
         if (!productsMap.has(row.product_id)) {
           const metadata = (row.product_metadata || {}) as any;
           const images = (row.product_images || []) as any[];
