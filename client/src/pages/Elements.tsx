@@ -93,7 +93,7 @@ export default function Elements() {
                 Elements Care Basket — ${elementsCareBasketPriceDollars().toFixed(2)}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                3-in-1 wash, whipped body butter, deodorant, and 2 body oils. Usually ${elementsCareBasketSeparateDollars().toFixed(2)}
+                3-in-1 wash, triple body butter, butter lotion, and deodorant. Usually ${elementsCareBasketSeparateDollars().toFixed(2)}
                 separately — save ${elementsCareBasketSavingsDollars()} when you bundle.
               </p>
             </div>
@@ -107,10 +107,10 @@ export default function Elements() {
                 New bundle
               </p>
               <p className="font-display font-bold uppercase tracking-tight text-lg">
-                Elements Trio — ${elementsDuoPriceDollars().toFixed(2)}
+                Elements Quad — ${elementsDuoPriceDollars().toFixed(2)}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                3-in-1 wash (8 oz), whipped body butter (4 oz), and natural deodorant (2.5 oz). Usually ${elementsDuoSeparateDollars().toFixed(2)}
+                3-in-1 wash (8 oz), triple body butter (4 oz), butter lotion, and natural deodorant (2.5 oz). Usually ${elementsDuoSeparateDollars().toFixed(2)}
                 separately — save ${elementsDuoSavingsDollars()} when you bundle.
               </p>
             </div>

@@ -6,6 +6,9 @@ export type BodyButterScentCategory =
 /** Storefront product line name (4 oz whipped body butter jars). */
 export const BODY_BUTTER_LINE_NAME = "Our Exotic Body Butter Scents";
 
+export const BODY_BUTTER_TRIPLE_FORMULA_BLURB =
+  "100% triple-butter whipped body butter: mango butter, kokum body butter, and shea butter, with massage oil and sweet almond oil.";
+
 /** Legacy catalog name kept for order history and DB migration matching. */
 export const BODY_BUTTER_LEGACY_NAME = "Whipped Body Butters";
 

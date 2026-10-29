@@ -65,6 +65,7 @@ test("Elements Duo requires a wash and a body butter scent", () => {
     encodeElementsDuoSelection(
       "Island Tranquility",
       "Forbidden Taste",
+      "Island Tranquility",
       "Lavender",
     ),
   );
@@ -81,7 +82,7 @@ test("Elements Duo rejects an unknown wash or butter scent", () => {
     undefined,
     undefined,
     "Elements Duo",
-    encodeElementsDuoSelection("Fake Wash", "Forbidden Taste", "Lavender"),
+    encodeElementsDuoSelection("Fake Wash", "Forbidden Taste", "Island Tranquility", "Lavender"),
   );
   assert.equal(badWash.ok, false);
 
@@ -91,7 +92,7 @@ test("Elements Duo rejects an unknown wash or butter scent", () => {
     undefined,
     undefined,
     "Elements Duo",
-    encodeElementsDuoSelection("Cocoa Mango", "Not A Scent", "Lavender"),
+    encodeElementsDuoSelection("Cocoa Mango", "Not A Scent", "Cocoa Mango", "Lavender"),
   );
   assert.equal(badButter.ok, false);
 });
@@ -99,7 +100,7 @@ test("Elements Duo rejects an unknown wash or butter scent", () => {
 test("Elements Care Basket checkout copy asks for all picks", () => {
   assert.match(
     customizationErrorMessage("careBasket", "Elements Care Basket"),
-    /wash, body butter, deodorant, and two body oil scents/,
+    /wash, body butter, butter lotion, and deodorant/,
   );
 });
 
@@ -112,7 +113,7 @@ const CARE_BASKET_META = {
   productType: "elements",
 };
 
-test("Elements Care Basket requires all five scent picks", () => {
+test("Elements Care Basket requires all four scent picks", () => {
   const missing = checkCustomization(
     CARE_BASKET_META,
     undefined,
@@ -132,20 +133,19 @@ test("Elements Care Basket requires all five scent picks", () => {
     encodeElementsCareBasketSelection({
       wash: "Cocoa Mango",
       butterScent: "Forbidden Taste",
+      lotionScent: "Cocoa Mango",
       deodorant: "Lavender",
-      bodyOil1: "Prada",
-      bodyOil2: "YSL",
     }),
   );
   assert.equal(ok.ok, true);
   assert.equal(ok.kind, "careBasket");
   assert.match(ok.note || "", /3-in-1 wash: Cocoa Mango/);
-  assert.match(ok.note || "", /Body oil 2: YSL/);
+  assert.match(ok.note || "", /Butter lotion: Cocoa Mango/);
 });
 
-test("Elements Trio checkout copy asks for wash, butter, and deodorant", () => {
+test("Elements Quad checkout copy asks for wash, butter, lotion, and deodorant", () => {
   assert.match(
-    customizationErrorMessage("duo", "Elements Trio"),
-    /body wash, body butter scent, and deodorant/,
+    customizationErrorMessage("duo", "Elements Quad"),
+    /body wash, body butter scent, butter lotion scent, and deodorant/,
   );
 });

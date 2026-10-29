@@ -51,7 +51,8 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
   { pattern: /body pillow/i, imageUrl: BEDDING_BODY_PILLOW_IMAGE },
   { pattern: /(?:our exotic|whipped) body butter/i, imageUrl: BODY_BUTTER_IMAGE },
   { pattern: /elements care basket/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
-  { pattern: /elements duo/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
+  { pattern: /elements (duo|trio|quad)/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
+  { pattern: /scented butter lotion/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
   { pattern: /cocoa\s*&\s*shea\s*butter/i, imageUrl: BODY_WASH_COCOA_SHEA_IMAGE },
   { pattern: /avocado\s*oil/i, imageUrl: BODY_WASH_AVOCADO_IMAGE },
   {
