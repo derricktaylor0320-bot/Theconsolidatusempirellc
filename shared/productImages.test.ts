@@ -4,7 +4,6 @@ import {
   BODY_BUTTER_IMAGE,
   BODY_WASH_AVOCADO_IMAGE,
   BODY_WASH_COCOA_MANGO_IMAGE,
-  BODY_WASH_COCOA_SHEA_IMAGE,
   BODY_WASH_ISLAND_TRANQUILITY_IMAGE,
   BODY_WASH_MENS_ENERGIZING_IMAGE,
   BEDDING_COMFORTER_IMAGE,
@@ -99,15 +98,26 @@ describe("resolveStorefrontImageUrl", () => {
 
   it("infers Elements Duo artwork from title when metadata image is empty", () => {
     assert.equal(
-      resolveStorefrontImageUrl("", "Elements Duo"),
-      BODY_WASH_COCOA_MANGO_IMAGE,
+      resolveStorefrontImageUrl("", "Elements Quad"),
+      BODY_WASH_ISLAND_TRANQUILITY_IMAGE,
+    );
+  });
+
+  it("rewrites legacy avocado and mens body wash JPG paths to PNG artwork", () => {
+    assert.equal(
+      resolveStorefrontImageUrl("/assets/kk_elements_body_wash_avocado.jpg"),
+      BODY_WASH_AVOCADO_IMAGE,
+    );
+    assert.equal(
+      resolveStorefrontImageUrl("/assets/kk_elements_body_wash_mens_energizing.jpg"),
+      BODY_WASH_MENS_ENERGIZING_IMAGE,
     );
   });
 
   it("infers body wash artwork from title when metadata image is empty", () => {
     assert.equal(
       resolveStorefrontImageUrl("", "Cocoa & Shea Butter"),
-      BODY_WASH_COCOA_SHEA_IMAGE,
+      BODY_WASH_AVOCADO_IMAGE,
     );
     assert.equal(
       resolveStorefrontImageUrl("", "Avocado Oil"),

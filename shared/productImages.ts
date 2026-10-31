@@ -16,16 +16,26 @@ export const BODY_BUTTER_JAR_CLOSED_IMAGE = "/assets/kk_triple_butter_jar_closed
 export const BODY_BUTTER_JAR_OPEN_IMAGE = "/assets/kk_triple_butter_jar_open.jpg";
 /** Primary storefront thumbnail for the body butter line. */
 export const BODY_BUTTER_IMAGE = BODY_BUTTER_JAR_CLOSED_IMAGE;
-export const BODY_WASH_COCOA_SHEA_IMAGE =
-  "/assets/kk_elements_body_wash_cocoa_shea.png";
-export const BODY_WASH_ISLAND_TRANQUILITY_IMAGE =
+/** Default bundle / duo hero when no specific wash is selected. */
+export const BODY_WASH_DEFAULT_IMAGE =
   "/assets/kk_elements_body_wash_island_tranquility.png";
+export const BODY_WASH_ISLAND_TRANQUILITY_IMAGE = BODY_WASH_DEFAULT_IMAGE;
 export const BODY_WASH_COCOA_MANGO_IMAGE =
   "/assets/kk_elements_body_wash_cocoa_mango.png";
 export const BODY_WASH_AVOCADO_IMAGE =
-  "/assets/kk_elements_body_wash_avocado.jpg";
+  "/assets/kk_elements_body_wash_avocado_oil.png";
 export const BODY_WASH_MENS_ENERGIZING_IMAGE =
-  "/assets/kk_elements_body_wash_mens_energizing.jpg";
+  "/assets/kk_elements_body_wash_mens_energizing.png";
+/** Retired SKU artwork (Cocoa & Shea wash replaced by Avocado Oil). */
+export const BODY_WASH_COCOA_SHEA_IMAGE = BODY_WASH_AVOCADO_IMAGE;
+
+/** Legacy body-wash paths still stored on older Stripe metadata rows. */
+export const LEGACY_BODY_WASH_IMAGE_PATHS: Record<string, string> = {
+  "/assets/kk_elements_body_wash_avocado.jpg": BODY_WASH_AVOCADO_IMAGE,
+  "/assets/kk_elements_body_wash_mens_energizing.jpg":
+    BODY_WASH_MENS_ENERGIZING_IMAGE,
+  "/assets/kk_elements_body_wash_cocoa_shea.png": BODY_WASH_AVOCADO_IMAGE,
+};
 
 /** Retired chocolate-brown bedding paths (still present on some prod snapshots). */
 export const LEGACY_BROWN_BEDDING_IMAGE_PATHS: Record<string, string> = {
@@ -56,13 +66,13 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
     pattern: /(?:our exotic|whipped|triple butter base)/i,
     imageUrl: BODY_BUTTER_IMAGE,
   },
-  { pattern: /(?:core\s*4|elements care basket)/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
-  { pattern: /elements (duo|trio|quad)/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
+  { pattern: /(?:core\s*4|elements care basket)/i, imageUrl: BODY_WASH_DEFAULT_IMAGE },
+  { pattern: /elements (duo|trio|quad)/i, imageUrl: BODY_WASH_DEFAULT_IMAGE },
   { pattern: /scented butter lotion/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
   { pattern: /cocoa\s*&\s*shea\s*butter/i, imageUrl: BODY_WASH_COCOA_SHEA_IMAGE },
-  { pattern: /avocado\s*oil/i, imageUrl: BODY_WASH_AVOCADO_IMAGE },
+  { pattern: /100%\s*avocado\s*oil|avocado\s*oil/i, imageUrl: BODY_WASH_AVOCADO_IMAGE },
   {
-    pattern: /men'?s\s*energizing\s*scent|complete\s*chemistry.*energizing/i,
+    pattern: /men'?s\s*(?:moisturizing\s*)?energizing\s*scent|complete\s*chemistry.*energizing/i,
     imageUrl: BODY_WASH_MENS_ENERGIZING_IMAGE,
   },
   { pattern: /island\s*tranquility/i, imageUrl: BODY_WASH_ISLAND_TRANQUILITY_IMAGE },
@@ -87,7 +97,7 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
 function isBlueSilverArtwork(path: string): boolean {
   return (
     path.includes("_blue_silver") ||
-    path.includes("whipped_body_butters_branded")
+    path.includes("kk_triple_butter_jar")
   );
 }
 
@@ -106,6 +116,8 @@ export function resolveStorefrontImageUrl(
     if (legacyBedding) return legacyBedding;
     const legacyWatch = LEGACY_WATCH_IMAGE_PATHS[trimmed];
     if (legacyWatch) return legacyWatch;
+    const legacyBodyWash = LEGACY_BODY_WASH_IMAGE_PATHS[trimmed];
+    if (legacyBodyWash) return legacyBodyWash;
     if (isBlueSilverArtwork(trimmed)) return trimmed;
   }
 
