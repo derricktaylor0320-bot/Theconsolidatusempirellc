@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import EmpireNavigationGrid from "@/components/EmpireNavigationGrid";
-import { getSiteLinkNumber } from "@/lib/siteNavigation";
+import { getSiteLinkNumber, SITE_LINKS } from "@/lib/siteNavigation";
 
 export default function TopSlideNav() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -26,8 +26,8 @@ export default function TopSlideNav() {
       >
         <span className="font-display text-xs uppercase tracking-[0.22em] text-primary sm:text-sm">
           {isExpanded
-            ? "Site Directory · All 21 Destinations"
-            : "Click Below — Site Directory for All 21 Destinations"}
+            ? `Site Directory · All ${SITE_LINKS.length} Destinations`
+            : `Click Below — Site Directory for All ${SITE_LINKS.length} Destinations`}
         </span>
         <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
           <span className="hidden sm:inline">

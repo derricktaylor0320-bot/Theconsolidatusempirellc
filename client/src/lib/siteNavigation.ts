@@ -46,7 +46,7 @@ export const SITE_LINK_CATEGORIES: SiteLinkCategoryMeta[] = [
 /**
  * Desktop row layout for the full 22-destination directory (7 + 7 + 8).
  */
-export const SITE_DIRECTORY_ROW_LAYOUT = [7, 7, 8] as const;
+export const SITE_DIRECTORY_ROW_LAYOUT = [7, 7, 9] as const;
 
 /**
  * The canonical order for the global site directory.
@@ -65,6 +65,12 @@ export const SITE_LINKS: SiteLink[] = [
     href: "/number-three",
     label: "The Number Three",
     compactLabel: "Number Three",
+    category: "empire",
+  },
+  {
+    href: "/motivations",
+    label: "Empire Motivations",
+    compactLabel: "Motivations",
     category: "empire",
   },
   {
