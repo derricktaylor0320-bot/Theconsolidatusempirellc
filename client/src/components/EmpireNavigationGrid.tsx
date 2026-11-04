@@ -93,6 +93,7 @@ function RowLayoutGrid({
               rowCount === 6 && "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6",
               rowCount === 7 && "grid-cols-2 sm:grid-cols-4 lg:grid-cols-7",
               rowCount === 8 && "grid-cols-2 sm:grid-cols-4 lg:grid-cols-8",
+              rowCount === 9 && "grid-cols-2 sm:grid-cols-3 lg:grid-cols-9",
             )}
           >
             {rowLinks.map((link) => {

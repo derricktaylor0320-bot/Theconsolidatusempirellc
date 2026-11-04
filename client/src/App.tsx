@@ -33,6 +33,7 @@ import Policies from "@/pages/Policies";
 import HotDogs from "@/pages/HotDogs";
 import Wine from "@/pages/Wine";
 import Poetry from "@/pages/Poetry";
+import Motivations from "@/pages/Motivations";
 import Media from "@/pages/Media";
 import VIP from "@/pages/VIP";
 import AuthPage from "@/pages/AuthPage";
@@ -96,6 +97,7 @@ function Router() {
       <Route path="/wine" component={Wine} />
       <Route path="/policies" component={Policies} />
       <Route path="/poetry" component={Poetry} />
+      <Route path="/motivations" component={Motivations} />
       <Route path="/hot-dogs" component={HotDogs} />
       <Route path="/premium-choice-dogs" component={HotDogs} />
       <Route path="/media" component={Media} />
