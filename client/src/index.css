@@ -529,31 +529,4 @@
     background-clip: content-box;
   }
 
-  @keyframes motivational-marquee-scroll {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
-  .motivational-marquee-track {
-    animation: motivational-marquee-scroll 120s linear infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .motivational-marquee {
-      overflow-x: auto;
-    }
-    .motivational-marquee-track {
-      animation: none;
-      flex-wrap: wrap;
-      white-space: normal;
-      width: 100%;
-      justify-content: center;
-      gap: 0.5rem 1rem;
-      padding-bottom: 0.25rem;
-    }
-  }
 }

@@ -68,7 +68,7 @@ export const SITE_LINKS: SiteLink[] = [
     category: "empire",
   },
   {
-    href: "/motivations",
+    href: "/fr2p/embed/motivations",
     label: "Empire Motivations",
     compactLabel: "Motivations",
     category: "empire",

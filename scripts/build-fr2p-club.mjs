@@ -18,6 +18,12 @@ const BUILD_DIR = path.join(ROOT, ".build", "fr2p-club");
 const OUT_DIR = path.join(ROOT, "fr2p-club-dist");
 const REPO = "https://github.com/derricktaylor0320-bot/fr2p-club.git";
 const EMBED_BASE = "/fr2p/embed";
+const MOTIVATIONS_OVERLAY = path.join(ROOT, "fr2p-overlays", "motivations");
+const HUB_MOTIVATIONS_ASSETS = path.join(
+  ROOT,
+  "attached_assets",
+  "motivations",
+);
 
 function run(cmd, cwd = BUILD_DIR) {
   execSync(cmd, { cwd, stdio: "inherit" });
@@ -36,6 +42,194 @@ function patchFile(relPath, replacers) {
     content = content.replace(from, to);
   }
   writeFileSync(filePath, content);
+}
+
+function appendFile(relPath, suffix) {
+  const filePath = path.join(BUILD_DIR, relPath);
+  const content = readFileSync(filePath, "utf8");
+  if (content.includes(suffix.trim())) return;
+  writeFileSync(filePath, `${content.trimEnd()}\n\n${suffix.trimStart()}\n`);
+}
+
+/**
+ * Move Empire Motivations (scroll + gallery) into The FR2P Club embed.
+ * Overlay sources live in fr2p-overlays/motivations; poster PNGs stay in hub
+ * attached_assets/motivations and are copied into the FR2P public tree.
+ */
+function applyMotivationsOverlay() {
+  if (!existsSync(MOTIVATIONS_OVERLAY)) {
+    throw new Error(`Missing motivations overlay at ${MOTIVATIONS_OVERLAY}`);
+  }
+  if (!existsSync(HUB_MOTIVATIONS_ASSETS)) {
+    throw new Error(
+      `Missing hub motivations assets at ${HUB_MOTIVATIONS_ASSETS}`,
+    );
+  }
+
+  cpSync(
+    path.join(MOTIVATIONS_OVERLAY, "shared", "motivationalPosters.ts"),
+    path.join(BUILD_DIR, "shared", "motivationalPosters.ts"),
+  );
+  cpSync(
+    path.join(
+      MOTIVATIONS_OVERLAY,
+      "client",
+      "src",
+      "components",
+      "MotivationalScroll.tsx",
+    ),
+    path.join(BUILD_DIR, "client", "src", "components", "MotivationalScroll.tsx"),
+  );
+  cpSync(
+    path.join(
+      MOTIVATIONS_OVERLAY,
+      "client",
+      "src",
+      "pages",
+      "motivations.tsx",
+    ),
+    path.join(BUILD_DIR, "client", "src", "pages", "motivations.tsx"),
+  );
+
+  // Vite publicDir is client/public (ends up in dist/public). Also copy to
+  // repo-root public so root-public static mount serves the same assets.
+  for (const publicRoot of [
+    path.join(BUILD_DIR, "client", "public"),
+    path.join(BUILD_DIR, "public"),
+  ]) {
+    const publicMotivations = path.join(
+      publicRoot,
+      "attached_assets",
+      "motivations",
+    );
+    mkdirSync(publicMotivations, { recursive: true });
+    cpSync(HUB_MOTIVATIONS_ASSETS, publicMotivations, { recursive: true });
+  }
+
+  // App route (after embed WouterRouter patch has already run).
+  patchFile("client/src/App.tsx", [
+    [
+      `import EmpireBackOffice from "@/pages/empire-back-office";`,
+      `import EmpireBackOffice from "@/pages/empire-back-office";
+import Motivations from "@/pages/motivations";`,
+    ],
+    [
+      `      <Route path="/collection" component={Collection} />
+      {/* Fallback to 404 */}`,
+      `      <Route path="/collection" component={Collection} />
+      <Route path="/motivations" component={Motivations} />
+      {/* Fallback to 404 */}`,
+    ],
+  ]);
+
+  // Sidebar entry.
+  patchFile("client/src/components/ui/sidebar-nav.tsx", [
+    [
+      `  LayoutDashboard
+} from "lucide-react";`,
+      `  LayoutDashboard,
+  Sparkles
+} from "lucide-react";`,
+    ],
+    [
+      `  { name: "Dashboard", href: "/", icon: Home },
+  { name: "Prospect Manager", href: "/prospects", icon: Target },`,
+      `  { name: "Dashboard", href: "/", icon: Home },
+  { name: "Empire Motivations", href: "/motivations", icon: Sparkles, highlight: true },
+  { name: "Prospect Manager", href: "/prospects", icon: Target },`,
+    ],
+  ]);
+
+  // Dashboard motivational quote scroll (loading / empty / ready).
+  patchFile("client/src/pages/dashboard.tsx", [
+    [
+      `import { EmblemShowcase } from "@/components/EmblemShowcase";`,
+      `import { EmblemShowcase } from "@/components/EmblemShowcase";
+import MotivationalScroll from "@/components/MotivationalScroll";`,
+    ],
+    [
+      `  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-secondary flex">
+        <SidebarNav />
+        <div className="flex-1 md:ml-64">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">`,
+      `  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-secondary flex">
+        <SidebarNav />
+        <div className="flex-1 md:ml-64">
+          <MotivationalScroll />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">`,
+    ],
+    [
+      `  if (!dashboardData) {
+    return (
+      <div className="min-h-screen bg-secondary flex">
+        <SidebarNav />
+        <div className="flex-1 md:ml-64">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-card-foreground">No data available</h2>`,
+      `  if (!dashboardData) {
+    return (
+      <div className="min-h-screen bg-secondary flex">
+        <SidebarNav />
+        <div className="flex-1 md:ml-64">
+          <MotivationalScroll />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-card-foreground">No data available</h2>`,
+    ],
+    [
+      `  return (
+    <div className="min-h-screen bg-secondary flex">
+      <SidebarNav />
+      <div className="flex-1 md:ml-64">
+        {/* Top Header with User Info */}`,
+      `  return (
+    <div className="min-h-screen bg-secondary flex">
+      <SidebarNav />
+      <div className="flex-1 md:ml-64">
+        <MotivationalScroll />
+        {/* Top Header with User Info */}`,
+    ],
+  ]);
+
+  appendFile(
+    "client/src/index.css",
+    `
+@keyframes motivational-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.motivational-marquee-track {
+  animation: motivational-marquee-scroll 120s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motivational-marquee {
+    overflow-x: auto;
+  }
+  .motivational-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    white-space: normal;
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem 1rem;
+    padding-bottom: 0.25rem;
+  }
+}
+`,
+  );
+
+  console.log("[fr2p] Empire Motivations overlay applied");
 }
 
 function applyEmbedPatches() {
@@ -213,6 +407,7 @@ function main() {
   console.log("Building The FR2P Club embed for /fr2p/embed …");
   cloneOrUpdateRepo();
   applyEmbedPatches();
+  applyMotivationsOverlay();
 
   run("npm ci");
   run(`VITE_EMBED_BASE=${EMBED_BASE}/ npm run build`);
