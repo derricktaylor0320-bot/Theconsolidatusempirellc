@@ -14,19 +14,19 @@ export default function MotivationalScroll() {
 
   return (
     <section
-      className="relative z-30 border-b border-primary/35 bg-gradient-to-r from-secondary via-secondary/95 to-secondary shadow-[0_0_1.25rem_hsl(var(--primary)/0.2)]"
-      aria-label="Empire motivational messages"
+      className="relative z-30 border-b border-[#FFD700]/35 bg-gradient-to-r from-[#001f3f] via-[#002855] to-[#001f3f] shadow-[0_0_1.25rem_rgba(255,215,0,0.15)]"
+      aria-label="FR2P Club motivational messages"
       data-testid="motivational-scroll"
     >
       <div className="flex items-stretch">
         <Link
           href="/motivations"
-          className="group flex shrink-0 items-center border-r border-primary/30 bg-primary/10 px-3 py-2.5 transition-colors hover:bg-primary/20 sm:px-4"
+          className="group flex shrink-0 items-center border-r border-[#FFD700]/30 bg-[#FFD700]/10 px-3 py-2.5 transition-colors hover:bg-[#FFD700]/20 sm:px-4"
           data-testid="link-motivations-hub"
         >
-          <span className="font-display text-[10px] uppercase leading-tight tracking-[0.18em] text-primary sm:text-xs">
-            Empire
-            <span className="block text-foreground/90 group-hover:text-primary">
+          <span className="text-[10px] uppercase leading-tight tracking-[0.18em] text-[#FFD700] sm:text-xs font-bold">
+            FR2P
+            <span className="block text-cream-100/90 group-hover:text-[#FFD700]">
               Motivations
             </span>
           </span>
@@ -38,7 +38,7 @@ export default function MotivationalScroll() {
               line === "✦" ? (
                 <span
                   key={`sep-${index}`}
-                  className="text-primary/70"
+                  className="text-[#FFD700]/70"
                   aria-hidden="true"
                 >
                   ✦
@@ -46,7 +46,7 @@ export default function MotivationalScroll() {
               ) : (
                 <span
                   key={`msg-${index}`}
-                  className="font-brand text-sm tracking-[0.04em] text-foreground/95 sm:text-base"
+                  className="text-sm tracking-[0.04em] text-cream-100/95 sm:text-base font-medium"
                 >
                   {line}
                 </span>

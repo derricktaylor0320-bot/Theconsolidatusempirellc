@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
-import MotivationalScroll from "@/components/MotivationalScroll";
 import TopSlideNav from "@/components/TopSlideNav";
 import ProductCard from "@/components/ProductCard";
 import { RecentReviewsPanel } from "@/components/Reviews";
@@ -52,7 +51,6 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <TopSlideNav />
-      <MotivationalScroll />
       <main className="flex-grow">
         <Hero />
 
