@@ -5,6 +5,11 @@ import { stateTaxInfo } from "@shared/salesTax";
 import { getStorefrontProducts, dedupeByName } from "./storefrontProducts";
 import { catalogStorage } from "./catalogStorage";
 import { syncStorefrontToSquare, squareConfigured } from "./squareCatalogSync";
+import { syncStorefrontToStripe } from "./stripeCatalogSync";
+import {
+  exportBluevineCatalog,
+  exportBluevineCatalogCsv,
+} from "./bluevineCatalogExport";
 import {
   createStripeCheckoutSession,
   retrieveStripeCheckoutOrder,
@@ -296,8 +301,8 @@ export async function registerRoutes(
   // Ensure the catalog facts (product rows, prices, metadata) hold in whatever
   // DB this server is connected to — dev now, Railway prod on deploy. This is
   // the authoritative source of the storefront's product list. Website checkout
-  // runs through Stripe; Square is reserved for in-person operations (hot dogs,
-  // flea market Elements, Pocket Booster invoices).
+  // runs through Stripe; in-person sales use Bluevine (Tap to Pay / invoices).
+  // Square remains only for Pocket Booster repayment invoices for now.
   ensureCatalogData().catch(err => console.error('ensureCatalogData failed:', err));
   
   // Serve uploaded media files (read-only). express.static honors HTTP range
@@ -1603,9 +1608,61 @@ export async function registerRoutes(
     }
   });
 
-  // Protected: legacy manual sync into Square Item Library. Website checkout no
-  // longer uses Square — keep Square Item Library for in-person menus only
-  // (hot dogs, flea market Elements). Owner-managed in the Square dashboard.
+  // Protected: push sellable storefront catalog into the live Stripe Products
+  // API (same account linked to Bluevine). Bluevine Items still need the CSV
+  // export — Bluevine has no public Items write API.
+  app.post("/api/admin/stripe/sync-catalog", requireOwner, async (req, res) => {
+    try {
+      if (!stripeConfigured()) {
+        return res.status(400).json({
+          error: "Stripe is not configured (STRIPE_SECRET_KEY).",
+        });
+      }
+      const result = await syncStorefrontToStripe();
+      res.json(result);
+    } catch (error: any) {
+      console.error("Stripe catalog sync failed:", error);
+      res.status(500).json({ error: error?.message || "Stripe catalog sync failed" });
+    }
+  });
+
+  // Protected: full catalog packing list for Bluevine Sales → Items (JSON).
+  app.get("/api/admin/bluevine/catalog", requireOwner, async (_req, res) => {
+    try {
+      const exported = await exportBluevineCatalog();
+      if (exported.source === "unavailable") {
+        return res.status(503).json({
+          error: "Storefront catalog is unavailable right now.",
+          ...exported,
+        });
+      }
+      res.json(exported);
+    } catch (error: any) {
+      console.error("Bluevine catalog export failed:", error);
+      res.status(500).json({ error: error?.message || "Bluevine catalog export failed" });
+    }
+  });
+
+  // Protected: download CSV for entering Items in Bluevine (body care sorted first).
+  app.get("/api/admin/bluevine/catalog.csv", requireOwner, async (_req, res) => {
+    try {
+      const { filename, csv, total } = await exportBluevineCatalogCsv();
+      if (total === 0) {
+        return res.status(503).json({
+          error: "No priced storefront products available to export.",
+        });
+      }
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(csv);
+    } catch (error: any) {
+      console.error("Bluevine catalog CSV export failed:", error);
+      res.status(500).json({ error: error?.message || "Bluevine catalog CSV export failed" });
+    }
+  });
+
+  // Protected: legacy Square Item Library mirror. In-person sales now use
+  // Bluevine; keep this endpoint only while Pocket Booster still relies on Square.
   app.post("/api/admin/square/sync-catalog", requireOwner, async (req, res) => {
     try {
       if (!squareConfigured()) {

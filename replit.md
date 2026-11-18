@@ -12,7 +12,7 @@ The Consolidatus Empire LLC is a premium e-commerce platform featuring multiple 
 - **Env:** Set `APP_URL=https://tceholdings.org` (or `PUBLIC_URL`) on Railway once the domain is live so checkout redirects, password-reset emails, review links, and Open Graph tags use the custom domain
 - **Analytics:** Set `GA_MEASUREMENT_ID=G-XXXXXXXXXX` on Railway (your GA4 measurement ID from Google Analytics → Admin → Data Streams). The storefront loads GA4 after cookie consent and tracks `view_item`, `begin_checkout`, and `purchase` for Stripe checkout. Test in GA4 Realtime and DebugView (`?ga_debug=1` on any page URL).
 - **Google Search (be found on Google):** WHOIS privacy does **not** block indexing. After deploy, open [Google Search Console](https://search.google.com/search-console), add property `tceholdings.org`, verify via **DNS TXT** (recommended — works with private WHOIS) or set `GOOGLE_SITE_VERIFICATION` on Railway for the HTML meta-tag method. Submit sitemap `https://tceholdings.org/sitemap.xml`. Request indexing for `/` and `/hub`. Brand-new sites often take days to a few weeks to appear for searches like “The Consolidatus Empire.” The Empire Back Office (`/back-office`) includes a step-by-step checklist.
-- **Payments:** Website sales use **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`). **Square** stays for in-person operations — Premium Choice Hot Dogs, local flea market Elements (deodorant, whipped body butters, 3-in-1 wash), and Pocket Booster repayment invoices (`SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`).
+- **Payments:** Website sales use **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`). **In-person** (flea market Elements, Premium Choice Hot Dogs) uses **Bluevine** Tap to Pay / invoices / payment links on the same Stripe account — owners export the full sellable catalog from Back Office (`/api/admin/bluevine/catalog.csv`) into Bluevine → Sales → Items, and can sync Products into live Stripe via `POST /api/admin/stripe/sync-catalog`. **Square** remains only for Pocket Booster repayment invoices until that flow moves to Stripe Invoicing (`SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`).
 - **Services:**
   - `poetic-balance` — the web app, deployed from GitHub repo `derricktaylor0320-bot/Theconsolidatusempirellc` (branch `main`)
   - `Postgres` — database holding all migrated store data (Stripe-synced catalog + app tables)
@@ -139,9 +139,10 @@ The application uses two database schemas:
   - Environment-based configuration via `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY`
   - Catalog schema tables (`stripe.products`, `stripe.prices`) populated by `ensureCatalogData()`
   - Stripe Checkout sessions with state-based sales tax
-- **Square:** In-person sales only — Premium Choice Hot Dogs, local flea market Elements (deodorant, body butters, 3-in-1 wash), and Pocket Booster repayment invoices
+- **Bluevine (Stripe-linked):** In-person / invoice / Tap to Pay — Premium Choice Hot Dogs, flea market Elements (butter lotion, body butters, washes, deodorant, Quad). Full catalog CSV + Stripe Products sync from Back Office.
+- **Square (legacy):** Pocket Booster repayment invoices only until migrated
   - `SQUARE_ACCESS_TOKEN` / `SQUARE_LOCATION_ID`
-  - Website catalog is no longer mirrored into Square on boot
+  - Do not use Square for new in-person catalog mirroring
 
 **Database Services:**
 - **Neon:** Serverless PostgreSQL hosting

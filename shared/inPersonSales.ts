@@ -7,11 +7,14 @@ import {
   elementsQuadFleaMarketPriceDollars,
 } from "./elementsDuo";
 
-/** In-person sales channels that run through Square (not Stripe). */
-export const SQUARE_IN_PERSON_CHANNELS = [
+/** In-person sales channels that run through Bluevine (Stripe-linked Tap to Pay). */
+export const BLUEVINE_IN_PERSON_CHANNELS = [
   "Premium Choice Hot Dogs",
   "Local flea markets",
 ] as const;
+
+/** @deprecated Use BLUEVINE_IN_PERSON_CHANNELS — Square is no longer the in-person rail. */
+export const SQUARE_IN_PERSON_CHANNELS = BLUEVINE_IN_PERSON_CHANNELS;
 
 /** Elements body-care lines stocked for in-person flea market sales. */
 export const FLEA_MARKET_ELEMENTS_LINES = [
@@ -45,9 +48,14 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
   },
 ] as const;
 
-export function fleaMarketSquareSummary(): string {
+export function fleaMarketBluevineSummary(): string {
   return (
     "Natural deodorant, triple whipped body butters, scented butter lotion, 3-in-1 body wash, " +
-    "and the Elements Quad bundle are sold in person at local flea markets. Card payments go through Square."
+    "and the Elements Quad bundle are sold in person at local flea markets. Card payments go through Bluevine Tap to Pay (Stripe)."
   );
+}
+
+/** @deprecated Use fleaMarketBluevineSummary. */
+export function fleaMarketSquareSummary(): string {
+  return fleaMarketBluevineSummary();
 }
