@@ -8,7 +8,7 @@ import { db } from "./db";
 // creates the tables (`runMigrations` from the catalog sync library, used purely as
 // local storage) — there is NO live Stripe integration and no Stripe account is
 // ever contacted. The catalog is populated by `ensureCatalogData()` and
-// payments run entirely through Square. This accessor just reads that local
+// website checkout runs through Stripe; in-person through Bluevine. This accessor reads that local
 // catalog; it replaces the removed Stripe-specific storage layer.
 export class CatalogStorage {
   // Every active product joined to its active price, used to build the full

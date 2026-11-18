@@ -20,7 +20,7 @@ import {
 } from "@shared/elementsDuo";
 import {
   FLEA_MARKET_ELEMENTS_LINES,
-  fleaMarketSquareSummary,
+  fleaMarketBluevineSummary,
 } from "@shared/inPersonSales";
 import { groupProductVariants } from "@/lib/productVariants";
 import { Card, CardContent } from "@/components/ui/card";
@@ -171,7 +171,7 @@ export default function Elements() {
                     Local Flea Markets
                   </h2>
                   <p className="text-muted-foreground mt-1">
-                    {fleaMarketSquareSummary()}
+                    {fleaMarketBluevineSummary()}
                   </p>
                 </div>
               </div>
@@ -190,7 +190,7 @@ export default function Elements() {
               </ul>
               <p className="text-xs text-muted-foreground text-center mt-6">
                 Online orders on this site checkout with Stripe. In-person flea market
-                and hot dog sales use Square.
+                and hot dog sales use Bluevine Tap to Pay (linked to the same Stripe account).
               </p>
             </CardContent>
           </Card>

@@ -38,7 +38,7 @@ export interface StorefrontProduct {
 // Collapses products that share a (case-insensitive) name down to a single
 // entry, preferring the one with a real price, then lowest sortOrder/price.
 // The catalog can hold duplicate rows from past imports; the storefront only
-// ever shows one per name, and the Square mirror must do the same.
+// ever shows one per name, and Stripe / Bluevine mirrors must do the same.
 export function dedupeByName<T extends {
   title: string;
   priceId?: string | null;
@@ -70,8 +70,8 @@ export function dedupeByName<T extends {
 
 // Where the product list came from. `db` is the authoritative catalog tables;
 // `unavailable` means the DB read failed or returned nothing. Destructive
-// reconciliation (e.g. the Square mirror pruning removed items) must ONLY trust
-// `db` so a transient DB hiccup can never wipe the Square catalog.
+// reconciliation (e.g. Stripe catalog pruning) must ONLY trust `db` so a
+// transient DB hiccup can never wipe the live Stripe catalog.
 export type StorefrontSource = "db" | "unavailable";
 
 export interface StorefrontProductsResult {
@@ -81,8 +81,8 @@ export interface StorefrontProductsResult {
 
 // Builds the full, deduped list of products the storefront sells, and reports
 // which source produced it. Reads from the catalog tables in the app's own
-// database, hiding products flagged `hidden`. There is no Stripe account
-// involved; payments run through Square.
+// database, hiding products flagged `hidden`. Website checkout uses Stripe;
+// in-person sales use Bluevine (Stripe-linked).
 export async function getStorefrontProductsDetailed(): Promise<StorefrontProductsResult> {
   let rows: any[] = [];
   try {
@@ -141,7 +141,7 @@ export async function getStorefrontProductsDetailed(): Promise<StorefrontProduct
 }
 
 // Builds the full, deduped list of products the storefront sells. Single source
-// of truth shared by the `/api/products` route and the Square mirror.
+// of truth shared by `/api/products`, Stripe catalog sync, and Bluevine export.
 export async function getStorefrontProducts(): Promise<StorefrontProduct[]> {
   return (await getStorefrontProductsDetailed()).products;
 }

@@ -1,18 +1,22 @@
 import { Link, useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   Activity,
   BarChart3,
   CheckCircle2,
+  Download,
   ExternalLink,
   LayoutDashboard,
   Loader2,
   Lock,
   MessageSquare,
+  RefreshCw,
   ShoppingBag,
   Users,
   Wallet,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BrandSectionBanner from "@/components/BrandSectionBanner";
@@ -103,10 +107,21 @@ function healthBadge(health: "ok" | "degraded" | "down") {
   );
 }
 
+type StripeSyncResult = {
+  created: number;
+  updated: number;
+  priceRotated: number;
+  archived: number;
+  skipped: number;
+  total: number;
+};
+
 export default function BackOffice() {
   const [, navigate] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [lastStripeSync, setLastStripeSync] = useState<StripeSyncResult | null>(null);
 
   const { data, isLoading, error, refetch, isFetching } = useQuery<BackOfficeOverview>({
     queryKey: ["/api/back-office/overview"],
@@ -120,6 +135,62 @@ export default function BackOffice() {
     enabled: isAuthenticated,
     retry: false,
   });
+
+  const syncStripeCatalog = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/stripe/sync-catalog");
+      return (await res.json()) as StripeSyncResult;
+    },
+    onSuccess: (result) => {
+      setLastStripeSync(result);
+      toast({
+        title: "Stripe catalog synced",
+        description: `Created ${result.created}, updated ${result.updated}, prices rotated ${result.priceRotated}, skipped coming-soon ${result.skipped}.`,
+      });
+    },
+    onError: (err: Error) => {
+      toast({
+        title: "Stripe sync failed",
+        description: err.message || "Could not sync catalog to Stripe.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  async function downloadBluevineCsv() {
+    try {
+      const res = await fetch("/api/admin/bluevine/catalog.csv", {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Download failed");
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const filename = match?.[1] || "bluevine-items-catalog.csv";
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      toast({
+        title: "Bluevine Items CSV ready",
+        description:
+          "Open Bluevine → Sales → Items and enter the rows. Body care (butter lotion, washes, deodorant) is listed first.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "CSV download failed",
+        description: err?.message || "Could not export catalog.",
+        variant: "destructive",
+      });
+    }
+  }
 
   const updateFeedback = useMutation({
     mutationFn: async (input: { id: string; status: "new" | "in_progress" | "resolved" }) => {
@@ -359,6 +430,55 @@ export default function BackOffice() {
               </div>
 
               {data?.google && <GoogleSearchSetupCard google={data.google} />}
+
+              <Card className="mt-8" data-testid="card-bluevine-catalog">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingBag className="h-5 w-5 text-primary" />
+                    Bluevine Items + Stripe Catalog
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm">
+                  <p className="text-muted-foreground">
+                    Full sellable catalog for Bluevine Sales → Items (butter lotion,
+                    triple butter, body washes, deodorant, and everything else on the
+                    site). Bluevine has no Items API, so download the CSV and enter
+                    rows there. Sync to Stripe keeps the linked payment account aligned.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => void downloadBluevineCsv()}
+                      data-testid="button-download-bluevine-csv"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Bluevine Items CSV
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={syncStripeCatalog.isPending}
+                      onClick={() => syncStripeCatalog.mutate()}
+                      data-testid="button-sync-stripe-catalog"
+                    >
+                      {syncStripeCatalog.isPending ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                      )}
+                      Sync catalog to Stripe
+                    </Button>
+                  </div>
+                  {lastStripeSync ? (
+                    <p className="text-xs text-muted-foreground" data-testid="text-stripe-sync-result">
+                      Last Stripe sync — created {lastStripeSync.created}, updated{" "}
+                      {lastStripeSync.updated}, prices rotated {lastStripeSync.priceRotated},
+                      archived {lastStripeSync.archived}, skipped coming-soon{" "}
+                      {lastStripeSync.skipped} (of {lastStripeSync.total} export rows).
+                    </p>
+                  ) : null}
+                </CardContent>
+              </Card>
 
               <div className="grid gap-6 lg:grid-cols-2 mt-8">
                 <Card>
