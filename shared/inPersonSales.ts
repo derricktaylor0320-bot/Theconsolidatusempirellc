@@ -28,8 +28,13 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
   {
     name: "Scented Butter Lotion",
     detail:
-      "Scents match our 3-in-1 washes — Cocoa Mango, Island Tranquility, and 100% Avocado Oil",
+      "4 oz jars — wash-matched scents plus everyday profiles (Apple Pear, Ocean Breeze, and more)",
     pricing: butterLotionPricingLabel(),
+  },
+  {
+    name: "Custom Butter Lotion",
+    detail: "Confidence in a Jar — eight signature custom scents (4 oz)",
+    pricing: "$12 each",
   },
   {
     name: "3-in-1 Body Wash, Shampoo & Conditioner",
@@ -47,7 +52,7 @@ export const FLEA_MARKET_ELEMENTS_LINES = [
 
 export function fleaMarketSquareSummary(): string {
   return (
-    "Natural deodorant, triple whipped body butters, scented butter lotion, 3-in-1 body wash, " +
+    "Natural deodorant, triple whipped body butters, scented butter lotion, custom butter lotion, 3-in-1 body wash, " +
     "and the Elements Quad bundle are sold in person at local flea markets. Card payments go through Square."
   );
 }

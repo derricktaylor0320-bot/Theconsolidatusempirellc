@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import BrandSectionBanner from "@/components/BrandSectionBanner";
+import ButterLotionCollection from "@/components/ButterLotionCollection";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import elementsHealthSectionArt from "@assets/brand/khomplete_khemistri_elements_health_section.png";
@@ -79,9 +80,18 @@ export default function Elements() {
             Health &amp; Skin Care
           </p>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Premium supplements, 3-in-1 body wash, natural deodorant, and body care to support your
+            Premium supplements, 3-in-1 body wash, butter lotion, natural deodorant, and body care to support your
             wellness inside and out. Supplement bottles are 60 count.
           </p>
+        </motion.div>
+
+        <ButterLotionCollection />
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 text-center"
+        >
           {hasCareBasket && (
             <div
               className="mt-8 mx-auto max-w-xl rounded-xl border border-primary/40 bg-primary/5 px-5 py-4"

@@ -17,6 +17,8 @@ import {
 } from "./productImages";
 import { SPA_BASKET_LINE_NAME } from "./luxurySpaBaskets";
 import { BODY_BUTTER_LEGACY_NAME, BODY_BUTTER_LINE_NAME } from "./elementsBodyButter";
+import { BUTTER_LOTION_IMAGE } from "./elementsButterLotion";
+import { CUSTOM_BUTTER_LOTION_IMAGE } from "./elementsCustomButterLotion";
 import {
   ECO_LAUNDRY_SHEETS_32_IMAGE,
   ECO_LAUNDRY_SHEETS_96_IMAGE,
@@ -134,6 +136,17 @@ describe("resolveStorefrontImageUrl", () => {
     assert.equal(
       resolveStorefrontImageUrl("", "Cocoa Mango"),
       BODY_WASH_COCOA_MANGO_IMAGE,
+    );
+  });
+
+  it("infers butter lotion artwork from title when metadata image is empty", () => {
+    assert.equal(
+      resolveStorefrontImageUrl("", "Scented Butter Lotion"),
+      BUTTER_LOTION_IMAGE,
+    );
+    assert.equal(
+      resolveStorefrontImageUrl("", "Custom Butter Lotion"),
+      CUSTOM_BUTTER_LOTION_IMAGE,
     );
   });
 

@@ -24,12 +24,25 @@ import {
   bodyButterUnitPriceDollars,
 } from "@shared/elementsBodyButter";
 import {
+  BUTTER_LOTION_IMAGE,
   BUTTER_LOTION_LINE_NAME,
   BUTTER_LOTION_PRICE_ID,
   BUTTER_LOTION_PRODUCT_ID,
   BUTTER_LOTION_SCENT_OPTIONS,
   BUTTER_LOTION_UNIT_PRICE_CENTS,
+  butterLotionUnitPriceDollars,
 } from "@shared/elementsButterLotion";
+import {
+  CUSTOM_BUTTER_LOTION_BLURB,
+  CUSTOM_BUTTER_LOTION_IMAGE,
+  CUSTOM_BUTTER_LOTION_LINE_NAME,
+  CUSTOM_BUTTER_LOTION_PRICE_ID,
+  CUSTOM_BUTTER_LOTION_PRODUCT_ID,
+  CUSTOM_BUTTER_LOTION_SCENT_OPTIONS,
+  CUSTOM_BUTTER_LOTION_TAGLINE,
+  CUSTOM_BUTTER_LOTION_UNIT_PRICE_CENTS,
+  customButterLotionUnitPriceDollars,
+} from "@shared/elementsCustomButterLotion";
 import { RETIRED_COCOA_SHEA_PRODUCT_NAMES } from "@shared/elementsRetired";
 import {
   SPA_BASKET_LINE_NAME,
@@ -346,9 +359,9 @@ const BODY_BUTTER_META = {
 
 const BUTTER_LOTION_NAME = BUTTER_LOTION_LINE_NAME;
 const BUTTER_LOTION_PRICE_CENTS = BUTTER_LOTION_UNIT_PRICE_CENTS;
-const BUTTER_LOTION_IMAGE_PATH = BODY_BUTTER_IMAGE;
+const BUTTER_LOTION_IMAGE_PATH = BUTTER_LOTION_IMAGE;
 const BUTTER_LOTION_DESCRIPTION =
-  "Khomplete Khemistri Elements Scented Butter Lotion — daily moisturizer in scents that match our 3-in-1 body washes (Cocoa Mango, Island Tranquility, and 100% Avocado Oil). $12 per bottle. Pairs with our 3-in-1 Triple Butter Base Formula and 3-in-1 body wash lineup.";
+  `Khomplete Khemistri Elements Scented Butter Lotion — daily moisturizer in a 4 oz jar. Wash-matched scents pair with our 3-in-1 body washes (Cocoa Mango, Island Tranquility, 100% Avocado Oil, and Men's Energizing Scent), plus everyday profiles like Apple Pear, Ocean Breeze, Lavender and Camomile, and more. $${butterLotionUnitPriceDollars()} per jar (was $12). Pairs with our 3-in-1 Triple Butter Base Formula and 3-in-1 body wash lineup.`;
 const BUTTER_LOTION_META = {
   category: "Body Care",
   productType: "accessory",
@@ -357,6 +370,21 @@ const BUTTER_LOTION_META = {
   scentOptions: BUTTER_LOTION_SCENT_OPTIONS,
   imageUrl: BUTTER_LOTION_IMAGE_PATH,
   sortOrder: "128",
+  gender: "Unisex",
+};
+
+const CUSTOM_BUTTER_LOTION_NAME = CUSTOM_BUTTER_LOTION_LINE_NAME;
+const CUSTOM_BUTTER_LOTION_PRICE_CENTS = CUSTOM_BUTTER_LOTION_UNIT_PRICE_CENTS;
+const CUSTOM_BUTTER_LOTION_DESCRIPTION =
+  `Khomplete Khemistri ${CUSTOM_BUTTER_LOTION_LINE_NAME} — ${CUSTOM_BUTTER_LOTION_TAGLINE}. ${CUSTOM_BUTTER_LOTION_BLURB} Eight signature 4 oz jars: Delicious Vulva, Velvet Desire, Sinful Seduction, Sovereign Wood, Dark Chemistry, Next Morning, Khomplete Khemistri, and Pure Havoc. $${customButterLotionUnitPriceDollars()} per jar.`;
+const CUSTOM_BUTTER_LOTION_META = {
+  category: "Body Care",
+  productType: "accessory",
+  customize: "none",
+  scented: "true",
+  scentOptions: CUSTOM_BUTTER_LOTION_SCENT_OPTIONS,
+  imageUrl: CUSTOM_BUTTER_LOTION_IMAGE,
+  sortOrder: "129",
   gender: "Unisex",
 };
 
@@ -1389,7 +1417,7 @@ const DEODORANT_PRODUCTS: {
   },
 ];
 
-// Elements Quad — 3-in-1 wash ($10) + triple body butter ($20) + butter lotion ($12) + deodorant ($12).
+// Elements Quad — 3-in-1 wash ($10) + triple body butter ($20) + butter lotion ($10) + deodorant ($12).
 const ELEMENTS_DUO_DESCRIPTION =
   `Khomplete Khemistri Elements Quad — one 8 oz 3-in-1 body wash, shampoo & conditioner; one 4 oz ${BODY_BUTTER_LINE_NAME} jar; one scented butter lotion; and one natural deodorant stick (2.5 oz). $${elementsDuoPriceDollars()} for the set (save $${elementsDuoSavingsDollars()} vs $${elementsDuoSeparateDollars()} purchased separately). Choose your wash, body butter scent, butter lotion scent, and deodorant at checkout.`;
 const ELEMENTS_DUO_META = {
@@ -2867,7 +2895,12 @@ export async function ensureCatalogData() {
     await db.execute(sql`
       UPDATE stripe.products
       SET _raw_data = jsonb_set(
-            jsonb_set(_raw_data, '{description}', ${JSON.stringify(BUTTER_LOTION_DESCRIPTION)}::jsonb, true),
+            jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(BUTTER_LOTION_DESCRIPTION)}::jsonb, true),
+              '{images}',
+              ${JSON.stringify([BUTTER_LOTION_IMAGE_PATH])}::jsonb,
+              true
+            ),
             '{metadata}',
             COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({
               ...BUTTER_LOTION_META,
@@ -2877,6 +2910,37 @@ export async function ensureCatalogData() {
           ),
           _updated_at = now()
       WHERE (name = ${BUTTER_LOTION_NAME} OR id = ${BUTTER_LOTION_PRODUCT_ID}) AND active = true
+    `);
+
+    await ensureSyntheticProduct({
+      accountId,
+      productId: CUSTOM_BUTTER_LOTION_PRODUCT_ID,
+      priceId: CUSTOM_BUTTER_LOTION_PRICE_ID,
+      name: CUSTOM_BUTTER_LOTION_NAME,
+      description: CUSTOM_BUTTER_LOTION_DESCRIPTION,
+      priceCents: CUSTOM_BUTTER_LOTION_PRICE_CENTS,
+      meta: CUSTOM_BUTTER_LOTION_META,
+      created,
+    });
+
+    await db.execute(sql`
+      UPDATE stripe.products
+      SET _raw_data = jsonb_set(
+            jsonb_set(
+              jsonb_set(_raw_data, '{description}', ${JSON.stringify(CUSTOM_BUTTER_LOTION_DESCRIPTION)}::jsonb, true),
+              '{images}',
+              ${JSON.stringify([CUSTOM_BUTTER_LOTION_IMAGE])}::jsonb,
+              true
+            ),
+            '{metadata}',
+            COALESCE(_raw_data->'metadata', '{}'::jsonb) || ${JSON.stringify({
+              ...CUSTOM_BUTTER_LOTION_META,
+              scentOptions: CUSTOM_BUTTER_LOTION_SCENT_OPTIONS,
+            })}::jsonb,
+            true
+          ),
+          _updated_at = now()
+      WHERE (name = ${CUSTOM_BUTTER_LOTION_NAME} OR id = ${CUSTOM_BUTTER_LOTION_PRODUCT_ID}) AND active = true
     `);
 
     // 6) Custom phone cases ($30, model + logo). Same self-applying pattern as

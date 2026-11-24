@@ -8,6 +8,8 @@ import {
   MACHINE_CLEANER_TABLETS_IMAGE,
 } from "./homeCareLaundry";
 import { SEA_MOSS_GELS } from "./elementsSeaMossGels";
+import { BUTTER_LOTION_IMAGE } from "./elementsButterLotion";
+import { CUSTOM_BUTTER_LOTION_IMAGE } from "./elementsCustomButterLotion";
 export const BEDDING_COMFORTER_IMAGE = "/assets/kk_bedding_set_blue_silver.jpeg";
 export const BEDDING_SHEET_IMAGE = "/assets/kk_bedding_set_blue_silver.jpeg";
 export const BEDDING_PILLOWCASE_IMAGE = "/assets/kk_pillowcase_set_blue_silver.jpeg";
@@ -68,7 +70,8 @@ const TITLE_IMAGE_OVERRIDES: Array<{ pattern: RegExp; imageUrl: string }> = [
   },
   { pattern: /(?:core\s*4|elements care basket)/i, imageUrl: BODY_WASH_DEFAULT_IMAGE },
   { pattern: /elements (duo|trio|quad)/i, imageUrl: BODY_WASH_DEFAULT_IMAGE },
-  { pattern: /scented butter lotion/i, imageUrl: BODY_WASH_COCOA_MANGO_IMAGE },
+  { pattern: /^\s*scented butter lotion\s*$/i, imageUrl: BUTTER_LOTION_IMAGE },
+  { pattern: /^\s*custom butter lotion\s*$/i, imageUrl: CUSTOM_BUTTER_LOTION_IMAGE },
   { pattern: /cocoa\s*&\s*shea\s*butter/i, imageUrl: BODY_WASH_COCOA_SHEA_IMAGE },
   { pattern: /100%\s*avocado\s*oil|avocado\s*oil/i, imageUrl: BODY_WASH_AVOCADO_IMAGE },
   {

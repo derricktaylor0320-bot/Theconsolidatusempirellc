@@ -3,8 +3,8 @@
  * 1× 3-in-1 body wash, 1× triple-whipped body butter, 1× scented butter lotion,
  * 1× natural deodorant.
  *
- * Individually: $10 + $20 + $12 + $12 = $54.
- * Bundle price: $48 (save $6).
+ * Individually: $10 + $20 + $10 + $12 = $52.
+ * Bundle price: $48 (save $4).
  *
  * Four scent choices are pipe-delimited in `selectedScent`:
  *   wash|butterScent|lotionScent|deodorant
