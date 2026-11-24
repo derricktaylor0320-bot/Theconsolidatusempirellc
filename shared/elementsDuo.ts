@@ -2,8 +2,8 @@
  * Elements Quad — 3-in-1 body wash (8 oz) + triple whipped body butter (4 oz) +
  * scented butter lotion + natural deodorant (2.5 oz).
  *
- * Individually: $10 wash + $20 butter + $12 lotion + $12 deodorant = $54.
- * Online bundle: $50 (save $4, ~7% off).
+ * Individually: $10 wash + $20 butter + $10 lotion + $12 deodorant = $52.
+ * Online bundle: $50 (save $2).
  * In-person flea markets may use $36 (see inPersonSales.ts).
  *
  * Wash, body butter, lotion, and deodorant choices are pipe-delimited in

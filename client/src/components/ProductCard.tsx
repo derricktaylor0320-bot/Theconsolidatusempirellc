@@ -18,8 +18,17 @@ import {
 } from "@shared/elementsCareBasket";
 import {
   BUTTER_LOTION_SCENT_NAMES,
+  butterLotionPricingLabel,
   butterLotionScentForWash,
+  butterLotionScentNotes,
+  butterLotionUnitPriceDollars,
+  isElementsButterLotionProduct,
 } from "@shared/elementsButterLotion";
+import {
+  customButterLotionPricingLabel,
+  customButterLotionScentNotes,
+  isElementsCustomButterLotionProduct,
+} from "@shared/elementsCustomButterLotion";
 import {
   ELEMENTS_DUO_WASH_OPTIONS,
   elementsDuoSavingsDollars,
@@ -110,6 +119,8 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
   const isCareBasket = isElementsCareBasketProduct(priceId, title);
   const isDeodorant = isElementsDeodorantProduct(priceId, title);
   const isBodyButter = isElementsBodyButterProduct(priceId, title);
+  const isButterLotion = isElementsButterLotionProduct(priceId, title);
+  const isCustomButterLotion = isElementsCustomButterLotionProduct(priceId, title);
   const needsScent = scentChoices.length > 0 && !isCareBasket && !isDuo;
   const needsWash = isDuo || isCareBasket;
   const needsButterScent = isCareBasket || isDuo;
@@ -762,8 +773,8 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     data-testid={`text-lotion-note-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {isCareBasket
-                      ? "Choose your scented butter lotion — included in the bundle. Scents match your 3-in-1 wash (except Men's Energizing)."
-                      : "Choose your scented butter lotion — $12 bottle, included in the Quad."}
+                      ? "Choose your scented butter lotion — included in the bundle. Wash-matched and everyday scents available."
+                      : `Choose your scented butter lotion — $${butterLotionUnitPriceDollars()} jar, included in the Quad.`}
                   </p>
                   <Select value={selectedLotion} onValueChange={(v) => { setSelectedLotion(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
@@ -773,15 +784,18 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                       <SelectValue placeholder="Choose your butter lotion scent *" />
                     </SelectTrigger>
                     <SelectContent>
-                      {BUTTER_LOTION_SCENT_NAMES.map((choice) => (
-                        <SelectItem
-                          key={choice}
-                          value={choice}
-                          data-testid={`option-lotion-${choice.toLowerCase().replace(/\s+/g, '-')}`}
-                        >
-                          {choice}
-                        </SelectItem>
-                      ))}
+                      {BUTTER_LOTION_SCENT_NAMES.map((choice) => {
+                        const notes = butterLotionScentNotes(choice);
+                        return (
+                          <SelectItem
+                            key={choice}
+                            value={choice}
+                            data-testid={`option-lotion-${choice.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            {notes ? `${choice} — ${notes}` : choice}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -794,7 +808,11 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                   >
                     {isBodyButter
                       ? `Choose your ${scentNoun} — ${bodyButterPricingLabel()}.`
-                      : `Choose your ${scentNoun} to complete your order.`}
+                      : isButterLotion
+                        ? `Choose your ${scentNoun} — ${butterLotionPricingLabel()}.`
+                        : isCustomButterLotion
+                          ? `Choose your ${scentNoun} — ${customButterLotionPricingLabel()}.`
+                          : `Choose your ${scentNoun} to complete your order.`}
                   </p>
                   <Select value={selectedScent} onValueChange={(v) => { setSelectedScent(v); setErrorMessage(""); }} disabled={soldOut}>
                     <SelectTrigger
@@ -805,8 +823,13 @@ export default function ProductCard({ image: baseImage, title: baseTitle, price:
                     </SelectTrigger>
                     <SelectContent>
                       {scentChoices.map((choice) => {
-                        const notes =
-                          (isBodyButter || isDuo) ? bodyButterScentNotes(choice) : undefined;
+                        const notes = (isBodyButter || isDuo)
+                          ? bodyButterScentNotes(choice)
+                          : isButterLotion
+                            ? butterLotionScentNotes(choice)
+                            : isCustomButterLotion
+                              ? customButterLotionScentNotes(choice)
+                              : undefined;
                         return (
                         <SelectItem
                           key={choice}

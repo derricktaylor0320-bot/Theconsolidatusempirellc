@@ -43,12 +43,29 @@ import {
   isElementsCareBasketProduct,
 } from "@shared/elementsCareBasket";
 import {
+  BUTTER_LOTION_IMAGE,
+  BUTTER_LOTION_MATCHING_SETS_IMAGE,
   BUTTER_LOTION_SCENT_NAMES,
+  BUTTER_LOTION_SCENTS,
   butterLotionPricingLabel,
   butterLotionScentForWash,
+  butterLotionScentNotes,
   butterLotionUnitPriceDollars,
+  butterLotionWasPriceDollars,
   isElementsButterLotionProduct,
 } from "@shared/elementsButterLotion";
+import {
+  CUSTOM_BUTTER_LOTION_BLURB,
+  CUSTOM_BUTTER_LOTION_IMAGE,
+  CUSTOM_BUTTER_LOTION_LINE_NAME,
+  CUSTOM_BUTTER_LOTION_SCENTS,
+  CUSTOM_BUTTER_LOTION_TAGLINE,
+  customButterLotionPricingLabel,
+  customButterLotionScentKeywords,
+  customButterLotionScentNotes,
+  customButterLotionUnitPriceDollars,
+  isElementsCustomButterLotionProduct,
+} from "@shared/elementsCustomButterLotion";
 import {
   ELEMENTS_DUO_WASH_OPTIONS,
   elementsDuoPriceDollars,
@@ -163,6 +180,107 @@ export default function ProductDetail() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function ButterLotionScentGuideSection() {
+  return (
+    <section className="max-w-4xl mx-auto mt-16" data-testid="section-butter-lotion-scents">
+      <div className="rounded-xl border border-primary/25 bg-black/20 p-6 md:p-8">
+        <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wider text-primary mb-4">
+          Scented Butter Lotion
+        </h2>
+        <p className="text-secondary-foreground/80 leading-relaxed mb-6">
+          Daily moisturizer in a 4 oz jar — now ${butterLotionUnitPriceDollars()}{" "}
+          <span className="line-through text-muted-foreground/80">
+            ${butterLotionWasPriceDollars()}
+          </span>
+          . Wash-matched scents pair with our 3-in-1 body wash; everyday profiles cover every mood.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
+            <img
+              src={BUTTER_LOTION_MATCHING_SETS_IMAGE}
+              alt="3-in-1 body wash with matching butter lotion sets"
+              className="object-cover w-full h-full"
+              data-testid="img-butter-lotion-matching-sets"
+            />
+          </div>
+          <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
+            <img
+              src={BUTTER_LOTION_IMAGE}
+              alt="Butter lotion scent collection jars"
+              className="object-cover w-full h-full"
+              data-testid="img-butter-lotion-collection"
+            />
+          </div>
+        </div>
+        <ul className="space-y-3">
+          {BUTTER_LOTION_SCENTS.map((scent) => (
+            <li
+              key={scent.name}
+              className="flex gap-3"
+              data-testid={`lotion-scent-${scent.name.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <p className="text-secondary-foreground/80 leading-relaxed">
+                <span className="font-semibold text-foreground">{scent.name}:</span>{" "}
+                {scent.notes}
+                {scent.tagline ? (
+                  <span className="block text-xs uppercase tracking-wide text-muted-foreground mt-0.5">
+                    {scent.tagline}
+                  </span>
+                ) : null}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function CustomButterLotionScentGuideSection() {
+  return (
+    <section className="max-w-4xl mx-auto mt-16" data-testid="section-custom-butter-lotion-scents">
+      <div className="rounded-xl border border-primary/25 bg-black/20 p-6 md:p-8">
+        <h2 className="font-display text-2xl md:text-3xl font-bold uppercase tracking-wider text-primary mb-2">
+          {CUSTOM_BUTTER_LOTION_LINE_NAME}
+        </h2>
+        <p className="text-sm uppercase tracking-[0.2em] text-primary mb-4">
+          {CUSTOM_BUTTER_LOTION_TAGLINE}
+        </p>
+        <p className="text-secondary-foreground/80 leading-relaxed mb-6">
+          {CUSTOM_BUTTER_LOTION_BLURB} ${customButterLotionUnitPriceDollars()} per 4 oz jar.
+        </p>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted mb-8">
+          <img
+            src={CUSTOM_BUTTER_LOTION_IMAGE}
+            alt="Khomplete Khemistri Custom Butter Lotion Line scent lids"
+            className="object-cover w-full h-full"
+            data-testid="img-custom-butter-lotion-line"
+          />
+        </div>
+        <ul className="space-y-3">
+          {CUSTOM_BUTTER_LOTION_SCENTS.map((scent) => (
+            <li
+              key={scent.name}
+              className="flex gap-3"
+              data-testid={`custom-lotion-scent-${scent.name.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <p className="text-secondary-foreground/80 leading-relaxed">
+                <span className="font-semibold text-foreground">{scent.name}:</span>{" "}
+                {scent.notes}
+                <span className="block text-xs uppercase tracking-wide text-muted-foreground mt-0.5">
+                  {scent.keywords}
+                </span>
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 
@@ -424,6 +542,10 @@ function ProductDetailContent({
   const needsDeodorantPick = isCareBasket || isDuo;
   const needsLotionPick = isCareBasket || isDuo;
   const isButterLotion = isElementsButterLotionProduct(product.priceId, product.title);
+  const isCustomButterLotion = isElementsCustomButterLotionProduct(
+    product.priceId,
+    product.title,
+  );
   const showScentNotes = isBodyButter || isDuo || isCareBasket;
   const variantSiblings = useMemo(() => {
     if (!product.variantGroup) return [];
@@ -721,6 +843,8 @@ function ProductDetailContent({
         )}
 
         {showScentNotes && <BodyButterScentGuideSection />}
+        {isButterLotion && <ButterLotionScentGuideSection />}
+        {isCustomButterLotion && <CustomButterLotionScentGuideSection />}
       </motion.div>
     );
   }
@@ -865,7 +989,14 @@ function ProductDetailContent({
             ) : isBodyButter ? (
               <>${bodyButterUnitPriceDollars().toFixed(2)}</>
             ) : isButterLotion ? (
-              <>${butterLotionUnitPriceDollars().toFixed(2)}</>
+              <>
+                <span className="mr-3 text-lg text-muted-foreground line-through font-normal">
+                  ${butterLotionWasPriceDollars().toFixed(2)}
+                </span>
+                ${butterLotionUnitPriceDollars().toFixed(2)}
+              </>
+            ) : isCustomButterLotion ? (
+              <>${customButterLotionUnitPriceDollars().toFixed(2)}</>
             ) : (
               <>${effectiveUnitPrice.toFixed(2)}</>
             )}
@@ -883,7 +1014,12 @@ function ProductDetailContent({
           )}
           {isButterLotion && (
             <p className="text-sm text-primary mb-6" data-testid="text-detail-butter-lotion-pricing">
-              {butterLotionPricingLabel()}
+              {butterLotionPricingLabel()} — was ${butterLotionWasPriceDollars()}
+            </p>
+          )}
+          {isCustomButterLotion && (
+            <p className="text-sm text-primary mb-6" data-testid="text-detail-custom-butter-lotion-pricing">
+              {customButterLotionPricingLabel()} — {CUSTOM_BUTTER_LOTION_TAGLINE}
             </p>
           )}
           {isBodyButter && (
@@ -1191,7 +1327,13 @@ function ProductDetailContent({
                   <div className="flex flex-wrap gap-2">
                     {scentChoices.map((scent) => {
                       const active = selectedScent === scent;
-                      const notes = showScentNotes ? bodyButterScentNotes(scent) : undefined;
+                      const notes = showScentNotes
+                        ? bodyButterScentNotes(scent)
+                        : isButterLotion
+                          ? butterLotionScentNotes(scent)
+                          : isCustomButterLotion
+                            ? customButterLotionScentNotes(scent)
+                            : undefined;
                       return (
                         <button
                           key={scent}
@@ -1225,6 +1367,19 @@ function ProductDetailContent({
                       {showScentNotes && bodyButterScentNotes(selectedScent) ? (
                         <p className="text-muted-foreground" data-testid="text-detail-scent-notes">
                           {bodyButterScentNotes(selectedScent)}
+                        </p>
+                      ) : null}
+                      {isButterLotion && butterLotionScentNotes(selectedScent) ? (
+                        <p className="text-muted-foreground" data-testid="text-detail-lotion-scent-notes">
+                          {butterLotionScentNotes(selectedScent)}
+                        </p>
+                      ) : null}
+                      {isCustomButterLotion && customButterLotionScentNotes(selectedScent) ? (
+                        <p className="text-muted-foreground" data-testid="text-detail-custom-lotion-scent-notes">
+                          {customButterLotionScentNotes(selectedScent)}
+                          {customButterLotionScentKeywords(selectedScent)
+                            ? ` · ${customButterLotionScentKeywords(selectedScent)}`
+                            : ""}
                         </p>
                       ) : null}
                     </div>
@@ -1592,6 +1747,8 @@ function ProductDetailContent({
       )}
 
       {showScentNotes && <BodyButterScentGuideSection />}
+      {isButterLotion && <ButterLotionScentGuideSection />}
+      {isCustomButterLotion && <CustomButterLotionScentGuideSection />}
 
       {soldOut && alternatives.length > 0 && (
         <section className="max-w-6xl mx-auto mt-20" data-testid="section-alternatives">
